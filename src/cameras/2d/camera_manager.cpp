@@ -272,7 +272,7 @@ std::vector<GameObject*> CameraManager::getVisibleChildren (
 	return visible_;
 }
 
-void Camera* resetAll ()
+void Camera* CameraManager::resetAll ()
 {
 	cameras.clear();
 
@@ -281,7 +281,7 @@ void Camera* resetAll ()
 	return main;
 }
 
-void update (Uint32 time_, Uint32 delta_)
+void CameraManager::update (Uint32 time_, Uint32 delta_)
 {
 	for (auto& camera_ : cameras)
 		camera_.update(time_, delta_);

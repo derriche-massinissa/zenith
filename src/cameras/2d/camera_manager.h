@@ -12,6 +12,7 @@
 #include <functional>
 #include <string>
 
+#include "camera_config.h"
 #include "../../geom/rectangle.h"
 #include "../../structs/size.h"
 #include "../../input/pointer.h""

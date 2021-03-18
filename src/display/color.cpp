@@ -10,9 +10,10 @@
 namespace Zen {
 namespace Display {
 
-Color::Color (int red_, int green_, int blue_, int alpha_)
+Color::Color (int red_, int green_, int blue_, int alpha_, validity_)
 {
 	setTo(red_, green_, blue_, alpha_);
+	valid = validity_;
 }
 
 Color& Color::transparent ()

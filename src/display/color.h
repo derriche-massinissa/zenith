@@ -32,7 +32,7 @@ public:
 	 * @param blue_ The blue color value. A number between 0 and 255.
 	 * @param alpha_ The red value. A number between 0 and 255.
 	 */
-	Color (int red_ = 0, int green_ = 0, int blue_ = 0, int alpha_ = 255);
+	Color (int red_ = 0, int green_ = 0, int blue_ = 0, int alpha_ = 255, validity_ = true);
 
 	/**
 	 * Is this a valid color?
