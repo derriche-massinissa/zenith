@@ -42,13 +42,12 @@ namespace Zen {
 		 */
 		const std::string key = "default";
 
-
 		/**
 		 * The Scene Systems.
 		 *
 		 * @since 0.0.0
 		 */
-		SceneSystems sys;
+		SceneSystems sys(*this);
 
 		/**
 		 * A reference to the Zenith Game instance.
@@ -127,7 +126,7 @@ namespace Zen {
 
 		//InputPlugin input;
 
-		//LoaderPlugin load;
+		LoaderPlugin load(*this);
 
 		//ClockPlugin time;
 

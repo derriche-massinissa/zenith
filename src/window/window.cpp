@@ -202,7 +202,7 @@ void Window::cleanup (T t, Args&&... args)
 }
 
 // Specializations
-	template<>
+template<>
 void Window::cleanup<CLEANUP> (CLEANUP c)
 {
 	switch (c) {
@@ -223,14 +223,14 @@ void Window::cleanup<CLEANUP> (CLEANUP c)
 	}
 }
 
-	template<>
+template<>
 void Window::cleanup<SDL_Window*> (SDL_Window *win)
 {
 	if (!win) return;
 	SDL_DestroyWindow(win);
 }
 
-	template<>
+template<>
 void Window::cleanup<SDL_Renderer*> (SDL_Renderer *ren)
 {
 	if (!ren) return;

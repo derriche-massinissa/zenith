@@ -17,6 +17,7 @@
 #include "../data.h"
 #include "../event/event_emitter.h"
 #include "../utils/json.h"
+#include "sprite_sheet_config.h"
 
 namespace Zen {
 namespace Textures {
@@ -208,7 +209,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addSpriteSheetFromAtlas (std::string key, SpriteSheetFromAtlasConfig config);
+	Texture* addSpriteSheetFromAtlas (std::string key, SpriteSheetConfig config);
 
 	/**
 	 * Creates a new Texture using the given source and dimensions.

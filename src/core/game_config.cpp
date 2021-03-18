@@ -10,25 +10,6 @@
 namespace Zen {
 namespace Core {
 
-GameConfig::GameConfig ()
-	: width(640)
-	, height(480)
-	, zoom(1.0)
-	, scaleMode(SCALE_MODE::RESIZE)
-	, fullscreen(false)
-	, minWidth(0)
-	, maxWidth(0)
-	, minHeight(0)
-	, maxHeight(0)
-	, title("Zenith")
-	, version("1.0.0")
-	, inputKeyboard(true)
-	, inputMouse(true)
-	, antialias(true)
-	, pixelArt(false)
-	, loaderPath("")
-{}
-
 GameConfig& GameConfig::setWidth (int w)
 {
 	width = w;
@@ -187,6 +168,13 @@ GameConfig& GameConfig::setBackgroundColor (
 GameConfig& GameConfig::setLoaderPath (std::string path)
 {
 	loaderPath = path;
+
+	return *this;
+}
+
+GameConfig& GameConfig::setLoaderPrefix (std::string prefix)
+{
+	loaderPrefix = prefix;
 
 	return *this;
 }

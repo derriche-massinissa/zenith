@@ -9,6 +9,8 @@
 #define LOADER_PLUGIN_H
 
 #include <vector>
+#include "../messages.h"
+#include "../texture/sprite_sheet_config.h"
 
 namespace Zen {
 namespace Loader {
@@ -16,7 +18,15 @@ namespace Loader {
 class LoaderPlugin
 {
 public:
-	LoaderPlugin ();
+	/**
+	 * @since 0.0.0
+	 */
+	LoaderPlugin (Scene& scene);
+
+	/**
+	 * @since 0.0.0
+	 */
+	~LoaderPlugin ();
 
 	/**
 	 * The Scene which owns this Loader instance.
@@ -104,15 +114,62 @@ public:
     LoaderPlugin& setPrefix (std::string prefix = "");
 
 	/**
-	 * Image loading.
+	 * Load a simple image file.
 	 *
 	 * @since 0.0.0
 	 */
 	LoaderPlugin& image (std::string key, std::string path);
+
+	/**
+	 * Load an atlas texture.
+	 *
+	 * @since 0.0.0
+	 */
 	LoaderPlugin& atlas (std::string key, std::string texturePath, std::string atlasPath);
+
+	/**
+	 * Load a multi-atlas texture.
+	 *
+	 * It is basically a single atlas JSON config file with multiple image files.
+	 *
+	 * @since 0.0.0
+	 */
 	LoaderPlugin& multiatlas (std::string key, std::string atlasPath, std::string path);
+
+	/**
+	 * Load a spritesheet.
+	 *
+	 * @since 0.0.0
+	 */
+	LoaderPlugin& spritesheet (std::string key, std::string path, SpriteSheetConfig config);
+
+	/**
+	 * Load an audio file.
+	 *
+	 * @since 0.0.0
+	 */
 	LoaderPlugin& audio (std::string key, std::string path);
+
+	/**
+	 * Load a font file.
+	 *
+	 * @since 0.0.0
+	 */
 	LoaderPlugin& font (std::string key, std::string path);
+
+	/**
+	 * Resets the loader, reseting it's path and prefix too.
+	 *
+	 * @since 0.0.0
+	 */
+	void reset ();
+
+	/**
+	 * Cleans up when the owning scene is shutting down.
+	 *
+	 * @since 0.0.0
+	 */
+	void shutdown ();
 };
 
 }	// namespace Loader

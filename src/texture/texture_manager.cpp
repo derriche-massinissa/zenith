@@ -240,7 +240,7 @@ Texture* TextureManager::addSpriteSheet (std::string key, std::string path, Spri
 	return texture;
 }
 
-Texture* TextureManager::addSpriteSheetFromAtlas (std::string key, SpriteSheetFromAtlasConfig config)
+Texture* TextureManager::addSpriteSheetFromAtlas (std::string key, SpriteSheetConfig config)
 {
 	if (!checkKey(key))
 		return nullptr;

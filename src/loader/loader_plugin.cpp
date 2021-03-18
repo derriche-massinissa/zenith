@@ -10,13 +10,36 @@
 namespace Zen {
 namespace Loader {
 
-LoaderPlugin::LoaderPlugin ();
+LoaderPlugin::LoaderPlugin (Scene& scene)
+	: scene_(scene)
+	, textureManager_(scene.textures)
+	, sceneManager_(scene.game.scene)
+	, prefix_(scene.game.config.loaderPrefix)
+	, path_(scene.game.config.loaderPath)
+{}
 
-void pluginStart ();
+LoaderPlugin::~LoaderPlugin ()
+{
+	shutdown();
+}
 
-LoaderPlugin& LoaderPlugin::setPath (std::string path = "");
+void pluginStart ()
+{
+	scene_.sys.events.once("SYS_SHUTDOWN", &LoaderPlugin::shutdown, this);
+}
 
-LoaderPlugin& LoaderPlugin::setPrefix (std::string prefix = "");
+LoaderPlugin& LoaderPlugin::setPath (std::string path = "")
+{
+	if (!path_.empty() && path_.back() != "/")
+		path_.append("/");
+
+	return *this;
+}
+
+LoaderPlugin& LoaderPlugin::setPrefix (std::string prefix = "")
+{
+	prefix_ = prefix;
+}
 
 LoaderPlugin& LoaderPlugin::image (std::string key, std::string path)
 {
@@ -39,7 +62,8 @@ LoaderPlugin& LoaderPlugin::multiatlas (std::string key, std::string atlasPath, 
 	// Open data file
 	std::fstream file (atlasPath, std::ios::in);
 
-	if (!file) {
+	if (!file)
+	{
 		messageError("Atlas file failed to open: ", atlasPath);
 		return *this;
 	}
@@ -59,14 +83,38 @@ LoaderPlugin& LoaderPlugin::multiatlas (std::string key, std::string atlasPath, 
 	return *this;
 }
 
+LoaderPlugin& LoaderPlugin::spritesheet (std::string key, std::string path, SpriteSheetConfig config)
+{
+	textureManager_.addSpriteSheet(key, path, config);
+
+	return *this;
+}
+
 LoaderPlugin& LoaderPlugin::audio (std::string key, std::string path)
 {
+	messageWarning("Audio is not yet implemented!");
+
 	return *this;
 }
 
 LoaderPlugin& LoaderPlugin::font (std::string key, std::string path)
 {
+	messageWarning("Fonts and text are not yet implemented!");
+
 	return *this;
+}
+
+void LoaderPlugin::reset ()
+{
+	setPath(scene.game.config.loaderPath);
+	setPrefix(scene.game.config.loaderPrefix);
+}
+
+void LoaderPlugin::shutdown ()
+{
+	reset();
+
+	scene_.sys.events.off("SYS_SHUTDOWN", &LoaderPlugin::shutdown, this);
 }
 
 }	// namespace Loader

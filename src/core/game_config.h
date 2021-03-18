@@ -24,11 +24,6 @@ namespace Core {
 class GameConfig
 {
 public:
-	/**
-	 * @since 0.0.0
-	 */
-	GameConfig ();
-
 	// Setters
 	/**
 	 * Sets the window width member variable.
@@ -109,17 +104,17 @@ public:
 	 * @param t A single scene instance.
 	 */
 	template <typename T>
-		GameConfig& addScene ()
-		{
-			sceneFactory.emplace(
-					[] (Game& g) -> std::unique_ptr<T>
-					{
+	GameConfig& addScene ()
+	{
+		sceneFactory.emplace(
+			[] (Game& g) -> std::unique_ptr<T>
+				{
 					return std::make_unique<T> (g);
-					}
-					);
+				}
+			);
 
-			return *this;
-		}
+		return *this;
+	}
 
 	/**
 	 * Add one or more scene to the scenes vector.
@@ -128,13 +123,13 @@ public:
 	 * @param t A scene instance.
 	 */
 	template <typename T, typename... Args>
-		GameConfig& addScenes ()
-		{
-			addScene<T>();
-			addScenes<Args...>();
+	GameConfig& addScenes ()
+	{
+		addScene<T>();
+		addScenes<Args...>();
 
-			return *this;
-		}
+		return *this;
+	}
 
 	/**
 	 * Sets the title of the window.
@@ -215,9 +210,19 @@ public:
 	 * Sets the relative loader path, for resource loading.
 	 *
 	 * @since 0.0.0
+	 *
 	 * @param path The resource path, relative to the executable.
 	 */
 	GameConfig& setLoaderPath (std::string path);
+
+	/**
+	 * Sets the relative loader path, for resource loading.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param prefix The resource path, relative to the executable.
+	 */
+	GameConfig& setLoaderPrefix (std::string prefix);
 
 	// Member variables
 	/**
@@ -225,35 +230,35 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	int width;
+	int width = 640;
 
 	/**
 	 * The height of the window, in pixels.
 	 *
 	 * @since 0.0.0
 	 */
-	int height;
+	int height = 480;
 
 	/**
 	 * The zoom factor, as used by the Scale Manager.
 	 *
 	 * @since 0.0.0
 	 */
-	float zoom;
+	float zoom = 1.0;
 
 	/** 
 	 * The scale mode, as used by the Scale Manager.
 	 *
 	 * @since 0.0.0
 	 */
-	SCALE_MODE scaleMode;
+	SCALE_MODE scaleMode SCALE_MODE::RESIZE;
 
 	/**
 	 * Indicates if the window starts at fullscreen;
 	 *
 	 * @since 0.0.0
 	 */
-	bool fullscreen;
+	bool fullscreen = false;
 
 	/**
 	 * The minimum width, in pixels, the window will scale down to. A value of
@@ -261,7 +266,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	int minWidth;
+	int minWidth = 0;
 
 	/**
 	 * The maximum width, in pixels, the window will scale up to. A value of
@@ -269,7 +274,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	int maxWidth;
+	int maxWidth = 0;
 
 	/**
 	 * The minimum height, in pixels, the window will scale down to. A value of
@@ -277,7 +282,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	int minHeight;
+	int minHeight = 0;
 
 	/**
 	 * The maximum height, in pixels, the window will scale up to. A value of
@@ -285,7 +290,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	int maxHeight;
+	int maxHeight = 0;
 
 	/**
 	 * A queue of functors responsible for making and returning a 
@@ -294,21 +299,20 @@ public:
 	 * @since 0.0.0
 	 */
 	std::queue<std::function<std::unique_ptr<Scene>(Game&)>> sceneFactory;
-	//std::vector<std::shared_ptr<Scene>> scenes;
 
 	/**
 	 * The title of the window.
 	 *
 	 * @since 0.0.0
 	 */
-	std::string title;
+	std::string title = "Zenith";
 
 	/**
 	 * The version of the game.
 	 *
 	 * @since 0.0.0
 	 */
-	std::string version;
+	std::string version = "1.0.0";
 
 	/**
 	 * Enable the keyboard plugin. This can be disabled in games that don't
@@ -316,7 +320,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	bool inputKeyboard;
+	bool inputKeyboard = true;
 
 	/**
 	 * Enable the mouse plugin. This can be disabled in games that don't
@@ -324,7 +328,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	bool inputMouse;
+	bool inputMouse = true;
 
 	/**
 	 * Enable antialiasing will make textures look smoother by using a linear
@@ -333,7 +337,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	bool antialias;
+	bool antialias = true;
 
 	/**
 	 * This will just set all the antialiasing options, regardless of the
@@ -341,7 +345,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	bool pixelArt;
+	bool pixelArt = false;
 
 	/**
 	 * Whether the renderer will be cleared between each rendering frame. You can
@@ -363,7 +367,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::string loaderPath;
+	std::string loaderPath = "";
+
+	/**
+	 * A prefix to add to every file loaded.
+	 *
+	 * @since 0.0.0
+	 */
+	std::string loaderPrefix = "";
 
 	// Default / Missing Images
 	std::string pngPrefix = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAg";
