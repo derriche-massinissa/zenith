@@ -69,7 +69,7 @@ void Game::start ()
 	//events.on("blur", std::bind(&Game::onBlur, this));
 	//events.on("focus", std::bind(&Game::onFocus, this));
 
-	events.once("SYS_QUIT", &Game::shutdown, this);
+	window.once("quit", &Game::shutdown, this);
 
 	// Start the main game loop
 	loop.start(std::bind(

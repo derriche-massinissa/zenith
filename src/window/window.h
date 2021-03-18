@@ -13,10 +13,12 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 #include <utility>
+#include <string>
 
 #include "../messages.h"
 #include "../core/game_config.h"
 #include "../const.h"
+#include "../event/event_emitter.h"
 
 // Forward declaration
 #include "../core/game.fwd.h"
@@ -31,7 +33,7 @@ namespace Zen {
  *
  * @param g The Game instance.
  */
-class Window
+class Window : public EventEmitter
 {
 public:
 	Window (Game& g);
@@ -197,6 +199,22 @@ public:
 	 */
 	template<typename T, typename... Args>
 		void cleanup (T t, Args&&... args);
+
+	Window& setTitle (std::string title);
+
+	Window& setFullscreen (bool flag = true);
+
+	bool isMinimized ();
+
+	bool isFocused ();
+	
+	bool isPointerIn ();
+
+	bool minimized = false;
+
+	bool focused = false;
+
+	bool pointerIn = false;
 };
 
 /**

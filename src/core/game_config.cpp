@@ -24,13 +24,6 @@ GameConfig& GameConfig::setHeight (int h)
 	return *this;
 }
 
-GameConfig& GameConfig::setZoom (float z)
-{
-	zoom = z;
-
-	return *this;
-}
-
 GameConfig& GameConfig::setScaleMode (SCALE_MODE sm)
 {
 	scaleMode = sm;
@@ -44,58 +37,6 @@ GameConfig& GameConfig::setFullscreen (bool flag)
 
 	return *this;
 }
-
-GameConfig& GameConfig::setMinWidth (int mw)
-{
-	minWidth = mw;
-
-	return *this;
-}
-
-GameConfig& GameConfig::setMaxWidth (int mw)
-{
-	maxWidth = mw;
-
-	return *this;
-}
-
-GameConfig& GameConfig::setMinHeight (int mh)
-{
-	minHeight = mh;
-
-	return *this;
-}
-
-GameConfig& GameConfig::setMaxHeight (int mh)
-{
-	maxHeight = mh;
-
-	return *this;
-}
-
-/*
-template <typename T>
-GameConfig& GameConfig::addScene ()
-{
-	sceneFactory.emplace(
-		[] (Game& g) -> std::unique_ptr<T>
-		{
-			return std::make_unique<T> (g);
-		}
-	);
-
-	return *this;
-}
-
-template <typename T, typename... Args>
-GameConfig& GameConfig::addScenes ()
-{
-	addScene<T>();
-	addScenes<Args...>();
-
-	return *this;
-}
-*/
 
 GameConfig& GameConfig::setTitle (std::string t)
 {

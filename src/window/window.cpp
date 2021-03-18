@@ -122,7 +122,7 @@ int Window::createWindow ()
 			SDL_WINDOWPOS_UNDEFINED,
 			config.width,
 			config.height,
-			SDL_WINDOW_SHOWN
+			SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 			);
 	if (window_ == nullptr) {
 		messageError("Window could not be created: %s\n", SDL_GetError());
@@ -238,13 +238,95 @@ void Window::handleSDLEvents ()
 {
 	SDL_Event event;
 
-	while (SDL_PollEvent(&event)) {
-		switch (event.type) {
+	while (SDL_PollEvent(&event))
+	{
+		switch (event.type)
+		{
 			case SDL_QUIT:
-				game.events.emit("SYS_QUIT");
+				emit("quit");
+				break;
+
+			case SDL_WINDOWEVENT:
+				switch (e.window.event)
+				{
+					case SDL_WINDOWEVENT_SIZE_CHANGED:
+						emit("resize", e.window.data1, e.window.data2);
+						break;
+
+					case SDL_WINDOWEVENT_EXPOSED:
+						emit("expose");
+						break;
+
+					case SDL_WINDOWEVENT_ENTER:
+						pointerIn = true;
+						emit("pointerin");
+						break;
+
+					case SDL_WINDOWEVENT_LEAVE:
+						pointerIn = false;
+						emit("pointerout");
+						break;
+
+					case SDL_WINDOWEVENT_FOCUS_GAINED:
+						focused = true;
+						emit("focus");
+						break;
+
+					case SDL_WINDOWEVENT_FOCUS_LOST:
+						focused = false;
+						emit("blur");
+						break;
+
+					case SDL_WINDOWEVENT_MINIMIZED:
+						minimized = true;
+						emit("minimize");
+						break;
+
+					case SDL_WINDOWEVENT_MAXIMIZED:
+						minimized = false;
+						emit("maximize");
+						break;
+
+					case SDL_WINDOWEVENT_RESTORED:
+						minimized = false;
+						emit("restore");
+						break;
+				}
 				break;
 		}
 	}
+}
+
+Window& setTitle (std::string title)
+{
+	SDL_SetWindowTitle(window_, title.c_str());
+
+	return *this;
+}
+
+Window& setFullscreen (bool flag = true)
+{
+	if (flag)
+		SDL_SetWindowFullscreen(window_, SDL_TRUE);
+	else
+		SDL_SetWindowFullscreen(window_, SDL_FALSE);
+
+	return *this;
+}
+
+bool isMinimized ()
+{
+	return minimized;
+}
+
+bool isFocused ()
+{
+	return focused;
+}
+
+bool isPointerIn ()
+{
+	return pointerIn;
 }
 
 }	// namespace Zen

@@ -8,8 +8,15 @@
 #ifndef SCALE_MANAGER_H
 #define SCALE_MANAGER_H
 
+#include "../const.h"
+#include "../structs/size.h"
+#include "../event/event_emitter.h"
+#include "../math/math.h"
+#include "../math/vector2.h"
+
 namespace Zen {
 namespace Scale {
+
 /**
  * @class ScaleManager
  * The Scale Manager handles the scaling, resizing and alignment of the
@@ -27,23 +34,23 @@ namespace Scale {
  * property. The default is "NONE", which prevents the scaling of the game
  * at all.
  *
- * ### Centering
- *
  * @since 0.0.0
- * @param config - The game config object.
  */
-class ScaleManager
-	: public EventEmitter
+class ScaleManager : public EventEmitter
 {
 public:
-	ScaleManager (Game& game, Config config);
-	~ScaleManager ();
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param game - The Game instance.
+	 */
+	ScaleManager (Game& game);
 
-	void preBoot (config);
+	/**
+	 * @since 0.0.0
+	 */
+	~ScaleManager (Game& game);
 
-	void boot ();
-
-private:
 	/**
 	 * A reference to the Game instance.
 	 *
@@ -69,16 +76,6 @@ private:
 	Structs::Size gameSize_;
 
 	/**
-	 * The Base Size component.
-	 *
-	 * The modified game size, which is used to set the canvas width and
-	 * height.
-	 *
-	 * @since 0.0.0
-	 */
-	Structs::Size baseSize_;
-
-	/**
 	 * The Display Size component.
 	 *
 	 * The display size (Typically the window's size), factoring in the
@@ -93,41 +90,19 @@ private:
 	 *
 	 * @since 0.0.0
 	 */
-	MODE scaleMode_ = MODE::NONE;
-
-	/**
-	 * The game zoom factor.
-	 *
-	 * This value allows you to multiply your game base size by the given
-	 * zoom factor. This is then used when calculating the display size,
-	 * even in "NONE" situations.
-	 * Leave it on "1" for no zooms.
-	 * Set to "0" for auto zoom, in which case the zoom value will be
-	 * derived based on the game size and available space within the
-	 * window.
-	 *
-	 * @since 0.0.0
-	 */
-	double zoom_ = 1;
-
-	/**
-	 * Internal flag set when the game zoom factor is modified.
-	 *
-	 * @since 0.0.0
-	 */
-	bool resetZoom_ = false;
+	SCALE_MODE scaleMode_ = MODE::NONE;
 
 	/**
 	 * The scale factor between the baseSize and the canvasBounds.
 	 *
 	 * @since 0.0.0
 	 */
-	Math::Vector2f displayScale_ {1.0, 1.0};
+	Math::Vector2 displayScale_ {1.0, 1.0};
+
+	Math::Vector2 displayOffset_ {1.0, 1.0};
 
 	/**
 	 * The current device orientation.
-	 *
-	 * Orientation events are dispatched via the Device Orientation API, typically only on mobile browsers.
 	 *
 	 * @since 0.0.0
 	 */
@@ -171,8 +146,29 @@ private:
      *
      * @param config The Game configuration object.
      */
-    void parseConfig (GameConfig config);
-}	// class ScaleManager
+    void parseConfig ();
+
+	void setGameSize (int width, int height);
+
+	void resize (int width ,int height);
+
+	void refresh (int previousWidth, int previousHeight);
+
+	void updateScale ();
+
+	void updateOffset ();
+
+	int transformX (int windowX);
+
+	int transformY (int windowY);
+
+	void startListeners ();
+
+	void stopListeners ();
+
+	void onResize (int width, int height);
+
+};	// class ScaleManager
 }	// namespace Scale
 }	// namespace Zen
 

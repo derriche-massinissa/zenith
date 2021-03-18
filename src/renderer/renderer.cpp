@@ -132,6 +132,9 @@ void Renderer::preRender ()
 
 void Renderer::render (Scene& scene, std::vector<GameObjects::GameObject*> children, Cameras::Scene2D::Camera& camera)
 {
+	if (window.isMinimized())
+		return;
+
 	emit("SYS_RENDER");
 
 	SDL_Rect c;
@@ -511,11 +514,16 @@ void Renderer::batchSprite (
 	// Render the texture
 	SDL_Rect source {frameX, frameY, frameWidth, frameHeight};
 
+	// ScaleManager values
+	float sScale = 1.0;
+	int sOffsetX = 0;
+	int sOffsetY = 0;
+
 	SDL_Rect destination;
-	destination.x = x + dm.translateX;
-	destination.y = y + dm.translateY;
-	destination.w = (frameWidth / res) * dm.scaleX;
-	destination.h = (frameHeight / res) * dm.scaleY;
+	destination.x = x + dm.translateX + sOffsetX;
+	destination.y = y + dm.translateY + sOffsetY;
+	destination.w = (frameWidth / res) * dm.scaleX * sScale;
+	destination.h = (frameHeight / res) * dm.scaleY * sScale;
 
 	double angle = dm.rotation;
 
