@@ -1,5 +1,5 @@
 /**
- * @file		loader_plugin.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -10,12 +10,12 @@
 namespace Zen {
 namespace Loader {
 
-LoaderPlugin::LoaderPlugin (Scene& scene)
-	: scene_(scene)
-	, textureManager_(scene.textures)
-	, sceneManager_(scene.game.scene)
-	, prefix_(scene.game.config.loaderPrefix)
-	, path_(scene.game.config.loaderPath)
+LoaderPlugin::LoaderPlugin (Scene& scene_)
+	: scene (scene_)
+	, textureManager (scene_.textures)
+	, sceneManager (scene_.game.scene)
+	, prefix (scene_.game.config.loaderPrefix)
+	, path (scene_.game.config.loaderPath)
 {}
 
 LoaderPlugin::~LoaderPlugin ()
@@ -23,81 +23,85 @@ LoaderPlugin::~LoaderPlugin ()
 	shutdown();
 }
 
-void pluginStart ()
+void LoaderPlugin::pluginStart ()
 {
-	scene_.sys.events.once("SYS_SHUTDOWN", &LoaderPlugin::shutdown, this);
+	scene.sys.events.once("shutdown", &LoaderPlugin::shutdown, this);
 }
 
-LoaderPlugin& LoaderPlugin::setPath (std::string path = "")
+LoaderPlugin& LoaderPlugin::setPath (std::string path_ = "")
 {
 	if (!path_.empty() && path_.back() != "/")
 		path_.append("/");
 
-	return *this;
-}
-
-LoaderPlugin& LoaderPlugin::setPrefix (std::string prefix = "")
-{
-	prefix_ = prefix;
-}
-
-LoaderPlugin& LoaderPlugin::image (std::string key, std::string path)
-{
-	textureManager_.addImage(key, path);
+	path = path_;
 
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::atlas (std::string key, std::string texturePath, std::string atlasPath)
+LoaderPlugin& LoaderPlugin::setPrefix (std::string prefix_ = "")
 {
-	textureManager_.addAtlas(key, texturePath, atlasPath);
+	prefix = prefix_;
 
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::multiatlas (std::string key, std::string atlasPath, std::string path = "")
+LoaderPlugin& LoaderPlugin::image (std::string key_, std::string path_)
 {
-	std::vector<std::string> sources;
+	textureManager.addImage(key_, path_);
+
+	return *this;
+}
+
+LoaderPlugin& LoaderPlugin::atlas (std::string key_, std::string texturePath_, std::string atlasPath_)
+{
+	textureManager.addAtlas(key_, texturePath_, atlasPath_);
+
+	return *this;
+}
+
+LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_, std::string path_ = "")
+{
+	std::vector<std::string> sources_;
 
 	// Open data file
-	std::fstream file (atlasPath, std::ios::in);
+	std::fstream file_ (atlasPath_, std::ios::in);
 
-	if (!file)
+	if (!file_)
 	{
-		messageError("Atlas file failed to open: ", atlasPath);
+		messageError("Atlas file failed to open: ", atlasPath_);
 		return *this;
 	}
 
 	// Create a JSON object
-	nlohmann::json data;
-	file >> data;
+	nlohmann::json data_;
+	file >> data_;
 
 	// Close file
-	file.close();
+	file_.close();
 
-	for (const auto& fileName : data["textures"])
-		sources.emplace_back(path + fileName);
+	for (const auto& fileName_ : data_["textures"])
+		sources_.emplace_back(path_ + fileName_);
 
-	textureManager_.addAtlas(key, sources, atlasPath);
+	textureManager.addAtlas(key_, sources_, atlasPath_);
 
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::spritesheet (std::string key, std::string path, SpriteSheetConfig config)
+LoaderPlugin& LoaderPlugin::spritesheet (std::string key_, std::string path_, SpriteSheetConfig config_)
 {
-	textureManager_.addSpriteSheet(key, path, config);
+	textureManager.addSpriteSheet(key_, path_, config_);
 
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::audio (std::string key, std::string path)
+LoaderPlugin& LoaderPlugin::audio (std::string key_, std::string path_)
 {
 	messageWarning("Audio is not yet implemented!");
 
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::font (std::string key, std::string path)
+LoaderPlugin& LoaderPlugin::font (std::string key_, std::string path_)
 {
 	messageWarning("Fonts and text are not yet implemented!");
 
@@ -114,7 +118,7 @@ void LoaderPlugin::shutdown ()
 {
 	reset();
 
-	scene_.sys.events.off("SYS_SHUTDOWN", &LoaderPlugin::shutdown, this);
+	scene.sys.events.off("shutdown", &LoaderPlugin::shutdown, this);
 }
 
 }	// namespace Loader

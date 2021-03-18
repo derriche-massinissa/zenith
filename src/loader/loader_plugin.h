@@ -1,12 +1,12 @@
 /**
- * @file		loader_plugin.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef LOADER_PLUGIN_H
-#define LOADER_PLUGIN_H
+#ifndef ZEN_LOADER_LOADER_PLUGIN_H
+#define ZEN_LOADER_LOADER_PLUGIN_H
 
 #include <vector>
 #include "../messages.h"
@@ -20,8 +20,10 @@ class LoaderPlugin
 public:
 	/**
 	 * @since 0.0.0
+	 *
+	 * @param scene_ The Scene this LoaderPlugin belongs to.
 	 */
-	LoaderPlugin (Scene& scene);
+	LoaderPlugin (Scene& scene_);
 
 	/**
 	 * @since 0.0.0
@@ -33,21 +35,21 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scene& scene_;
+	Scene& scene;
 
 	/**
 	 * A reference to the global Texture Manager.
 	 *
 	 * @since 0.0.0
 	 */
-	TextureManager& textureManager_;
+	TextureManager& textureManager;
 
 	/**
 	 * A reference to the global Scene Manager.
 	 *
 	 * @since 0.0.0
 	 */
-	SceneManager& sceneManager_;
+	SceneManager& sceneManager;
 
 	/**
 	 * An optional prefix that is automatically prepended to the start of every 
@@ -61,7 +63,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::string prefix_ = "";
+	std::string prefix = "";
 
 	/**
 	 * The value of `path`, if set, is placed before any _relative_ file path 
@@ -78,7 +80,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::string path_ = "";
+	std::string path = "";
 
 	/**
 	 * This method is called automatically by the Scene when it is starting up.
@@ -92,40 +94,40 @@ public:
 	void pluginStart ();
 
 	/**
-	 * Sets the path_ member.
+	 * Sets the path member.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param path The path to use. Leave empty to reset.
+	 * @param path_ The path to use. Leave empty to reset.
 	 *
 	 * @return This LoaderPlugin object.
 	 */
-    LoaderPlugin& setPath (std::string path = "");
+    LoaderPlugin& setPath (std::string path_ = "");
 
 	/**
-	 * Sets the prefix_ member.
+	 * Sets the prefix member.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param path The prefix to use. Leave empty to reset.
+	 * @param prefix_ The prefix to use. Leave empty to reset.
 	 *
 	 * @return This LoaderPlugin object.
 	 */
-    LoaderPlugin& setPrefix (std::string prefix = "");
+    LoaderPlugin& setPrefix (std::string prefix_ = "");
 
 	/**
-	 * Load a simple image file.
+	 * Load an image file.
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& image (std::string key, std::string path);
+	LoaderPlugin& image (std::string key_, std::string path_);
 
 	/**
 	 * Load an atlas texture.
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& atlas (std::string key, std::string texturePath, std::string atlasPath);
+	LoaderPlugin& atlas (std::string key_, std::string texturePath_, std::string atlasPath_);
 
 	/**
 	 * Load a multi-atlas texture.
@@ -134,28 +136,28 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& multiatlas (std::string key, std::string atlasPath, std::string path);
+	LoaderPlugin& multiatlas (std::string key_, std::string atlasPath_, std::string path_);
 
 	/**
 	 * Load a spritesheet.
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& spritesheet (std::string key, std::string path, SpriteSheetConfig config);
+	LoaderPlugin& spritesheet (std::string key_, std::string path_, SpriteSheetConfig config_);
 
 	/**
 	 * Load an audio file.
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& audio (std::string key, std::string path);
+	LoaderPlugin& audio (std::string key_, std::string path_);
 
 	/**
 	 * Load a font file.
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& font (std::string key, std::string path);
+	LoaderPlugin& font (std::string key_, std::string path_);
 
 	/**
 	 * Resets the loader, reseting it's path and prefix too.
