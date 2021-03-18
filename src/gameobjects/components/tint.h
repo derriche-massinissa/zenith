@@ -8,6 +8,8 @@
 #ifndef ZEN_GAMEOBJECTS_COMPONENT_TINT_H
 #define ZEN_GAMEOBJECTS_COMPONENT_TINT_H
 
+#include "../../display/color.h"
+
 namespace Zen {
 namespace GameObjects {
 namespace Components {
@@ -36,6 +38,8 @@ public:
 
 	T& setTint (int topLeft_ = 0xffffff, int topRight_ = -1, int bottomLeft_ = -1, int bottomRight_ = -1)
 	{
+		tint.setFromHex(topLeft_);
+
 		tintTopLeft = topLeft_;
 
 		if (topRight_ < 0)
@@ -70,6 +74,7 @@ public:
 			);
 	}
 
+	Display::Color tint;
 	int tintTopLeft = 0xffffff;
 	int tintTopRight = 0xffffff;
 	int tintBottomLeft = 0xffffff;

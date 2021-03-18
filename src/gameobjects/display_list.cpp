@@ -15,7 +15,7 @@
 namespace Zen {
 namespace GameObjects {
 
-void DisplayList::add (std::unique_ptr<GameObject> gameObject_)
+GameObject* DisplayList::add (std::unique_ptr<GameObject> gameObject_)
 {
 	GameObject* obj_ = gameObject_.get();
 
@@ -31,6 +31,8 @@ void DisplayList::add (std::unique_ptr<GameObject> gameObject_)
 	queueDepthSort();
 
 	obj_->emit("added-to-scene");
+
+	return obj_;
 }
 
 void DisplayList::remove (GameObject* gameObject_)

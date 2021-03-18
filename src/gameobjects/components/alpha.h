@@ -65,16 +65,13 @@ public:
 	 *
 	 * @return This Game Object instance.
 	 */
-	T& setAlpha (double topLeft_ = 1, double topRight_ = -1, double bottomLeft_ = -1, double bottomRight_ = -1)
+	T& setAlpha (double topLeft_, double topRight_, double bottomLeft_, double bottomRight_)
 	{
-		if (topRight_ == -1) {
-			alpha = 1.0;
-		} else {
-			alphaTL = Math::clamp(topLeft_, 0.0, 1.0);
-			alphaTR = Math::clamp(topRight_, 0.0, 1.0);
-			alphaBL = Math::clamp(bottomLeft_, 0.0, 1.0);
-			alphaBR = Math::clamp(bottomRight_, 0.0, 1.0);
-		}
+		alpha = topLeft_;
+		alphaTL = Math::clamp(topLeft_, 0.0, 1.0);
+		alphaTR = Math::clamp(topRight_, 0.0, 1.0);
+		alphaBL = Math::clamp(bottomLeft_, 0.0, 1.0);
+		alphaBR = Math::clamp(bottomRight_, 0.0, 1.0);
 
 		return *This();
 	}
@@ -86,18 +83,18 @@ public:
 	 *
 	 * @return Alpha value.
 	 */
-	double getAlpha () { return alpha; }
-	double getAlphaTopLeft () { return alphaTL; }
-	double getAlphaTopRight () { return alphaTR; }
-	double getAlphaBottomLeft () { return alphaBL; }
-	double getAlphaBottomRight () { return alphaBR; }
+	double getAlpha				()	const	{ return alpha;   }
+	double getAlphaTopLeft		()	const	{ return alphaTL; }
+	double getAlphaTopRight		()	const	{ return alphaTR; }
+	double getAlphaBottomLeft	() 	const 	{ return alphaBL; }
+	double getAlphaBottomRight	() 	const 	{ return alphaBR; }
 
 	/**
 	 * Sets alpha values.
 	 *
 	 * @since 0.0.0
 	 */
-	T& setAlpha (double value_)
+	T& setAlpha (double value_ = 1.0)
 	{
 		double v_ = Math::clamp(value_, 0.0, 1.0);
 

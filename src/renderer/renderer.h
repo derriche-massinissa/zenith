@@ -10,9 +10,12 @@
 
 #include <SDL2/SDL.h>
 #include <functional>
+#include <map>
 #include <vector>
 #include <cmath>
 #include <algorithm>
+
+#include "../const.h"
 
 #include "../event/event_emitter.h"
 #include "../math/vector2.h"
@@ -181,6 +184,13 @@ public:
 	SDL_BlendMode maskBlendMode;
 
 	/**
+	 * The supported blend modes of this Renderer.
+	 *
+	 * @since 0.0.0
+	 */
+	std::map<BLEND_MODE, SDL_BlendMode> blendModes;
+
+	/**
 	 * The width of the renderer of the window.
 	 *
 	 * @since 0.0.0
@@ -238,6 +248,13 @@ public:
 	 * @since 0.0.0
 	 */
 	void start ();
+
+	/**
+	 * Instantiate all the supported blend modes of this Renderer.
+	 *
+	 * @since 0.0.0
+	 */
+	void createBlendModes ();
 
 	/**
 	 * The event handler that manages the `resize` event dispatched by the Scale Manager.

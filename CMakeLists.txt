@@ -123,6 +123,7 @@ set(zenith_SRCS
 	src/math/deg_to_rad.h
 	src/math/linear.h
 	src/math/random.h
+	src/math/rad_to_deg.h
 	src/math/random_data_generator.h
 	src/math/rotate_around.h
 	src/math/transform_xy.h
@@ -131,12 +132,14 @@ set(zenith_SRCS
 	src/math/clamp.cpp
 	src/math/deg_to_rad.cpp
 	src/math/linear.cpp
+	src/math/rad_to_deg.cpp
 	src/math/random_data_generator.cpp
 	src/math/rotate_around.cpp
 	src/math/transform_xy.cpp
 	src/math/vector2.cpp
 	src/math/wrap.cpp
 
+	src/renderer/blend_modes.cpp
 	src/renderer/renderer.cpp
 	src/renderer/renderer.fwd.h
 	src/renderer/renderer.h

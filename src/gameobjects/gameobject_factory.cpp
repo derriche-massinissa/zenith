@@ -20,9 +20,11 @@ GameObjectFactory::GameObjectFactory (Scene* scene_)
 void GameObjectFactory::boot ()
 {}
 
-void GameObjectFactory::image (int x, int y, std::string key, std::string frame)
+Image& GameObjectFactory::image (int x, int y, std::string key, std::string frame)
 {
-	scene->children.add(std::move( std::make_unique<Image>(scene, x, y, key, frame) ));
+	return *static_cast<Image*> (
+		scene->children.add(std::move( std::make_unique<Image>(scene, x, y, key, frame) ))
+	);
 }
 
 }	//namespace GameObjects

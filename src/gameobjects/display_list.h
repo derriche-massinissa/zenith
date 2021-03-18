@@ -53,7 +53,7 @@ public:
 	 *
 	 * @param gameObject_ A unique pointer to a GameObject instance.
 	 */
-	void add (std::unique_ptr<GameObject> gameObject_);
+	GameObject* add (std::unique_ptr<GameObject> gameObject_);
 
 	/**
 	 * Remove a GameObject instance from the list.
