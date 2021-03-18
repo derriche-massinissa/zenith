@@ -9,52 +9,95 @@
 #define EVENT_LISTENER_H
 
 #include <string>
-#include "../data.h"
 #include <functional>
 
-namespace Zen
+namespace Zen {
+namespace Events {
+
+/**
+ * The interface used for containers to access stored Listener elements.
+ *
+ * @class ListenerBase
+ * @since 0.0.0
+ */
+class ListenerBase
 {
-	class Listener
+private:
+	/**
+	 * A flag indicating if the listener is one timed. If true, it will be
+	 * removed when activating only once.
+	 *
+	 * @since 0.0.0
+	 */
+	bool once;
+
+	/**
+	 * The event this listener is listening to.
+	 *
+	 * @since 0.0.0
+	 */
+	std::string event;
+};
+
+/**
+ * The listener is responsible for holding a callback function, and activate
+ * it when the event listened to is emitted.
+ *
+ * @class Listener
+ * @since 0.0.0
+ */
+template <typename... Args>
+class Listener : public ListenerBase
+{
+public:
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param eventName The event to listen for.
+	 * @param cb The callback function to activate when an event happens.
+	 * @param flag Whether this listener is one timed or not.
+	 */
+	Listener(std::string eventName, std::function<void(Args...)> cb, bool flag)
+		: event(eventName), callback(cb), once(flag)
+	{}
+
+	/**
+	 * Make the listener activate it's callback function.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param args The parameters to pass to the callback function
+	 *
+	 * @return Listener::once member variable, `true` if one time listener, and
+	 * needs to be removed, otherwise `false`.
+	 */
+	bool activate(Args... args)
 	{
-	public:
-		Listener(std::string name, std::function<void(Data)> cb, bool flag);
-		~Listener();
+		callback(args...);
 
-		/**
-		 * Make the listener activate it's callback function.
-		 *
-		 * @since 0.0.0
-		 * @param e A data object to pass to the callback.
-		 * @return `once` member variable, `true` if one time listener, and
-		 * needs to be removed, otherwise `false`.
-		 */
-		bool activate(Data e);
+		return once;
+	}
 
-		std::function<void(Data)> getCallback ();
+	/**
+	 * Returns the callback functor of this Listener.
+	 *
+	 * @return The callback of this Listener.
+	 */
+	std::function<void(Args...)> getCallback ()
+	{
+		return callback;
+	}
 
-	private:
-		/**
-		 * A flag indicating if the listener is one timed. If true, it will be
-		 * removed when activating only once.
-		 *
-		 * @since 0.0.0
-		 */
-		bool once;
+private:
+	/**
+	 * The callback function to use if the corresponding event is emitted.
+	 *
+	 * @since 0.0.0
+	 */
+	std::function<void(Args...)> callback;
+};
 
-		/**
-		 * The event this listener is listening to.
-		 *
-		 * @since 0.0.0
-		 */
-		std::string eventName;
-
-		/**
-		 * The callback function to use if the corresponding event is emitted.
-		 *
-		 * @since 0.0.0
-		 */
-		std::function<void(Data)> callback;
-	};
-}
+}	// namespace Events
+}	// namespace Zen
 
 #endif
