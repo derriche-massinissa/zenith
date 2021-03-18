@@ -44,8 +44,8 @@ Size& Size::setMin (unsigned int width_, unsigned int height_)
 	if (height_ == 0)
 		height_ = width_;
 
-	minWidth = Math::clamp((int)width_, 0, (int)maxWidth);
-	minHeight = Math::clamp((int)height_, 0, (int)maxHeight);
+	minWidth = Math::clamp(width_, 0, maxWidth);
+	minHeight = Math::clamp(height_, 0, maxHeight);
 
 	return setSize(width, height);
 }
@@ -116,12 +116,12 @@ Size& Size::resize (unsigned int width_, unsigned int height_)
 
 unsigned int Size::getNewWidth (unsigned int value_)
 {
-	return Math::clamp((int)value_, (int)minWidth, (int)maxWidth);
+	return Math::clamp(value_, minWidth, maxWidth);
 }
 
 unsigned int Size::getNewHeight (unsigned int value_)
 {
-	return Math::clamp((int)value_, (int)minHeight, (int)maxHeight);
+	return Math::clamp(value_, minHeight, maxHeight);
 }
 
 Size& Size::constrain (unsigned int width_, unsigned int height_, bool fit_)
