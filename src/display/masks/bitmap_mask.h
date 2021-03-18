@@ -1,34 +1,49 @@
 /**
- * @file		bitmap_mask.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef MASK_H
-#define MASK_H
+#ifndef ZEN_DISPLAY_BITMAP_MASK_H
+#define ZEN_DISPLAY_BITMAP_MASK_H
 
 #include "mask.h"
 
 namespace Zen {
 namespace Masks {
 
+/**
+ * @since 0.0.0
+ */
 class BitmapMask : public Mask
 {
 public:
-	BitmapMask (GameObjects:GameObject& renderable);
+	/**
+	 * @since 0.0.0
+	 */
+	BitmapMask (GameObjects:GameObject& renderable_);
 
-	GameObjects::GameObject *maskObject_ = nullptr;
+	/**
+	 * @since 0.0.0
+	 */
+	GameObjects::GameObject *maskObject = nullptr;
 
+	/**
+	 * @since 0.0.0
+	 */
 	void preRender (
-			Renderer *renderer,
-			GameObjects::GameObject *maskedObject,
-			Camera *camera);
+			Renderer *renderer_,
+			GameObjects::GameObject *maskedObject_,
+			Camera *camera_);
 
+	/**
+	 * @since 0.0.0
+	 */
 	void postRender (
-			Renderer *renderer,
-			GameObjects::GameObject *maskedObject = nullptr,
-			Camera *camera = nullptr);
+			Renderer *renderer_,
+			GameObjects::GameObject *maskedObject_ = nullptr,
+			Camera *camera_ = nullptr);
 };
 
 }	// namespace Masks
