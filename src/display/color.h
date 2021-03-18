@@ -1,12 +1,15 @@
 /**
- * @file		color.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef ZEN_DISPLAY_COLOR_H
+#define ZEN_DISPLAY_COLOR_H
+
+#include <algorithm>
+#include <cmath>
 
 namespace Zen {
 namespace Display {
@@ -24,12 +27,12 @@ public:
 	/**
 	 * @since 0.0.0
 	 *
-	 * @param red The red color value. A number between 0 and 255.
-	 * @param green The green color value. A number between 0 and 255.
-	 * @param blue The blue color value. A number between 0 and 255.
-	 * @param alpha The red value. A number between 0 and 255.
+	 * @param red_ The red color value. A number between 0 and 255.
+	 * @param green_ The green color value. A number between 0 and 255.
+	 * @param blue_ The blue color value. A number between 0 and 255.
+	 * @param alpha_ The red value. A number between 0 and 255.
 	 */
-	Color (int red = 0, int green = 0, int blue = 0, int alpha = 255);
+	Color (int red_ = 0, int green_ = 0, int blue_ = 0, int alpha_ = 255);
 
 	/**
 	 * Is this a valid color?
@@ -129,57 +132,57 @@ public:
      *
      * @since 0.0.0
      *
-     * @param red The red color value. A number between 0 and 255.
-     * @param green The green color value. A number between 0 and 255.
-     * @param blue The blue color value. A number between 0 and 255.
-     * @param alpha The alpha value. A number between 0 and 255.
-     * @param updateHSV Update the HSV values after setting the RGB values?
+     * @param red_ The red color value. A number between 0 and 255.
+     * @param green_ The green color value. A number between 0 and 255.
+     * @param blue_ The blue color value. A number between 0 and 255.
+     * @param alpha_ The alpha value. A number between 0 and 255.
+     * @param updateHSV_ Update the HSV values after setting the RGB values?
      *
      * @return This Color object.
      */
-    Color& setTo (int red, int green, int blue, int alpha = 255, bool updateHSV = true);
+    Color& setTo (int red_, int green_, int blue_, int alpha_ = 255, bool updateHSV_ = true);
 
     /**
      * Sets the red, green, blue and alpha GL values of this Color component.
      *
      * @since 0.0.0
      *
-     * @param red - The red color value. A number between 0 and 1.
-     * @param green - The green color value. A number between 0 and 1.
-     * @param blue - The blue color value. A number between 0 and 1.
-     * @param alpha The alpha value. A number between 0 and 1.
+     * @param red_ - The red color value. A number between 0 and 1.
+     * @param green_ - The green color value. A number between 0 and 1.
+     * @param blue_ - The blue color value. A number between 0 and 1.
+     * @param alpha_ The alpha value. A number between 0 and 1.
      *
      * @return This Color object.
      */
-    Color& setGLTo (double red, double green, double blue, double alpha = 1.0);
+    Color& setGLTo (double red_, double green_, double blue_, double alpha_ = 1.0);
 
     /**
      * Sets the color based on the color object given.
      *
      * @since 0.0.0
      *
-     * @param color An object containing `r`, `g`, `b` and optionally `a` values in 
+     * @param color_ An object containing `r`, `g`, `b` and optionally `a` values in 
 	 * the range 0 to 255.
      *
      * @return This Color object.
      */
-    Color& setFromRGB (InputColorObject color);
+    Color& setFromRGB (InputColorObject color_);
 
     /**
      * Sets the color based on the hue, saturation and lightness values given.
      *
      * @since 0.0.0
      *
-     * @param h The hue, in the range 0 - 1. This is the base color.
-     * @param s The saturation, in the range 0 - 1. This controls how much of the 
+     * @param h_ The hue, in the range 0 - 1. This is the base color.
+     * @param s_ The saturation, in the range 0 - 1. This controls how much of the 
 	 * hue will be in the final color, where 1 is fully saturated and 0 will 
 	 * give you white.
-     * @param v The value, in the range 0 - 1. This controls how dark the color is. 
+     * @param v_ The value, in the range 0 - 1. This controls how dark the color is. 
 	 * Where 1 is as bright as possible and 0 is black.
      *
      * @return This Color object.
      */
-    Color& setFromHSV (double h, double s, double v);
+    Color& setFromHSV (double h_, double s_, double v_);
 
     /**
      * Sets the color from the hex value given.
@@ -188,22 +191,22 @@ public:
      *
      * @since 0.0.0
      *
-     * @param hex Hex value to set this color to.
+     * @param hex_ Hex value to set this color to.
      *
      * @return This Color object.
      */
-	Color& setFromHex (unsigned int hex);
+	Color& setFromHex (unsigned int hex_);
 
     /**
      * Updates the internal cache values.
      *
      * @since 0.0.0
 	 *
-	 * @param updateHSV Should the HSV values be updated as well?
+	 * @param updateHSV_ Should the HSV values be updated as well?
      *
      * @return This Color object.
      */
-    Color& update (bool updateHSV = false);
+    Color& update (bool updateHSV_ = false);
 
     /**
      * Updates the internal hsv cache values.
@@ -228,11 +231,11 @@ public:
      *
      * @since 0.0.0
      * 
-     * @param shade A value between 0 and 255.
+     * @param shade_ A value between 0 and 255.
      *
      * @return This Color object.
      */
-    Color& gray (int shade);
+    Color& gray (int shade_);
 
     /**
      * Sets this Color object to be a random color between the `min` and `max` 
@@ -240,12 +243,12 @@ public:
      *
      * @since 0.0.0
      * 
-     * @param min The minimum random color value. Between 0 and 255.
-     * @param max The maximum random color value. Between 0 and 255.
+     * @param min_ The minimum random color value. Between 0 and 255.
+     * @param max_ The maximum random color value. Between 0 and 255.
      *
      * @return This Color object.
      */
-    Color& random (int min = 0, int max = 255);
+    Color& random (int min_ = 0, int max_ = 255);
 
     /**
      * Sets this Color object to be a random grayscale color between the `min` and 
@@ -253,12 +256,12 @@ public:
      *
      * @since 0.0.0
      * 
-     * @param min The minimum random color value. Between 0 and 255.
-     * @param max The maximum random color value. Between 0 and 255.
+     * @param min_ The minimum random color value. Between 0 and 255.
+     * @param max_ The maximum random color value. Between 0 and 255.
      *
      * @return This Color object.
      */
-    Color& randomGray (int min = 0, int max = 255);
+    Color& randomGray (int min_ = 0, int max_ = 255);
 
     /**
      * Increase the saturation of this Color by the percentage amount given.
@@ -266,12 +269,12 @@ public:
      *
      * @since 0.0.0
      * 
-     * @param amount The percentage amount to change this color by. A value
+     * @param amount_ The percentage amount to change this color by. A value
 	 * between 0 and 100.
      *
      * @return This Color object.
      */
-    Color& saturate (int amount);
+    Color& saturate (int amount_);
 
     /**
      * Decrease the saturation of this Color by the percentage amount given.
@@ -279,48 +282,48 @@ public:
      *
      * @since 0.0.0
      * 
-     * @param amount The percentage amount to change this color by. A value
+     * @param amount_ The percentage amount to change this color by. A value
 	 * between 0 and 100.
      *
      * @return This Color object.
      */
-    Color& desaturate (int amount);
+    Color& desaturate (int amount_);
 
     /**
      * Increase the lightness of this Color by the percentage amount given.
      *
      * @since 0.0.0
      * 
-     * @param amount The percentage amount to change this color by. A value
+     * @param amount_ The percentage amount to change this color by. A value
 	 * between 0 and 100.
      *
      * @return This Color object.
      */
-    Color& lighten (int amount);
+    Color& lighten (int amount_);
 
     /**
      * Decrease the lightness of this Color by the percentage amount given.
      *
      * @since 0.0.0
      * 
-     * @param amount The percentage amount to change this color by. A value
+     * @param amount_ The percentage amount to change this color by. A value
 	 * between 0 and 100.
      *
      * @return This Color object.
      */
-    Color& darken (int amount);
+    Color& darken (int amount_);
 
     /**
      * Brighten this Color by the percentage amount given.
      *
      * @since 0.0.0
      * 
-     * @param amount The percentage amount to change this color by. A value
+     * @param amount_ The percentage amount to change this color by. A value
 	 * between 0 and 100.
      *
      * @return This Color object.
      */
-    Color& brighten (int amount);
+    Color& brighten (int amount_);
 
     /**
      * The red color value, normalized to the range 0 to 1.
@@ -363,44 +366,44 @@ public:
      *
      * @since 0.0.0
 	 *
-	 * @param value The new red value.
+	 * @param value_ The new red value.
 	 *
 	 * @return This Color object.
      */
-    Color& redGL (double value);
+    Color& redGL (double value_);
 
     /**
      * The green color value, normalized to the range 0 to 1.
      *
      * @since 0.0.0
 	 *
-	 * @param value The new green value.
+	 * @param value_ The new green value.
 	 *
 	 * @return This Color object.
      */
-    Color& greenGL (double value);
+    Color& greenGL (double value_);
 
     /**
      * The blue color value, normalized to the range 0 to 1.
      *
      * @since 0.0.0
 	 *
-	 * @param value The new blue value.
+	 * @param value_ The new blue value.
 	 *
 	 * @return This Color object.
      */
-    Color& blueGL (double value);
+    Color& blueGL (double value_);
 
     /**
      * The alpha color value, normalized to the range 0 to 1.
      *
      * @since 0.0.0
 	 *
-	 * @param value The new alpha value.
+	 * @param value_ The new alpha value.
 	 *
 	 * @return This Color object.
      */
-    Color& alphaGL (double value);
+    Color& alphaGL (double value_);
 
     /**
      * The red color value, normalized to the range 0 to 255.
@@ -443,7 +446,7 @@ public:
      *
      * @since 0.0.0
 	 *
-	 * @param value The new red color value.
+	 * @param value_ The new red color value.
 	 *
 	 * @return This Color object.
      */
@@ -454,7 +457,7 @@ public:
      *
      * @since 0.0.0
 	 *
-	 * @param value The new green color value.
+	 * @param value_ The new green color value.
 	 *
 	 * @return This Color object.
      */
@@ -465,7 +468,7 @@ public:
      *
      * @since 0.0.0
 	 *
-	 * @param value The new blue color value.
+	 * @param value_ The new blue color value.
 	 *
 	 * @return This Color object.
      */
@@ -476,7 +479,7 @@ public:
      *
      * @since 0.0.0
 	 *
-	 * @param value The new alpha color value.
+	 * @param value_ The new alpha color value.
 	 *
 	 * @return This Color object.
      */
@@ -520,7 +523,7 @@ public:
      *
      * @since 0.0.0
 	 *
-	 * @param value The new hue.
+	 * @param value_ The new hue.
 	 *
 	 * @return This Color object.
      */
@@ -533,7 +536,7 @@ public:
      *
      * @since 0.0.0
 	 *
-	 * @param value The new saturation.
+	 * @param value_ The new saturation.
 	 *
 	 * @return This Color object.
      */
@@ -546,11 +549,13 @@ public:
      *
      * @since 0.0.0
 	 *
-	 * @param value The new value.
+	 * @param value_ The new value.
 	 *
 	 * @return This Color object.
      */
 	Color& value (double value_);
+
+	// Static Methods
 
 	/**
 	 * Given 3 separate color values this will return an integer representation
@@ -558,9 +563,9 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param red The red color value. A number between 0 and 255.
-	 * @param green The green color value. A number between 0 and 255.
-	 * @param blue The blue color value. A number between 0 and 255.
+	 * @param red_ The red color value. A number between 0 and 255.
+	 * @param green_ The green color value. A number between 0 and 255.
+	 * @param blue_ The blue color value. A number between 0 and 255.
 	 *
 	 * @return The combined color value.
 	 */
@@ -572,10 +577,10 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param red The red color value. A number between 0 and 255.
-	 * @param green The green color value. A number between 0 and 255.
-	 * @param blue The blue color value. A number between 0 and 255.
-	 * @param alpha The alpha color value. A number between 0 and 255.
+	 * @param red_ The red color value. A number between 0 and 255.
+	 * @param green_ The green color value. A number between 0 and 255.
+	 * @param blue_ The blue color value. A number between 0 and 255.
+	 * @param alpha_ The alpha color value. A number between 0 and 255.
 	 *
 	 * @return The combined color value.
 	 */
@@ -584,10 +589,10 @@ public:
 	/**
 	 * RGB space conversion.
 	 *
-	 * @param n The value to convert.
-	 * @param h The h value.
-	 * @param s The s value.
-	 * @param v The v value.
+	 * @param n_ The value to convert.
+	 * @param h_ The h value.
+	 * @param s_ The s value.
+	 * @param v_ The v value.
 	 *
 	 * @return The converted value.
 	 */
@@ -602,13 +607,13 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param h The hue, in the range 0 - 1. This is the base color.
-	 * @param s The saturation, in the range 0 - 1. This controls how much of the 
+	 * @param h_ The hue, in the range 0 - 1. This is the base color.
+	 * @param s_ The saturation, in the range 0 - 1. This controls how much of the 
 	 * hue will be in the final color, where 1 is fully saturated and 0 will give 
 	 * you white.
-	 * @param v The value, in the range 0 - 1. This controls how dark the color is. 
+	 * @param v_ The value, in the range 0 - 1. This controls how dark the color is. 
 	 * Where 1 is as bright as possible and 0 is black.
-	 * @param out A Color object to store the results in.
+	 * @param out_ A Color object to store the results in.
 	 */
 	static void hsvToRgb (double h, double s, double v, Color *out);
 
@@ -621,10 +626,10 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param r The red color value. A number between 0 and 255.
-	 * @param g The green color value. A number between 0 and 255.
-	 * @param b The blue color value. A number between 0 and 255.
-	 * @param out An object to store the color values in.
+	 * @param r_ The red color value. A number between 0 and 255.
+	 * @param g_ The green color value. A number between 0 and 255.
+	 * @param b_ The blue color value. A number between 0 and 255.
+	 * @param out_ An object to store the color values in.
 	 */
 	static void rgbToHsv (int r, int g, int b, Color *out);
 };
