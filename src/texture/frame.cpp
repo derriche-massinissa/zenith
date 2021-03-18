@@ -51,8 +51,7 @@ Frame& Frame::setSize (int width_, int height_, int x_, int y_)
 	data.cut.setRight(x_ + width_);
 	data.cut.setBottom(y_ + height_);
 
-	data.sourceSize.setWidth(width_);
-	data.sourceSize.setHeight(height_);
+	data.sourceSize.setSize(width_, height_);
 
 	data.radius = 0.5 * std::sqrt(width_ * width_ + height_ * height_);
 

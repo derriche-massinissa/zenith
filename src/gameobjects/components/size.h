@@ -31,26 +31,26 @@ public:
 
 	T& setDisplayWidth (int value_)
 	{
-		scaleX = value_ / This()->frame.getRealWidth();
+		This()->setScaleX( value_ / This()->frame.getRealWidth() );
 
 		return *This();
 	}
 
 	int getDisplayWidth ()
 	{
-		return std::abs(scaleX * This()->frame->getRealWidth());
+		return std::abs(This()->getScaleX() * This()->frame->getRealWidth());
 	}
 
 	T& setDisplayHeight (int value_)
 	{
-		scaleY = value_ / This()->frame.getRealHeight();
+		This()->setScaleY( value_ / This()->frame.getRealHeight() );
 
 		return *This();
 	}
 
 	int getDisplayHeight ()
 	{
-		return std::abs(scaleY * This()->frame->getRealHeight());
+		return std::abs(This()->setScaleY() * This()->frame->getRealHeight());
 	}
 
 	T& setSizeToFrame (Textures::Frame* frame_ = nullptr)
@@ -82,8 +82,6 @@ public:
 
 	int width = 0;
 	int height = 0;
-	double scaleX = 1.0;
-	double scaleY = 1.0;
 };
 
 }	// namespace Components

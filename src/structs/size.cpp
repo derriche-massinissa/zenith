@@ -10,11 +10,16 @@
 #include "../math/clamp.h"
 #include "../math/snap/snap_floor.h"
 
+#include <limits>
+
 namespace Zen {
 namespace Structs {
 
 Size::Size (unsigned int width_, unsigned int height_, SCALE_MODE aspectMode_)
 {
+	maxWidth = std::numeric_limits<unsigned int>::max();
+	maxHeight = std::numeric_limits<unsigned int>::max();
+
 	width = width_;
 
 	if (height_ == 0)
