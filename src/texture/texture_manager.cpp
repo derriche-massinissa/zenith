@@ -179,7 +179,7 @@ Texture* TextureManager::addAtlasJSONArray (
 		for (int i_ = 0; i_ < texture_->source_.size(); i_++) {
 			auto atlasData_ = singleAtlasFile_ ? data_[0] : data_[i];
 
-			parseJsonArray(*texture_, i_, atlasData_);
+			parseJsonArray(texture_, i_, atlasData_);
 		}
 
 		emit("add", key_);
@@ -196,7 +196,7 @@ Texture* TextureManager::addAtlasJSONHash (
 	if (checkKey(key_)) {
 		texture_ = create(key_, sources_);
 
-		parseJsonHash(*texture_, 0, data_);
+		parseJsonHash(texture_, 0, data_);
 
 		emit("add", key_);
 	}
@@ -213,7 +213,7 @@ Texture* TextureManager::addAtlasJSONHash (
 		texture_ = create(key_, sources_);
 
 		for (int i_ = 0; i_ < data_.size(), i_++) {
-			parserJsonHash(*texture_, i_, data_[i]);
+			parseJsonHash(texture_, i_, data_[i]);
 		}
 
 		emit("add", key);
@@ -232,7 +232,7 @@ Texture* TextureManager::addSpriteSheet (std::string key_, std::string path_, Sp
 		int width_ = texture_->source[0].width;
 		int height_ = texture_->source[0].height;
 
-		parserSpriteSheet(*texture_, 0, 0, 0, width_, height_, config_);
+		parseSpriteSheet(texture_, 0, 0, 0, width_, height_, config_);
 
 		emit("add", key_);
 	}
@@ -259,9 +259,9 @@ Texture* TextureManager::addSpriteSheetFromAtlas (std::string key_, SpriteSheetC
 
 		if (sheet_.trimmed) {
 			// If trimmed, we need to help the parser adjust
-			parserSpriteSheetFromAtlas(*texture_, sheet_, config_);
+			parseSpriteSheetFromAtlas(*texture_, sheet_, config_);
 		} else {
-			parserSpriteSheet(*texture_, 0, sheet_.cutX, sheet_.cutY, sheet_.cutWidth, cut_.cutHeight, config_);
+			parseSpriteSheet(texture_, 0, sheet_.cutX, sheet_.cutY, sheet_.cutWidth, cut_.cutHeight, config_);
 		}
 
 		emit("add", key_);
@@ -295,7 +295,7 @@ bool TextureManager::exists (std::string key_)
 Texture* TextureManager::get (std::string key_)
 {
 	if (list.find(key_) != list.end())
-		return list.find(key_)->second;
+		return &list.find(key_)->second;
 	else
 		return &list.find("__MISSING")->second;
 }

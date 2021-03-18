@@ -23,7 +23,7 @@ namespace Components {
  * @since 0.0.0
  */
 template <typename T>
-	class Visible
+class Visible
 {
 public:
 
