@@ -38,6 +38,34 @@ GameConfig& GameConfig::setFullscreen (bool flag)
 	return *this;
 }
 
+GameConfig& GameConfig::setMinWidth (int mw)
+{
+	minWidth = mw;
+
+	return *this;
+}
+
+GameConfig& GameConfig::setMaxWidth (int mw)
+{
+	maxWidth = mw;
+
+	return *this;
+}
+
+GameConfig& GameConfig::setMinHeight (int mh)
+{
+	minHeight = mh;
+
+	return *this;
+}
+
+GameConfig& GameConfig::setMaxHeight (int mh)
+{
+	maxHeight = mh;
+
+	return *this;
+}
+
 GameConfig& GameConfig::setTitle (std::string t)
 {
 	title = t;

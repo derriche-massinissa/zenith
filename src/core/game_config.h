@@ -58,6 +58,38 @@ public:
 	GameConfig& setFullscreen (bool flag);
 
 	/**
+	 * Sets the minimum width member variable.
+	 *
+	 * @since 0.0.0
+	 * @param mw The minimum width of the window in pixels.
+	 */
+	GameConfig& setMinWidth (int mw);
+
+	/**
+	 * Sets the maximum width member variable.
+	 *
+	 * @since 0.0.0
+	 * @param mw The maximum width of the window in pixels.
+	 */
+	GameConfig& setMaxWidth (int mw);
+
+	/**
+	 * Sets the minimum height member variable.
+	 *
+	 * @since 0.0.0
+	 * @param mh The minimum height of the window in pixels.
+	 */
+	GameConfig& setMinHeight (int mh);
+
+	/**
+	 * Sets the maximum height member variable.
+	 *
+	 * @since 0.0.0
+	 * @param mh The maximum height of the window in pixels.
+	 */
+	GameConfig& setMaxHeight (int mh);
+
+	/**
 	 * Add a scene to the scenes vector.
 	 *
 	 * @since 0.0.0
@@ -212,6 +244,38 @@ public:
 	 * @since 0.0.0
 	 */
 	bool fullscreen = false;
+
+	/**
+	 * The minimum width, in pixels, the window will scale down to. A value of
+	 * zero means no minimum.
+	 *
+	 * @since 0.0.0
+	 */
+	int minWidth = 0;
+
+	/**
+	 * The maximum width, in pixels, the window will scale up to. A value of
+	 * zero means no maximum.
+	 *
+	 * @since 0.0.0
+	 */
+	int maxWidth = 0;
+
+	/**
+	 * The minimum height, in pixels, the window will scale down to. A value of
+	 * zero means no minimum.
+	 *
+	 * @since 0.0.0
+	 */
+	int minHeight = 0;
+
+	/**
+	 * The maximum height, in pixels, the window will scale up to. A value of
+	 * zero means no maximum.
+	 *
+	 * @since 0.0.0
+	 */
+	int maxHeight = 0;
 
 	/**
 	 * A queue of functors responsible for making and returning a 
