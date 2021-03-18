@@ -12,12 +12,12 @@
 namespace Zen {
 
 Game::Game (Core::GameConfig& config_)
-	: scale (*this)
-	, window (*this)
-	, scene (this, config_.sceneFactory)
-	, textures (this)
+	: config (config_)
 	, renderer (*this)
-	, config (config_)
+	, scene (this, config_.sceneFactory)
+	, window (*this)
+	, textures (this)
+	, scale (*this)
 {
 	boot();
 }
@@ -36,6 +36,7 @@ void Game::boot ()
 	scale.preBoot();
 
 	window.create();
+	renderer.start();
 
 	window.on("minimize", &Game::onMinimize, this);
 	window.on("restore", &Game::onRestore, this);
@@ -145,7 +146,7 @@ void Game::onRestore ()
 	isVisible = true;
 }
 
-void Game::shutdown (Data data)
+void Game::shutdown ()
 {
 	pendingShutdown = true;
 }

@@ -57,6 +57,16 @@ namespace Events {
  */
 class EventEmitter
 {
+private:
+	/**
+	 * A map of event names and all of their listeners. 
+	 *
+	 * Each event name is unique in the list. If a listener is added for an event that already exists in the list, it is added to the list of listeners of said event name.
+	 *
+	 * @since 0.0.0
+	 */
+	std::map<std::string, std::vector<std::unique_ptr<ListenerBase>>> eventMap;
+
 public:
 	/**
 	 * Add a listener for a given event.
@@ -294,16 +304,6 @@ public:
 	 * @since 0.0.0
 	 */
 	void shutdown ();
-
-private:
-	/**
-	 * A map of event names and all of their listeners. 
-	 *
-	 * Each event name is unique in the list. If a listener is added for an event that already exists in the list, it is added to the list of listeners of said event name.
-	 *
-	 * @since 0.0.0
-	 */
-	std::map<std::string, std::vector<std::unique_ptr<ListenerBase>>> eventMap;
 };
 
 }	// namespace Events

@@ -153,7 +153,7 @@ std::vector<GameObjects::GameObject*> Camera::cull (
 	if (disableCull)
 		return renderableObjects_;
 
-	auto& cameraMatrix_ = matrix.matrix;
+	auto cameraMatrix_ = matrix.getVector();
 
 	auto mva_ = cameraMatrix_[0];
 	auto mvb_ = cameraMatrix_[1];
@@ -209,7 +209,7 @@ Math::Vector2 Camera::getWorldPoint (int x_, int y_)
 {
 	Math::Vector2 output_;
 
-	auto& cameraMatrix_ = matrix.matrix;
+	auto cameraMatrix_ = matrix.getVector();
 
 	auto mva_ = cameraMatrix_[0];
 	auto mvb_ = cameraMatrix_[1];

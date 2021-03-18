@@ -364,7 +364,7 @@ public:
 	std::string loaderPrefix = "";
 
 	// Default / Missing Images
-	std::string pngPrefix = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAg";
+	std::string pngPrefix = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAg";
 
 	/**
 	 * A base64 encoded PNG that will be used as the default blank texture.
@@ -387,7 +387,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::string whiteImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABdJREFUeNpi/P//PwMMMDEgAdwcgAADAJZuAwXJYZOzAAAAAElFTkSuQmCC";
+	std::string whiteImage = "iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABdJREFUeNpi/P//PwMMMDEgAdwcgAADAJZuAwXJYZOzAAAAAElFTkSuQmCC";
 };
 
 }	// namespace Core

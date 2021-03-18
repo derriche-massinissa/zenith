@@ -6,7 +6,6 @@
  */
 
 #include "event_emitter.h"
-#include <vector>
 
 namespace Zen {
 namespace Events {

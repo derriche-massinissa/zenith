@@ -8,15 +8,16 @@
 #include "texture.h"
 
 #include "texture_manager.h"
+#include <tuple>
 
 namespace Zen {
 namespace Textures {
 
-Texture::Texture(TextureManager& manager_, std::string key_, std::vector<std::string> sources_)
+Texture::Texture (TextureManager& manager_, std::string key_, std::vector<std::string> sources_)
 	: manager (&manager_)
 {
 	// Load the Sources
-	for (auto& source_ : sources_)
+	for (const auto source_ : sources_)
 		source.emplace_back(this, source_);
 }
 
@@ -25,9 +26,17 @@ Frame* Texture::add (std::string name_, int sourceIndex_, int x_, int y_, int wi
 	if (has(name_))
 		return nullptr;
 
+	/*
 	Frame frame_ (this, name_, sourceIndex_, x_, y_, width_, height_);
 
 	frames.emplace(name_, frame_);
+	*/
+
+	frames.emplace(
+			std::piecewise_construct,
+			std::forward_as_tuple(name_),
+			std::forward_as_tuple(this, name_, sourceIndex_, x_, y_, width_, height_)
+			);
 
 	//  Set the first frame of the Texture (other than __BASE)
 	//  This is used to ensure we don't spam the display with entire

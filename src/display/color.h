@@ -39,6 +39,8 @@ public:
 	 */
 	Color (int red_ = 0, int green_ = 0, int blue_ = 0, int alpha_ = 255, bool validity_ = true);
 
+	Color& operator=(const Color& other_);
+
 	/**
 	 * Is this a valid color?
 	 *
@@ -405,7 +407,7 @@ public:
 	 *
 	 * @return The red color value.
      */
-	int red ();
+	int red () const;
 
     /**
      * The green color value, normalized to the range 0 to 255.
@@ -414,7 +416,7 @@ public:
 	 *
 	 * @return The green color value.
      */
-	int green ();
+	int green () const;
 
     /**
      * The blue color value, normalized to the range 0 to 255.
@@ -423,7 +425,7 @@ public:
 	 *
 	 * @return The blue color value.
      */
-	int blue ();
+	int blue () const;
 
     /**
      * The alpha color value, normalized to the range 0 to 255.
@@ -432,7 +434,7 @@ public:
 	 *
 	 * @return The alpha color value.
      */
-	int alpha ();
+	int alpha () const;
 
     /**
      * The red color value, normalized to the range 0 to 255.
@@ -589,7 +591,7 @@ public:
 	 *
 	 * @return The converted value.
 	 */
-	static int convertValue (int n, float h, float s, float v);
+	static int convertValue (int n, double h, double s, double v);
 
 	/**
 	 * Converts a HSV (hue, saturation and value) color set to RGB.

@@ -77,7 +77,16 @@ struct SnapshotState
 class Renderer : public Events::EventEmitter
 {
 public:
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param game_ The Game owning this Renderer.
+	 */
 	Renderer (Game& game_);
+
+	/**
+	 * @since 0.0.0
+	 */
 	~Renderer ();
 
 	/**
@@ -222,6 +231,13 @@ public:
 	 * @since 0.0.0
 	 */
 	SnapshotState snapshotState;
+
+	/**
+	 * Start up this renderer. This _MUST_ run after the Window was created!
+	 *
+	 * @since 0.0.0
+	 */
+	void start ();
 
 	/**
 	 * The event handler that manages the `resize` event dispatched by the Scale Manager.

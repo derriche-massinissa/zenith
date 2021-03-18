@@ -141,6 +141,11 @@ set(zenith_SRCS
 	src/texture/parsers/sprite_sheet_atlas.cpp
 	src/texture/parsers/sprite_sheet_atlas.h
 
+	src/utils/base64_encode.h
+	src/utils/base64_encode.cpp
+	src/utils/base64_decode.h
+	src/utils/base64_decode.cpp
+
 	src/window/window.cpp
 	src/window/window.fwd.h
 	src/window/window.h

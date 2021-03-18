@@ -17,11 +17,30 @@
 namespace Zen {
 
 Renderer::Renderer (Game& game_)
-	: game (game_), window (game_.window)
-{
-	backgroundColor = game_.config.backgroundColor;
+	: game (game_)
+	, window (game_.window)
+{}
 
-	game_.scale.on("resize", &Renderer::onResize, this);
+Renderer::~Renderer ()
+{
+	if (snapshotState.surface)
+		SDL_FreeSurface(snapshotState.surface);
+
+	if (maskBuffer)
+		SDL_DestroyTexture(maskBuffer);
+
+	if (cameraBuffer)
+		SDL_DestroyTexture(cameraBuffer);
+
+	if (maskTexture)
+		SDL_DestroyTexture(maskTexture);
+}
+
+void Renderer::start ()
+{
+	backgroundColor = game.config.backgroundColor;
+
+	game.scale.on("resize", &Renderer::onResize, this);
 
 	// Get the pixel format of the window
 	SDL_Surface *infoSurface_ = nullptr;
@@ -48,21 +67,6 @@ Renderer::Renderer (Game& game_)
 			);
 
 	resize(window.width(), window.height());
-}
-
-Renderer::~Renderer ()
-{
-	if (snapshotState.surface)
-		SDL_FreeSurface(snapshotState.surface);
-
-	if (maskBuffer)
-		SDL_DestroyTexture(maskBuffer);
-
-	if (cameraBuffer)
-		SDL_DestroyTexture(cameraBuffer);
-
-	if (maskTexture)
-		SDL_DestroyTexture(maskTexture);
 }
 
 void Renderer::onResize (int width_, int height_, int previousWidth_, int previousHeight_)
@@ -436,7 +440,7 @@ void Renderer::batchSprite (
 		Cameras::Scene2D::Camera& camera_,
 		GameObjects::Components::TransformMatrix *parentTransformMatrix_)
 {
-	float alpha_ = camera_.getAlpha() * sprite_.getAlpha();
+	double alpha_ = camera_.getAlpha() * sprite_.getAlpha();
 
 	if (!alpha_)
 		// Nothing to see, so abort early
@@ -453,7 +457,7 @@ void Renderer::batchSprite (
 	int frameHeight_ = frame_.cutHeight;
 	bool customPivot_ = frame_.customPivot;
 
-	float res_ = frame_.source->resolution;
+	double res_ = frame_.source->resolution;
 
 	int displayOriginX_ = sprite_.getDisplayOriginX();
 	int displayOriginY_ = sprite_.getDisplayOriginY();

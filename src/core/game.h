@@ -68,19 +68,33 @@ public:
 	~Game ();
 
 	/**
-	 * The renderer is responsible for displaying contents on the screen.
-	 *
-	 * @since 0.0.0
-	 */
-	Renderer renderer;
-
-	/**
 	 * An Event Emitter which is used to broadcast game-level events from
 	 * the global system.
 	 *
 	 * @since 0.0.0
 	 */
 	Events::EventEmitter events;
+
+	/**
+	 * The Game Configuration structure.
+	 *
+	 * @since 0.0.0
+	 */
+	Core::GameConfig& config;
+
+	/**
+	 * A reference to the window object.
+	 *
+	 * @since 0.0.0
+	 */
+	Window window;
+
+	/**
+	 * The renderer is responsible for displaying contents on the screen.
+	 *
+	 * @since 0.0.0
+	 */
+	Renderer renderer;
 
 	/**
 	 * An instance of the Animation Manager.
@@ -264,21 +278,7 @@ public:
 	 * @since 0.0.0
 	 * @param data A data object.
 	 */
-	void shutdown (Data data_);
-
-	/**
-	 * The Game Configuration structure.
-	 *
-	 * @since 0.0.0
-	 */
-	Core::GameConfig& config;
-
-	/**
-	 * A reference to the window object.
-	 *
-	 * @since 0.0.0
-	 */
-	Window window;
+	void shutdown ();
 
 	/**
 	 * A flag indicating if the Game instance is marked for shutdown in the next

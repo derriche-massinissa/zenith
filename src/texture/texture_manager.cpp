@@ -16,6 +16,8 @@
 #include "../gameobjects/rendertexture/render_texture.h"
 #include "texture_source.h"
 #include "frame.h"
+#include <tuple>
+#include <utility>
 
 namespace Zen {
 namespace Textures {
@@ -309,9 +311,17 @@ Texture* TextureManager::create (std::string key_, std::vector<std::string> sour
 
 	if (checkKey(key_))
 	{
+		/*
 		Texture tex_ (*this, key_, sources_);
 
 		list.emplace(key_, tex_);
+		*/
+
+		list.emplace(
+				std::piecewise_construct,
+				std::forward_as_tuple(key_),
+				std::forward_as_tuple(*this, key_, sources_)
+				);
 
 		texture_ = &list.find(key_)->second;
 	}

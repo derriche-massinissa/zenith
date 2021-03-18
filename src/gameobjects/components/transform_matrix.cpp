@@ -13,6 +13,8 @@ namespace Components {
 
 TransformMatrix::TransformMatrix (double a_, double b_, double c_, double d_, double tx_, double ty_)
 {
+	matrix.reserve(6);
+
 	setTransform (a_, b_, c_, d_, tx_, ty_);
 }
 

@@ -9,6 +9,8 @@
 
 #include <SDL2/SDL_image.h>
 
+#include "../utils/base64_decode.h"
+
 #include "../window/window.h"
 #include "texture.h"
 #include "texture_manager.h"
@@ -37,7 +39,8 @@ TextureSource::TextureSource (Texture* texture_, std::string source_)
 
 TextureSource::~TextureSource ()
 {
-	if (sdlTexture) {
+	if (sdlTexture)
+	{
 		SDL_DestroyTexture(sdlTexture);
 		sdlTexture = nullptr;
 	}
@@ -45,9 +48,12 @@ TextureSource::~TextureSource ()
 
 void TextureSource::init ()
 {
-	if (source.size() > 5 && source.substr(0, 5) == "data:") {
+	if (source.size() > 10 && source.substr(0, 10) == "iVBORw0KGg")
+	{
 		// Source is a Base64 Image data
-		SDL_RWops *rw_ = SDL_RWFromConstMem(source.c_str(), source.size());
+		std::string base64 = Utils::Base64::decode(source);
+
+		SDL_RWops *rw_ = SDL_RWFromConstMem(base64.c_str(), base64.size());
 
 		sdlTexture = IMG_LoadTextureTyped_RW(
 				window->renderer,
@@ -56,7 +62,8 @@ void TextureSource::init ()
 				"PNG"
 				);
 	}
-	else {
+	else
+	{
 		// Source is an image file path
 		sdlTexture = IMG_LoadTexture(
 				window->renderer,

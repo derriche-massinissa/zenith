@@ -23,10 +23,6 @@ namespace Events {
 class ListenerBase
 {
 protected:
-	ListenerBase (std::string event_, bool once_)
-		: event (event_), once (once_)
-	{}
-
 	/**
 	 * The event this listener is listening to.
 	 *
@@ -41,6 +37,11 @@ protected:
 	 * @since 0.0.0
 	 */
 	bool once;
+
+public:
+	ListenerBase (std::string event_, bool once_)
+		: event (event_), once (once_)
+	{}
 };
 
 /**
@@ -53,6 +54,14 @@ protected:
 template <typename... Args>
 class Listener : public ListenerBase
 {
+private:
+	/**
+	 * The callback function to use if the corresponding event is emitted.
+	 *
+	 * @since 0.0.0
+	 */
+	std::function<void(Args...)> callback;
+
 public:
 	/**
 	 * @since 0.0.0
@@ -91,14 +100,6 @@ public:
 	{
 		return callback;
 	}
-
-private:
-	/**
-	 * The callback function to use if the corresponding event is emitted.
-	 *
-	 * @since 0.0.0
-	 */
-	std::function<void(Args...)> callback;
 };
 
 }	// namespace Events

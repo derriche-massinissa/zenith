@@ -15,7 +15,7 @@
 namespace Zen {
 namespace Textures {
 
-void parseJsonArray (Texture *texture, int sourceIndex, nlohmann::json json)
+void parseJsonHash (Texture *texture, int sourceIndex, nlohmann::json json)
 {
 	// Malformed?
 	if (json.find("frames") == json.end())

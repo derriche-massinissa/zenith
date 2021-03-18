@@ -16,6 +16,11 @@ Color::Color (int red_, int green_, int blue_, int alpha_, bool validity_)
 	valid = validity_;
 }
 
+Color& Color::operator=(const Color& other_)
+{
+	return setTo(other_.red(), other_.green(), other_.blue(), other_.alpha());
+}
+
 Color& Color::transparent ()
 {
 	locked = true;
@@ -222,22 +227,22 @@ Color& Color::alphaGL (double value_)
 	return *this;
 }
 
-int Color::red ()
+int Color::red () const
 {
 	return r;
 }
 
-int Color::green ()
+int Color::green () const
 {
 	return g;
 }
 
-int Color::blue ()
+int Color::blue () const
 {
 	return b;
 }
 
-int Color::alpha ()
+int Color::alpha () const
 {
 	return a;
 }
@@ -323,17 +328,17 @@ Color& Color::value (double value_)
 }
 
 // Static methods
-int getColor (int red, int green, int blue)
+int Color::getColor (int red, int green, int blue)
 {
 	return red << 16 | green << 8 | blue;
 }
 
-int getColor32 (int red, int green, int blue, int alpha)
+int Color::getColor32 (int red, int green, int blue, int alpha)
 {
 	return alpha << 24 | red << 16 | green << 8 | blue;
 }
 
-int convertValue (int n, double h, double s, double v)
+int Color::convertValue (int n, double h, double s, double v)
 {
 	int k = (n + int(h) * 6) % 6;
 
@@ -342,16 +347,19 @@ int convertValue (int n, double h, double s, double v)
 	return std::round(255 * (v - v * s * std::max(0.0, min)));
 }
 
-void hsvToRgb (double h, double s, double v, Color *out)
+void Color::hsvToRgb (double h, double s, double v, Color *out)
 {
 	int red = convertValue(5, h, s, v);
 	int green = convertValue(3, h, s, v);
 	int blue = convertValue(1, h, s, v);
 
-	out->setTo(red, green, blue, out->alpha(), false);
+	//out->setTo(red, green, blue, out->alpha(), false);
+	out->r = red;
+	out->g = green;
+	out->b = blue;
 }
 
-void rgbToHsv (int r, int g, int b, Color *out)
+void Color::rgbToHsv (int r, int g, int b, Color *out)
 {
 	double red = r / 255;
 	double green = g / 255;
@@ -377,9 +385,9 @@ void rgbToHsv (int r, int g, int b, Color *out)
         h /= 6.0;
 	}
 
-	out->hue(h);
-	out->saturation(s);
-	out->value(v);
+	out->h = h;
+	out->s = s;
+	out->v = v;
 }
 
 }	// namespace Display

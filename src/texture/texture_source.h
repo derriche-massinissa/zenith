@@ -74,7 +74,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	float resolution = 1.0;
+	double resolution = 1.0;
 
 	/**
 	 * Setup the texture source by loading the image, if a path is given, or

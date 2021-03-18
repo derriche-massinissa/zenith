@@ -115,15 +115,16 @@ GameConfig& GameConfig::setPixelArt (bool flag)
 	return *this;
 }
 
-GameConfig& GameConfig::setBackgroundColor (unsigned int color)
-{
-	backgroundColor.setFromHex(color);
-
-	return *this;
-}
 GameConfig& GameConfig::setClearBeforeRender (bool flag)
 {
 	clearBeforeRender = flag;
+
+	return *this;
+}
+
+GameConfig& GameConfig::setBackgroundColor (unsigned int color)
+{
+	backgroundColor.setFromHex(color);
 
 	return *this;
 }

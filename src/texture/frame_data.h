@@ -51,7 +51,7 @@ struct FrameData
 	bool trim = false;
 	Structs::Size sourceSize;
 	Geom::Rectangle spriteSourceSize;
-	float radius = 0.0;
+	double radius = 0.0;
 	Geom::Rectangle drawImage;
 };
 

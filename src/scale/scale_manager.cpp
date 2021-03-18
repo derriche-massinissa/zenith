@@ -7,7 +7,7 @@
 
 #include "scale_manager.h"
 
-#include "../window/window.h""
+#include "../window/window.h"
 #include "../core/game.h"
 
 namespace Zen {

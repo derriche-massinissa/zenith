@@ -46,6 +46,14 @@ struct DecomposedMatrix
  */
 class TransformMatrix
 {
+private:
+	/**
+	 * The matrix values.
+	 *
+	 * @since 0.0.0
+	 */
+	std::vector<double> matrix {};
+
 public:
 	/**
 	 * @since 0.0.0
@@ -58,13 +66,6 @@ public:
 	 * @param ty_ The Translate Y value.
 	 */
 	TransformMatrix (double a_ = 1.0, double b_ = 0.0, double c_ = 0.0, double d_ = 1.0, double tx_ = 0.0, double ty_ = 0.0);
-
-	/**
-	 * The matrix values.
-	 *
-	 * @since 0.0.0
-	 */
-	std::vector<double> matrix {};
 
 	/**
 	 * Getter for the Scale X value.

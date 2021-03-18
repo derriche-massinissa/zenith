@@ -378,7 +378,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	static const int COMPONENT_MASK =
+	const int COMPONENT_MASK =
 		COMPONENT_MASK_ALPHA	|
 		COMPONENT_MASK_VISIBLE	|
 		COMPONENT_MASK_FLIP		|
