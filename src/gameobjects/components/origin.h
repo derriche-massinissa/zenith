@@ -36,6 +36,8 @@ public:
 	{
 		displayOriginX = value_;
 		originX = value_ / This()->getWidth();
+
+		return *This();
 	}
 
 	int getDisplayOriginY ()
@@ -47,6 +49,8 @@ public:
 	{
 		displayOriginY = value_;
 		originY = value_ / This()->getHeight();
+
+		return *This();
 	}
 
 	T& setOrigin (double x_, double y_)
