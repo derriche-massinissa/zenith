@@ -1,12 +1,12 @@
 /**
- * @file		scene_manager.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef SCENE_MANAGER_H
-#define SCENE_MANAGER_H
+#ifndef ZEN_SCENES_SCENE_MANAGER_H
+#define ZEN_SCENES_SCENE_MANAGER_H
 
 #include <functional>
 #include <map>
@@ -25,489 +25,543 @@
 #include "scene_config.h"
 #include "scene_settings_config.h"
 
-namespace Zen
+namespace Zen {
+namespace Scenes {
+
+/**
+ * The operations on Scenes to be queued if the Manager is busy when the
+ * operation comes in.
+ *
+ * @since 0.0.0
+ */
+struct SceneOperation
 {
+	std::string operation;
+	std::string keyA;
+	std::string keyB;
+	Data data;
+
+	SceneOperation (
+		std::string o_ = "", std::string a_ = "", std::string b_ = "", Data d_ = {})
+		: operation(o_), keyA(a_), keyB(b_), data(d_)
+	{}
+};
+
+/**
+ * The SceneManager is a Game level system, responsible for creating,
+ * processing and updating all of the Scenes in a Game instance.
+ *
+ * @class SceneManager
+ * @since 0.0.0
+ */
+class SceneManager
+{
+public:
 	/**
-	 * The operations on Scenes to be queued if the Manager is busy when the
-	 * operation comes in.
+	 * @since 0.0.0
+	 *
+	 * @param game_ A reference to the Game instance this SceneManager belongs to.
+	 * @param sceneFactory_ A vector of functors that build and return
+	 * instances of user defined scene classes (That inherit from Zen::Scene)
+	 */
+	SceneManager (
+		Game& game_,
+		std::queue<std::function<std::unique_ptr<Scene>(Game&)>>& sceneFactory_);
+
+	/**
+	 * @since 0.0.0
+	 */
+	~SceneManager ();
+
+	/**
+	 * The Game that this SceneManager belongs to.
 	 *
 	 * @since 0.0.0
 	 */
-	struct SceneOperation
-	{
-		std::string operation;
-		std::string keyA;
-		std::string keyB;
-		Data data;
-
-		SceneOperation (std::string o = "", std::string a = "", std::string b = "", Data d = {})
-			: operation(o), keyA(a), keyB(b), data(d)
-		{}
-	};
+	Game& game;
 
 	/**
-	 * @class SceneManager
-	 * The SceneManager.
-	 *
-	 * The SceneManager is a Game level system, responsible for creating,
-	 * processing and updating all of the Scenes in a Game instance.
+	 * A map of keys and scenes to quickly get a scene from a key without
+	 * iteration.
 	 *
 	 * @since 0.0.0
 	 */
-	class SceneManager
-	{
-	public:
-		/**
-		 * @since 0.0.0
-		 * @param g A reference to the Game instance this SceneManager belongs
-		 * to.
-		 * @param sceneFactory A vector of functors that build and return
-		 * instances of user defined scene classes (That inherit from Zen::Scene)
-		 */
-		SceneManager (
-			Game& g,
-			std::queue<std::function<std::unique_ptr<Scene>(Game&)>>& sceneFactory);
+	std::map<std::string, Scene&> keys;
 
-		/**
-		 * @since 0.0.0
-		 */
-		~SceneManager ();
+	/**
+	 * The vector in which all of the scenes are kept.
+	 *
+	 * @since 0.0.0
+	 */
+	std::vector<std::unique_ptr<Scene>> scenes;
 
-		/**
-		 * Process the Scene operations queue.
-		 *
-		 * @since 0.0.0
-		 */
-		void processQueue ();
+	/**
+	 * Scenes pending to be added are stored in here until the manager has
+	 * time to add it.
+	 *
+	 * @since 0.0.0
+	 */
+	std::vector<SceneConfig> pending;
 
-		/**
-		 * Adds a new Scene into the SceneManager.
-		 * You must give each Scene a unique key by which you'll identify it.
-		 *
-		 * @since 0.0.0
-		 * @param key A unique key used to reference the Scene.
-		 * @param scene A pointer to the Scene instance
-		 * @param autoStart If `true` the Scene will be started immediately
-		 * after being added.
-		 * @param data Optional data object. This will be set as
-		 * `Scene.sys.settings.data` and passed to `Scene.init` and
-		 * `Scene.create`;
-		 * @return A pointer to the added Scene if it was added immediately,
-		 * otherwise `nullptr`.
-		 */
-		Scene* add (
-			std::string key,
-			std::unique_ptr<Scene> scene,
-			bool autoStart = false,
-			Data data = {});
+	/**
+	 * A vector of keys of scenes to be started once the game has booted.
+	 *
+	 * @since 0.0.0
+	 */
+	std::vector<std::string> toStart;
 
-		/**
-		 * Removes a Scene from the SceneManager.
-		 *
-		 * The Scene is removed from the local scenes vector, it's key is
-		 * cleared from the keys cache.
-		 *
-		 * If the SceneManager is processing the Scenes when this method is
-		 * called, it will queue the operation for the next update sequence.
-		 *
-		 * @since 0.0.0
-		 * @param key A unique key used to reference the Scene.
-		 * @return A reference to this SceneManager instance.
-		 */
-		SceneManager& remove (std::string key);
+	/**
+	 * An operations queue, because we don't manipulate the scenes vector
+	 * during processing.
+	 *
+	 * @since 0.0.0
+	 */
+	std::queue<SceneOperation> operationsQueue;
 
-		/**
-		 * Updates the scenes.
-		 *
-		 * @since 0.0.0
-		 * @param time Time elapsed since the game started.
-		 * @param delta Delta time from the last update.
-		 */
-		void update (Uint32 time, Uint32 delta);
+	/**
+	 * Boot time data to merge.
+	 *
+	 * @since 0.0.0
+	 */
+	std::map<std::string, SceneConfig> bootData;
 
-		/**
-		 * Renders the Scenes.
-		 *
-		 * @since 0.0.0
-		 */
-		void render ();
+	/**
+	 * Is the SceneManager actively processing the Scenes list?
+	 *
+	 * @since 0.0.0
+	 */
+	bool isProcessing = false;
 
-		/**
-		 * Returns a vector of pointers to all the current Scenes being managed
-		 * by this SceneManager.
-		 *
-		 * You can filter the output by the active state of the Scene and choose
-		 * to have the vector returned in normal or reversed order.
-		 *
-		 * @since 0.0.0
-		 * @param isActive Only include Scenes that are currently active.
-		 * @param inReverse Return the vector of Scenes in reverse.
-		 * @return A vector containing pointers to all the Scenes in this
-		 * SceneManager.
-		 */
-		std::vector<Scene*> getScenes (
-				bool isActive = true,
-				bool inReverse = false);
+	/**
+	 * Has the SceneManager properly started?
+	 *
+	 * @since 0.0.0
+	 */
+	bool isBooted = false;
 
-		/**
-		 * Retrieves a Scene.
-		 *
-		 * @since 0.0.0
-		 * @param key The key of the scene to retrieve.
-		 * @return The scene.
-		 */
-		Scene* getScene (std::string key);
+	/**
+	 * Do any of the Cameras in any of the Scenes require a custom viewport?
+	 *
+	 * @since 0.0.0
+	 */
+	unsigned int customViewports = 0;
 
-		/**
-		 * Determines whether a Scene is running.
-		 *
-		 * @since 0.0.0
-		 * @param key The key of the scene to check.
-		 * @return Whether the Scene is running.
-		 */
-		bool isActive (std::string key);
+	/**
+	 * Internal first-time Scene boot handler.
+	 *
+	 * @since 0.0.0
+	 */
+	void bootQueue ();
 
-		/**
-		 * Determines whether a Scene is paused.
-		 *
-		 * @since 0.0.0
-		 * @param key The key of the scene to check.
-		 * @return Whether the Scene is paused.
-		 */
-		bool isPaused (std::string key);
+	/**
+	 * Process the Scene operations queue.
+	 *
+	 * @since 0.0.0
+	 */
+	void processQueue ();
 
-		/**
-		 * Determines whether a Scene is visible.
-		 *
-		 * @since 0.0.0
-		 * @param key The key of the scene to check.
-		 * @return Whether the Scene is visible.
-		 */
-		bool isVisible (std::string key);
+	/**
+	 * Adds a new Scene into the SceneManager.
+	 * You must give each Scene a unique key by which you'll identify it.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ A unique key used to reference the Scene.
+	 * @param scene_ A pointer to the Scene instance
+	 * @param autoStart_ If `true` the Scene will be started immediately
+	 * after being added.
+	 * @param data_ Optional data object. This will be set as
+	 * `Scene.sys.settings.data` and passed to `Scene.init` and `Scene.create`;
+	 *
+	 * @return A pointer to the added Scene if it was added immediately,
+	 * otherwise `nullptr`.
+	 */
+	Scene* add (
+		std::string key_,
+		std::unique_ptr<Scene> scene_,
+		bool autoStart_ = false,
+		Data data_ = {});
 
-		/**
-		 * Determines whether a Scene is sleeping.
-		 *
-		 * @since 0.0.0
-		 * @param key The key of the scene to check.
-		 * @return Whether the Scene is sleeping.
-		 */
-		bool isSleeping (std::string key);
+	/**
+	 * Removes a Scene from the SceneManager.
+	 *
+	 * The Scene is removed from the local scenes vector, it's key is
+	 * cleared from the keys cache.
+	 *
+	 * If the SceneManager is processing the Scenes when this method is
+	 * called, it will queue the operation for the next update sequence.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ A unique key used to reference the Scene.
+	 *
+	 * @return A reference to this SceneManager instance.
+	 */
+	SceneManager& remove (std::string key_);
 
-		/**
-		 * Pauses the given Scene.
-		 *
-		 * @since 0.0.0
-		 * @param key The Scene to pause.
-		 * @param data An optional data object to be passed to the Scene and
-		 * emitted by its pause event.
-		 * @return A reference to this SceneManager.
-		 */
-		SceneManager& pause (std::string key, Data data = {});
+	/**
+	 * Boot the given Scene.
+	 *
+	 * @since 0.0.0
+	 *
+	 */
+	void bootScene (Scene *scene_);
 
-		/**
-		 * Resumes the given Scene.
-		 *
-		 * @since 0.0.0
-		 * @param key The Scene to resume.
-		 * @param data An optional data object to be passed to the Scene and
-		 * emitted by its resume event.
-		 * @return A reference to this SceneManager.
-		 */
-		SceneManager& resume (std::string key, Data data = {});
+	/**
+	 * Handles load completion for a Scene's Loader.
+	 *
+	 * Starts the Scene that the Loader belongs to.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param data_ A data object, used here to pass the Scene's key.
+	 */
+	void loadComplete (Data data_);
 
-		/**
-		 * Puts the given Scene to sleep.
-		 *
-		 * @since 0.0.0
-		 * @param key The Scene to put to sleep.
-		 * @param data An optional data object to be passed to the Scene and
-		 * emitted by its sleep event.
-		 * @return A reference to this SceneManager.
-		 */
-		SceneManager& sleep (std::string key, Data data = {});
+	/**
+	 * Updates the scenes.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param time_ Time elapsed since the game started.
+	 * @param delta_ Delta time from the last update.
+	 */
+	void update (Uint32 time_, Uint32 delta_);
 
-		/**
-		 * Awakens the given Scene.
-		 *
-		 * @since 0.0.0
-		 * @param key The Scene to put to wake up.
-		 * @param data An optional data object to be passed to the Scene and
-		 * emitted by its wake event.
-		 * @return A reference to this SceneManager.
-		 */
-		SceneManager& wake (std::string key, Data data = {});
+	/**
+	 * Renders the Scenes.
+	 *
+	 * @since 0.0.0
+	 */
+	void render ();
 
-		/**
-		 * Runs the given Scene.
-		 *
-		 * If the given Scene is paused, it will resume it. If sleeping, it will
-		 * wake it. If not running at all, it will be started.
-		 *
-		 * Use this if you wish to open a modal Scene by calling `pause` on
-		 * the current Scene, then `run` on the modal Scene.
-		 *
-		 * @since 0.0.0
-		 * @param key The Scene to put to run.
-		 * @param data An optional data object to be passed to the Scene and
-		 * emitted by its start, wake or resume event.
-		 * @return A reference to this SceneManager.
-		 */
-		SceneManager& run (std::string key, Data data = {});
+	/**
+	 * Calls the given Scene's `create` method.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param scene_ The scene to create.
+	 */
+	void create (Scene *scene_);
 
-		/**
-		 * Starts the given Scene.
-		 *
-		 * @since 0.0.0
-		 * @param key The Scene to put to start.
-		 * @param data An optional data object to be passed to the Scene and
-		 * emitted by its start event.
-		 * @return A reference to this SceneManager.
-		 */
-		SceneManager& start (std::string key, Data data = {});
+	/**
+	 * Returns a vector of pointers to all the current Scenes being managed
+	 * by this SceneManager.
+	 *
+	 * You can filter the output by the active state of the Scene and choose
+	 * to have the vector returned in normal or reversed order.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param isActive_ Only include Scenes that are currently active.
+	 * @param inReverse_ Return the vector of Scenes in reverse.
+	 *
+	 * @return A vector containing pointers to all the Scenes in this SceneManager.
+	 */
+	std::vector<Scene*> getScenes (
+			bool isActive_ = true,
+			bool inReverse_ = false);
 
-		/**
-		 * Stops the given Scene.
-		 *
-		 * @since 0.0.0
-		 * @param key The Scene to put to stop.
-		 * @param data An optional data object to pass to Scene.shutdown.
-		 * @return A reference to this SceneManager.
-		 */
-		SceneManager& stop (std::string key, Data data = {});
+	/**
+	 * Retrieves a Scene.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The key of the scene to retrieve.
+	 *
+	 * @return The scene.
+	 */
+	Scene* getScene (std::string key_);
 
-		/**
-		 * Put to sleep one Scene and starts the other.
-		 *
-		 * @since 0.0.0
-		 * @param keyFrom The Scene to put to put to sleep.
-		 * @param keyTo The Scene to start.
-		 * @return A reference to this SceneManager.
-		 */
-		SceneManager& swap (std::string keyFrom, std::string keyTo);
+	/**
+	 * Determines whether a Scene is running.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The key of the scene to check.
+	 *
+	 * @return Whether the Scene is running.
+	 */
+	bool isActive (std::string key_);
 
-		/**
-		 * Retrieves a Scene by numeric index.
-		 *
-		 * @since 0.0.0
-		 * @param index The Scene to put to put to sleep.
-		 * @return A pointer to the Scene.
-		 */
-		Scene* getAt (int index);
+	/**
+	 * Determines whether a Scene is paused.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The key of the scene to check.
+	 *
+	 * @return Whether the Scene is paused.
+	 */
+	bool isPaused (std::string key_);
 
-		/**
-		 * Retrieves the numeric index of a Scene.
-		 *
-		 * @since 0.0.0
-		 * @param key The key of the Scene.
-		 * @return The index of the Scene.
-		 */
-		int getIndex (std::string key);
+	/**
+	 * Determines whether a Scene is visible.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The key of the scene to check.
+	 *
+	 * @return Whether the Scene is visible.
+	 */
+	bool isVisible (std::string key_);
 
-		/**
-		 * Brings a Scene to the top of the Scenes list.
-		 *
-		 * This means it will render above all other Scenes.
-		 *
-		 * @since 0.0.0
-		 * @param key The key of the Scene to move.
-		 * @return A reference to this SceneManager instance.
-		 */
-		SceneManager& bringToTop (std::string key);
+	/**
+	 * Determines whether a Scene is sleeping.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The key of the scene to check.
+	 *
+	 * @return Whether the Scene is sleeping.
+	 */
+	bool isSleeping (std::string key_);
 
-		/**
-		 * Sends a Scene to the back of the Scenes list.
-		 *
-		 * This means it will render below all other Scenes.
-		 *
-		 * @since 0.0.0
-		 * @param key The key of the Scene to move.
-		 * @return A reference to this SceneManager instance.
-		 */
-		SceneManager& sendToBack (std::string key);
+	/**
+	 * Pauses the given Scene.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The Scene to pause.
+	 * @param data_ An optional data object to be passed to the Scene and
+	 * emitted by its pause event.
+	 *
+	 * @return A reference to this SceneManager.
+	 */
+	SceneManager& pause (std::string key_, Data data_ = {});
 
-		/**
-		 * Moves a Scene down one position in the Scenes list.
-		 *
-		 * This means it will render below all other Scenes.
-		 *
-		 * @since 0.0.0
-		 * @param key The key of the Scene to move.
-		 * @return A reference to this SceneManager instance.
-		 */
-		SceneManager& moveDown (std::string key);
+	/**
+	 * Resumes the given Scene.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The Scene to resume.
+	 * @param data_ An optional data object to be passed to the Scene and
+	 * emitted by its resume event.
+	 *
+	 * @return A reference to this SceneManager.
+	 */
+	SceneManager& resume (std::string key_, Data data_ = {});
 
-		/**
-		 * Moves a Scene up one position in the Scenes list.
-		 *
-		 * This means it will render below all other Scenes.
-		 *
-		 * @since 0.0.0
-		 * @param key The key of the Scene to move.
-		 * @return A reference to this SceneManager instance.
-		 */
-		SceneManager& moveUp (std::string key);
+	/**
+	 * Puts the given Scene to sleep.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The Scene to put to sleep.
+	 * @param data_ An optional data object to be passed to the Scene and
+	 * emitted by its sleep event.
+	 *
+	 * @return A reference to this SceneManager.
+	 */
+	SceneManager& sleep (std::string key_, Data data_ = {});
 
-		/**
-		 * Moves a Scene so it is immediately above another Scene in the Scenes
-		 * list.
-		 *
-		 * This means it will render over the top of the other Scene.
-		 *
-		 * @since 0.0.0
-		 * @param keyA The key of the Scene that Scene B will be moved over.
-		 * @param keyB The key of the Scene to move.
-		 * @return A reference to this SceneManager instance.
-		 */
-		SceneManager& moveAbove (std::string keyA, std::string keyB);
+	/**
+	 * Awakens the given Scene.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The Scene to put to wake up.
+	 * @param data_ An optional data object to be passed to the Scene and
+	 * emitted by its wake event.
+	 *
+	 * @return A reference to this SceneManager.
+	 */
+	SceneManager& wake (std::string key_, Data data_ = {});
 
-		/**
-		 * Moves a Scene so it is immediately below another Scene in the Scenes
-		 * list.
-		 *
-		 * This means it will render behind the other Scene.
-		 *
-		 * @since 0.0.0
-		 * @param keyA The key of the Scene that Scene B will be moved under.
-		 * @param keyB The key of the Scene to move.
-		 * @return A reference to this SceneManager instance.
-		 */
-		SceneManager& moveBelow (std::string keyA, std::string keyB);
+	/**
+	 * Runs the given Scene.
+	 *
+	 * If the given Scene is paused, it will resume it. If sleeping, it will
+	 * wake it. If not running at all, it will be started.
+	 *
+	 * Use this if you wish to open a modal Scene by calling `pause` on
+	 * the current Scene, then `run` on the modal Scene.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The Scene to put to run.
+	 * @param data_ An optional data object to be passed to the Scene and
+	 * emitted by its start, wake or resume event.
+	 *
+	 * @return A reference to this SceneManager.
+	 */
+	SceneManager& run (std::string key_, Data data_ = {});
 
-		/**
-		 * Queue a Scene operation for the next update.
-		 *
-		 * @since 0.0.0
-		 * @param operation The operation to perform.
-		 * @param keyA The key of Scene A.
-		 * @param keyB The key of Scene B.
-		 * @param data A data object.
-		 * @return A reference to this SceneManager instance.
-		 */
-		SceneManager& queueOp (
-				std::string operation,
-				std::string keyA,
-				std::string keyB = "",
-				Data data = {});
+	/**
+	 * Starts the given Scene.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The Scene to put to start.
+	 * @param data_ An optional data object to be passed to the Scene and
+	 * emitted by its start event.
+	 *
+	 * @return A reference to this SceneManager.
+	 */
+	SceneManager& start (std::string key_, Data data_ = {});
 
-		/**
-		 * Swaps the positions of two Scenes in the Scenes list.
-		 *
-		 * @since 0.0.0
-		 * @param keyA The key of Scene A.
-		 * @param keyB The key of Scene B.
-		 * @return A reference to this SceneManager instance.
-		 */
-		SceneManager& swapPosition (std::string keyA, std::string keyB);
+	/**
+	 * Stops the given Scene.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The Scene to put to stop.
+	 * @param data_ An optional data object to pass to Scene.shutdown.
+	 *
+	 * @return A reference to this SceneManager.
+	 */
+	SceneManager& stop (std::string key_, Data data_ = {});
 
+	/**
+	 * Put to sleep one Scene and starts the other.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param keyFrom_ The Scene to put to put to sleep.
+	 * @param keyTo_ The Scene to start.
+	 *
+	 * @return A reference to this SceneManager.
+	 */
+	SceneManager& swap (std::string keyFrom_, std::string keyTo_);
 
-	private:
-		/**
-		 * The Game that this SceneManager belongs to.
-		 *
-		 * @since 0.0.0
-		 */
-		Game& game;
+	/**
+	 * Retrieves a Scene by numeric index.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param index_ The Scene to put to put to sleep.
+	 *
+	 * @return A pointer to the Scene.
+	 */
+	Scene* getAt (int index_);
 
-		/**
-		 * A map of keys and scenes to quickly get a scene from a key without
-		 * iteration.
-		 *
-		 * @since 0.0.0
-		 */
-		std::map<std::string, Scene&> keys;
+	/**
+	 * Retrieves the numeric index of a Scene.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The key of the Scene.
+	 *
+	 * @return The index of the Scene.
+	 */
+	int getIndex (std::string key_);
 
-		/**
-		 * The vector in which all of the scenes are kept.
-		 *
-		 * @since 0.0.0
-		 */
-		std::vector<std::unique_ptr<Scene>> scenes;
+	/**
+	 * Brings a Scene to the top of the Scenes list.
+	 *
+	 * This means it will render above all other Scenes.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The key of the Scene to move.
+	 *
+	 * @return A reference to this SceneManager instance.
+	 */
+	SceneManager& bringToTop (std::string key_);
 
-		/**
-		 * Scenes pending to be added are stored in here until the manager has
-		 * time to add it.
-		 *
-		 * @since 0.0.0
-		 */
-		std::vector<SceneConfig> _pending;
+	/**
+	 * Sends a Scene to the back of the Scenes list.
+	 *
+	 * This means it will render below all other Scenes.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The key of the Scene to move.
+	 *
+	 * @return A reference to this SceneManager instance.
+	 */
+	SceneManager& sendToBack (std::string key_);
 
-		/**
-		 * A vector of keys of scenes to be started once the game has booted.
-		 *
-		 * @since 0.0.0
-		 */
-		std::vector<std::string> _start;
+	/**
+	 * Moves a Scene down one position in the Scenes list.
+	 *
+	 * This means it will render below all other Scenes.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The key of the Scene to move.
+	 *
+	 * @return A reference to this SceneManager instance.
+	 */
+	SceneManager& moveDown (std::string key_);
 
-		/**
-		 * An operations queue, because we don't manipulate the scenes vector
-		 * during processing.
-		 *
-		 * @since 0.0.0
-		 */
-		std::queue<SceneOperation> _queue;
+	/**
+	 * Moves a Scene up one position in the Scenes list.
+	 *
+	 * This means it will render below all other Scenes.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The key of the Scene to move.
+	 *
+	 * @return A reference to this SceneManager instance.
+	 */
+	SceneManager& moveUp (std::string key_);
 
-		std::map<std::string, SceneConfig> _data;
+	/**
+	 * Moves a Scene so it is immediately above another Scene in the Scenes
+	 * list.
+	 *
+	 * This means it will render over the top of the other Scene.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param keyA_ The key of the Scene that Scene B will be moved over.
+	 * @param keyB_ The key of the Scene to move.
+	 *
+	 * @return A reference to this SceneManager instance.
+	 */
+	SceneManager& moveAbove (std::string keyA_, std::string keyB_);
 
-		/**
-		 * Internal first-time Scene boot handler.
-		 *
-		 * @since 0.0.0
-		 */
-		void bootQueue (Data data);
+	/**
+	 * Moves a Scene so it is immediately below another Scene in the Scenes
+	 * list.
+	 *
+	 * This means it will render behind the other Scene.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param keyA_ The key of the Scene that Scene B will be moved under.
+	 * @param keyB_ The key of the Scene to move.
+	 *
+	 * @return A reference to this SceneManager instance.
+	 */
+	SceneManager& moveBelow (std::string keyA_, std::string keyB_);
 
-		/**
-		 * Boot the given Scene.
-		 *
-		 * @since 0.0.0
-		 */
-		void bootScene (Scene *scene);
+	/**
+	 * Queue a Scene operation for the next update.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param operation_ The operation to perform.
+	 * @param keyA_ The key of Scene A.
+	 * @param keyB_ The key of Scene B.
+	 * @param data_ A data object.
+	 *
+	 * @return A reference to this SceneManager instance.
+	 */
+	SceneManager& queueOp (
+			std::string operation_,
+			std::string keyA_,
+			std::string keyB_ = "",
+			Data data_ = {});
 
-		/**
-		 * Handles load completion for a Scene's Loader.
-		 *
-		 * Starts the Scene that the Loader belongs to.
-		 *
-		 * @since 0.0.0
-		 * @param data A data object, used here to pass the Scene's key.
-		 */
-		void loadComplete (Data data);
+	/**
+	 * Swaps the positions of two Scenes in the Scenes list.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param keyA_ The key of Scene A.
+	 * @param keyB_ The key of Scene B.
+	 *
+	 * @return A reference to this SceneManager instance.
+	 */
+	SceneManager& swapPosition (std::string keyA_, std::string keyB_);
+};
 
-		/**
-		 * Calls the given Scene's `create` method.
-		 *
-		 * @since 0.0.0
-		 * @param scene The scene to create.
-		 */
-		void create (Scene *scene);
-
-		/**
-		 * Retrieves the key of a Scene from a Scene config.
-		 *
-		 * @since 0.0.0
-		 * @param key The key to check in the Scene config.
-		 * @param sceneConfig The Scene config.
-		 */
-		std::string getKey (
-			std::string key,
-			SceneSettingsConfig sceneConfig
-			);
-
-		/**
-		 * Is the SceneManager actively processing the Scenes list?
-		 *
-		 * @since 0.0.0
-		 */
-		bool isProcessing;
-
-		/**
-		 * Has the SceneManager properly started?
-		 *
-		 * @since 0.0.0
-		 */
-		bool isBooted;
-	};
-}
+}	// namespace Scenes
+}	// namespace Zen
 
 // Declarations of the forward declared elements
 #include "../core/game.h"

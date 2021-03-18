@@ -16,6 +16,7 @@
 #include "../math/vector2.h"
 
 namespace Zen {
+
 /**
  * @since 0.0.0
  *

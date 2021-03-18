@@ -1,5 +1,5 @@
 /**
- * @file		scene_manager.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -7,242 +7,235 @@
 
 #include "scene_manager.h"
 
-Zen::SceneManager::SceneManager (
-	Zen::Game& g,
-	std::queue<std::function<std::unique_ptr<Zen::Scene>(Zen::Game&)>>& sceneFactory)
-	: game(g)
+namespace Zen {
+namespace Scenes {
+
+SceneManager::SceneManager (
+		Game& game_,
+		std::queue<std::function<std::unique_ptr<Scene>(Game&)>>& sceneFactory_)
+	: game(game_)
 {
-	isProcessing = false;
-	isBooted = false;
+	bool as_ = true;
+	while (!sceneFactory_.empty())
+	{
+		auto sceneMaker_ = sceneFactory_.front();
 
-	bool as = true;
-	while (!sceneFactory.empty()) {
-		auto sceneMaker = sceneFactory.front();
+		pending.emplace_back(
+				"default",			// key
+				sceneMaker(game_),	// scene
+				as_					// autoStart
+				);
 
-		_pending.emplace_back(
-			"default",			// key
-			sceneMaker(game),	// scene
-			as					// autoStart
-			);
-
-		sceneFactory.pop();
-		as = false;
+		sceneFactory_.pop();
+		// Only set the first scene to autoStart, this can change later
+		as_ = false;
 	}
 	// By the end of the loop, the game config's sceneFactory is empty.
 
-	game.events.once("SYS_READY", &SceneManager::bootQueue, this);
+	game_.events.once("ready", &SceneManager::bootQueue, this);
 }
 
-Zen::SceneManager::~SceneManager ()
+SceneManager::~SceneManager ()
 {
 	scenes.clear();
 
 	keys.clear();
 
-	_start.clear();
+	toStart.clear();
 
-	_pending.clear();
+	pending.clear();
 }
 
-void Zen::SceneManager::bootQueue (Zen::Data data)
+void SceneManager::bootQueue ()
 {
 	if (isBooted)
 		return;
 
-	SceneConfig* entry;
-	std::string key;
+	SceneConfig* entry_;
+	std::string key_;
 
-	for (int i = 0; i < _pending.size(); i++) {
-		entry = &_pending.at(i);
+	for (int i_ = 0; i_ < pending.size(); i_++)
+	{
+		entry_ = &pending.at(i_);
 
-		key = entry->key;
+		key_ = entry->key;
 
 		// Check if the scene has a key
-		if (entry->scene->sys.settings.key == "")
-			entry->scene->sys.settings.key = key;
+		if (entry_->scene->sys.settings.key == "")
+			entry_->scene->sys.settings.key = key_;
 
-		entry->scene->sys.init();
+		entry_->scene->sys.init();
 
 		// Replace key in case the scene had one
-		key = entry->scene->sys.settings.key;
+		key_ = entry_->scene->sys.settings.key;
 
 		// Any data to inject?
-		if (_data.find(key) != _data.end()) {
-			entry->scene->sys.settings.data = _data.find(key)->second.data;
+		if (bootData.find(key_) != bootData.end())
+		{
+			entry_->scene->sys.settings.data = bootData.find(key_)->second.data;
 
-			if (_data.find(key)->second.autoStart)
-				entry->autoStart = true;
+			if (bootData.find(key_)->second.autoStart)
+				entry_->autoStart = true;
 		}
 
 		// Check if there are scenes to start up
-		if (entry->autoStart || entry->scene->sys.settings.active)
-			_start.emplace_back(key);
+		if (entry_->autoStart || entry_->scene->sys.settings.active)
+			toStart.emplace_back(key_);
 
 		// Store a reference to the Scene in `keys`
-		keys.emplace(key, *entry->scene);
+		keys.emplace(key_, *entry_->scene);
 
 		// Move the unique pointer to the `scenes` vector
-		scenes.emplace_back(std::move(entry->scene));
+		scenes.emplace_back(std::move(entry_->scene));
 	}
 
 	// Clear the pending lists
-	_pending.clear();
+	pending.clear();
 
-	_data.clear();
+	bootData.clear();
 
 	isBooted = true;
 
 	// Start might have been populated by the above
-	for (auto s : _start)
-		start(s);
+	for (const auto& s_ : toStart)
+		start(s_);
 
-	_start.clear();
+	toStart.clear();
 }
 
-void Zen::SceneManager::processQueue ()
+void SceneManager::processQueue ()
 {
-	auto pendingLength = _pending.size();
-	auto queueLength = _queue.size();
+	auto pendingLength_ = pending.size();
+	auto queueLength_ = operationsQueue.size();
 
-	if (pendingLength == 0 && queueLength == 0)
+	if (pendingLength_ == 0 && queueLength_ == 0)
 		return;
 
-	if (pendingLength) {
-		SceneConfig* entry;
+	if (pendingLength_)
+	{
+		SceneConfig* entry_;
 
-		for (int i = 0; i < pendingLength; i++) {
-			entry = &_pending[i];
-			add(entry->key, std::move(entry->scene), entry->autoStart, entry->data);
+		for (int i_ = 0; i_ < pendingLength_; i_++)
+		{
+			entry_ = &pending[i_];
+			add(entry_->key, std::move(entry_->scene), entry_->autoStart, entry_->data);
 		}
 
-		// `_start` might have been populated by `add`
-		for (auto s : _start)
-			start(s);
+		// `toStart` might have been populated by `add`
+		for (auto s_ : toStart)
+			start(s_);
 
 		// Clear the pending lists
-		_start.clear();
-		_pending.clear();
+		toStart.clear();
+		pending.clear();
 
 		return;
 	}
 
-	while (!_queue.empty()) {
-		auto entry = _queue.front();
-		auto op = entry.operation;
-		auto keyA = entry.keyA;
-		auto keyB = entry.keyB;
-		auto data = entry.data;
+	while (!operationsQueue.empty()) {
+		auto entry_ = operationsQueue.front();
+		auto op_ = entry_.operation;
+		auto keyA_ = entry_.keyA;
+		auto keyB_ = entry_.keyB;
+		auto data_ = entry_.data;
 
-		if (op == "start")
-			start(keyA, data);
-		else if (op == "run")
-			run(keyA, data);
-		else if (op == "pause")
-			pause(keyA, data);
-		else if (op == "resume")
-			resume(keyA, data);
-		else if (op == "sleep")
-			sleep(keyA, data);
-		else if (op == "wake")
-			wake(keyA, data);
-		else if (op == "swap")
-			swap(keyA, keyB);
-		else if (op == "stop")
-			stop(keyA, data);
-		else if (op == "remove")
-			remove(keyA);
-		else if (op == "bringToTop")
-			bringToTop(keyA);
-		else if (op == "sendToBack")
-			sendToBack(keyA);
-		else if (op == "moveDown")
-			moveDown(keyA);
-		else if (op == "moveUp")
-			moveUp(keyA);
-		else if (op == "moveAbove")
-			moveAbove(keyA, keyB);
-		else if (op == "moveBelow")
-			moveBelow(keyA, keyB);
-		else if (op == "swapPosition")
-			swapPosition(keyA, keyB);
-		else
-			messageWarning("Operation unknown: ", op);
+		if		(op_ == "start")		start(keyA_, data_);
+		else if (op_ == "run")			run(keyA_, data_);
+		else if (op_ == "pause")		pause(keyA_, data_);
+		else if (op_ == "resume")		resume(keyA_, data_);
+		else if (op_ == "sleep")		sleep(keyA_, data_);
+		else if (op_ == "wake")			wake(keyA_, data_);
+		else if (op_ == "swap")			swap(keyA_, keyB_);
+		else if (op_ == "stop")			stop(keyA_, data_);
+		else if (op_ == "remove")		remove(keyA_);
+		else if (op_ == "bringToTop")	bringToTop(keyA_);
+		else if (op_ == "sendToBack")	sendToBack(keyA_);
+		else if (op_ == "moveDown")		moveDown(keyA_);
+		else if (op_ == "moveUp")		moveUp(keyA_);
+		else if (op_ == "moveAbove")	moveAbove(keyA_, keyB_);
+		else if (op_ == "moveBelow")	moveBelow(keyA_, keyB_);
+		else if (op_ == "swapPosition")	swapPosition(keyA_, keyB_);
+		else	messageWarning("Scene operation unknown: ", op_);
 
-		_queue.pop();
+		operationsQueue.pop();
 	}
 }
 
-Zen::Scene* Zen::SceneManager::add (
-	std::string key,
-	std::unique_ptr<Zen::Scene> scene,
-	bool autoStart,
-	Zen::Data data)
+Scene* SceneManager::add (
+		std::string key_,
+		std::unique_ptr<Scene> scene_,
+		bool autoStart_,
+		Data data_)
 {
 	// If processing or not booted then put scene into a holding pattern
-	if (isProcessing || !isBooted) {
-		_pending.emplace_back(
-			key,
-			std::move(scene),
-			autoStart,
-			data
-			);
+	if (isProcessing || !isBooted)
+	{
+		pending.emplace_back(key_, std::move(scene_), autoStart_, data_);
 
-		_data.emplace(key, SceneConfig{"", nullptr, false, data});
+		bootData.emplace(key_, SceneConfig{"", nullptr, false, data_});
 
 		return nullptr;
 	}
 
-	key = (scene->sys.settings.key != "") ? scene->sys.settings.key : key;
+	key_ = (scene_->sys.settings.key != "") ? scene_->sys.settings.key : key_;
 
 	// Any data to inject?
-	scene->sys.settings.data = data;
+	scene_->sys.settings.data = data_;
 
-	auto scenePtr = scene.get();
+	auto scenePtr_ = scene_.get();
 
 	// Store a reference to the Scene in `keys`
-	keys.emplace(key, *scene);
+	keys.emplace(key_, *scene_);
 
 	// Move the unique pointer to the `scenes` vector
-	scenes.emplace_back(std::move(scene));
+	scenes.emplace_back(std::move(scene_));
 
-	if (autoStart || scenePtr->sys.settings.active) {
-		if (_pending.size())
-			_start.emplace_back(key);
+	if (autoStart_ || scenePtr_->sys.settings.active)
+	{
+		if (pending.size())
+			toStart.emplace_back(key_);
 		else
-			start(key);
+			start(key_);
 	}
 
-	return scenePtr;
+	return scenePtr_;
 }
 
-Zen::SceneManager& Zen::SceneManager::remove (std::string key)
+SceneManager& SceneManager::remove (std::string key_)
 {
-	if (isProcessing) {
-		_queue.emplace("remove", key);
-	} else {
-		auto sceneToRemove = getScene(key);
+	if (isProcessing)
+	{
+		operationsQueue.emplace("remove", key_);
+	}
+	else
+	{
+		auto sceneToRemove_ = getScene(key_);
 
 		// Stop if the scene doesn't exist or is transitioning.
-		if (sceneToRemove == nullptr || sceneToRemove->sys.isTransitioning())
+		if (sceneToRemove_ == nullptr || sceneToRemove_->sys.isTransitioning())
 			return *this;
 
 		// Remove from the key map
-		auto mapI = keys.find(key);
-		if (mapI != keys.end())
-			keys.erase(mapI);
+		auto mapI_ = keys.find(key_);
+		if (mapI_ != keys.end())
+			keys.erase(mapI_);
 
 		// Remove from the scene vector
-		for (int i = 0; i < scenes.size(); i++) {
-			if (sceneToRemove == scenes.at(i).get()) {
-				scenes.erase(scenes.begin() + i);
+		for (int i_ = 0; i_ < scenes.size(); i_++)
+		{
+			if (sceneToRemove_ == scenes.at(i_).get())
+			{
+				scenes.erase(scenes.begin() + i_);
 				break;
 			}
 		}
 
-		// Remove from the _start list if there too
-		for (int i = 0; i < _start.size(); i++) {
-			if (key == _start.at(i)) {
-				_start.erase(_start.begin() + i);
+		// Remove from the toStart list if there too
+		for (int i_ = 0; i_ < toStart.size(); i_++)
+		{
+			if (key_ == toStart.at(i_))
+			{
+				toStart.erase(toStart.begin() + i_);
 				break;
 			}
 		}
@@ -251,396 +244,445 @@ Zen::SceneManager& Zen::SceneManager::remove (std::string key)
 	return *this;
 }
 
-void Zen::SceneManager::bootScene (Zen::Scene *scene)
+void SceneManager::bootScene (Scene *scene_)
 {
-	/* TODO INIT AND CO.
-	scene->init(scene->sys.settings.data);
-	scene->sys.settings.status = SCENE::INIT;
+	auto& sys_ = scene_->sys;
+	auto& settings_ = sys_.settings;
 
-	if (scene->sys.settings.isTransition)
-		scene->events.emit(
-			"SYS_TRANSITION_INIT",
-			{
-				{scene->sys.settings.transitionDuration},
-				{scene->sys.settings.transitionFrom->sys.settings.key}
-			});
+	scene_->init(settings_.data);
+	settings_.status = SCENE::INIT;
 
-	scene->load.reset();
+	if (settings_.isTransition)
+		sys_.events.emit(
+				"transition_init",
+				settings_.transitionFrom->sys.settings.key
+				settings_.transitionDuration,
+				);
 
-	scene->preload();
+	scene_->load.reset();
 
+	scene_->preload();
+
+	/*
+	 * TODO loader progress, maybe if I make something BIG later...
 	if (scene->load.list.empty())
+	{
 		create(scene);
-	else {
+	}
+	else
+	{
 		scene->sys.settings.status = SCENE::LOADING;
 
-		scene->events.once("SYS_LOAD_COMPLETE", &SceneManager::loadComplete, this);
+		scene->load.once("load_complete", &SceneManager::loadComplete, this);
 
 		scene->load.start();
 	}
 	*/
+
+	create(scene_);
 }
 
-void Zen::SceneManager::loadComplete (Zen::Data data)
+void SceneManager::loadComplete (Scene* scene_)
 {
-	Scene* scene = getScene(data.s.at(0));
-
-	if (scene != nullptr)
-		create(scene);
+	if (scene_ != nullptr)
+		create(scene_);
 }
 
-void Zen::SceneManager::update (Uint32 time, Uint32 delta)
+void SceneManager::update (Uint32 time_, Uint32 delta_)
 {
 	processQueue();
 
 	isProcessing = true;
 
 	// Loop through the active scenes in reverse order
-	for (int i = scenes.size() - 1; i >= 0; i--) {
-		if (
-			scenes.at(i)->sys.settings.status > SCENE::START &&
-			scenes.at(i)->sys.settings.status <= SCENE::RUNNING
-			)
-			scenes.at(i)->sys.step(time, delta);
+	for (int i_ = scenes.size() - 1; i_ >= 0; i_--)
+	{
+		auto& sys_ = scenes[i_]->sys;
+
+		if (sys_.settings.status > SCENE::START &&
+			sys_.settings.status <= SCENE::RUNNING
+		   )
+			sys_.step(time_, delta_);
 	}
 }
 
-void Zen::SceneManager::render ()
+void SceneManager::render ()
 {
 	// Loop through the scenes in forward order
-	for (int i = 0; i < scenes.size(); i++) {
-		if (
-			scenes.at(i)->sys.settings.visible &&
-			scenes.at(i)->sys.settings.status >= SCENE::LOADING &&
-			scenes.at(i)->sys.settings.status < SCENE::SLEEPING
-			)
-			scenes.at(i)->sys.render();
+	for (int i_ = 0; i_ < scenes.size(); i_++)
+	{
+		auto& sys_ = scenes[i_]->sys;
+
+		if (sys_.settings.visible &&
+			sys_.settings.status >= SCENE::LOADING &&
+			sys_.settings.status < SCENE::SLEEPING
+		   )
+			sys_.render();
 	}
 
 	isProcessing = false;
 }
 
-void Zen::SceneManager::create (Zen::Scene *scene)
+void SceneManager::create (Scene *scene_)
 {
-	auto sys = &scene->sys;
-	auto settings = &scene->sys.settings;
+	auto& sys_ = scene_->sys;
+	auto& settings_ = sys_.settings;
 
-	settings->status = SCENE::CREATING;
+	settings_.status = SCENE::CREATING;
 
-	scene->create(settings->data);
+	scene_->create(settings_.data);
 
-	if (settings->status == SCENE::DESTROYED)
+	if (settings_.status == SCENE::DESTROYED)
 		return;
 
-	if (settings->isTransition)
-		scene->events.emit(
-				"SYS_TRANSITION_START",
-				{{settings->transitionDuration}, {settings->transitionFrom->sys.settings.key}}
+	if (settings_.isTransition)
+		sys_.events.emit(
+				"transition-start",
+				settings_.transitionFrom->sys.settings.key,
+				settings_.transitionDuration
 				);
 
-	settings->status = SCENE::RUNNING;
+	settings_.status = SCENE::RUNNING;
 
-	scene->events.emit("SYS_CREATE");
+	sys_.events.emit("create");
 }
 
-std::vector<Zen::Scene*> Zen::SceneManager::getScenes (
-		bool isActive,
-		bool inReverse)
+std::vector<Scene*> SceneManager::getScenes (bool isActive_, bool inReverse_)
 {
-	std::vector<Scene*> out;
+	std::vector<Scene*> out_;
 
-	if (!inReverse) {
-		for (int i = 0; i < scenes.size(); i++) {
-			if (!isActive || (isActive && scenes.at(i)->sys.isActive()))
-				out.emplace_back(scenes.at(i).get());
+	if (!inReverse_)
+	{
+		for (int i_ = 0; i_ < scenes.size(); i_++)
+		{
+			if (!isActive_ || (isActive_ && scenes.at(i_)->sys.isActive()))
+				out_.emplace_back(scenes.at(i_).get());
 		}
-	} else {
-		for (int i = scenes.size() - 1; i >= 0; i++) {
-			if (!isActive || (isActive && scenes.at(i)->sys.isActive()))
-				out.emplace_back(scenes.at(i).get());
+	}
+	else
+	{
+		for (int i_ = scenes.size() - 1; i_ >= 0; i_++)
+		{
+			if (!isActive_ || (isActive_ && scenes.at(i_)->sys.isActive()))
+				out_.emplace_back(scenes.at(i_).get());
 		}
 	}
 
-	return out;
+	return out_;
 }
 
-Zen::Scene*
-Zen::SceneManager::getScene (std::string key)
+Scene* SceneManager::getScene (std::string key_)
 {
-	auto scene = keys.find(key);
-	if (scene != keys.end())
-		return &scene->second;
+	auto scene_ = keys.find(key_);
+	if (scene_ != keys.end())
+		return &scene_->second;
 
 	return nullptr;
 }
 
-bool Zen::SceneManager::isActive (std::string key)
+bool SceneManager::isActive (std::string key_)
 {
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene != nullptr)
-		return scene->sys.isActive();
+	if (scene_ != nullptr)
+		return scene_->sys.isActive();
 
 	return false;
 }
 
-bool Zen::SceneManager::isPaused (std::string key)
+bool SceneManager::isPaused (std::string key_)
 {
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene != nullptr)
-		return scene->sys.isPaused();
+	if (scene_ != nullptr)
+		return scene_->sys.isPaused();
 
 	return false;
 }
 
-bool Zen::SceneManager::isVisible (std::string key)
+bool SceneManager::isVisible (std::string key_)
 {
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene != nullptr)
-		return scene->sys.isVisible();
+	if (scene_ != nullptr)
+		return scene_->sys.isVisible();
 
 	return false;
 }
 
-bool Zen::SceneManager::isSleeping (std::string key)
+bool SceneManager::isSleeping (std::string key_)
 {
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene != nullptr)
-		return scene->sys.isSleeping();
+	if (scene_ != nullptr)
+		return scene_->sys.isSleeping();
 
 	return false;
 }
 
-Zen::SceneManager& Zen::SceneManager::pause (std::string key, Zen::Data data)
+SceneManager& SceneManager::pause (std::string key_, Data data_)
 {
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene != nullptr)
-		scene->sys.pause(data);
+	if (scene_ != nullptr)
+		scene_->sys.pause(data_);
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::resume (std::string key, Zen::Data data)
+SceneManager& SceneManager::resume (std::string key_, Data data_)
 {
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene != nullptr)
-		scene->sys.resume(data);
+	if (scene_ != nullptr)
+		scene_->sys.resume(data_);
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::sleep (std::string key, Zen::Data data)
+SceneManager& SceneManager::sleep (std::string key_, Data data_)
 {
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene != nullptr)
-		scene->sys.sleep(data);
+	if (scene_ != nullptr)
+		scene_->sys.sleep(data_);
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::wake (std::string key, Zen::Data data)
+SceneManager& SceneManager::wake (std::string key_, Data data_)
 {
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene != nullptr)
-		scene->sys.wake(data);
+	if (scene_ != nullptr)
+		scene_->sys.wake(data_);
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::run (std::string key, Zen::Data data)
+SceneManager& SceneManager::run (std::string key_, Data data_)
 {
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene == nullptr) {
-		for (int i = 0; i < _pending.size(); i++) {
-			if (_pending.at(i).key == key) {
-				queueOp("start", key, "", data);
+	if (scene_ == nullptr)
+	{
+		for (int i_ = 0; i_ < pending.size(); i_++)
+		{
+			if (pending.at(i_).key_ == key_)
+			{
+				queueOp("start", key_, "", data_);
 				break;
 			}
 		}
-	} else {
-		if (scene->sys.isSleeping())
+	}
+	else
+	{
+		if (scene_->sys.isSleeping())
 			// Sleeping?
-			scene->sys.wake(data);
-		else if (scene->sys.isPaused())
+			scene_->sys.wake(data_);
+		else if (scene_->sys.isPaused())
 			// Paused?
-			scene->sys.resume(data);
+			scene_->sys.resume(data_);
 		else
 			// Not actually running?
-			start(key, data);
+			start(key_, data_);
 	}
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::start (std::string key, Zen::Data data)
+SceneManager& SceneManager::start (std::string key_, Data data_)
 {
 	// If the Scene Manager is not running, then put the Scene into a holding pattern
-	if (!isBooted) {
-		auto d = _data.find(key);
-		if (d != _data.end()) {
-			d->second.autoStart = true;
-			d->second.data = data;
+	if (!isBooted)
+	{
+		auto d_ = bootData.find(key_);
+		if (d_ != bootData.end())
+		{
+			d_->second.autoStart = true;
+			d_->second.data_ = data_;
 		}
 
 		return *this;
 	}
 
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene != nullptr) {
+	if (scene_ != nullptr)
+	{
 		// If the Scene is already running (perhaps they called start from a launched sub-Scene?)
 		// then we close it down before starting it again.
-		if (scene->sys.isActive() || scene->sys.isPaused()) {
-			scene->sys.shutdown();
-			scene->sys.start(data);
-		} else {
-			scene->sys.start(data);
+		if (scene_->sys.isActive() || scene_->sys.isPaused())
+		{
+			scene_->sys.shutdown();
+			scene_->sys.start(data_);
+		}
+		else
+		{
+			scene_->sys.start(data_);
 		}
 
-		bootScene(scene);
+		bootScene(scene_);
 	}
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::stop (std::string key, Zen::Data data)
+SceneManager& SceneManager::stop (std::string key_, Data data_)
 {
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene != nullptr && !scene->sys.isTransitioning())
-		scene->sys.shutdown(data);
+	if (scene_ != nullptr && !scene_->sys.isTransitioning())
+		scene_->sys.shutdown(data_);
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::swap (std::string keyFrom, std::string keyTo)
+SceneManager& SceneManager::swap (std::string keyFrom_, std::string keyTo_)
 {
-	auto sceneA = getScene(keyFrom);
-	auto sceneB = getScene(keyTo);
+	auto sceneA_ = getScene(keyFrom_);
+	auto sceneB_ = getScene(keyTo_);
 
-	if (sceneA != nullptr && sceneB != nullptr && keyFrom != keyTo) {
-		sleep(keyFrom);
+	if (sceneA_ != nullptr && sceneB_ != nullptr && keyFrom_ != keyTo_)
+	{
+		sleep(keyFrom_);
 
-		if (isSleeping(keyTo))
-			wake(keyTo);
+		if (isSleeping(keyTo_))
+			wake(keyTo_);
 		else
-			start(keyTo);
+			start(keyTo_);
 	}
 
 	return *this;
 }
 
-Zen::Scene* Zen::SceneManager::getAt (int index)
+Scene* SceneManager::getAt (int index_)
 {
-	return scenes.at(index).get();
+	return scenes.at(index_).get();
 }
 
-int Zen::SceneManager::getIndex (std::string key)
+int SceneManager::getIndex (std::string key_)
 {
-	auto scene = getScene(key);
+	auto scene_ = getScene(key_);
 
-	if (scene == nullptr)
+	if (scene_ == nullptr)
 		return -1;
 
-	for (int i = 0; i < scenes.size(); i++) {
-		if (scene == scenes.at(i).get())
-			return i;
+	for (int i_ = 0; i_ < scenes.size(); i_++)
+	{
+		if (scene_ == scenes.at(i_).get())
+			return i_;
 	}
 
 	return -1;
 }
 
-Zen::SceneManager& Zen::SceneManager::bringToTop (std::string key)
+SceneManager& SceneManager::bringToTop (std::string key_)
 {
-	if (isProcessing) {
-		_queue.emplace("bringToTop", key, "");
-	} else {
-		int index = getIndex(key);
+	if (isProcessing)
+	{
+		operationsQueue.emplace("bringToTop", key_, "");
+	}
+	else
+	{
+		int index_ = getIndex(key_);
 
-		if (index != -1 && index < scenes.size()) {
-			std::unique_ptr<Scene> scene = std::move(scenes.at(index));
-			scenes.erase(scenes.begin() + index);
-			scenes.emplace_back(std::move(scene));
+		if (index_ != -1 && index_ < scenes.size())
+		{
+			std::unique_ptr<Scene> scene_ = std::move(scenes.at(index_));
+			scenes.erase(scenes.begin() + index_);
+			scenes.emplace_back(std::move(scene_));
 		}
 	}
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::sendToBack (std::string key)
+SceneManager& SceneManager::sendToBack (std::string key_)
 {
-	if (isProcessing) {
-		_queue.emplace("sendToBack", key, "");
-	} else {
-		int index = getIndex(key);
+	if (isProcessing)
+	{
+		operationsQueue.emplace("sendToBack", key_, "");
+	}
+	else
+	{
+		int index_ = getIndex(key_);
 
-		if (index != -1 && index < scenes.size()) {
-			std::unique_ptr<Scene> scene = std::move(scenes.at(index));
-			scenes.erase(scenes.begin() + index);
-			scenes.emplace(scenes.begin(), move(scene));
+		if (index_ != -1 && index_ < scenes.size())
+		{
+			std::unique_ptr<Scene> scene_ = std::move(scenes.at(index_));
+			scenes.erase(scenes.begin() + index_);
+			scenes.emplace(scenes.begin(), move(scene_));
 		}
 	}
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::moveDown (std::string key)
+SceneManager& SceneManager::moveDown (std::string key_)
 {
-	if (isProcessing) {
-		_queue.emplace("moveDown", key, "");
-	} else {
-		int index = getIndex(key);
+	if (isProcessing)
+	{
+		operationsQueue.emplace("moveDown", key_, "");
+	}
+	else
+	{
+		int index_ = getIndex(key_);
 
-		if (index > 0) {
-			scenes.at(index).swap(scenes.at(index-1));
+		if (index_ > 0)
+		{
+			scenes.at(index_).swap(scenes.at(index_-1));
 		}
 	}
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::moveUp (std::string key)
+SceneManager& SceneManager::moveUp (std::string key_)
 {
-	if (isProcessing) {
-		_queue.emplace("moveUp", key, "");
-	} else {
-		int index = getIndex(key);
+	if (isProcessing)
+	{
+		operationsQueue.emplace("moveUp", key_, "");
+	}
+	else
+	{
+		int index_ = getIndex(key_);
 
-		if (index < scenes.size() - 1) {
-			scenes.at(index).swap(scenes.at(index+1));
+		if (index_ < scenes.size() - 1)
+		{
+			scenes.at(index_).swap(scenes.at(index_+1));
 		}
 	}
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::moveAbove (std::string keyA, std::string keyB)
+SceneManager& SceneManager::moveAbove (std::string keyA_, std::string keyB_)
 {
-	if (keyA == keyB)
+	if (keyA_ == keyB_)
 		return *this;
 
-	if (isProcessing) {
-		_queue.emplace("moveAbove", keyA, keyB);
-	} else {
-		int indexA = getIndex(keyA);
-		int indexB = getIndex(keyB);
+	if (isProcessing)
+	{
+		operationsQueue.emplace("moveAbove", keyA_, keyB_);
+	}
+	else
+	{
+		int indexA_ = getIndex(keyA_);
+		int indexB_ = getIndex(keyB_);
 
-		if (indexA != -1 && indexB != -1) {
-			std::unique_ptr<Scene> tempScene = std::move(scenes.at(indexB));
-			scenes.erase(scenes.begin() + indexB);
+		if (indexA_ != -1 && indexB_ != -1)
+		{
+			std::unique_ptr<Scene> tempScene_ = std::move(scenes.at(indexB_));
+			scenes.erase(scenes.begin() + indexB_);
 
-			if (indexA >= scenes.size() - 1) {
-				scenes.emplace_back(std::move(tempScene));
-			} else {
-				scenes.emplace(scenes.begin() + indexA + 1, std::move(tempScene));
+			if (indexA_ >= scenes.size() - 1)
+			{
+				scenes.emplace_back(std::move(tempScene_));
+			}
+			else
+			{
+				scenes.emplace(scenes.begin() + indexA_ + 1, std::move(tempScene_));
 			}
 		}
 	}
@@ -648,56 +690,67 @@ Zen::SceneManager& Zen::SceneManager::moveAbove (std::string keyA, std::string k
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::moveBelow (std::string keyA, std::string keyB)
+SceneManager& SceneManager::moveBelow (std::string keyA_, std::string keyB_)
 {
-	if (keyA == keyB)
+	if (keyA_ == keyB_)
 		return *this;
 
-	if (isProcessing) {
-		_queue.emplace("moveBelow", keyA, keyB);
-	} else {
-		int indexA = getIndex(keyA);
-		int indexB = getIndex(keyB);
+	if (isProcessing)
+	{
+		operationsQueue.emplace("moveBelow", keyA_, keyB_);
+	}
+	else
+	{
+		int indexA_ = getIndex(keyA_);
+		int indexB_ = getIndex(keyB_);
 
-		if (indexA != -1 && indexB != -1) {
-			std::unique_ptr<Scene> tempScene = std::move(scenes.at(indexB));
-			scenes.erase(scenes.begin() + indexB);
+		if (indexA_ != -1 && indexB_ != -1)
+		{
+			std::unique_ptr<Scene> tempScene_ = std::move(scenes.at(indexB_));
+			scenes.erase(scenes.begin() + indexB_);
 
-			scenes.emplace(scenes.begin() + indexA, std::move(tempScene));
+			scenes.emplace(scenes.begin() + indexA_, std::move(tempScene_));
 		}
 	}
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::queueOp (
-	std::string operation,
-	std::string keyA,
-	std::string keyB,
-	Zen::Data data)
+SceneManager& SceneManager::queueOp (
+		std::string operation_,
+		std::string keyA_,
+		std::string keyB_,
+		Data data_)
 {
-	_queue.emplace(operation, keyA, keyB, data);
+	operationsQueue.emplace(operation_, keyA_, keyB_, data_);
 
 	return *this;
 }
 
-Zen::SceneManager& Zen::SceneManager::swapPosition (
-	std::string keyA,
-	std::string keyB)
+SceneManager& SceneManager::swapPosition (
+		std::string keyA_,
+		std::string keyB_)
 {
-	if (keyA == keyB)
+	if (keyA_ == keyB_)
 		return *this;
 
-	if (isProcessing) {
-		_queue.emplace("swapPosition", keyA, keyB);
-	} else {
-		int indexA = getIndex(keyA);
-		int indexB = getIndex(keyB);
+	if (isProcessing)
+	{
+		operationsQueue.emplace("swapPosition", keyA_, keyB_);
+	}
+	else
+	{
+		int indexA_ = getIndex(keyA_);
+		int indexB_ = getIndex(keyB_);
 
-		if (indexA != -1 && indexB != -1) {
-			scenes.at(indexA).swap(scenes.at(indexB));
+		if (indexA_ != -1 && indexB_ != -1)
+		{
+			scenes.at(indexA_).swap(scenes.at(indexB_));
 		}
 	}
 
 	return *this;
 }
+
+}	// namespace Scenes
+}	// namespace Zen

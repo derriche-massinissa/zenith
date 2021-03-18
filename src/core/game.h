@@ -84,7 +84,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	EventEmitter events;
+	Events::EventEmitter events;
 
 	/**
 	 * An instance of the Animation Manager.
@@ -104,7 +104,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	TextureManager textures;
+	Textures::TextureManager textures;
 
 	/**
 	 * An instance of the Data Manager.
@@ -133,7 +133,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SceneManager scene;
+	Scenes::SceneManager scene;
 
 	/**
 	 * A reference to the Device Inspector.
@@ -155,7 +155,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	ScaleManager scale;
+	Scale::ScaleManager scale;
 
 	/**
 	 * An instance of the base Audio Manager.
@@ -176,7 +176,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	TimeStep loop;
+	Core::TimeStep loop;
 
 	/**
 	 * This method starts the game.
