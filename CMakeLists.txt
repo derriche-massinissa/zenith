@@ -90,29 +90,29 @@ set(zenith_SRCS
 	src/scene/scene_systems.cpp
 	src/scene/scene_transition_config.h
 
-	srd/structs/size.h
-	srd/structs/size.cpp
+	src/structs/size.h
+	src/structs/size.cpp
 
-	src/textures/crop_data.h
-	src/textures/frame.h
-	src/textures/frame.cpp
-	src/textures/frame_data.h
-	src/textures/sprite_sheet_config.h
-	src/textures/texture.h
-	src/textures/texture.cpp
-	src/textures/texture_manager.h
-	src/textures/texture_manager.cpp
-	src/textures/texture_source.h
-	src/textures/texture_source.cpp
+	src/texture/crop_data.h
+	src/texture/frame.h
+	src/texture/frame.cpp
+	src/texture/frame_data.h
+	src/texture/sprite_sheet_config.h
+	src/texture/texture.h
+	src/texture/texture.cpp
+	src/texture/texture_manager.h
+	src/texture/texture_manager.cpp
+	src/texture/texture_source.h
+	src/texture/texture_source.cpp
 
-	src/textures/parsers/json_array.h
-	src/textures/parsers/json_array.cpp
-	src/textures/parsers/json_hash.h
-	src/textures/parsers/json_hash.cpp
-	src/textures/parsers/sprite_sheet.h
-	src/textures/parsers/sprite_sheet.cpp
-	src/textures/parsers/sprite_sheet_atlas.h
-	src/textures/parsers/sprite_sheet_atlas.cpp
+	src/texture/parsers/json_array.h
+	src/texture/parsers/json_array.cpp
+	src/texture/parsers/json_hash.h
+	src/texture/parsers/json_hash.cpp
+	src/texture/parsers/sprite_sheet.h
+	src/texture/parsers/sprite_sheet.cpp
+	src/texture/parsers/sprite_sheet_atlas.h
+	src/texture/parsers/sprite_sheet_atlas.cpp
 
 	src/window/window.h
 	src/window/window.cpp
