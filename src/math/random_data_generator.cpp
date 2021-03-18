@@ -1,5 +1,5 @@
 /**
- * @file		random_data_generator.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -23,35 +23,35 @@ void RandomDataGenerator::seed ()
 	engine.seed(seed);
 }
 
-void RandomDataGenerator::seed (unsigned int seeds)
+void RandomDataGenerator::seed (unsigned int seed_)
 {
-	seed = seeds;
+	seed = seed_;
 
 	engine.seed(seed);
 }
 
-int RandomDataGenerator::integer (int min, int max)
+int RandomDataGenerator::integer (int min_, int max_)
 {
-	std::uniform_int_distribution<> dist (min, max);
+	std::uniform_int_distribution<> dist (min_, max_);
 
 	return dist(engine);
 }
 
-int RandomDataGenerator::between (int min, int max)
+int RandomDataGenerator::between (int min_, int max_)
 {
-	return integer(min, max);
+	return integer(min_, max_);
 }
 
-double RandomDataGenerator::real (double min, double max)
+double RandomDataGenerator::real (double min_, double max_)
 {
-	std::uniform_real_distribution<> dist (min, max);
+	std::uniform_real_distribution<> dist (min_, max_);
 
 	return dist(engine);
 }
 
-double RandomDataGenerator::between (double min, double max)
+double RandomDataGenerator::between (double min_, double max_)
 {
-	return real(min, max);
+	return real(min_, max_);
 }
 
 double RandomDataGenerator::frac ()

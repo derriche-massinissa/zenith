@@ -1,12 +1,12 @@
 /**
- * @file		random_data_generator.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef MATH_RANDOM_H
-#define MATH_RANDOM_H
+#ifndef ZEN_MATH_RANDOM_H
+#define ZEN_MATH_RANDOM_H
 
 #include <algorithm>
 #include <cmath>
@@ -31,23 +31,23 @@ public:
 	/**
 	 * Sets the seed of this Random Data Generator to the given seed.
 	 *
-	 * @param seeds The new seed value.
+	 * @param seeds_ The new seed value.
 	 *
 	 * @since 0.0.0
 	 */
-	void seed (unsigned int seeds);
+	void seed (unsigned int seed_);
 
 	/**
 	 * Returns a random integer between min and max, both inclusive.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param min The minimum value in the range.
-	 * @param max The maximum value in the range.
+	 * @param min_ The minimum value in the range.
+	 * @param max_ The maximum value in the range.
 	 *
 	 * @return A random number between `min` and `max`.
 	 */
-	int integer (int min, int max);
+	int integer (int min_, int max_);
 
 	/**
 	 * Returns a random integer between min and max, both inclusive.
@@ -55,25 +55,24 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param min The minimum value in the range.
-	 * @param max The maximum value in the range.
+	 * @param min_ The minimum value in the range.
+	 * @param max_ The maximum value in the range.
 	 *
 	 * @return A random number between `min` and `max`.
 	 */
-	int between (int min, int max);
-
+	int between (int min_, int max_);
 
 	/**
 	 * Returns a random real number between min and max, both inclusive.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param min The minimum value in the range.
-	 * @param max The maximum value in the range.
+	 * @param min_ The minimum value in the range.
+	 * @param max_ The maximum value in the range.
 	 *
 	 * @return A random number between `min` and `max`.
 	 */
-	double real (double min, double max);
+	double real (double min_, double max_);
 
 	/**
 	 * Returns a random real number between min and max, both inclusive.
@@ -81,12 +80,12 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param min The minimum value in the range.
-	 * @param max The maximum value in the range.
+	 * @param min_ The minimum value in the range.
+	 * @param max_ The maximum value in the range.
 	 *
 	 * @return A random number between `min` and `max`.
 	 */
-	double between (double min, double max);
+	double between (double min_, double max_);
 
 	/**
 	 * Returns a random real number between min and max, both inclusive.
@@ -111,14 +110,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param vector The vector to pick a random element from.
+	 * @param vector_ The vector to pick a random element from.
 	 *
 	 * @return A random member of the vector.
 	 */
 	template <typename T>
-	T& pick (const std::vector<T>& vector)
+	T& pick (const std::vector<T>& vector_)
 	{
-		return vector.at(integer(0, vector.size() - 1));
+		return vector_.at(integer(0, vector_.size() - 1));
 	}
 
     /**
@@ -136,16 +135,16 @@ public:
      *
      * @since 0.0.0
      *
-     * @param vector The vector to pick a random element from.
+     * @param vector_ The vector to pick a random element from.
      *
      * @return A reference to a random member of the array.
      */
 	template <typename T>
-	T& weightedPick (const std::vector<T>& vector)
+	T& weightedPick (const std::vector<T>& vector_)
 	{
-		return vector.at(
+		return vector_.at(
 				std::trunc(
-					std::pow(frac(), 2.0) * (vector.size() - 1) + 0.5
+					std::pow(frac(), 2.0) * (vector_.size() - 1) + 0.5
 					)
 				);
 	}
@@ -174,12 +173,12 @@ public:
      *
      * @since 0.0.0
      *
-     * @param vector A pointer to the vector to be shuffled.
+     * @param vector_ A pointer to the vector to be shuffled.
      */
 	template <typename T>
-	void shuffle (std::vector<T> *vector)
+	void shuffle (std::vector<T> *vector_)
 	{
-		std::shuffle(vector.begin(), vector.end(), engine);
+		std::shuffle(vector_.begin(), vector_.end(), engine);
 	}
 
 	/**
