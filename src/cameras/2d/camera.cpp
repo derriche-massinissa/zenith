@@ -26,6 +26,10 @@ Camera::Camera (int x_, int y_, int width_, int height_)
 	, midPoint (width_ / 2, height_ / 2)
 {}
 
+Camera::Camera (const Camera& other_)
+	: Camera (other_.x, other_.y, other_.width, other_.height)
+{}
+
 Camera::~Camera ()
 {
 	resetFX();
@@ -420,6 +424,15 @@ Camera& Camera::setBackgroundColor (int color_)
 Camera& Camera::setBackgroundColor (int r_, int g_, int b_, int a_)
 {
 	backgroundColor.setTo(r_, g_, b_, a_);
+
+	transparent = (backgroundColor.alpha() == 0);
+
+	return *this;
+}
+
+Camera& Camera::setBackgroundColor (Display::Color color_)
+{
+	backgroundColor = color_;
 
 	transparent = (backgroundColor.alpha() == 0);
 

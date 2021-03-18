@@ -21,9 +21,10 @@
 #include "../../event/event_emitter.h"
 #include "../../geom/rectangle.h"
 
+#include "camera_manager.fwd.h"
+
 #include "../../scene/scene.fwd.h"
 #include "../../scene/scene_manager.fwd.h"
-#include "camera_manager.fwd.h"
 
 #include "../../display/color.h"
 #include "../../display/masks/mask.h"
@@ -101,7 +102,7 @@ class Camera
 	, public GameObjects::Components::Flip<Camera>
 	, public GameObjects::Components::Tint<Camera>
 {
-protected:
+public:
 	/**
 	 * The x position of the Camera viewport, relative to the top-left of the game canvas.
 	 * The viewport is the area into which the camera renders.
@@ -358,6 +359,8 @@ protected:
 	 * @since 0.0.0
 	 */
 	GameObjects::GameObject* follow = nullptr;
+	
+	int renderFlags = 15;
 
 	/**
 	 * Internal method called automatically when the viewport changes.
@@ -375,11 +378,11 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	const int COMPONENT_MASK =
-		COMPONENT_MASK_ALPHA |
-		COMPONENT_MASK_VISIBLE |
-		COMPONENT_MASK_FLIP |
-		COMPONENT_MASK_TINT;
+	static const int COMPONENT_MASK =
+		COMPONENT_MASK_ALPHA	|
+		COMPONENT_MASK_VISIBLE	|
+		COMPONENT_MASK_FLIP		|
+		COMPONENT_MASK_TINT		;
 
 	/**
 	 * Returns the object's Component Bitmask.
@@ -404,6 +407,13 @@ public:
 
 	/**
 	 * @since 0.0.0
+	 *
+	 * @param other_ A Camera object to copy from.
+	 */
+	Camera (const Camera& other_);
+
+	/**
+	 * @since 0.0.0
 	 */
 	~Camera();
 
@@ -412,28 +422,28 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scene *scene;
+	Scene *scene = nullptr;
 
 	/**
 	 * A pointer to the Game's SceneManager.
 	 *
 	 * @since 0.0.0
 	 */
-	Scenes::SceneManager *sceneManager;
+	Scenes::SceneManager *sceneManager = nullptr;
 
 	/**
 	 * A pointer to the Game's ScaleManager.
 	 *
 	 * @since 0.0.0
 	 */
-	Scale::ScaleManager *scaleManager;
+	Scale::ScaleManager *scaleManager = nullptr;
 
 	/**
 	 * A pointer to the Scene's CameraManager.
 	 *
 	 * @since 0.0.0
 	 */
-	Cameras::Scene2D::CameraManager *cameraManager;
+	Cameras::Scene2D::CameraManager *cameraManager = nullptr;
 
 	/**
 	 * The Camera ID. Assigned by the Camera Manager and used to handle camera exclusion.
@@ -866,6 +876,17 @@ public:
 	Camera& setBackgroundColor (int r_ = 0, int g_ = 0, int b_ = 0, int a_ = 0);
 
 	/**
+	 * @overload
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param color_ The color object to use.
+	 *
+	 * @return This Camera instance.
+	 */
+	Camera& setBackgroundColor (Display::Color color_);
+
+	/**
 	 * Set the bounds of the Camera. The bounds are an axis-aligned rectangle.
 	 *
 	 * The Camera bounds controls where the Camera can scroll to, stopping it from scrolling off the
@@ -1133,7 +1154,7 @@ public:
 	 *
 	 * @param x_ The value to set `x` to.
 	 *
-	 * @return This Base Camera instance.
+	 * @return This Camera instance.
 	 */
 	Camera& setX (int x_);
 
@@ -1153,7 +1174,7 @@ public:
 	 *
 	 * @param y_ The value to set `y` to.
 	 *
-	 * @return This Base Camera instance.
+	 * @return This Camera instance.
 	 */
 	Camera& setY (int y_);
 
@@ -1173,7 +1194,7 @@ public:
 	 *
 	 * @param width_ The value to set `width` to.
 	 *
-	 * @return This Base Camera instance.
+	 * @return This Camera instance.
 	 */
 	Camera& setWidth (int width_);
 
@@ -1193,7 +1214,7 @@ public:
 	 *
 	 * @param height_ The value to set `height` to.
 	 *
-	 * @return This Base Camera instance.
+	 * @return This Camera instance.
 	 */
 	Camera& setHeight (int height_);
 
@@ -1213,7 +1234,7 @@ public:
 	 *
 	 * @param value_ The value to set `scrollX` to.
 	 *
-	 * @return This Base Camera instance.
+	 * @return This Camera instance.
 	 */
 	Camera& setScrollX (int value_ = 0);
 
@@ -1224,7 +1245,6 @@ public:
 	 *
 	 * @return The value of `scrollY`.
 	 */
-
 	int getScrollY ();
 
 	/**
@@ -1234,7 +1254,7 @@ public:
 	 *
 	 * @param value_ The value to set `scrollY` to.
 	 *
-	 * @return This Base Camera instance.
+	 * @return This Camera instance.
 	 */
 	Camera& setScrollY (int value_ = 0);
 
@@ -1263,7 +1283,7 @@ public:
 	 *
 	 * @param value_ The value to set `zoomX` to.
 	 *
-	 * @return This Base Camera instance.
+	 * @return This Camera instance.
 	 */
 	Camera& setZoomX (double value_ = 1.0);
 
@@ -1283,7 +1303,7 @@ public:
 	 *
 	 * @param value_ The value to set `zoomY` to.
 	 *
-	 * @return This Base Camera instance.
+	 * @return This Camera instance.
 	 */
 	Camera& setZoomY (double value_ = 1.0);
 
@@ -1858,7 +1878,7 @@ public:
 }	// namespace Zen
 
 // Declaration of forward declared elements
-#include "../../scene/scene.h"
-#include "../../scene/scene_manager.h"
+#include "camera_manager.h"
+//#include "../../scene/scene.h"
 
 #endif

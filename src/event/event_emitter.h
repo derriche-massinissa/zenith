@@ -83,6 +83,13 @@ public:
 				(context_->*callback_)(args_...);
 			};
 
+		// Add the event to the event map
+		eventMap[eventName_].emplace_back(
+				std::make_unique<Listener<Args...>> (eventName_, boundCB_, once_)
+				);
+
+		/**
+		 * @todo Delete this block in src/event/event_emitter.h
 		// Check if the event already has listeners (Exists in the event map)
 		auto iterator_ = eventMap.find(eventName_);
 
@@ -100,6 +107,7 @@ public:
 					std::make_unique<Listener<Args...>> (eventName_, boundCB_, once_)
 					});
 		}
+		*/
 	}
 
 	/**

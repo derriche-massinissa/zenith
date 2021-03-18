@@ -15,6 +15,7 @@
 #include "camera_config.h"
 #include "camera.h"
 #include "../../scene/scene.fwd.h"
+#include "../../scene/scene_systems.h"
 #include "../../geom/rectangle.h"
 #include "../../structs/size.h"
 #include "../../input/pointer.h"
@@ -353,11 +354,12 @@ private:
 	 * @return The next available Camera ID, or 0 if they're all already in use.
 	 */
 	int getNextID ();
-
 };
 
 }	// namespace Scene2D
 }	// namespace Cameras
 }	// namespace Zen
+
+#include "../../scene/scene_manager.h"
 
 #endif

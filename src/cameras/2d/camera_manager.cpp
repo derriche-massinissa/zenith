@@ -43,13 +43,10 @@ void CameraManager::boot ()
 	main = &cameras.at(0);
 
 	// Configure the default camera (It already exists)
-	def.setViewpointX(0)
-		.setViewpointY(0)
-		.setViewpointWidth(systems.scale.width)
-		.setViewpointHeight(systems.scale.height)
+	def.setViewport(0, 0, scene.scale.getWidth(), scene.scale.getHeight())
 		.setScene(&scene);
 
-	systems.game.scale.on("resize", &CameraManager::onResize, this);
+	scene.scale.on("resize", &CameraManager::onResize, this);
 }
 
 void CameraManager::start ()
@@ -214,15 +211,22 @@ int CameraManager::remove (std::vector<Camera*> camerasToRemove_)
 {
 	int total_ = 0;
 
-	for (auto it_ = cameras.begin(); it_ != cameras.end(); it_++)
+	for (auto it_ = cameras.begin(); it_ != cameras.end();)
 	{
-		for (auto& c_ : camerasToRemove_)
+		for (Camera*& c_ : camerasToRemove_)
 		{
 			if (c_ == &*it_)
 			{
 				if (c_ == main) main = nullptr;
-				cameras.erase(it_);
+				//cameras.erase(it_);
 				total_++;
+				it_++;
+				// TODO
+			}
+			else
+			{
+				// Only increment if no erasing happened
+				it_++;
 			}
 		}
 	}

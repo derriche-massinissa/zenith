@@ -9,14 +9,15 @@
 #define ZEN_SCENES_SCENE_SETTINGS_H
 
 #include <SDL2/SDL.h>
-#include <memory>
 #include <string>
+#include <vector>
 
 // Forward declarations
 #include "scene.fwd.h"
 
 #include "../data.h"
 #include "../const.h"
+#include "../cameras/2d/camera_config.h"
 
 namespace Zen {
 namespace Scenes {
@@ -54,6 +55,8 @@ public:
 	bool transitionAllowInput = true;
 
 	Data data = {};
+
+	std::vector<Cameras::Scene2D::CameraConfig> cameras;
 };
 
 }	// namespace Scenes

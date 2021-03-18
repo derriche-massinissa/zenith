@@ -8,6 +8,8 @@
 #ifndef ZEN_GAMEOBJECTS_GAMEOBJECT_H
 #define ZEN_GAMEOBJECTS_GAMEOBJECT_H
 
+#include "../cameras/2d/camera.fwd.h"
+
 namespace Zen {
 namespace GameObjects {
 
@@ -45,6 +47,11 @@ public:
 	double getOriginY ()
 	{
 		return 0.5;
+	}
+
+	bool willRender (Cameras::Scene2D::Camera& camera_)
+	{
+		return true;
 	}
 };
 

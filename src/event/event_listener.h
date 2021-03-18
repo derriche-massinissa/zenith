@@ -61,7 +61,7 @@ public:
 	 * @param cb_ The callback function to activate when an event happens.
 	 * @param flag_ Whether this listener is one timed or not.
 	 */
-	Listener(std::string event_, std::function<void(Args...)> cb_, bool flag_)
+	Listener (std::string event_, std::function<void(Args...)> cb_, bool flag_)
 		: callback(cb_), ListenerBase(event_, flag_)
 	{}
 

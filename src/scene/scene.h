@@ -12,14 +12,14 @@
 
 // Forward declarations
 #include "../core/game.fwd.h"
+#include "../scale/scale_manager.fwd.h"
+#include "../cameras/2d/camera_manager.fwd.h"
 
 #include "scene_systems.h"
 #include "scene_plugin.h"
 #include "../event/event_emitter.h"
-#include "../cameras/2d/camera_manager.h"
 #include "../loader/loader_plugin.h"
 #include "../texture/texture_manager.h"
-#include "../scale/scale_manager.fwd.h"
 
 namespace Zen {
 
@@ -256,5 +256,6 @@ public:
 }	// namespace Zen
 
 #include "../scale/scale_manager.h"
+#include "../cameras/2d/camera_manager.h"
 
 #endif
