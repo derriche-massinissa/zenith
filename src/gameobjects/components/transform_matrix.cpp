@@ -1,5 +1,5 @@
 /**
- * @file		transform_matrix.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -11,102 +11,102 @@ namespace Zen {
 namespace GameObjects {
 namespace Components {
 
-TransformMatrix::TransformMatrix (double a, double b, double c, double d, double tx, double ty)
-	: matrix_ (a, b, c, d, tx, ty, 0, 0, 1)
+TransformMatrix::TransformMatrix (double a_, double b_, double c_, double d_, double tx_, double ty_)
+	: matrix_ (a_, b_, c_, d_, tx_, ty_, 0, 0, 1)
 {}
 
 double getA ()
 {
-	return matrix_[0];
+	return matrix[0];
 }
 
-TransformMatrix& setA (double value)
+TransformMatrix& setA (double value_)
 {
-	matrix_[0] = value;
+	matrix[0] = value_;
 
 	return *this;
 }
 
 double getB ()
 {
-	return matrix_[1];
+	return matrix[1];
 }
 
-TransformMatrix& setB (double value)
+TransformMatrix& setB (double value_)
 {
-	matrix_[1] = value;
+	matrix[1] = value_;
 
 	return *this;
 }
 
 double getC ()
 {
-	return matrix_[2];
+	return matrix[2];
 }
 
-TransformMatrix& setC (double value)
+TransformMatrix& setC (double value_)
 {
-	matrix_[2] = value;
+	matrix[2] = value_;
 
 	return *this;
 }
 
 double getD ()
 {
-	return matrix_[3];
+	return matrix[3];
 }
 
-TransformMatrix& setD (double value)
+TransformMatrix& setD (double value_)
 {
-	matrix_[3] = value;
+	matrix[3] = value_;
 
 	return *this;
 }
 
 double getE ()
 {
-	return matrix_[4];
+	return matrix[4];
 }
 
-TransformMatrix& setE (double value)
+TransformMatrix& setE (double value_)
 {
-	matrix_[4] = value;
+	matrix[4] = value_;
 
 	return *this;
 }
 
 double getF ()
 {
-	return matrix_[5];
+	return matrix[5];
 }
 
-TransformMatrix& setF (double value)
+TransformMatrix& setF (double value_)
 {
-	matrix_[5] = value;
+	matrix[5] = value_;
 
 	return *this;
 }
 
 double getTx ()
 {
-	return matrix_[4];
+	return matrix[4];
 }
 
-TransformMatrix& setTx (double value)
+TransformMatrix& setTx (double value_)
 {
-	matrix_[4] = value;
+	matrix[4] = value_;
 
 	return *this;
 }
 
 double getTy ()
 {
-	return matrix_[5];
+	return matrix[5];
 }
 
-TransformMatrix& setTy (double value)
+TransformMatrix& setTy (double value_)
 {
-	matrix_[5] = value;
+	matrix[5] = value_;
 
 	return *this;
 }
@@ -118,15 +118,15 @@ double getRotation ()
 
 double getRotationNormalized ()
 {
-	double a = matrix_[0];
-	double b = matrix_[1];
-	double c = matrix_[2];
-	double d = matrix_[3];
+	double a_ = matrix[0];
+	double b_ = matrix[1];
+	double c_ = matrix[2];
+	double d_ = matrix[3];
 
-	if (a || b) {
-		return (b > 0) ? std::acos(a / getScaleX()) : -std::acos(a / getScaleX());
-	} else if (c || d) {
-		return Math::TAU - ((d > 0) ? std::acos(-c / getScaleY()) : -std::acos(c / getScaleY()));
+	if (a_ || b_) {
+		return (b_ > 0) ? std::acos(a_ / getScaleX()) : -std::acos(a_ / getScaleX());
+	} else if (c_ || d_) {
+		return Math::TAU - ((d_ > 0) ? std::acos(-c_ / getScaleY()) : -std::acos(c_ / getScaleY()));
 	} else {
 		return 0;
 	}
@@ -144,321 +144,321 @@ double getScaleY ()
 
 TransformMatrix& loadIdentity ()
 {
-	matrix_[0] = 1;
-	matrix_[1] = 0;
-	matrix_[2] = 0;
-	matrix_[3] = 1;
-	matrix_[4] = 0;
-	matrix_[5] = 0;
+	matrix[0] = 1;
+	matrix[1] = 0;
+	matrix[2] = 0;
+	matrix[3] = 1;
+	matrix[4] = 0;
+	matrix[5] = 0;
 
 	return *this;
 }
 
-TransformMatrix& translate (double x, double y)
+TransformMatrix& translate (double x_, double y_)
 {
-	matrix_[4] = matrix_[0] * x + matrix_[2] * y + matrix_[4];
-	matrix_[5] = matrix_[1] * x + matrix_[3] * y + matrix_[5];
+	matrix[4] = matrix[0] * x_ + matrix[2] * y_ + matrix[4];
+	matrix[5] = matrix[1] * x_ + matrix[3] * y_ + matrix[5];
 
 	return *this;
 }
 
-TransformMatrix& scale (double x, double y)
+TransformMatrix& scale (double x_, double y_)
 {
-	matrix_[0] *= x;
-	matrix_[1] *= x;
-	matrix_[2] *= y;
-	matrix_[3] *= y;
+	matrix[0] *= x_;
+	matrix[1] *= x_;
+	matrix[2] *= y_;
+	matrix[3] *= y_;
 
 	return *this;
 }
 
-TransformMatrix& rotate (double angle)
+TransformMatrix& rotate (double angle_)
 {
-	double sin = std::sin(angle);
-	double cos = std::cos(angle);
+	double sin_ = std::sin(angle_);
+	double cos_ = std::cos(angle_);
 
-	double a = matrix_[0];
-	double b = matrix_[1];
-	double c = matrix_[2];
-	double d = matrix_[3];
+	double a_ = matrix[0];
+	double b_ = matrix[1];
+	double c_ = matrix[2];
+	double d_ = matrix[3];
 
-	matrix_[0] = a * cos + c * sin;
-	matrix_[1] = b * cos + d * sin;
-	matrix_[2] = a * -sin + c * cos;
-	matrix_[3] = b * -sin + d * cos;
+	matrix[0] = a_ * cos_ + c_ * sin_;
+	matrix[1] = b_ * cos_ + d_ * sin_;
+	matrix[2] = a_ * -sin_ + c_ * cos_;
+	matrix[3] = b_ * -sin_ + d_ * cos_;
 
 	return *this;
 }
 
-TransformMatrix& multiply (TransformMatrix rhs)
+TransformMatrix& multiply (TransformMatrix rhs_)
 {
-	auto source = rhs.getVector();
+	auto source_ = rhs_.getVector();
 
-	double localA = matrix_[0];
-	double localB = matrix_[1];
-	double localC = matrix_[2];
-	double localD = matrix_[3];
-	double localE = matrix_[4];
-	double localF = matrix_[5];
+	double localA_ = matrix[0];
+	double localB_ = matrix[1];
+	double localC_ = matrix[2];
+	double localD_ = matrix[3];
+	double localE_ = matrix[4];
+	double localF_ = matrix[5];
 
-	double sourceA = source[0];
-	double sourceB = source[1];
-	double sourceC = source[2];
-	double sourceD = source[3];
-	double sourceE = source[4];
-	double sourceF = source[5];
+	double sourceA_ = source_[0];
+	double sourceB_ = source_[1];
+	double sourceC_ = source_[2];
+	double sourceD_ = source_[3];
+	double sourceE_ = source_[4];
+	double sourceF_ = source_[5];
 
-	setA( (sourceA * localA) + (sourceB * localC) );
-	setB( (sourceA * localB) + (sourceB * localD) );
-	setC( (sourceC * localA) + (sourceD * localC) );
-	setD( (sourceC * localB) + (sourceD * localD) );
-	setE( (sourceE * localA) + (sourceF * localC) + localE );
-	setF( (sourceE * localB) + (sourceF * localD) + localF );
+	setA( (sourceA_ * localA_) + (sourceB_ * localC_) );
+	setB( (sourceA_ * localB_) + (sourceB_ * localD_) );
+	setC( (sourceC_ * localA_) + (sourceD_ * localC_) );
+	setD( (sourceC_ * localB_) + (sourceD_ * localD_) );
+	setE( (sourceE_ * localA_) + (sourceF_ * localC_) + localE_ );
+	setF( (sourceE_ * localB_) + (sourceF_ * localD_) + localF_ );
 
 	return *this;
 }
 
-TransformMatrix& multiplyWithOffset (TransformMatrix src, double offsetX, double offsetY)
+TransformMatrix& multiplyWithOffset (TransformMatrix src_, double offsetX_, double offsetY_)
 {
-	auto otherMatrix = src.getVector();
+	auto otherMatrix_ = src_.getVector();
 
-	double a0 = matrix_[0];
-	double b0 = matrix_[1];
-	double c0 = matrix_[2];
-	double d0 = matrix_[3];
-	double tx0 = matrix_[4];
-	double ty0 = matrix_[5];
+	double a0_ = matrix[0];
+	double b0_ = matrix[1];
+	double c0_ = matrix[2];
+	double d0_ = matrix[3];
+	double tx0_ = matrix[4];
+	double ty0_ = matrix[5];
 
-	double pse = offsetX * a0 + offsetY * c0 + tx0;
-	double psf = offsetX * b0 + offsetY * d0 + ty0;
+	double pse_ = offsetX_ * a0_ + offsetY_ * c0_ + tx0_;
+	double psf_ = offsetX_ * b0_ + offsetY_ * d0_ + ty0_;
 
-	double a1 = otherMatrix[0];
-	double b1 = otherMatrix[1];
-	double c1 = otherMatrix[2];
-	double d1 = otherMatrix[3];
-	double tx1 = otherMatrix[4];
-	double ty1 = otherMatrix[5];
+	double a1_ = otherMatrix_[0];
+	double b1_ = otherMatrix_[1];
+	double c1_ = otherMatrix_[2];
+	double d1_ = otherMatrix_[3];
+	double tx1_ = otherMatrix_[4];
+	double ty1_ = otherMatrix_[5];
 
-	setA( a1 * a0 + b1 * c0);
-	setB( a1 * b0 + b1 * d0);
-	setC( c1 * a0 + d1 * c0);
-	setD( c1 * b0 + d1 * d0);
-	setE( tx1 * a0 + ty1 * c0 + pse);
-	setF( tx1 * b0 + ty1 * d0 + psf);
+	setA( a1_ * a0_ + b1_ * c0_);
+	setB( a1_ * b0_ + b1_ * d0_);
+	setC( c1_ * a0_ + d1_ * c0_);
+	setD( c1_ * b0_ + d1_ * d0_);
+	setE( tx1_ * a0_ + ty1_ * c0_ + pse_);
+	setF( tx1_ * b0_ + ty1_ * d0_ + psf_);
 
 	return *this;
 }
 
-TransformMatrix& transform (double a, double b, double c, double d, double tx, double ty)
+TransformMatrix& transform (double a_, double b_, double c_, double d_, double tx_, double ty_)
 {
-	double a0 = matrix_[0];
-	double b0 = matrix_[1];
-	double c0 = matrix_[2];
-	double d0 = matrix_[3];
-	double tx0 = matrix_[4];
-	double ty0 = matrix_[5];
+	double a0_ = matrix[0];
+	double b0_ = matrix[1];
+	double c0_ = matrix[2];
+	double d0_ = matrix[3];
+	double tx0_ = matrix[4];
+	double ty0_ = matrix[5];
 
-	setA( a * a0 + b * c0);
-	setB( a * b0 + b * d0);
-	setC( c * a0 + d * c0);
-	setD( c * b0 + d * d0);
-	setE( tx * a0 + ty * c0 + tx0);
-	setF( tx * b0 + ty * d0 + ty0);
+	setA( a_ * a0_ + b_ * c0_);
+	setB( a_ * b0_ + b_ * d0_);
+	setC( c_ * a0_ + d_ * c0_);
+	setD( c_ * b0_ + d_ * d0_);
+	setE( tx_ * a0_ + ty_ * c0_ + tx0_);
+	setF( tx_ * b0_ + ty_ * d0_ + ty0_);
 
 	return *this;
 }
 
-Math::Vector2 transformPoint (double x, double y)
+Math::Vector2 transformPoint (double x_, double y_)
 {
-	Math::Vector2 point (x, y);
+	Math::Vector2 point_ (x_, y_);
 
-	double a = matrix_[0];
-	double b = matrix_[1];
-	double c = matrix_[2];
-	double d = matrix_[3];
-	double tx = matrix_[4];
-	double ty = matrix_[5];
+	double a_ = matrix[0];
+	double b_ = matrix[1];
+	double c_ = matrix[2];
+	double d_ = matrix[3];
+	double tx_ = matrix[4];
+	double ty_ = matrix[5];
 
-	point.x = x * a + y * c + tx;
-	point.y = x * b + y * d + ty;
+	point_.x_ = x_ * a_ + y_ * c_ + tx_;
+	point_.y_ = x_ * b_ + y_ * d_ + ty_;
 
-	return point;
+	return point_;
 }
 
 TransformMatrix& invert ()
 {
-	double a = matrix_[0];
-	double b = matrix_[1];
-	double c = matrix_[2];
-	double d = matrix_[3];
-	double tx = matrix_[4];
-	double ty = matrix_[5];
+	double a_ = matrix[0];
+	double b_ = matrix[1];
+	double c_ = matrix[2];
+	double d_ = matrix[3];
+	double tx_ = matrix[4];
+	double ty_ = matrix[5];
 
-	double n = a * d - b * c;
+	double n_ = a_ * d_ - b_ * c_;
 
-	setA( d / n);
-	setB( -b / n);
-	setC( -c / n);
-	setD( a / n);
-	setE( (c * ty - d * tx) / n);
-	setF( -(a * ty - b * tx) / n);
-
-	return *this;
-}
-
-TransformMatrix& copyFrom (TransformMatrix src)
-{
-	setA( src.getA() );
-	setB( src.getB() );
-	setC( src.getC() );
-	setD( src.getD() );
-	setE( src.getE() );
-	setF( src.getF() );
+	setA( d_ / n_);
+	setB( -b_ / n_);
+	setC( -c_ / n_);
+	setD( a_ / n_);
+	setE( (c_ * ty_ - d_ * tx_) / n_);
+	setF( -(a_ * ty_ - b_ * tx_) / n_);
 
 	return *this;
 }
 
-TransformMatrix& copyFromArray (double src[])
+TransformMatrix& copyFrom (TransformMatrix src_)
 {
-	setA( src[0] );
-	setB( src[1] );
-	setC( src[2] );
-	setD( src[3] );
-	setE( src[4] );
-	setF( src[5] );
+	setA( src_.getA() );
+	setB( src_.getB() );
+	setC( src_.getC() );
+	setD( src_.getD() );
+	setE( src_.getE() );
+	setF( src_.getF() );
 
 	return *this;
 }
 
-TransformMatrix& copyFromVector (std::vector<double> src)
+TransformMatrix& copyFromArray (double src_[])
 {
-	setA( src.get(0) );
-	setB( src.get(1) );
-	setC( src.get(2) );
-	setD( src.get(3) );
-	setE( src.get(4) );
-	setF( src.get(5) );
+	setA( src_[0] );
+	setB( src_[1] );
+	setC( src_[2] );
+	setD( src_[3] );
+	setE( src_[4] );
+	setF( src_[5] );
+
+	return *this;
+}
+
+TransformMatrix& copyFromVector (std::vector<double> src_)
+{
+	setA( src_.get(0) );
+	setB( src_.get(1) );
+	setC( src_.get(2) );
+	setD( src_.get(3) );
+	setE( src_.get(4) );
+	setF( src_.get(5) );
 
 	return *this;
 }
 
 std::vector<double> getVector ()
 {
-	return matrix_;
+	return matrix;
 }
 
-TransformMatrix& setTransform (double a, double b, double c, double d, double tx, double ty)
+TransformMatrix& setTransform (double a_, double b_, double c_, double d_, double tx_, double ty_)
 {
-	setA( a );
-	setB( b );
-	setC( c );
-	setD( d );
-	setTx( tx );
-	setTy( ty );
+	setA( a_ );
+	setB( b_ );
+	setC( c_ );
+	setD( d_ );
+	setTx( tx_ );
+	setTy( ty_ );
 
 	return *this;
 }
 
 DecomposedMatrix decomposeMatrix ()
 {
-	DecomposedMatrix decomposedMatrix;
+	DecomposedMatrix decomposedMatrix_;
 
-	double a = getA();
-	double b = getB();
-	double c = getC();
-	double d = getD();
+	double a_ = getA();
+	double b_ = getB();
+	double c_ = getC();
+	double d_ = getD();
 
-	double determinant = a * d - b * c;
+	double determinant_ = a_ * d_ - b_ * c_;
 
-	decomposedMatrix.translateX = getE();
-	decomposedMatrix.translateY = getF();
+	decomposedMatrix_.translateX = getE();
+	decomposedMatrix_.translateY = getF();
 
-	if (a || b) {
-		double r = std::sqrt(a * a + b * b);
+	if (a_ || b_) {
+		double r_ = std::sqrt(a_ * a_ + b_ * b_);
 
-		decomposedMatrix.rotation = (b > 0) ? std::acos(a / r) : -std::acos(a / r);
-		decomposedMatrix.scaleX = r;
-		decomposedMatrix.scaleY = determinant / r;
-	} else if (c || d) {
-		double s = std::sqrt(c * c + d * d);
+		decomposedMatrix_.rotation = (b_ > 0) ? std::acos(a_ / r_) : -std::acos(a_ / r_);
+		decomposedMatrix_.scaleX = r_;
+		decomposedMatrix_.scaleY = determinant_ / r_;
+	} else if (c_ || d_) {
+		double s_ = std::sqrt(c_ * c_ + d_ * d_);
 
-		decomposedMatrix.rotation = M_PI * 0.5 - (d > 0 ? std::acos(-c / s) : -std::acos(c / s));
-		decomposedMatrix.scaleX = determinant / s;
-		decomposedMatrix.scaleY = s;
+		decomposedMatrix_.rotation = M_PI * 0.5 - (d_ > 0 ? std::acos(-c_ / s_) : -std::acos(c_ / s_));
+		decomposedMatrix_.scaleX = determinant_ / s_;
+		decomposedMatrix_.scaleY = s_;
 	} else {
-		decomposedMatrix.rotation = 0;
-		decomposedMatrix.scaleX = 0;
-		decomposedMatrix.scaleY = 0;
+		decomposedMatrix_.rotation = 0;
+		decomposedMatrix_.scaleX = 0;
+		decomposedMatrix_.scaleY = 0;
 	}
 
-	return decomposeMatrix;
+	return decomposedMatrix_;
 }
 
-TransformMatrix& applyITRS (double x, double y, double rotation, double scaleX, double scaleY)
+TransformMatrix& applyITRS (double x_, double y_, double rotation_, double scaleX_, double scaleY_)
 {
-        double radianSin = std::sin(rotation);
-        double radianCos = std::cos(rotation);
+        double radianSin_ = std::sin(rotation_);
+        double radianCos_ = std::cos(rotation_);
 
         // Translate
-        setTx( x );
-        setTy( y );
+        setTx( x_ );
+        setTy( y_ );
 
         // Rotate and Scale
-        setA( radianCos * scaleX );
-        setB( radianSin * scaleX );
-        setC( -radianSin * scaleY );
-        setD( radianCos * scaleY );
+        setA( radianCos_ * scaleX_ );
+        setB( radianSin_ * scaleX_ );
+        setC( -radianSin_ * scaleY_ );
+        setD( radianCos_ * scaleY_ );
 
         return *this;
 }
 
-Math::Vector2 applyInverse (x, y)
+Math::Vector2 applyInverse (x_, y_)
 {
-	Math::Vector2 output;
+	Math::Vector2 output_;
 
-	double a = matrix_[0];
-	double b = matrix_[1];
-	double c = matrix_[2];
-	double d = matrix_[3];
-	double tx = matrix_[4];
-	double ty = matrix_[5];
+	double a_ = matrix[0];
+	double b_ = matrix[1];
+	double c_ = matrix[2];
+	double d_ = matrix[3];
+	double tx_ = matrix[4];
+	double ty_ = matrix[5];
 
-	double id = 1 / ((a * d) + (c * -b));
+	double id_ = 1 / ((a_ * d_) + (c_ * -b_));
 
-	output.x = (d * id * x) + (-c * id * y) + (((ty * c) - (tx * d)) * id);
-	output.y = (a * id * y) + (-b * id * x) + (((-ty * a) + (tx * b)) * id);
+	output_.x_ = (d_ * id_ * x_) + (-c_ * id_ * y_) + (((ty_ * c_) - (tx_ * d_)) * id_);
+	output_.y_ = (a_ * id_ * y_) + (-b_ * id_ * x_) + (((-ty_ * a_) + (tx_ * b_)) * id_);
 
-	return output;
+	return output_;
 }
 
-double getX (double x, double y)
+double getX (double x_, double y_)
 {
-	return x * getA() + y * getC() + getE();
+	return x_ * getA() + y_ * getC() + getE();
 }
 
-double getY (double x, double y)
+double getY (double x_, double y_)
 {
-	return x * getB() + y * getD() + getF();
+	return x_ * getB() + y_ * getD() + getF();
 }
 
-int getXRound (double x, double y, bool round = false)
+int getXRound (double x_, double y_, bool round_)
 {
-	double v = getX(x, y);
+	double v_ = getX(x_, y_);
 
-	if (round)
-		v = std::round(v);
+	if (round_)
+		v_ = std::round_(v_);
 
-	return v;
+	return v_;
 }
 
-int getYRound (double x, double y, bool round = false)
+int getYRound (double x_, double y_, bool round_)
 {
-	double v = getY(x, y);
+	double v_ = getY(x_, y_);
 
-	if (round)
-		v = std::round(v);
+	if (round_)
+		v_ = std::round_(v_);
 
-	return v;
+	return v_;
 }
 
 }	// namespace Components
