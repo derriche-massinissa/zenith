@@ -79,6 +79,11 @@ set_target_properties(${PROJECT_NAME}
 	)
 
 # External includes
+target_include_directories(${PROJECT} PUBLIC
+	"${CMAKE_SOURCE_DIR}/includes"
+	)
+
+# External includes
 #target_include_directories(${PROJECT_NAME} PUBLIC
 #	${SDL2_INCLUDE_DIRS}
 #	#${SDL2IMAGE_INCLUDE_DIRS}

@@ -58,7 +58,15 @@ int Window::create (GameConfig cfg)
 		cleanup(window_, CLEANUP::TTF, CLEANUP::MIX, CLEANUP::IMG, CLEANUP::SDL);
 		return 1;
 	} else {
+		// Everything has gone well
+
 		setPixelArt(config.pixelArt);
+
+		if (config.minWidth || config.minHeight)
+			setMinSize(config.minWidth, config.minHeight);
+
+		if (config.maxWidth || config.maxHeight)
+			setMaxSize(config.maxWidth, config.maxHeight);
 	}
 
 	return 0;
@@ -202,20 +210,22 @@ void Window::cleanup (T t, Args&&... args)
 template<>
 void Window::cleanup<CLEANUP> (CLEANUP c)
 {
-	switch (c) {
+	switch (c)
+	{
 		case CLEANUP::SDL:
 			SDL_Quit();
 			break;
+
 		case CLEANUP::IMG:
 			IMG_Quit();
 			break;
+
 		case CLEANUP::MIX:
 			Mix_Quit();
 			break;
+
 		case CLEANUP::TTF:
 			TTF_Quit();
-			break;
-		default:
 			break;
 	}
 }
@@ -224,6 +234,7 @@ template<>
 void Window::cleanup<SDL_Window*> (SDL_Window *win)
 {
 	if (!win) return;
+
 	SDL_DestroyWindow(win);
 }
 
@@ -231,6 +242,7 @@ template<>
 void Window::cleanup<SDL_Renderer*> (SDL_Renderer *ren)
 {
 	if (!ren) return;
+
 	SDL_DestroyRenderer(ren);
 }
 
@@ -310,6 +322,20 @@ Window& setFullscreen (bool flag = true)
 		SDL_SetWindowFullscreen(window_, SDL_TRUE);
 	else
 		SDL_SetWindowFullscreen(window_, SDL_FALSE);
+
+	return *this;
+}
+
+Window& Window::setMinSize (int width, int height);
+{
+	SDL_SetWindowMinimumSize(window_, width, height);
+
+	return *this;
+}
+
+Window& Window::setMaxSize (int width, int height)
+{
+	SDL_SetWindowMaximumSize(window_, width, height);
 
 	return *this;
 }

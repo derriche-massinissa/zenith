@@ -1,5 +1,5 @@
 /**
- * @file		game.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -25,7 +25,7 @@
 //#include "../animations/animation_manager.h"
 //#include "../data/data_manager.h"
 //#include "../input/input_manager.h"
-//#include "../scale/scale_manager.h"
+#include "../scale/scale_manager.h"
 #include "../scene/scene_manager.h"
 #include "../textures/texture_manager.h"
 //#include "../audio/audio_manager.h"
@@ -37,8 +37,8 @@
  *
  * @since 0.0.0
  */
-namespace Zen
-{
+namespace Zen {
+
 /**
  * The Zen::Game instance is the core part of the entire game.
  *
@@ -56,9 +56,9 @@ public:
 	/**
 	 * @since 0.0.0
 	 *
-	 * @param cfg A reference to the game configuration object.
+	 * @param cfg_ A reference to the game configuration object.
 	 */
-	Game (GameConfig& cfg);
+	Game (GameConfig& cfg_);
 
 	/**
 	 * Destroys this Game instance, all systems, all sub-systems, all
@@ -155,7 +155,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	//ScaleManager scale(this, config);
+	ScaleManager scale(*this, config);
 
 	/**
 	 * An instance of the base Audio Manager.
@@ -166,12 +166,6 @@ public:
 	 * @since 0.0.0
 	 */
 	//AudioManager audio(this);
-
-	/**
-	 * @todo TODO Random manager engine, by itself or in a math plugin?
-	 * TODO welp, apparently Phaser put it in the Math plugin
-	 */
-	// RandomEngine / RandomManager random;
 
 	/**
 	 * An instance of the Time Step.
@@ -210,11 +204,11 @@ public:
 	 * The step will update the managers first, then proceeds to update each Scene in turn, via the Scene Manager. It will then render each Scene in turn, via the Renderer. This process emits "Prerender" and "Postrender" events.
 	 *
 	 * @since 0.0.0
-	 * @param time - The total time since SDL was initialized in
+	 * @param time The total time since SDL was initialized in
 	 * milliseconds (SDL_GetTicks).
-	 * @param delta - The delta time in ms since the last frame.
+	 * @param delta The delta time in ms since the last frame.
 	 */
-	void step (Uint32 time, Uint32 delta);
+	void step (Uint32 time_, Uint32 delta_);
 
 	/**
 	 * A special version of the Game Step for the Headless renderer
@@ -225,11 +219,11 @@ public:
 	 * The step will update the managers first, then proceeds to update each Scene in turn, via the Scene Manager. It will then render each Scene in turn, via the Renderer. This process emits "Prerender" and "Postrender" events.
 	 *
 	 * @since 0.0.0
-	 * @param time - The total time since SDL was initialized in
+	 * @param time The total time since SDL was initialized in
 	 * milliseconds (SDL_GetTicks).
-	 * @param delta - The delta time in ms since the last frame.
+	 * @param delta The delta time in ms since the last frame.
 	 */
-	void headlessStep (Uint32 time, Uint32 delta);
+	void headlessStep (Uint32 time_, Uint32 delta_);
 
 	/**
 	 * Returns the current game frame.
@@ -258,7 +252,7 @@ public:
 	 * @since 0.0.0
 	 * @param data A data object.
 	 */
-	void shutdown (Data data);
+	void shutdown (Data data_);
 
 private:
 	// FIXME Remove and count fps using the loop
@@ -326,6 +320,7 @@ private:
 	 */
 	void runShutdown ();
 };
-}
+
+}	// namespace Zen
 
 #endif

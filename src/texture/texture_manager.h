@@ -14,10 +14,13 @@
 #include <functional>
 #include <vector>
 #include <fstream>
+
+#include "json.hpp"
+
 #include "../data.h"
 #include "../event/event_emitter.h"
-#include "../utils/json.hpp"
 #include "sprite_sheet_config.h"
+#include "parsers/json_array.h"
 
 namespace Zen {
 namespace Textures {

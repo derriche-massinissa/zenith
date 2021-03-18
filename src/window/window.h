@@ -200,20 +200,106 @@ public:
 	template<typename T, typename... Args>
 		void cleanup (T t, Args&&... args);
 
+	/**
+	 * Sets the window's title.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param title The new window's title.
+	 *
+	 * @return This window instance.
+	 */
 	Window& setTitle (std::string title);
 
+	/**
+	 * Make the window go fullscreen or into windowed mode.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param flag `true` to go fullscreen, `false` to remove it.
+	 *
+	 * @return This window instance.
+	 */
 	Window& setFullscreen (bool flag = true);
 
+	/**
+	 * Sets the minimum size this window can be resized to. Use with no parameter
+	 * to remove the limit.
+	 *
+	 * Note that the user's window manager needs to support and use the
+	 * necessary window hints for this to work.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param width The minimum width the window can be resized to.
+	 * @param height The minimum height the window can be resized to.
+	 *
+	 * @return This window instance.
+	 */
+	Window& setMinSize (int width = 0, int height = 0);
+
+	/**
+	 * Sets the maximum size this window can be resized to. Use with no parameter
+	 * to remove the limit.
+	 *
+	 * Note that the user's window manager needs to support and use the
+	 * necessary window hints for this to work.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param width The maximum width the window can be resized to.
+	 * @param height The maximum height the window can be resized to.
+	 *
+	 * @return This window instance.
+	 */
+	Window& setMaxSize (int width = 0, int height = 0);
+
+	/**
+	 * Is the window minimized?
+	 *
+	 * @since 0.0.0
+	 *
+	 * @return `true` if the window is minimized, otherwise `false`.
+	 */
 	bool isMinimized ();
 
+	/**
+	 * Is the window focused?
+	 *
+	 * @since 0.0.0
+	 *
+	 * @return `true` if the window is focused, otherwise `false`.
+	 */
 	bool isFocused ();
 	
+	/**
+	 * Is the pointer inside the window?
+	 *
+	 * @since 0.0.0
+	 *
+	 * @return `true` if the pointer is in the window, otherwise `false`.
+	 */
 	bool isPointerIn ();
 
+	/**
+	 * Is the window minimized?
+	 *
+	 * @since 0.0.0
+	 */
 	bool minimized = false;
 
+	/**
+	 * Is the window focused?
+	 *
+	 * @since 0.0.0
+	 */
 	bool focused = false;
 
+	/**
+	 * Is the pointer inside the window?
+	 *
+	 * @since 0.0.0
+	 */
 	bool pointerIn = false;
 };
 

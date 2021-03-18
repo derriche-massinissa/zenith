@@ -20,7 +20,7 @@ class Size
 public:
 	Size (unsigned int width = 0, unsigned int height = 0, double aspectMode = SCALE_MODE::NONE);
 
-	Size& setAspectMode (SCALE_MODE value = ASPECT_MODE::NONE);
+	Size& setAspectMode (SCALE_MODE value = SCALE_MODE::RESIZE);
 
 	Size& setSnap (int snapWidth = 0, int snapHeight = 0);
 
@@ -57,7 +57,7 @@ private:
 
 	unsigned int height_ = 0;
 
-	ASPECT_MODE aspectMode_ = ASPECT_MODE::NONE;
+	SCALE_MODE aspectMode_ = SCALE_MODE::RESIZE;
 
 	double aspectRatio_ = 1.0;
 

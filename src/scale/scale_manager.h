@@ -90,30 +90,32 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SCALE_MODE scaleMode_ = MODE::NONE;
+	SCALE_MODE scaleMode_ = SCALE_MODE::RESIZE;
 
 	/**
-	 * The scale factor between the baseSize and the canvasBounds.
+	 * The scale factor between the gameSize and the window dimensions.
 	 *
 	 * @since 0.0.0
 	 */
 	Math::Vector2 displayScale_ {1.0, 1.0};
 
-	Math::Vector2 displayOffset_ {1.0, 1.0};
-
 	/**
+	 * The offset of the game view.
+	 *
+	 * Only used when using a SCALE_MODE that
+	 * keeps a fixed aspect ratio. This is used to center the game view in the
+	 * middle of the window.
+	 *
+	 * @since 0.0.0
+	 */
+	Math::Vector2 displayOffset_ {0.0, 0.0};
+
+	/* TODO
 	 * The current device orientation.
 	 *
 	 * @since 0.0.0
-	 */
 	ORIENTATION orientation_ = ORIENTATION::LANDSCAPE;
-
-	/**
-	 * Is the window fullscreen?
-	 *
-	 * @since 0.0.0
 	 */
-	bool fullscreen_;
 
 	/**
 	 * The dirty state of the Scale Manager.
@@ -152,21 +154,23 @@ public:
 
 	void resize (int width ,int height);
 
-	void refresh (int previousWidth, int previousHeight);
+	void refresh ();
 
 	void updateScale ();
 
 	void updateOffset ();
-
-	int transformX (int windowX);
-
-	int transformY (int windowY);
 
 	void startListeners ();
 
 	void stopListeners ();
 
 	void onResize (int width, int height);
+
+	void setScaleMode (SCALE_MODE sm);
+
+	int transformX (int windowX);
+
+	int transformY (int windowY);
 
 };	// class ScaleManager
 }	// namespace Scale

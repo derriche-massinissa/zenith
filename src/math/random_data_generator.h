@@ -93,9 +93,6 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param min The minimum value in the range.
-	 * @param max The maximum value in the range.
-	 *
 	 * @return A random number between `min` and `max`.
 	 */
 	double frac ();
@@ -139,7 +136,7 @@ public:
      *
      * @since 0.0.0
      *
-     * @param array The vector to pick a random element from.
+     * @param vector The vector to pick a random element from.
      *
      * @return A reference to a random member of the array.
      */

@@ -36,6 +36,9 @@ void ScaleManager::parseConfig ()
 	gameSize_.setSize(game_.config.width, game_.config.height);
 
 	scaleMode_ = game_.config.scaleMode;
+
+	gameSize_.setAspectMode(scaleMode_);
+	displaySize_.setAspectMode(scaleMode_);
 }
 
 void ScaleManager::setGameSize (int width, int height)
@@ -46,6 +49,8 @@ void ScaleManager::setGameSize (int width, int height)
 	gameSize_.resize(width, height);
 
 	refresh(previousWidth, previousHeight);
+
+	emit("resize", gameSize_.getWidth(), gameSize_.getHeight(), previousWidth, previousHeight);
 }
 
 void ScaleManager::resize (int width ,int height)
@@ -53,39 +58,34 @@ void ScaleManager::resize (int width ,int height)
 	setGameSize(width, height);
 }
 
-void ScaleManager::refresh (int previousWidth, int previousHeight)
+void ScaleManager::refresh ()
 {
 	updateScale();
 	updateOffset();
-
-	emit("resize", gameSize_.getWidth(), gameSize_.getHeight(), previousWidth, previousHeight);
 }
 
 void ScaleManager::updateScale ()
 {
-	displayScale_.set(
-			gameSize_.getWidth() / displaySize_.getWidth(),
-			gameSize_.getHeight() / displaySize_.getHeight()
-			);
+	displaySize_.setSize(window_.width(), window_.height());
 
 	if (scaleMode_ == SCALE_MODE::RESIZE)
-	{
-		displaySize_.setSize(window_.width(), window_.height());
-
-		gameSize_.setSize(displaySize_.getWidth(), displaySize_.getHeight());
-	}
+		displayScale_.set(1, 1);
+	else
+		displayScale_.set(
+				gameSize_.getWidth() / displaySize_.getWidth(),
+				gameSize_.getHeight() / displaySize_.getHeight()
+				);
 }
 
 void ScaleManager::updateOffset ()
 {
-	if (scaleMode_ & (SCALE_MODE::NONE | SCALE_MODE::RESIZE))
-	{
+	if (scaleMode_ == SCALE_MODE::RESIZE)
 		displayOffset_.set(0, 0);
-	}
 	else
-	{
-
-	}
+		displayOffset_.set(
+				(window_.width() - displaySize_.getWidth()) / 2.0,
+				(window_.height() - displaySize_.getHeight()) / 2.0
+				);
 }
 
 int ScaleManager::transformX (int windowX)
@@ -110,7 +110,14 @@ void ScaleManager::stopListeners ()
 
 void ScaleManager::onResize (int width, int height)
 {
+	refresh();
+}
 
+void ScaleManager::setScaleMode (SCALE_MODE sm)
+{
+	scaleMode_ = sm;
+	gameSize_.setAspectMode(sm);
+	displaySize_.setAspectMode(sm);
 }
 
 }	// namespace Scale

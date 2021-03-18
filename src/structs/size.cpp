@@ -65,7 +65,7 @@ Size& Size::setSize (int width, int height)
 
 	switch (aspectMode_)
 	{
-		case SCALE_MODE::NONE:
+		case SCALE_MODE::RESIZE:
 			width_ = getNewWidth(Math::snapFloor(width, snapTo_.x));
 			height_ = getNewHeight(Math::snapFloor(height, snapTo_.y));
 			aspectRatio_ = (height_ == 0) ? 1.0 : (1.0*width_ / height_);

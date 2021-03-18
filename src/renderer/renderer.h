@@ -13,6 +13,7 @@
 #include <cmath>
 #include <algorithm>
 #include "../event/event_emitter.h"
+#include "../math/vector2.h"
 
 namespace Zen {
 /**

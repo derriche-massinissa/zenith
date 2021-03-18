@@ -154,7 +154,7 @@ Texture* TextureManager::addAtlasJSONArray (
 	if (checkKey(key)) {
 		texture = create(key, sources);
 		
-		Parser.JSONArray(*texture, 0, data);
+		parseJsonArray(texture, 0, data);
 
 		emit("SYS_ADD", {{}, {key}});
 	}
@@ -179,7 +179,7 @@ Texture* TextureManager::addAtlasJSONArray (
 		for (int i = 0; i < texture->source_.size(); i++) {
 			auto atlasData = singleAtlasFile ? data[0] : data[i];
 
-			Parser.JSONArray(*texture, i, atlasData);
+			parseJsonArray(texture, i, atlasData);
 		}
 
 		emit("SYS_ADD", {{}, {key}});

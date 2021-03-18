@@ -53,26 +53,12 @@ namespace Zen
 	 * @since 0.0.0
 	 */
 	enum class SCALE_MODE {
-		NONE,
-		WIDTH_CONTROLS_HEIGHT,
-		HEIGHT_CONTROLS_WIDTH,
-		FIT,
-		ENVELOP,
-		RESIZE
-	};
-
-	/**
-	 * The aspect modes used by the Size class.
-	 *
-	 * @since 0.0.0
-	 */
-	enum class ASPECT_MODE {
-		NONE,
+		RESIZE,
 		WIDTH_CONTROLS_HEIGHT,
 		HEIGHT_CONTROLS_WIDTH,
 		FIT,
 		ENVELOP
-	}
+	};
 }
 
 #endif

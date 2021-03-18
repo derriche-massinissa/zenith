@@ -506,7 +506,8 @@ void Renderer::batchSprite (
 	// that returns the appropriate transform matrix
 	DecomposedMatrix dm = camMatrix.decomposeMatrix();
 
-	setGlobalCompositionOperation(sprite.blendMode);
+	// TODO
+	//setGlobalCompositionOperation(sprite.blendMode);
 
 	if (sprite.mask)
 		sprite.mask->preRender(this, &sprite, &camera, dm);
@@ -515,15 +516,14 @@ void Renderer::batchSprite (
 	SDL_Rect source {frameX, frameY, frameWidth, frameHeight};
 
 	// ScaleManager values
-	float sScale = 1.0;
-	int sOffsetX = 0;
-	int sOffsetY = 0;
+	Math::Vector2 sScale = game.scale.displayScale_;
+	Math::Vector2 sOffset = game.scale.displayOffset_;
 
 	SDL_Rect destination;
-	destination.x = x + dm.translateX + sOffsetX;
-	destination.y = y + dm.translateY + sOffsetY;
-	destination.w = (frameWidth / res) * dm.scaleX * sScale;
-	destination.h = (frameHeight / res) * dm.scaleY * sScale;
+	destination.x = x + dm.translateX + sOffset.x;
+	destination.y = y + dm.translateY + sOffset.y;
+	destination.w = (frameWidth / res) * dm.scaleX * sScale.x;
+	destination.h = (frameHeight / res) * dm.scaleY * sScale.y;
 
 	double angle = dm.rotation;
 

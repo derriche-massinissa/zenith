@@ -10,9 +10,9 @@
 namespace Zen {
 
 Game::Game (GameConfig& cfg)
-	: config(cfg)
-	, window(*this)
+	: window(*this)
 	, scene(*this, cfg.sceneFactory)
+	, config(cfg)
 {
 	// Initialize some members
 	pendingShutdown = false;
