@@ -74,14 +74,14 @@ void CameraManager::start ()
 	systems.events.on("shutdown", &CameraManager::shutdown, this);
 }
 
-BaseCamera* CameraManager::add (
+Camera* CameraManager::add (
 		int x_, int y_, int width_, int height_, bool makeMain_, std::string name_)
 {
 	if (width_ == 0)	width_ = scene.scale.getWidth();
 	if (height_ == 0)	height_ = scene.scale.getHeight();
 
 	cameras.emplace_back(x_, y_, width_, height_);
-	BaseCamera& camera_ = cameras.back();
+	Camera& camera_ = cameras.back();
 
 	camera_.setName(name_)
 		.setScene(&scene);
@@ -171,7 +171,7 @@ CameraManager& CameraManager::fromConfig (
 	return *this;
 }
 
-BaseCamera* CameraManager::getCamera (std::string name_)
+Camera* CameraManager::getCamera (std::string name_)
 {
 	for (auto& camera_ : cameras)
 	{
@@ -182,10 +182,10 @@ BaseCamera* CameraManager::getCamera (std::string name_)
 	return nullptr;
 }
 
-std::vector<BaseCamera*> CameraManager::getCamerasBelowPointer (
+std::vector<Camera*> CameraManager::getCamerasBelowPointer (
 		Input::Pointer pointer_)
 {
-	std::vector<BaseCamera*> output_;
+	std::vector<Camera*> output_;
 	Geom::Rectangle camRect_;
 
 	// So the top-most camera is at the top of the search vector
@@ -210,7 +210,7 @@ std::vector<BaseCamera*> CameraManager::getCamerasBelowPointer (
 	return output_;
 }
 
-int CameraManager::remove (std::vector<BaseCamera*> camerasToRemove_)
+int CameraManager::remove (std::vector<Camera*> camerasToRemove_)
 {
 	int total_ = 0;
 
@@ -233,9 +233,9 @@ int CameraManager::remove (std::vector<BaseCamera*> camerasToRemove_)
 	return total_;
 }
 
-int CameraManager::remove (BaseCamera* cameraToRemove_)
+int CameraManager::remove (Camera* cameraToRemove_)
 {
-	std::vector<BaseCamera*> camerasToRemove_ {cameraToRemove_};
+	std::vector<Camera*> camerasToRemove_ {cameraToRemove_};
 
 	return remove(camerasToRemove_);
 }
@@ -259,7 +259,7 @@ void CameraManager::render (
 
 std::vector<GameObjects::GameObject*> CameraManager::getVisibleChildren (
 		std::vector<GameObjects::GameObject*>& children_,
-		BaseCamera& camera_)
+		Camera& camera_)
 {
 	std::vector<GameObjects::GameObject*> visible_;
 
@@ -272,7 +272,7 @@ std::vector<GameObjects::GameObject*> CameraManager::getVisibleChildren (
 	return visible_;
 }
 
-BaseCamera* CameraManager::resetAll ()
+Camera* CameraManager::resetAll ()
 {
 	cameras.clear();
 

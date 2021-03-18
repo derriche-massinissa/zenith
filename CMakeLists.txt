@@ -20,9 +20,8 @@ set(zenith_SRCS
 	src/messages.h
 	src/messages.cpp
 
-	src/cameras/2d/base_camera.h
-	src/cameras/2d/base_camera.cpp
 	src/cameras/2d/camera.h
+	src/cameras/2d/camera.fwd.h
 	src/cameras/2d/camera.cpp
 	src/cameras/2d/camera_config.h
 	src/cameras/2d/camera_manager.h
