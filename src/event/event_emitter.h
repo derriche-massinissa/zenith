@@ -1,12 +1,12 @@
 /**
- * @file		event_emitter.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef EVENT_EMITTER_H
-#define EVENT_EMITTER_H
+#ifndef ZEN_EVENT_EMITTER_H
+#define ZEN_EVENT_EMITTER_H
 
 #include <functional>
 #include <string>
@@ -17,7 +17,6 @@
 #include <memory>
 
 #include "../messages.h"
-#include "../data.h"
 #include "event_listener.h"
 
 namespace Zen {
@@ -64,40 +63,41 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param eventName - The event name.
-	 * @param callback - The listener callback function.
-	 * @param once If `true`, makes the listener one timed.
+	 * @param eventName_ The event name.
+	 * @param callback_ The listener callback function.
+	 * @param context_ The context to invoke the listener with.
+	 * @param once_ If `true`, makes the listener one timed.
 	 */
 	template <typename... Args>
 	void addListener (
-			std::string eventName,
-			void (T::* callback)(Args...),
-			T *context,
-			bool once
+			std::string eventName_,
+			void (T::* callback_)(Args...),
+			T *context_,
+			bool once_
 			)
 	{
 		// Bind function to the given context
-		std::function<void(Args...)> boundCB = [context, callback]
-			(Args... args) -> void
+		std::function<void(Args...)> boundCB_ = [context_, callback_]
+			(Args... args_) -> void
 			{
-				(context->*callback)(args...);
+				(context_->*callback_)(args_...);
 			}
 
 		// Check if the event already has listeners (Exists in the event map)
-		auto iterator = eventMap.find(eventName);
+		auto iterator_ = eventMap.find(eventName_);
 
-		if (iterator != eventMap.end())
+		if (iterator_ != eventMap.end())
 		{
 			// Add the listener to this event
-			iterator->second.emplace_back(
-					std::make_unique<Listener<Args...>> (eventName, boundCB, once)
+			iterator_->second.emplace_back(
+					std::make_unique<Listener<Args...>> (eventName_, boundCB_, once_)
 					);
 		}
 		else
 		{
 			// Add the event to the event map
-			eventMap.emplace(eventName, std::vector<ListenerBase> {
-					std::make_unique<Listener<Args...>> (eventName, boundCB, once)
+			eventMap.emplace(eventName_, std::vector<ListenerBase> {
+					std::make_unique<Listener<Args...>> (eventName_, boundCB_, once_)
 					});
 		}
 	}
@@ -107,15 +107,15 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param eventName The event name.
-	 * @param callback The listener callback function.
-	 * @param context The context to invoke the listener with.
+	 * @param eventName_ The event name.
+	 * @param callback_ The listener callback function.
+	 * @param context_ The context to invoke the listener with.
 	 */
 	template <typename T, typename... Args>
-	void on (std::string eventName, void (T::* callback)(Args...), T *context)
+	void on (std::string eventName_, void (T::* callback_)(Args...), T *context_)
 	{
 		// Add the listener to this EventEmitter
-		addListener(eventName, callback, context, false);
+		addListener(eventName_, callback_, context_, false);
 	}
 
 	/**
@@ -123,15 +123,15 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param eventName The event name.
-	 * @param callback The listener callback function.
-	 * @param context The context to invoke the listener with.
+	 * @param eventName_ The event name.
+	 * @param callback_ The listener callback function.
+	 * @param context_ The context to invoke the listener with.
 	 */
 	template <typename T>
-	void once (std::string eventName, void (T::* callback)(Args...), T *context)
+	void once (std::string eventName_, void (T::* callback_)(Args...), T *context_)
 	{
 		// Add the listener to this EventEmitter
-		addListener(eventName, callback, context, true);
+		addListener(eventName_, callback_, context_, true);
 	}
 
 	/**
@@ -141,38 +141,40 @@ public:
 	 * internal event queue to be polled in a future game step.
 	 *
 	 * @since 0.0.0
-	 * @param eventName - The event name.
-	 * @param event - The event data.
+	 *
+	 * @param eventName_ The event name.
+	 * @param args_ The arguments to pass to the listener function.
+	 *
 	 * @return `true` if the event had listeners, else `false`.
 	 */
 	template <typename... Args>
-	bool emit (std::string eventName, Args&&... args)
+	bool emit (std::string eventName_, Args&&... args_)
 	{
 		// Check if there are listeners for this event
-		bool foundEvent = false;
-		auto iterator = eventMap.find(eventName);
+		bool foundEvent_ = false;
+		auto iterator_ = eventMap.find(eventName_);
 
-		if (iterator != eventMap.end())
+		if (iterator_ != eventMap.end())
 		{
 			// Activate the listeners
-			for (auto l = iterator->second.begin(); l != iterator->second.end();)
+			for (auto l_ = iterator_->second.begin(); l_ != iterator_->second.end();)
 			{
-				if ( static_cast<Listener<Args...>*>(l.get())->activate(args...) )
+				if ( static_cast<Listener<Args...>*>(l_.get())->activate(args_...) )
 				{
-					iterator->second.erase(l);
+					iterator_->second.erase(l_);
 				}
 				else
 				{
 					// ONLY INCREMENT IF NO ERASE OPERATION HAPPENED!!
 					// ERASING NATURALLY MOVES LATER ELEMENTS TO THE LEFT!!!
-					l++;
+					l_++;
 				}
 			}
 
-			foundEvent = true;
+			foundEvent_ = true;
 		}
 
-		return foundEvent;
+		return foundEvent_;
 	}
 
 	/**
@@ -180,6 +182,7 @@ public:
 	 * registered listeners.
 	 *
 	 * @since 0.0.0
+	 *
 	 * @return List of events.
 	 */
 	std::vector<std::string> getEventNames ();
@@ -188,63 +191,71 @@ public:
 	 * Return the number of listeners listening to a given event.
 	 *
 	 * @since 0.0.0
-	 * @param event - The event name.
+	 *
+	 * @param event_ The event name.
+	 *
 	 * @return The number of listeners.
 	 */
-	int getListenerCount (std::string event);
+	int getListenerCount (std::string event_);
 
 	/**
 	 * Return the listeners registered for a given event.
 	 *
 	 * @since 0.0.0
-	 * @param event - The event name.
+	 *
+	 * @param event_ The event name.
+	 *
 	 * @return A vector of references to the registered listeners.
 	 */
-	std::vector<ListenerBase*> getListeners (std::string event);
+	std::vector<ListenerBase*> getListeners (std::string event_);
 
 	/**
 	 * Remove a listener from a given event.
 	 *
 	 * @since 0.0.0
-	 * @param event - The event name.
-	 * @param listener - Only remove this particular listener.
+	 *
+	 * @param event_ The event name.
+	 *
+	 * @param listener_ Only remove this particular listener.
 	 */
-	void removeListener (std::string event, Listener* listener);
+	void removeListener (std::string event_, Listener* listener_);
 
 	/**
 	 * Remove the listeners of a given event.
 	 *
-	 * This method takes a method and a context, unlike the `removeListener()` method that takes a pointer to a listener.
+	 * This method takes a method and a context, unlike the removeListener()
+	 * method that takes a pointer to a listener.
 	 *
 	 * @since 0.0.0
-	 * @param event - The event name.
-	 * @param function - Only remove the listener that has this function as a callback.
-	 * @param context - Only remove the listener that has this context as a callback context.
+	 *
+	 * @param event_ The event name.
+	 * @param function_ Only remove the listener that has this function as a callback.
+	 * @param context_ Only remove the listener that has this context as a callback context.
 	 */
 	template <typename T, typename... Args>
-	void off (std::string eventName, void (T::* function)(Args...), T *context)
+	void off (std::string eventName_, void (T::* function_)(Args...), T *context_)
 	{
 		// Check if the event exists
-		auto it = eventMap.find(eventName);
-		if (it != eventMap.end())
+		auto it_ = eventMap.find(eventName_);
+		if (it_ != eventMap.end())
 		{
 			// Bind the function to the given context
-			std::function<void(Args...)> boundFunc = [context, function]
-				(Args... args) -> void
+			std::function<void(Args...)> boundFunc_ = [context_, function_]
+				(Args... args_) -> void
 				{
-					(context->*function)(args...);
+					(context_->*function_)(args_...);
 				}
 
 			// Get a pointer to the target function
-			auto target = boundFunc.target<void(*)(Args...)>();
+			auto target_ = boundFunc_.target<void(*)(Args...)>();
 
 			// Find Listener by comparing functor targets
-			for (auto l = it->second.begin(); l != it->second.end(); l++)
+			for (auto l_ = it_->second.begin(); l_ != it_->second.end(); l_++)
 			{
-				auto listenerTarget = l->getCallback().target<void(*)(Args...)>();
-				if (target == listenerTarget)
+				auto listenerTarget_ = l_->getCallback().target<void(*)(Args...)>();
+				if (target_ == listenerTarget_)
 				{
-					it->second.erase(l);
+					it_->second.erase(l_);
 					break;
 				}
 			}
@@ -255,9 +266,9 @@ public:
 	 * Remove all listeners, or those of the specified events.
 	 *
 	 * @since 0.0.0
-	 * @param eventNames - A vector of event names.
+	 * @param eventNames_ A vector of event names.
 	 */
-	void removeAllListeners (std::vector<std::string> eventNames = {});
+	void removeAllListeners (std::vector<std::string> eventNames_ = {});
 
 	/**
 	 * Removes all listeners.

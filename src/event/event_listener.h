@@ -1,12 +1,12 @@
 /**
- * @file		event_listener.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef EVENT_LISTENER_H
-#define EVENT_LISTENER_H
+#ifndef ZEN_EVENT_LISTENER_H
+#define ZEN_EVENT_LISTENER_H
 
 #include <string>
 #include <functional>
@@ -57,8 +57,8 @@ public:
 	 * @param cb The callback function to activate when an event happens.
 	 * @param flag Whether this listener is one timed or not.
 	 */
-	Listener(std::string eventName, std::function<void(Args...)> cb, bool flag)
-		: event(eventName), callback(cb), once(flag)
+	Listener(std::string eventName_, std::function<void(Args...)> cb_, bool flag_)
+		: event(eventName_), callback(cb_), once(flag_)
 	{}
 
 	/**
@@ -71,9 +71,9 @@ public:
 	 * @return Listener::once member variable, `true` if one time listener, and
 	 * needs to be removed, otherwise `false`.
 	 */
-	bool activate(Args... args)
+	bool activate(Args... args_)
 	{
-		callback(args...);
+		callback(args_...);
 
 		return once;
 	}

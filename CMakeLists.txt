@@ -19,40 +19,65 @@ set(zenith_SRCS
 	src/data.h
 	src/messages.h
 	src/messages.cpp
-	src/math.h
-	src/math.cpp
+
+
+
+	src/math/math.h
+	src/math/math.cpp
+
+	src/math/random_data_generator.h
+	src/math/random_data_generator.cpp
+
+	src/math/vector2.h
+	src/math/vector2.cpp
+
+
 
 	src/core/game.fwd.h
 	src/core/game.h
 	src/core/game.cpp
-	src/core/game_config.h
-	src/core/game_config.cpp
+
+	src/core/config.h
+	src/core/config.cpp
+
 	src/core/time_step.h
 	src/core/time_step.cpp
+
+
 
 	src/window/window.h
 	src/window/window.cpp
 
+
+
 	src/event/event_emitter.h
 	src/event/event_emitter.cpp
 	src/event/event_listener.h
-	src/event/event_listener.cpp
+
+
 
 	src/scene/scene.fwd.h
 	src/scene/scene.h
 	src/scene/scene.cpp
+
 	src/scene/scene_config.h
+
 	src/scene/scene_manager.fwd.h
 	src/scene/scene_manager.h
 	src/scene/scene_manager.cpp
+
 	src/scene/scene_plugin.h
 	src/scene/scene_plugin.cpp
+
 	src/scene/scene_settings.h
 	src/scene/scene_settings.cpp
-	src/scene/scene_settings_config.h
+
 	src/scene/scene_systems.h
 	src/scene/scene_systems.cpp
+
 	src/scene/scene_transition_config.h
+
+	src/scene/scene_settings_config.h
 	)
 
 # Find external libraries in the system
