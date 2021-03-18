@@ -1,22 +1,25 @@
 /**
- * @file		camera.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef ZEN_CAMERAS_SCENE2D_CAMERA_H
+#define ZEN_CAMERAS_SCENE2D_CAMERA_H
 
-#include "base_camera.h"
 #include <functional>
 #include <string>
 #include <memory>
 
+#include "base_camera.h"
+
 namespace Zen {
 namespace Cameras {
 namespace Scene2D {
+
 /**
+ * @todo TODO camera effects
  * A Camera.
  *
  * The Camera is the way in which all games are rendered in Zenith. They provide a view into your game world,
@@ -42,15 +45,15 @@ namespace Scene2D {
  *
  * @since 0.0.0
  *
- * @param x The x position of the Camera, relative to the top-left of the game window.
- * @param y The y position of the Camera, relative to the top-left of the game window.
- * @param width The width of the Camera, in pixels.
- * @param height The height of the Camera, in pixels.
+ * @param x_ The x position of the Camera, relative to the top-left of the game window.
+ * @param y_ The y position of the Camera, relative to the top-left of the game window.
+ * @param width_ The width of the Camera, in pixels.
+ * @param height_ The height of the Camera, in pixels.
  */
 class Camera
 	: public BaseCamera
-	  , public GameObjects::Components::Flip<Camera>
-	  , public GameObjects::Components::Tint<Camera>
+	, public GameObjects::Components::Flip<Camera>
+	, public GameObjects::Components::Tint<Camera>
 {
 public:
 	/**
@@ -75,7 +78,7 @@ public:
 	/**
 	 * @since 0.0.0
 	 */
-	Camera (int x, int y, int width, int height);
+	Camera (int x_, int y_, int width_, int height_);
 
 	/**
 	 * @since 0.0.0
@@ -160,7 +163,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Math::Vector2 followOffset_;
+	Math::Vector2 followOffset;
 
 	/**
 	 * The Camera dead zone.
@@ -182,7 +185,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::shared_ptr<Geom::Rectangle> deadzone_;
+	std::shared_ptr<Geom::Rectangle> deadzone;
 
     /**
      * Sets the Camera dead zone.
@@ -202,55 +205,54 @@ public:
      *
      * @since 0.0.0
      *
-     * @param width The width of the deadzone rectangle in pixels. If not specified the deadzone is removed.
-     * @param height The height of the deadzone rectangle in pixels.
+     * @param width_ The width of the deadzone rectangle in pixels. If not specified the deadzone is removed.
+     * @param height_ The height of the deadzone rectangle in pixels.
      *
      * @return This Camera instance.
      */
-    Camera& setDeadzone (int width = -1, int height = -1);
+    Camera& setDeadzone (int width_ = -1, int height_ = -1);
 
     /**
      * Fades the Camera in from the given color over the duration specified.
      *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param red The amount to fade the red channel towards. A value between 0 and 255.
-     * @param green The amount to fade the green channel towards. A value between 0 and 255.
-     * @param blue The amount to fade the blue channel towards. A value between 0 and 255.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
+     * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
+     * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
      *
      * @return This Camera instance.
      */
-    Camera& fadeIn (int duration = 1000, int red = 0, int green = 0, int blue = 0)
+    Camera& fadeIn (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0)
 	{
-		return fadeEffect.start(false, duration, red, green, blue, true);
+		return fadeEffect.start(false, duration_, red_, green_, blue_, true);
 	}
 
 	/**
 	 * @overload
-	 *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param red The amount to fade the red channel towards. A value between 0 and 255.
-     * @param green The amount to fade the green channel towards. A value between 0 and 255.
-     * @param blue The amount to fade the blue channel towards. A value between 0 and 255.
-     * @param callback This callback will be invoked every frame for the duration of the effect.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
+     * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
+     * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
+     * @param callback_ This callback will be invoked every frame for the duration of the effect.
      * It is sent two arguments: A reference to the camera and a progress amount between 0 and 1 indicating how complete the effect is.
-     * @param context The context in which the callback is invoked.
+     * @param context_ The context in which the callback is invoked.
      *
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fadeIn (int duration, int red, int green, int blue, void (T::* callback)(Camera&, float), T* context)
+    Camera& fadeIn (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera&, float), T* context_)
 	{
-		std::function<void(Camera&, float)> cb = std::bind(
-				callback,
-				context,
+		std::function<void(Camera&, float)> cb_ = std::bind(
+				callback_,
+				context_,
 				std::placeholders::_1,
 				std::placeholders::_2);
 
-		return fadeEffect.start(false, duration, red, green, blue, true, cb);
+		return fadeEffect.start(false, duration_, red_, green_, blue_, true, cb_);
 	}
 
     /**
@@ -259,43 +261,42 @@ public:
      *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param red The amount to fade the red channel towards. A value between 0 and 255.
-     * @param green The amount to fade the green channel towards. A value between 0 and 255.
-     * @param blue The amount to fade the blue channel towards. A value between 0 and 255.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
+     * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
+     * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
      *
      * @return This Camera instance.
      */
-    Camera& fadeOut (int duration = 1000, int red = 0, int green = 0, int blue = 0)
+    Camera& fadeOut (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0)
 	{
-		return fadeEffect.start(true, duration, red, green, blue, true);
+		return fadeEffect.start(true, duration_, red_, green_, blue_, true);
 	}
 
 	/**
 	 * @overload
-	 *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param red The amount to fade the red channel towards. A value between 0 and 255.
-     * @param green The amount to fade the green channel towards. A value between 0 and 255.
-     * @param blue The amount to fade the blue channel towards. A value between 0 and 255.
-     * @param callback This callback will be invoked every frame for the duration of the effect.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
+     * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
+     * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
+     * @param callback_ This callback will be invoked every frame for the duration of the effect.
      * It is sent two arguments: A reference to the camera and a progress amount between 0 and 1 indicating how complete the effect is.
-     * @param context The context in which the callback is invoked.
+     * @param context_ The context in which the callback is invoked.
      *
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fadeOut (int duration, int red, int green, int blue, void (T::* callback)(Camera&, float), T* context)
+    Camera& fadeOut (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera&, float), T* context_)
 	{
-		std::function<void(Camera&, float)> cb = std::bind(
-				callback,
-				context,
+		std::function<void(Camera&, float)> cb_ = std::bind(
+				callback_,
+				context_,
 				std::placeholders::_1,
 				std::placeholders::_2);
 
-		return fadeEffect.start(true, duration, red, green, blue, true, cb);
+		return fadeEffect.start(true, duration_, red_, green_, blue_, true, cb_);
 	}
 
     /**
@@ -303,17 +304,17 @@ public:
      *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param red The amount to fade the red channel towards. A value between 0 and 255.
-     * @param green The amount to fade the green channel towards. A value between 0 and 255.
-     * @param blue The amount to fade the blue channel towards. A value between 0 and 255.
-     * @param force Force the effect to start immediately, even if already running.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
+     * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
+     * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
+     * @param force_ Force the effect to start immediately, even if already running.
      *
      * @return This Camera instance.
      */
-    Camera& fadeFrom (int duration = 1000, int red = 0, int green = 0, int blue = 0, bool force = false)
+    Camera& fadeFrom (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0, bool force_ = false)
 	{
-		return fadeEffect.start(false, duration, red, green, blue, force);
+		return fadeEffect.start(false, duration_, red_, green_, blue_, force_);
 	}
 
 	/**
@@ -321,27 +322,27 @@ public:
 	 *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param red The amount to fade the red channel towards. A value between 0 and 255.
-     * @param green The amount to fade the green channel towards. A value between 0 and 255.
-     * @param blue The amount to fade the blue channel towards. A value between 0 and 255.
-     * @param force Force the effect to start immediately, even if already running.
-     * @param callback This callback will be invoked every frame for the duration of the effect.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
+     * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
+     * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
+     * @param force_ Force the effect to start immediately, even if already running.
+     * @param callback_ This callback will be invoked every frame for the duration of the effect.
      * It is sent two arguments: A reference to the camera and a progress amount between 0 and 1 indicating how complete the effect is.
-     * @param context The context in which the callback is invoked.
+     * @param context_ The context in which the callback is invoked.
      *
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fadeFrom (int duration, int red, int green, int blue, bool force, void (T::* callback)(Camera&, float), T* context)
+    Camera& fadeFrom (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, float), T* context_)
 	{
-		std::function<void(Camera&, float)> cb = std::bind(
-				callback,
-				context,
+		std::function<void(Camera&, float)> cb_ = std::bind(
+				callback_,
+				context_,
 				std::placeholders::_1,
 				std::placeholders::_2);
 
-		return fadeEffect.start(false, duration, red, green, blue, force, cb);
+		return fadeEffect.start(false, duration_, red_, green_, blue_, force_, cb_);
 	}
 
     /**
@@ -349,17 +350,17 @@ public:
      *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param red The amount to fade the red channel towards. A value between 0 and 255.
-     * @param green The amount to fade the green channel towards. A value between 0 and 255.
-     * @param blue The amount to fade the blue channel towards. A value between 0 and 255.
-     * @param force Force the effect to start immediately, even if already running.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
+     * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
+     * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
+     * @param force_ Force the effect to start immediately, even if already running.
      *
      * @return This Camera instance.
      */
-    Camera& fade (int duration = 1000, int red = 0, int green = 0, int blue = 0, bool force = false)
+    Camera& fade (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0, bool force_ = false)
 	{
-		return fadeEffect.start(true, duration, red, green, blue, force);
+		return fadeEffect.start(true, duration_, red_, green_, blue_, force_);
 	}
 
 	/**
@@ -367,27 +368,27 @@ public:
 	 *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param red The amount to fade the red channel towards. A value between 0 and 255.
-     * @param green The amount to fade the green channel towards. A value between 0 and 255.
-     * @param blue The amount to fade the blue channel towards. A value between 0 and 255.
-     * @param force Force the effect to start immediately, even if already running.
-     * @param callback This callback will be invoked every frame for the duration of the effect.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
+     * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
+     * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
+     * @param force_ Force the effect to start immediately, even if already running.
+     * @param callback_ This callback will be invoked every frame for the duration of the effect.
      * It is sent two arguments: A reference to the camera and a progress amount between 0 and 1 indicating how complete the effect is.
-     * @param context The context in which the callback is invoked.
+     * @param context_ The context in which the callback is invoked.
      *
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fade (int duration, int red, int green, int blue, bool force, void (T::* callback)(Camera&, float), T* context)
+    Camera& fade (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, float), T* context_)
 	{
-		std::function<void(Camera&, float)> cb = std::bind(
-				callback,
-				context,
+		std::function<void(Camera&, float)> cb_ = std::bind(
+				callback_,
+				context_,
 				std::placeholders::_1,
 				std::placeholders::_2);
 
-		return fadeEffect.start(true, duration, red, green, blue, force, cb);
+		return fadeEffect.start(true, duration_, red_, green_, blue_, force_, cb_);
 	}
 
     /**
@@ -395,17 +396,17 @@ public:
      *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param red The amount to fade the red channel towards. A value between 0 and 255.
-     * @param green The amount to fade the green channel towards. A value between 0 and 255.
-     * @param blue The amount to fade the blue channel towards. A value between 0 and 255.
-     * @param force Force the effect to start immediately, even if already running.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
+     * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
+     * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
+     * @param force_ Force the effect to start immediately, even if already running.
      *
      * @return This Camera instance.
      */
-    Camera& flash (int duration = 250, int red = 0, int green = 0, int blue = 0, bool force = false)
+    Camera& flash (int duration_ = 250, int red_ = 0, int green_ = 0, int blue_ = 0, bool force_ = false)
 	{
-		return flashEffect.start(duration, red, green, blue, force);
+		return flashEffect.start(duration_, red_, green_, blue_, force_);
 	}
 
 	/**
@@ -413,27 +414,27 @@ public:
 	 *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param red The amount to fade the red channel towards. A value between 0 and 255.
-     * @param green The amount to fade the green channel towards. A value between 0 and 255.
-     * @param blue The amount to fade the blue channel towards. A value between 0 and 255.
-     * @param force Force the effect to start immediately, even if already running.
-     * @param callback This callback will be invoked every frame for the duration of the effect.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
+     * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
+     * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
+     * @param force_ Force the effect to start immediately, even if already running.
+     * @param callback_ This callback will be invoked every frame for the duration of the effect.
      * It is sent two arguments: A reference to the camera and a progress amount between 0 and 1 indicating how complete the effect is.
-     * @param context The context in which the callback is invoked.
+     * @param context_ The context in which the callback is invoked.
      *
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& flash (int duration, int red, int green, int blue, bool force, void (T::* callback)(Camera&, float), T* context)
+    Camera& flash (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, float), T* context_)
 	{
-		std::function<void(Camera&, float)> cb = std::bind(
-				callback,
-				context,
+		std::function<void(Camera&, float)> cb_ = std::bind(
+				callback_,
+				context_,
 				std::placeholders::_1,
 				std::placeholders::_2);
 
-		return flashEffect.start(duration, red, green, blue, force, cb);
+		return flashEffect.start(duration_, red_, green_, blue_, force_, cb_);
 	}
 
     /**
@@ -441,15 +442,15 @@ public:
      *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param intensity The intensity of the shake.
-     * @param force Force the shake effect to start immediately, even if already running.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param intensity_ The intensity of the shake.
+     * @param force_ Force the shake effect to start immediately, even if already running.
      *
      * @return This Camera instance.
      */
-    Camera& shake (int duration = 100, Math::Vector2 intensity = {0.05}, bool force = false)
+    Camera& shake (int duration_ = 100, Math::Vector2 intensity_ = {0.05}, bool force_ = false)
 	{
-		return shakeEffect.start(duration, intensity, force);
+		return shakeEffect.start(duration_, intensity_, force_);
 	}
 
 	/**
@@ -457,25 +458,25 @@ public:
 	 *
      * @since 0.0.0
      *
-     * @param duration The duration of the effect in milliseconds.
-     * @param intensity The intensity of the shake.
-     * @param force Force the effect to start immediately, even if already running.
-     * @param callback This callback will be invoked every frame for the duration of the effect.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param intensity_ The intensity of the shake.
+     * @param force_ Force the effect to start immediately, even if already running.
+     * @param callback_ This callback will be invoked every frame for the duration of the effect.
      * It is sent two arguments: A reference to the camera and a progress amount between 0 and 1 indicating how complete the effect is.
-     * @param context The context in which the callback is invoked.
+     * @param context_ The context in which the callback is invoked.
      *
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& shake (int duration, Math::Vector2 intensity, bool force, void (T::* callback)(Camera&, float), T* context)
+    Camera& shake (int duration_, Math::Vector2 intensity_, bool force_, void (T::* callback_)(Camera&, float), T* context_)
 	{
-		std::function<void(Camera&, float)> cb = std::bind(
-				callback,
-				context,
+		std::function<void(Camera&, float)> cb_ = std::bind(
+				callback_,
+				context_,
 				std::placeholders::_1,
 				std::placeholders::_2);
 
-		return shakeEffect.start(duration, intensity, force, cb);
+		return shakeEffect.start(duration_, intensity_, force_, cb_);
 	}
 
     /**
@@ -484,17 +485,17 @@ public:
      *
      * @since 0.0.0
      *
-     * @param x The destination x coordinate to scroll the center of the Camera viewport to.
-     * @param y The destination y coordinate to scroll the center of the Camera viewport to.
-     * @param duration The duration of the effect in milliseconds.
-     * @param ease The ease to use for the pan.
-     * @param force Force the pan effect to start immediately, even if already running.
+     * @param x_ The destination x coordinate to scroll the center of the Camera viewport to.
+     * @param y_ The destination y coordinate to scroll the center of the Camera viewport to.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param ease_ The ease to use for the pan.
+     * @param force_ Force the pan effect to start immediately, even if already running.
      *
      * @return This Camera instance.
      */
-    Camera& pan (int x, int y, int duration = 1000, std::string ease = "Linear", bool force = false)
+    Camera& pan (int x_, int y_, int duration_ = 1000, std::string ease_ = "Linear", bool force_ = false)
 	{
-		return panEffect.start(x, y, duration, ease, force);
+		return panEffect.start(x_, y_, duration_, ease_, force_);
 	}
 
     /**
@@ -502,30 +503,30 @@ public:
      *
      * @since 0.0.0
      *
-     * @param x The destination x coordinate to scroll the center of the Camera viewport to.
-     * @param y The destination y coordinate to scroll the center of the Camera viewport to.
-     * @param duration The duration of the effect in milliseconds.
-     * @param ease The ease to use for the pan.
-     * @param force Force the pan effect to start immediately, even if already running.
-     * @param callback This callback will be invoked every frame for the duration of the effect.
+     * @param x_ The destination x coordinate to scroll the center of the Camera viewport to.
+     * @param y_ The destination y coordinate to scroll the center of the Camera viewport to.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param ease_ The ease to use for the pan.
+     * @param force_ Force the pan effect to start immediately, even if already running.
+     * @param callback_ This callback will be invoked every frame for the duration of the effect.
      * It is sent four arguments: A reference to the camera, a progress amount between 0 and 1 indicating how complete the effect is,
      * the current camera scroll x coordinate and the current camera scroll y coordinate.
-     * @param context The context in which the callback is invoked.
+     * @param context_ The context in which the callback is invoked.
      *
      * @return This Camera instance.
      */
 	template <typename T>
-    Camera& pan (int x, int y, int duration, std::string ease, bool force, void (T::* callback)(Camera&, float, int, int), T* context)
+    Camera& pan (int x_, int y_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, float, int, int), T* context_)
 	{
-		std::function<void(Camera&, float, int, int)> cb = std::bind(
-				callback,
-				context,
+		std::function<void(Camera&, float, int, int)> cb_ = std::bind(
+				callback_,
+				context_,
 				std::placeholders::_1,
 				std::placeholders::_2,
 				std::placeholders::_3,
 				std::placeholders::_4);
 
-		return panEffect.start(x, y, duration, ease, force, cb);
+		return panEffect.start(x_, y_, duration_, ease_, force_, cb_);
 	}
 
     /**
@@ -534,17 +535,17 @@ public:
      *
      * @since 0.0.0
      *
-     * @param radians The destination angle in radians to rotate the Camera viewport to. If the angle is positive then the rotation is clockwise else anticlockwise
-     * @param shortestPath If shortest path is set to true the camera will rotate in the quickest direction clockwise or anti-clockwise.
-     * @param duration - The duration of the effect in milliseconds.
-     * @param ease The ease to use for the rotation.
-     * @param force Force the rotation effect to start immediately, even if already running.
+     * @param radians_ The destination angle in radians to rotate the Camera viewport to. If the angle is positive then the rotation is clockwise else anticlockwise
+     * @param shortestPath_ If shortest path is set to true the camera will rotate in the quickest direction clockwise or anti-clockwise.
+     * @param duration_ - The duration of the effect in milliseconds.
+     * @param ease_ The ease to use for the rotation.
+     * @param force_ Force the rotation effect to start immediately, even if already running.
      *
      * @return This Camera instance.
      */
-    Camera& rotateTo (float radians, bool shortestPath = false, int duration = 1000, std::string ease = "Linear", bool force = false)
+    Camera& rotateTo (float radians_, bool shortestPath_ = false, int duration_ = 1000, std::string ease_ = "Linear", bool force_ = false)
     {
-        return rotateToEffect.start(radians, shortestPath, duration, ease, force);
+        return rotateToEffect.start(radians_, shortestPath_, duration_, ease_, force_);
     }
 
     /**
@@ -552,29 +553,29 @@ public:
      *
      * @since 0.0.0
      *
-     * @param radians The destination angle in radians to rotate the Camera viewport to. If the angle is positive then the rotation is clockwise else anticlockwise
-     * @param shortestPath If shortest path is set to true the camera will rotate in the quickest direction clockwise or anti-clockwise.
-     * @param duration - The duration of the effect in milliseconds.
-     * @param ease The ease to use for the rotation.
-     * @param force Force the rotation effect to start immediately, even if already running.
-     * @param callback This callback will be invoked every frame for the duration of the effect.
+     * @param radians_ The destination angle in radians to rotate the Camera viewport to. If the angle is positive then the rotation is clockwise else anticlockwise
+     * @param shortestPath_ If shortest path is set to true the camera will rotate in the quickest direction clockwise or anti-clockwise.
+     * @param duration_ - The duration of the effect in milliseconds.
+     * @param ease_ The ease to use for the rotation.
+     * @param force_ Force the rotation effect to start immediately, even if already running.
+     * @param callback_ This callback will be invoked every frame for the duration of the effect.
      * It is sent three arguments: A reference to the camera, a progress amount between 0 and 1 indicating how complete the effect is,
      * the current camera rotation angle in radians.
-     * @param context The context in which the callback is invoked.
+     * @param context_ The context in which the callback is invoked.
      *
      * @return This Camera instance.
      */
 	template <typename T>
-    Camera& rotateTo (float radians, bool shortestPath, int duration, std::string ease, bool force, void (T::* callback)(Camera&, float, float), T* context)
+    Camera& rotateTo (float radians_, bool shortestPath_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, float, float), T* context_)
 	{
-		std::function<void(Camera&, float, float)> cb = std::bind(
-				callback,
-				context,
+		std::function<void(Camera&, float, float)> cb_ = std::bind(
+				callback_,
+				context_,
 				std::placeholders::_1,
 				std::placeholders::_2,
 				std::placeholders::_3);
 
-        return rotateToEffect.start(radians, shortestPath, duration, ease, force, cb);
+        return rotateToEffect.start(radians_, shortestPath_, duration_, ease_, force_, cb_);
 	}
 
     /**
@@ -582,16 +583,16 @@ public:
      *
      * @since 0.0.0
      *
-     * @param zoom The target Camera zoom value.
-     * @param duration The duration of the effect in milliseconds.
-     * @param ease The ease to use for the pan.
-     * @param force Force the pan effect to start immediately, even if already running.
+     * @param zoom_ The target Camera zoom value.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param ease_ The ease to use for the pan.
+     * @param force_ Force the pan effect to start immediately, even if already running.
      *
      * @return This Camera instance.
      */
-    Camera& zoomTo (float zoom, int duration, std::string ease, bool force)
+    Camera& zoomTo (float zoom_, int duration_, std::string ease_, bool force_)
 	{
-		return zoomEffect.start(zoom, duration, ease, force);
+		return zoomEffect.start(zoom_, duration_, ease_, force_);
 	}
 
     /**
@@ -599,29 +600,29 @@ public:
      *
      * @since 0.0.0
      *
-     * @param zoom The target Camera zoom value.
-     * @param duration The duration of the effect in milliseconds.
-     * @param ease The ease to use for the pan.
-     * @param force Force the pan effect to start immediately, even if already running.
-     * @param callback - This callback will be invoked every frame for the duration of the effect.
+     * @param zoom_ The target Camera zoom value.
+     * @param duration_ The duration of the effect in milliseconds.
+     * @param ease_ The ease to use for the pan.
+     * @param force_ Force the pan effect to start immediately, even if already running.
+     * @param callback_ - This callback will be invoked every frame for the duration of the effect.
      * It is sent four arguments: A reference to the camera, a progress amount between 0 and 1 indicating how complete the effect is,
      * the current camera scroll x coordinate and the current camera scroll y coordinate.
-     * @param context - The context in which the callback is invoked. Defaults to the Scene to which the Camera belongs.
+     * @param context_ - The context in which the callback is invoked. Defaults to the Scene to which the Camera belongs.
      *
      * @return This Camera instance.
      */
 	template <typename T>
-    Camera& zoomTo (float zoom, int duration, std::string ease, bool force, void (T::* callback)(Camera&, float, int, int), T* context)
+    Camera& zoomTo (float zoom_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, float, int, int), T* context_)
 	{
-		std::function<void(Camera&, float, int, int)> cb = std::bind(
-				callback,
-				context,
+		std::function<void(Camera&, float, int, int)> cb_ = std::bind(
+				callback_,
+				context_,
 				std::placeholders::_1,
 				std::placeholders::_2,
 				std::placeholders::_3,
 				std::placeholders::_4);
 
-		return zoomEffect.start(zoom, duration, ease, force, cb);
+		return zoomEffect.start(zoom_, duration_, ease_, force_, cb_);
 	}
 
     /**
@@ -643,12 +644,12 @@ public:
      *
      * @since 0.0.0
      *
-     * @param x The amount added to the horizontal linear interpolation of the follow target.
-     * @param y The amount added to the vertical linear interpolation of the follow target.
+     * @param x_ The amount added to the horizontal linear interpolation of the follow target.
+     * @param y_ The amount added to the vertical linear interpolation of the follow target.
      *
      * @return This Camera instance.
      */
-    Camera& setLerp (float x = 1.0, float y = 1.0);
+    Camera& setLerp (float x_ = 1.0, float y_ = 1.0);
 
     /**
      * Sets the horizontal and vertical offset of the camera from its follow target.
@@ -656,12 +657,12 @@ public:
      *
      * @since 0.0.0
      *
-     * @param x The horizontal offset from the camera follow target.x position.
-     * @param y The vertical offset from the camera follow target.y position.
+     * @param x_ The horizontal offset from the camera follow target.x position.
+     * @param y_ The vertical offset from the camera follow target.y position.
      *
      * @return This Camera instance.
      */
-    Camera& setFollowOffset (int x = 0, int y = 0);
+    Camera& setFollowOffset (int x_ = 0, int y_ = 0);
 
     /**
      * Sets the Camera to follow a Game Object.
@@ -678,15 +679,15 @@ public:
      *
      * @since 0.0.0
      *
-     * @param target - The target for the Camera to follow.
-     * @param lerpX A value between 0 and 1. This value specifies the amount of linear interpolation to use when horizontally tracking the target. The closer the value to 1, the faster the camera will track.
-     * @param lerpY A value between 0 and 1. This value specifies the amount of linear interpolation to use when vertically tracking the target. The closer the value to 1, the faster the camera will track.
-     * @param offsetX The horizontal offset from the camera follow target.x position.
-     * @param offsetY The vertical offset from the camera follow target.y position.
+     * @param target_ - The target for the Camera to follow.
+     * @param lerpX_ A value between 0 and 1. This value specifies the amount of linear interpolation to use when horizontally tracking the target. The closer the value to 1, the faster the camera will track.
+     * @param lerpY_ A value between 0 and 1. This value specifies the amount of linear interpolation to use when vertically tracking the target. The closer the value to 1, the faster the camera will track.
+     * @param offsetX_ The horizontal offset from the camera follow target.x position.
+     * @param offsetY_ The vertical offset from the camera follow target.y position.
      *
      * @return This Camera instance.
      */
-    Camera& startFollow (GameObjects::GameObject& target, float lerpX = 1.0, float lerpY = 1.0, int offsetX = 0, int offsetY = 0);
+    Camera& startFollow (GameObjects::GameObject& target_, float lerpX_ = 1.0, float lerpY_ = 1.0, int offsetX_ = 0, int offsetY_ = 0);
 
     /**
      * Stops a Camera from following a Game Object, if previously set via `Camera.startFollow`.
@@ -712,10 +713,10 @@ public:
      *
      * @since 0.0.0
      *
-     * @param time The amount of time since SDL started in ms.
-     * @param delta The delta time, in ms, elapsed since the last frame.
+     * @param time_ The amount of time since SDL started in ms.
+     * @param delta_ The delta time, in ms, elapsed since the last frame.
      */
-    void update (Uint32 time, Uint32 delta);
+    void update (Uint32 time_, Uint32 delta_);
 
 private:
 	/**
@@ -723,8 +724,9 @@ private:
 	 *
 	 * @since 0.0.0
 	 */
-	GameObjects::GameObject* follow_ = nullptr;
+	GameObjects::GameObject* follow = nullptr;
 };
+
 }	// namespace Scene2D
 }	// namespace Cameras
 }	// namespace Zen

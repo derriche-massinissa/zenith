@@ -1,12 +1,12 @@
 /**
- * @file		scale_manager.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef SCALE_MANAGER_H
-#define SCALE_MANAGER_H
+#ifndef ZEN_SCALE_SCALE_MANAGER_H
+#define ZEN_SCALE_SCALE_MANAGER_H
 
 #include "../const.h"
 #include "../structs/size.h"
@@ -44,26 +44,26 @@ public:
 	 *
 	 * @param game - The Game instance.
 	 */
-	ScaleManager (Game& game);
+	ScaleManager (Game& game_);
 
 	/**
 	 * @since 0.0.0
 	 */
-	~ScaleManager (Game& game);
+	~ScaleManager ();
 
 	/**
 	 * A reference to the Game instance.
 	 *
 	 * @since 0.0.0
 	 */
-	Game& game_;
+	Game& game;
 
 	/**
 	 * A reference to the Window instance.
 	 *
 	 * @since 0.0.0
 	 */
-	Window& window_;
+	Window& window;
 
 	/**
 	 * The Game Size component.
@@ -73,7 +73,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Structs::Size gameSize_;
+	Structs::Size gameSize;
 
 	/**
 	 * The Display Size component.
@@ -83,21 +83,21 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Structs::Size displaySize_;
+	Structs::Size displaySize;
 
 	/**
 	 * The game scale mode.
 	 *
 	 * @since 0.0.0
 	 */
-	SCALE_MODE scaleMode_ = SCALE_MODE::RESIZE;
+	SCALE_MODE scaleMode = SCALE_MODE::RESIZE;
 
 	/**
 	 * The scale factor between the gameSize and the window dimensions.
 	 *
 	 * @since 0.0.0
 	 */
-	Math::Vector2 displayScale_ {1.0, 1.0};
+	Math::Vector2 displayScale {1.0, 1.0};
 
 	/**
 	 * The offset of the game view.
@@ -108,7 +108,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Math::Vector2 displayOffset_ {0.0, 0.0};
+	Math::Vector2 displayOffset {0.0, 0.0};
 
 	/* TODO
 	 * The current device orientation.
@@ -124,7 +124,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	bool dirty_ = false;
+	bool dirty = false;
 
 	/**
 	 * Called _before_ the window object is initialized and opened.
@@ -150,9 +150,9 @@ public:
      */
     void parseConfig ();
 
-	void setGameSize (int width, int height);
+	void setGameSize (int width_, int height_);
 
-	void resize (int width ,int height);
+	void resize (int width_ ,int height_);
 
 	void refresh ();
 
@@ -164,15 +164,16 @@ public:
 
 	void stopListeners ();
 
-	void onResize (int width, int height);
+	void onResize (int width_, int height_);
 
-	void setScaleMode (SCALE_MODE sm);
+	void setScaleMode (SCALE_MODE sm_);
 
-	int transformX (int windowX);
+	int transformX (int windowX_);
 
-	int transformY (int windowY);
+	int transformY (int windowY_);
 
 };	// class ScaleManager
+
 }	// namespace Scale
 }	// namespace Zen
 

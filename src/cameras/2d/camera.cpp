@@ -1,16 +1,18 @@
 /**
- * @file		camera.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include <memory>
+#include "camera.h"
+
 namespace Zen {
 namespace Cameras {
 namespace Scene2D {
-Camera::Camera (int x, int y, int width, int height)
-	: BaseCamera(x, y, width, height)
+
+Camera::Camera (int x_, int y_, int width_, int height_)
+	: BaseCamera(x_, y_, width_, height_)
 {}
 
 Camera::~Camera ()
@@ -23,32 +25,32 @@ int Camera::getComponentMask ()
 	return COMPONENT_MASK;
 }
 
-Camera& Camera::setDeadzone (int width = -1, int height = -1)
+Camera& Camera::setDeadzone (int width_ = -1, int height_ = -1)
 {
-	if (width < 0) {
-		deadzone_.reset();
+	if (width_ < 0) {
+		deadzone.reset();
 	} else {
-		if (deadzone_) {
-			deadzone_->setWidth(width);
-			deadzone_->setHeight(height);
+		if (deadzone) {
+			deadzone->setWidth(width_);
+			deadzone->setHeight(height_);
 		} else {
-			deadzone_ = std::make_shared<Geom::Rectangle>(0, 0, width, height);
+			deadzone = std::make_shared<Geom::Rectangle>(0, 0, width_, height_);
 		}
 
-		if (follow_) {
-			int originX = width_ / 2;
-			int originY = height_ / 2;
+		if (follow) {
+			int originX_ = width / 2;
+			int originY_ = height / 2;
 
-			int fx = follow_->x - followOffset_.x;
-			int fy = follow_->y - followOffset_.y;
+			int fx_ = follow->x - followOffset.x;
+			int fy_ = follow->y - followOffset.y;
 
-			midPoint_.set(fx, fy);
+			midPoint.set(fx_, fy_);
 
-			setScrollX(fx - originX);
-			setScrollY(fy - originY);
+			setScrollX(fx_ - originX_);
+			setScrollY(fy_ - originY_);
 		}
 
-		deadzone_->centerOn(midPoint_.x, midPoint_.y);
+		deadzone->centerOn(midPoint.x, midPoint.y);
 	}
 
 	return *this;
@@ -56,114 +58,119 @@ Camera& Camera::setDeadzone (int width = -1, int height = -1)
 
 void Camera::preRender ()
 {
-	int halfWidth = getWidth() * 0.5;
-	int halfHeight = getHeight() * 0.5;
+	int halfWidth_ = getWidth() * 0.5;
+	int halfHeight_ = getHeight() * 0.5;
 
-	int originX = getWidth() * originX_;
-	int originY = getHeight() * originY_;
+	int originX_ = getWidth() * originX;
+	int originY_ = getHeight() * originY;
 
-	int sx = getScrollX();
-	int sy = getScrollY();
+	int sx_ = getScrollX();
+	int sy_ = getScrollY();
 
-	if (deadzone_)
-		deadzone_->centerOn(midPoint_.x, midPoint_.y);
+	if (deadzone)
+		deadzone->centerOn(midPoint.x, midPoint.y);
 
-	bool emitFollowEvent = false;
+	bool emitFollowEvent_ = false;
 
-	if (follow_ && !panEffect.isRunning) {
-		int fx = follow_->x - followOffset_.x;
-		int fy = follow_->y - followOffset_.y;
+	if (follow && !panEffect.isRunning) {
+		int fx_ = follow->x - followOffset.x;
+		int fy_ = follow->y - followOffset.y;
 
-		if (deadzone_) {
-			if (fx < deadzone_->getX())
-				sx = Math::linear(sx, sx - (deadzone_->getX() - fx), lerp_.x);
+		if (deadzone) {
+			if (fx_ < deadzone->getX())
+				sx_ = Math::linear(sx_, sx_ - (deadzone->getX() - fx_), lerp.x);
 			else if (fx > deadzone_->getRight())
-				sx = Math::linear(sx, sx + (fx - deadzone_->getRight()), lerp_.x)
+				sx_ = Math::linear(sx_, sx_ + (fx_ - deadzone->getRight()), lerp.x)
 
-			if (fy < deadzone_->getY())
-				sy = Math::linear(sy, sy - (deadzone_->getY() - fy), lerp_.y);
+			if (fy_ < deadzone->getY())
+				sy_ = Math::linear(sy_, sy_ - (deadzone->getY() - fy_), lerp.y);
 			else if (fy > deadzone_->getBottom())
-				sy = Math::linear(sy, sy + (fy - deadzone_->getBottom()), lerp_.y)
+				sy_ = Math::linear(sy_, sy_ + (fy_ - deadzone->getBottom()), lerp.y)
 		} else {
-			sx = Math::linear(sx, fx - originX, lerp_.x);
-			sy = Math::linear(sy, fy - originY, lerp_.y);
+			sx_ = Math::linear(sx_, fx_ - originX_, lerp.x);
+			sy_ = Math::linear(sy_, fy_ - originY_, lerp.y);
 		}
 
-		emitFollowEvent = true;
+		emitFollowEvent_ = true;
 	}
 
-	if (useBounds_) {
-		sx = clampX(sx);
-		sy = clampY(sy);
+	if (useBounds) {
+		sx_ = clampX(sx_);
+		sy_ = clampY(sy_);
 	}
 
 	//  Values are in pixels and not impacted by zooming the Camera
-	setScrollX(sx);
-	setScrollY(sy);
+	setScrollX(sx_);
+	setScrollY(sy_);
 
-	int midX = sx + halfWidth;
-	int midY = sy + halfHeight;
+	int midX_ = sx_ + halfWidth_;
+	int midY_ = sy_ + halfHeight_;
 
 	//  The center of the camera, in world space, so taking zoom into account
 	//  Basically the pixel value of what it's looking at in the middle of the cam
-	midPoint_.set(midX, midY);
+	midPoint.set(midX_, midY_);
 
-	int displayWidth = width_ / getZoom();
-	int displayHeight = height_ / getZoom();
+	int displayWidth_ = width / getZoom();
+	int displayHeight_ = height / getZoom();
 
-	int vwx = midX  (displayWidth / 2);
-	int vwy = midY  (displayHeight / 2);
+	int vwx_ = midX_ - (displayWidth_ / 2);
+	int vwy_ = midY_ - (displayHeight_ / 2);
 
-	worldView_.setTo(vwx, vwy, displayWidth, displayHeight);
+	worldView.setTo(vwx_, vwy_, displayWidth_, displayHeight_);
 
-	matrix_.applyITRS(getX(), + originX, getY() + originY, getRotation(), getZoom(), getZoom());
-	matrix_.translate(-originX, -originY);
+	matrix.applyITRS(getX(), + originX_, getY() + originY_, getRotation(), getZoom(), getZoom());
+	matrix.translate(-originX_, -originY_);
 
 	shakeEffect.preRender();
 
-	if (emitFollowEvent)
-		emit("SYS_FOLLOW_UPDATE");
+	if (emitFollowEvent_)
+		emit("follow-update");
 }
 
-Camera& Camera::setLerp (float x, float y)
+Camera& Camera::setLerp (float x_, float y_)
 {
-	lerp_.set(x, y);
+	lerp.set(x_, y_);
 
 	return *this;
 }
 
-Camera& Camera::setFollowOffset (int x, int y)
+Camera& Camera::setFollowOffset (int x_, int y_)
 {
-	followOffset_.set(x, y);
+	followOffset.set(x_, y_);
 
 	return *this;
 }
 
-Camera& Camera::startFollow (GameObjects::GameObject& target, float lerpX, float lerpY, int offsetX, int offsetY)
+Camera& Camera::startFollow (
+		GameObjects::GameObject& target_,
+		float lerpX_,
+		float lerpY_,
+		int offsetX_,
+		int offsetY_)
 {
-	follow_ = &target;
+	follow = &target_;
 
-	lerpX = Math::clamp(lerpX, 0.0, 1.0);
-	lerpY = Math::clamp(lerpY, 0.0, 1.0);
+	lerpX_ = Math::clamp(lerpX_, 0.0, 1.0);
+	lerpY_ = Math::clamp(lerpY_, 0.0, 1.0);
 
-	lerp_.set(lerpX, lerpY);
+	lerp.set(lerpX_, lerpY_);
 
-	followOffset_.set(offsetX, offsetY);
+	followOffset.set(offsetX_, offsetY_);
 
-	int originX = getWidth() / 2;
-	int originY = getHeight() / 2;
+	int originX_ = getWidth() / 2;
+	int originY_ = getHeight() / 2;
 
-	int fx = target.x - offsetX;
-	int fy = target.y - offsetY;
+	int fx_ = target_.x - offsetX_;
+	int fy_ = target_.y - offsetY_;
 
-	midPoint_.set(fx, fy);
+	midPoint.set(fx_, fy_);
 
-	setScrollX(fx - originX);
-	setScrollY(fy - originY);
+	setScrollX(fx_ - originX_);
+	setScrollY(fy_ - originY_);
 
-	if (useBounds_) {
-		setScrollX(clampX(getScrollX()));
-		setScrollY(clampY(getScrollY()));
+	if (useBounds) {
+		setScrollX( clampX( getScrollX() ) );
+		setScrollY( clampY( getScrollY() ) );
 	}
 
 	return *this;
@@ -171,7 +178,7 @@ Camera& Camera::startFollow (GameObjects::GameObject& target, float lerpX, float
 
 Camera& Camera::stopFollow ()
 {
-	follow_ = nullptr;
+	follow = nullptr;
 
 	return *this;
 }
@@ -187,17 +194,18 @@ Camera& Camera::resetFX ()
 	return *this;
 }
 
-void Camera::update (Uint32 time, Uint32 delta)
+void Camera::update (Uint32 time_, Uint32 delta_)
 {
 	if (visible) {
-		rotateToEffect.update(time, delta);
-		panEffect.update(time, delta);
-		zoomEffect.update(time, delta);
-		shakeEffect.update(time, delta);
-		flashEffect.update(time, delta);
-		fadeEffect.update(time, delta);
+		rotateToEffect.update(time_, delta_);
+		panEffect.update(time_, delta_);
+		zoomEffect.update(time_, delta_);
+		shakeEffect.update(time_, delta_);
+		flashEffect.update(time_, delta_);
+		fadeEffect.update(time_, delta_);
 	}
 }
+
 }	// Scene2D
 }	// Cameras
 }	// Zen
