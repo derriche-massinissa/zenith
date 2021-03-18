@@ -25,7 +25,7 @@ void TimeStep::start (std::function<void(Uint32, Uint32)> gameStep_)
 
 	for (int i_ = 0; i_ < fpsSmoothingMax; i_++)
 	{
-		fpsHistory[i_] = 0;
+		fpsHistory.emplace_back(60.0);
 	}
 
 	callback = gameStep_;
@@ -40,7 +40,6 @@ void TimeStep::loop ()
 		// Game step
 		step();
 	}
-
 	// Clean up and close the program
 }
 
@@ -50,15 +49,38 @@ void TimeStep::step ()
 
 	delta = now - lastTime;
 
-	//if (before < 0)
-	//	before = 0;
+	// Frame rate
+	if (now > nextFpsUpdate)
+	{
+		// Compute the new exponential moving average with an alpha of 0.25
+		actualFps = 0.25 * framesThisSecond + 0.75 * actualFps;
+		nextFpsUpdate = now + 1000;
+		framesThisSecond = 0;
+	}
+
+	framesThisSecond++;
 
 	callback(now, delta);
 
 	// Shift time value over
 	lastTime = now;
 
-	//frame++;
+	frame++;
+}
+
+void TimeStep::tick ()
+{
+	step();
+}
+
+Uint32 TimeStep::getDuration ()
+{
+	return now / 1000;
+}
+
+Uint32 TimeStep::getDurationMS ()
+{
+	return now;
 }
 
 void TimeStep::shutdown ()

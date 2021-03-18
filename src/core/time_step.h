@@ -10,7 +10,6 @@
 
 #include <SDL2/SDL.h>
 #include <functional>
-#include <queue>
 
 #include "../messages.h"
 
@@ -22,6 +21,7 @@ namespace Core {
  *
  * Invoked automatically by the main Game instance.
  *
+ * @class TimeStep
  * @since 0.0.0
  */
 class TimeStep
@@ -57,7 +57,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	int framesThisSecond = 0;
+	Uint32 framesThisSecond = 0;
 
 	/**
 	 * The callback to call for in each game loop, which is the step
@@ -100,21 +100,6 @@ public:
 	Uint32 delta = 0;
 
 	/**
-	 * Internal queue holding the previous fps values, used for fps smoothing.
-	 *
-	 * @since 0.0.0
-	 */
-	std::queue<double> fpsHistory;
-
-	/**
-	 * The maximum number of FPS values that are retained in order to calculate
-	 * a smoothed moving average.
-	 *
-	 * @since 0.0.0
-	 */
-	int fpsSmoothingMax = 10;
-
-	/**
 	 * The number of frames that the fps is set to after the program panics over
 	 * FPS rate, usually at the start of the program.
 	 *
@@ -130,8 +115,6 @@ public:
 	 * @since 0.0.0
 	 */
 	bool started = false;
-
-	//double fps;
 
 	/**
 	 * Starts the Time Step running, if it is not already doing so.
@@ -173,13 +156,6 @@ public:
 	void tick ();
 
 	/**
-	 * Stops the main loop, which will in turn shutdown the whole game.
-	 *
-	 * @since 0.0.0
-	 */
-	void shutdown ();
-
-	/**
 	 * Gets the duration which the game has been running, in seconds.
 	 *
 	 * @since 0.0.0
@@ -196,6 +172,13 @@ public:
 	 * @return The duration in ms.
 	 */
 	Uint32 getDurationMS ();
+
+	/**
+	 * Stops the main loop, which will in turn shutdown the whole game.
+	 *
+	 * @since 0.0.0
+	 */
+	void shutdown ();
 };
 
 }	// namespace Core
