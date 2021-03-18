@@ -106,4 +106,5 @@ install(
 	TYPE INCLUDE
 	FILES_MATCHING
 	PATTERN "*.h"
+	PATTERN "*.hpp"
 	)
