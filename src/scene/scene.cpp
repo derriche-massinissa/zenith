@@ -21,9 +21,11 @@ namespace Zen {
 
 Scene::Scene (Game& game_)
 	: load (this)
+	, updateList (this)
 	, sys (this)
 	, scene (this)
 	, cameras (this)
+	, add (this)
 	, renderer (game_.renderer)
 	, textures (game_.textures)
 	, scale (game_.scale)

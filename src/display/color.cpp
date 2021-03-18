@@ -7,6 +7,9 @@
 
 #include "color.h"
 
+#include "../math/clamp.h"
+#include "../math/random.h"
+
 namespace Zen {
 namespace Display {
 

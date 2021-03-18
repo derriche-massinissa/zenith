@@ -8,7 +8,7 @@
 #ifndef ZEN_GAMEOBJECTS_COMPONENTS_ALPHA_H
 #define ZEN_GAMEOBJECTS_COMPONENTS_ALPHA_H
 
-#include "../../math/math.h"
+#include "../../math/clamp.h"
 #include "../../defs.h"
 
 #define FLAG 2 // 0010

@@ -9,7 +9,7 @@
 #define ZEN_MATH_VECTOR_2_H
 
 #include <cmath>
-#include "math.h"
+#include "const.h"
 
 namespace Zen {
 namespace Math {

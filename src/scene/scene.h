@@ -22,6 +22,8 @@
 #include "../loader/loader_plugin.h"
 #include "../texture/texture_manager.h"
 #include "../gameobjects/display_list.h"
+#include "../gameobjects/update_list.h"
+#include "../gameobjects/gameobject_factory.h"
 
 
 namespace Zen {
@@ -115,9 +117,8 @@ public:
 	 * A scene level Game Object Factory.
 	 *
 	 * @since 0.0.0
-	 * @todo TODO
 	 */
-	//GameObjects::GameObjectFactory add;
+	GameObjects::GameObjectFactory add;
 
 	/**
 	 * A scene level Game Object Creator.
@@ -139,9 +140,15 @@ public:
 	 * A scene level GameObject display list.
 	 *
 	 * @since 0.0.0
-	 * @todo TODO
 	 */
 	GameObjects::DisplayList children;
+
+	/**
+	 * A scene level GameObject update list.
+	 *
+	 * @since 0.0.0
+	 */
+	GameObjects::UpdateList updateList;
 
 	/**
 	 * A scene level DataManager Plugin.
@@ -188,7 +195,7 @@ public:
 	 * @since 0.0.0
 	 * @todo TODO
 	 */
-	//Physics::Box2D::Box2DPhysics physics;
+	//Physics::Box2D::Physics physics;
 
 	/**
 	 * A reference to the Game level ScaleManager.

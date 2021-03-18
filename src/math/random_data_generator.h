@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_MATH_RANDOM_H
-#define ZEN_MATH_RANDOM_H
+#ifndef ZEN_MATH_RANDOM_DATA_GENERATOR_H
+#define ZEN_MATH_RANDOM_DATA_GENERATOR_H
 
 #include <algorithm>
 #include <cmath>

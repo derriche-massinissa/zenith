@@ -7,7 +7,8 @@
 
 #include "size.h"
 
-#include "../math/math.h"
+#include "../math/clamp.h"
+#include "../math/snap/snap_floor.h"
 
 namespace Zen {
 namespace Structs {

@@ -74,18 +74,24 @@ public:
 		else
 			This()->renderFlags |= FLAG;
 
-		if (This()->hasComponent(COMPONENT_MASK_SIZE) && updateSize_)
-			This()->setSizeToFrame();
-
-		if (This()->hasComponent(COMPONENT_MASK_SIZE) && updateSize_)
+		if constexpr (This()->hasComponent(COMPONENT_MASK_SIZE))
 		{
-			if (frame.customPivot)
+			if (updateSize_)
+				This()->setSizeToFrame();
+		}
+
+		if constexpr (This()->hasComponent(COMPONENT_MASK_ORIGIN))
+		{
+			if (updateSize_)
 			{
-				This()->setOrigin(frame.pivotX, frame.pivotY);
-			}
-			else
-			{
-				This()->updateDisplayOrigin();
+				if (frame.customPivot)
+				{
+					This()->setOrigin(frame.pivotX, frame.pivotY);
+				}
+				else
+				{
+					This()->updateDisplayOrigin();
+				}
 			}
 		}
 
@@ -100,14 +106,14 @@ public:
 		return {
 			// u0, v0, u1, v1
 			0, 0, 0, 0,
-			// x, y
-			0, 0,
-			// cx, cy, cw, ch
-			0, 0, 0, 0,
-			// width, height
-			0, 0,
-			// flipX, flipY
-			false, false
+				// x, y
+				0, 0,
+				// cx, cy, cw, ch
+				0, 0, 0, 0,
+				// width, height
+				0, 0,
+				// flipX, flipY
+				false, false
 		};
 	}
 

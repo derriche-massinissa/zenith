@@ -6,6 +6,11 @@
  */
 
 #include "camera.h"
+#include "camera_manager.h"
+
+#include "../../gameobjects/gameobject.h"
+#include "../../gameobjects/group/group.h"
+#include "../../scale/scale_manager.h"
 
 namespace Zen {
 namespace Cameras {

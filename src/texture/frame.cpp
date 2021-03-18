@@ -9,6 +9,8 @@
 
 #include "texture.h"
 #include "texture_source.h"
+#include "../geom/rectangle.h"
+#include "../math/clamp.h"
 
 namespace Zen {
 namespace Textures {

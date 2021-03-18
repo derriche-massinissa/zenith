@@ -89,7 +89,7 @@ enum class BLEND_MODE {
 	LIGHTER,
 	COPY,
 	XOR
-}
+};
 
 }	// namespace Zen
 

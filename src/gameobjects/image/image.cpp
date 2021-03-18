@@ -5,18 +5,23 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
+#include "image.h"
+
 namespace Zen {
 namespace GameObjects {
 
-Image::Image (Scene* scene, int x, int y, Texture* texture, Frame* frame)
+Image::Image (Scene* scene, int x, int y, Textures::Texture* texture, Textures::Frame* frame)
+	: GameObject (scene)
 {
+	/*
 	setTexture(texture, frame);
 	setPosition(x, y);
 	setSizeToFrame();
 	setOriginFromFrame();
+	*/
 }
 
-bool hasComponent (int compMask_)
+bool Image::hasComponent (int compMask_)
 {
 	return compMask_ | COMPONENT_MASK;
 }

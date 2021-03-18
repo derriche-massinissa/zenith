@@ -5,9 +5,17 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GAMEOBJECTS_IMAGE_h
-#define ZEN_GAMEOBJECTS_IMAGE_h
+#ifndef ZEN_GAMEOBJECTS_IMAGE_H
+#define ZEN_GAMEOBJECTS_IMAGE_H
 
+#include "../../defs.h"
+#include "../../texture/texture.fwd.h"
+#include "../../texture/frame.fwd.h"
+#include "../../texture/crop_data.h"
+#include "../../scene/scene.fwd.h"
+#include "../gameobject.h"
+
+/*
 #include "../components/alpha.h"
 #include "../components/blend_mode.h"
 #include "../components/depth.h"
@@ -20,12 +28,14 @@
 #include "../components/tint.h"
 #include "../components/transform.h"
 #include "../components/visible.h"
+*/
 
 namespace Zen {
 namespace GameObjects {
 
 class Image
 	: public GameObject
+	/*
 	, public Components::Alpha<Image>
 	, public Components::BlendMode<Image>
 	, public Components::Depth<Image>
@@ -39,9 +49,15 @@ class Image
 	, public Components::Tint<Image>
 	, public Components::Transform<Image>
 	, public Components::Visible<Image>
+	*/
 {
 public:
-	const int COMPONENT_MASK =
+	/**
+	 * @since 0.0.0
+	 */
+	Image (Scene* scene, int x, int y, Textures::Texture* texture, Textures::Frame* frame);
+
+	static const int COMPONENT_MASK =
 		COMPONENT_MASK_ALPHA			|
 		COMPONENT_MASK_BLENDMODE		|
 		COMPONENT_MASK_DEPTH			|
@@ -57,8 +73,6 @@ public:
 		COMPONENT_MASK_VISIBLE			;
 
 	bool hasComponent (int compMask_);
-
-	Image (Scene* scene, int x, int y, Texture* texture, Frame* frame);
 
 	Textures::CropData crop;
 };

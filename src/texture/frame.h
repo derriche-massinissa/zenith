@@ -11,9 +11,8 @@
 #include <string>
 #include <cmath>
 
-#include "../math/math.h"
 #include "../data.h"
-#include "../geom/rectangle.h"
+#include "../geom/rectangle.fwd.h"
 #include "frame_data.h"
 #include "crop_data.h"
 

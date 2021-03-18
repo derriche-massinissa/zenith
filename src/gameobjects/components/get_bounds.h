@@ -10,7 +10,7 @@
 
 #include "../../geom/rectangle.h"
 #include "../../math/vector2.h"
-#include "../../math/math.h"
+#include "../../math/rotate_around.h"
 
 namespace Zen {
 namespace GameObjects {

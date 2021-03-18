@@ -12,10 +12,9 @@
 
 #include "line.h"
 #include "point.h"
-#include "../math/random_data_generator.h"
+#include "../math/random.h"
 
 namespace Zen {
-namespace Math { extern RandomDataGenerator random; }
 namespace Geom {
 
 class Rectangle

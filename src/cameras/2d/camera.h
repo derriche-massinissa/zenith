@@ -36,11 +36,10 @@
 #include "../../gameobjects/components/flip.h"
 #include "../../gameobjects/components/tint.h"
 
-#include "../../gameobjects/gameobject.h"
-#include "../../gameobjects/group/group.h"
+#include "../../gameobjects/gameobject.fwd.h"
+#include "../../gameobjects/group/group.fwd.h"
 
 #include "../../scene/scene_manager.fwd.h"
-#include "../../scale/scale_manager.h"
 
 #include "effects/fade.h"
 #include "effects/flash.h"
@@ -1873,9 +1872,5 @@ public:
 }	// namespace Scene2D
 }	// namespace Cameras
 }	// namespace Zen
-
-// Declaration of forward declared elements
-#include "camera_manager.h"
-//#include "../../scene/scene.h"
 
 #endif

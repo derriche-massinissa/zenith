@@ -8,7 +8,6 @@
 #ifndef ZEN_GAMEOBJECTS_GROUP_H
 #define ZEN_GAMEOBJECTS_GROUP_H
 
-//#include <cstddef>
 #include <iterator>
 #include <vector>
 

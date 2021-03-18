@@ -11,7 +11,6 @@
 #include "../const.h"
 #include "../structs/size.h"
 #include "../event/event_emitter.h"
-#include "../math/math.h"
 #include "../math/vector2.h"
 
 #include "../window/window.fwd.h"
