@@ -71,7 +71,7 @@ public:
 		return *This();
 	}
 
-private:
+protected:
 	/**
 	 * Private internal value. Holds the visible value.
 	 * 

@@ -14,6 +14,7 @@
 
 #include "camera_config.h"
 #include "camera.h"
+#include "../../scene/scene.fwd.h"
 #include "../../geom/rectangle.h"
 #include "../../structs/size.h"
 #include "../../input/pointer.h"
@@ -95,7 +96,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::vector<Camera> cameras;
+	std::vector<BaseCamera> cameras;
 
 	/**
 	 * A handy pointer to the 'main' camera. By default this is the first Camera the
@@ -113,7 +114,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Camera *main;
+	BaseCamera *main;
 
 	/**
 	 * A default un-transformed Camera that doesn't exist on the camera list and doesn't
@@ -123,7 +124,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Camera def;
+	BaseCamera def;
 
 	/**
 	 * This method is called automatically, only once, when the Scene is first 
@@ -169,7 +170,7 @@ public:
 	 *
 	 * @return A pointer to the newly created Camera.
 	 */
-	Camera* add (
+	BaseCamera* add (
 			int x_ = 0,
 			int y_ = 0,
 			int width_ = 0,
@@ -215,7 +216,7 @@ public:
 	 *
 	 * @return A pointer to the first Camera with a name matching the given string, otherwise `null`.
 	 */
-	Camera* getCamera (std::string name_);
+	BaseCamera* getCamera (std::string name_);
 
 	/**
 	 * Returns an array of all cameras below the given Pointer.
@@ -228,7 +229,7 @@ public:
 	 *
 	 * @return A vector of cameras below the Pointer.
 	 */
-	std::vector<Camera*> getCamerasBelowPointer (Input::Pointer pointer_);
+	std::vector<BaseCamera*> getCamerasBelowPointer (Input::Pointer pointer_);
 
 	/**
 	 * Removes the given vector of Cameras, from this Camera Manager.
@@ -243,7 +244,7 @@ public:
 	 *
 	 * @return The total number of Cameras removed.
 	 */
-	int remove (std::vector<Camera*> camerasToRemove_);
+	int remove (std::vector<BaseCamera*> camerasToRemove_);
 
 	/**
 	 * @overload
@@ -254,7 +255,7 @@ public:
 	 *
 	 * @return The total number of Cameras removed.
 	 */
-	int remove (Camera* cameraToRemove_);
+	int remove (BaseCamera* cameraToRemove_);
 
 	/**
 	 * The internal render method. This is called automatically by the Scene and should not be invoked directly.
@@ -284,7 +285,7 @@ public:
 	 */
 	std::vector<GameObjects::GameObject*> getVisibleChildren (
 			std::vector<GameObjects::GameObject*>& children_,
-			Camera& camera_);
+			BaseCamera& camera_);
 
 	/**
 	 * Resets this Camera Manager.
@@ -297,7 +298,7 @@ public:
 	 *
 	 * @return A pointer to the freshly created main Camera.
 	 */
-	Camera* resetAll ();
+	BaseCamera* resetAll ();
 
 	/**
 	 * The main update loop. Called automatically when the Scene steps.

@@ -1205,6 +1205,7 @@ public:
 }	// namespace Zen
 
 // Declaration of forward declared elements
-//#include "../../scene/scene_manager.h"
+#include "../../scene/scene.h"
+#include "../../scene/scene_manager.h"
 
 #endif

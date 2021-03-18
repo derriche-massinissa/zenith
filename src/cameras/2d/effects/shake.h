@@ -21,7 +21,19 @@ namespace Effects {
 class Shake
 {
 public:
-	Camera& start (int duration_, Math::Vector2 intensity_, bool force_, std::function<void(Camera, double)> callback_)
+	Shake (Camera& camera_)
+	{}
+
+	Camera& start (int duration_, Math::Vector2 intensity_, bool force_, std::function<void(Camera, double)> callback_ = nullptr)
+	{}
+
+	void preRender ()
+	{}
+
+	void reset ()
+	{}
+
+	void update (Uint32 time_, Uint32 delta_)
 	{}
 };
 

@@ -21,7 +21,16 @@ namespace Effects {
 class RotateTo
 {
 public:
-	Camera& start (double radians_, bool shortestPath_, int duration_, std::string ease_, bool force_, std::function<void(Camera, double, double)> callback_)
+	RotateTo (Camera& camera_)
+	{}
+
+	Camera& start (double radians_, bool shortestPath_, int duration_, std::string ease_, bool force_, std::function<void(Camera, double, double)> callback_ = nullptr)
+	{}
+
+	void reset ()
+	{}
+
+	void update (Uint32 time_, Uint32 delta_)
 	{}
 };
 

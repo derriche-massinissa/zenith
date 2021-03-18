@@ -56,6 +56,8 @@ struct CameraConfig
 	Display::Color backgroundColor;
 
 	Geom::Rectangle bounds {0, 0, 0, 0};
+
+	bool visible = true;
 };
 
 }	// namespace Scene2D

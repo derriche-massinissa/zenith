@@ -144,6 +144,14 @@ Rectangle& Rectangle::setSize (int width_)
 	return setSize(width_);
 }
 
+Rectangle& Rectangle::centerOn (int x_, int y_)
+{
+	centerX(x_);
+	centerY(y_);
+
+	return *this;
+}
+
 bool Rectangle::isEmpty ()
 {
 	return (width <= 0 || height <= 0);

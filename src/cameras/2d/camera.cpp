@@ -32,14 +32,13 @@ int Camera::getComponentMask ()
 	return COMPONENT_MASK;
 }
 
-Camera& Camera::setDeadzone (int width_ = -1, int height_ = -1)
+Camera& Camera::setDeadzone (int width_, int height_)
 {
 	if (width_ < 0) {
 		deadzone.reset();
 	} else {
 		if (deadzone) {
-			deadzone->setWidth(width_);
-			deadzone->setHeight(height_);
+			deadzone->setSize(width_, height_);
 		} else {
 			deadzone = std::make_shared<Geom::Rectangle>(0, 0, width_, height_);
 		}
@@ -126,7 +125,9 @@ void Camera::preRender ()
 	int sy_ = getScrollY();
 
 	if (deadzone)
+	{
 		deadzone->centerOn(midPoint.x, midPoint.y);
+	}
 
 	bool emitFollowEvent_ = false;
 
@@ -134,17 +135,28 @@ void Camera::preRender ()
 		int fx_ = follow->x - followOffset.x;
 		int fy_ = follow->y - followOffset.y;
 
-		if (deadzone) {
-			if (fx_ < deadzone->getX())
-				sx_ = Math::linear(sx_, sx_ - (deadzone->getX() - fx_), lerp.x);
-			else if (fx > deadzone_->getRight())
-				sx_ = Math::linear(sx_, sx_ + (fx_ - deadzone->getRight()), lerp.x)
+		if (deadzone)
+		{
+			if (fx_ < deadzone->x)
+			{
+				sx_ = Math::linear(sx_, sx_ - (deadzone->x - fx_), lerp.x);
+			}
+			else if (fx_ > deadzone->getRight())
+			{
+				sx_ = Math::linear(sx_, sx_ + (fx_ - deadzone->getRight()), lerp.x);
+			}
 
-					if (fy_ < deadzone->getY())
-						sy_ = Math::linear(sy_, sy_ - (deadzone->getY() - fy_), lerp.y);
-					else if (fy > deadzone_->getBottom())
-						sy_ = Math::linear(sy_, sy_ + (fy_ - deadzone->getBottom()), lerp.y)
-		} else {
+			if (fy_ < deadzone->y)
+			{
+				sy_ = Math::linear(sy_, sy_ - (deadzone->y - fy_), lerp.y);
+			}
+			else if (fy_ > deadzone->getBottom())
+			{
+				sy_ = Math::linear(sy_, sy_ + (fy_ - deadzone->getBottom()), lerp.y);
+			}
+		}
+		else
+		{
 			sx_ = Math::linear(sx_, fx_ - originX_, lerp.x);
 			sy_ = Math::linear(sy_, fy_ - originY_, lerp.y);
 		}
@@ -176,7 +188,7 @@ void Camera::preRender ()
 
 	worldView.setTo(vwx_, vwy_, displayWidth_, displayHeight_);
 
-	matrix.applyITRS(getX(), + originX_, getY() + originY_, getRotation(), getZoom(), getZoom());
+	matrix.applyITRS(getX() + originX_, getY() + originY_, getRotation(), getZoom(), getZoom());
 	matrix.translate(-originX_, -originY_);
 
 	shakeEffect.preRender();

@@ -21,7 +21,18 @@ namespace Effects {
 class Pan
 {
 public:
-	Camera& start (int x_, int y_, int duration_, std::string ease_, bool force_, std::function<void(Camera, double, int, int)> callback_)
+	Pan (Camera& camera_)
+	{}
+
+	Camera& start (int x_, int y_, int duration_, std::string ease_, bool force_, std::function<void(Camera, double, int, int)> callback_ = nullptr)
+	{}
+
+	bool isRunning = false;
+
+	void reset ()
+	{}
+
+	void update (Uint32 time_, Uint32 delta_)
 	{}
 };
 

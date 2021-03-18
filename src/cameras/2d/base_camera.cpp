@@ -496,7 +496,7 @@ BaseCamera& BaseCamera::setMask (Display::Masks::Mask mask_, bool fixedPosition_
 	mask = std::make_unique<Display::Masks::Mask>();
 	*mask = mask_;
 
-	//maskCamera = (fixedPosition_) ? static_cast<BaseCamera*>(&cameraManager->def) : this;
+	maskCamera = (fixedPosition_) ? &cameraManager->def : this;
 
 	return *this;
 }

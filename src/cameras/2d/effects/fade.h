@@ -9,6 +9,7 @@
 #define ZEN_CAMERAS_SCENE2D_EFFECTS_FADE_H
 
 #include <functional>
+#include <SDL2/SDL_types.h>
 
 #include "../camera.fwd.h"
 
@@ -20,7 +21,16 @@ namespace Effects {
 class Fade
 {
 public:
-	Camera& start (bool direction_, int duration_, int red_, int green_, int blue_, bool force_, std::function<void(Camera, double)> callback_)
+	Fade (Camera& camera_)
+	{}
+
+	Camera& start (bool direction_, int duration_, int red_, int green_, int blue_, bool force_, std::function<void(Camera, double)> callback_ = nullptr)
+	{}
+
+	void reset ()
+	{}
+
+	void update (Uint32 time_, Uint32 delta_)
 	{}
 };
 

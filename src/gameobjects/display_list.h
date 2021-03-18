@@ -17,7 +17,7 @@ class DisplayList
 {
 public:
 
-	std::vector<GameObject*> getChildren ()
+	std::vector<GameObject*>& getChildren ()
 	{
 		return list;
 	}

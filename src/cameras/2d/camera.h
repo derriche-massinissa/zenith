@@ -27,6 +27,24 @@
 #include "../../math/vector2.h"
 #include "../../scale/scale_manager.h"
 
+/**
+ * @todo Move all TODO to Doxygen documentation!
+ *
+ * @todo GameObjects::GameObject
+ * @todo GameObjects::RenderTexture
+ * @todo GameObjects::Group
+ * @todo GameObjects::DisplayList
+ * @todo GameObjects::Components::Flip
+ * @todo GameObjects::Components::Tint
+ * @todo Input::Pointer
+ * @todo Cameras::Scene2D::Effects::Fade
+ * @todo Cameras::Scene2D::Effects::Flash
+ * @todo Cameras::Scene2D::Effects::Pan
+ * @todo Cameras::Scene2D::Effects::Shake
+ * @todo Cameras::Scene2D::Effects::RotateTo
+ * @todo Cameras::Scene2D::Effects::Zoom
+ */
+
 namespace Zen {
 namespace Cameras {
 namespace Scene2D {

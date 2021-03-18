@@ -21,7 +21,16 @@ namespace Effects {
 class Zoom
 {
 public:
-	Camera& start (double zoom_, int duration_, std::string ease_, bool force_, std::function<void(Camera, double, double)> callback_)
+	Zoom (Camera& camera_)
+	{}
+
+	Camera& start (double zoom_, int duration_, std::string ease_, bool force_, std::function<void(Camera, double, double)> callback_ = nullptr)
+	{}
+
+	void reset ()
+	{}
+
+	void update (Uint32 time_, Uint32 delta_)
 	{}
 };
 

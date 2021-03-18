@@ -74,14 +74,14 @@ void CameraManager::start ()
 	systems.events.on("shutdown", &CameraManager::shutdown, this);
 }
 
-Camera* CameraManager::add (
+BaseCamera* CameraManager::add (
 		int x_, int y_, int width_, int height_, bool makeMain_, std::string name_)
 {
-	if (width_ == 0)	width_ = systems.scale.getWidth();
-	if (height_ == 0)	height_ = systems.scale.getHeight();
+	if (width_ == 0)	width_ = scene.scale.getWidth();
+	if (height_ == 0)	height_ = scene.scale.getHeight();
 
 	cameras.emplace_back(x_, y_, width_, height_);
-	Camera& camera_ = cameras.back();
+	BaseCamera& camera_ = cameras.back();
 
 	camera_.setName(name_)
 		.setScene(&scene);
@@ -127,7 +127,7 @@ int CameraManager::getTotal (bool isVisible_)
 
 	for (auto& camera_ : cameras)
 	{
-		if (!isVisible_ || (isVisible_ && camera_.visible))
+		if (!isVisible_ || (isVisible_ && camera_.getVisible()))
 			total_++;
 	}
 
@@ -137,8 +137,8 @@ int CameraManager::getTotal (bool isVisible_)
 CameraManager& CameraManager::fromConfig (
 		std::vector<CameraConfig> config_)
 {
-	int gameWidth_ = systems.scale.getWidth();
-	int gameHeight_ = systems.scale.getHeight();
+	int gameWidth_ = scene.scale.getWidth();
+	int gameHeight_ = scene.scale.getHeight();
 
 	for (auto& camConfig_ :  config_)
 	{
@@ -171,21 +171,21 @@ CameraManager& CameraManager::fromConfig (
 	return *this;
 }
 
-Camera* CameraManager::getCamera (std::string name_)
+BaseCamera* CameraManager::getCamera (std::string name_)
 {
 	for (auto& camera_ : cameras)
 	{
-		if (camera.name == name_)
-			return &camera;
+		if (camera_.name == name_)
+			return &camera_;
 	}
 
 	return nullptr;
 }
 
-std::vector<Camera*> CameraManager::getCamerasBelowPointer (
+std::vector<BaseCamera*> CameraManager::getCamerasBelowPointer (
 		Input::Pointer pointer_)
 {
-	std::vector<Camera*> output_;
+	std::vector<BaseCamera*> output_;
 	Geom::Rectangle camRect_;
 
 	// So the top-most camera is at the top of the search vector
@@ -198,7 +198,7 @@ std::vector<Camera*> CameraManager::getCamerasBelowPointer (
 			cameras[i].getHeight()
 			);
 
-		if (cameras[i].visible &&
+		if (cameras[i].getVisible() &&
 			cameras[i].inputEnabled &&
 			camRect_.contains(pointer_.x, pointer_.y)
 		   )
@@ -210,17 +210,17 @@ std::vector<Camera*> CameraManager::getCamerasBelowPointer (
 	return output_;
 }
 
-int CameraManager::remove (std::vector<Camera*> camerasToRemove_)
+int CameraManager::remove (std::vector<BaseCamera*> camerasToRemove_)
 {
 	int total_ = 0;
 
 	for (auto it_ = cameras.begin(); it_ != cameras.end(); it_++)
 	{
-		for (auto c_ : camerasToRemove_)
+		for (auto& c_ : camerasToRemove_)
 		{
-			if (*c_ == &*it_)
+			if (c_ == &*it_)
 			{
-				if (*c_ == main) main = nullptr;
+				if (c_ == main) main = nullptr;
 				cameras.erase(it_);
 				total_++;
 			}
@@ -233,9 +233,9 @@ int CameraManager::remove (std::vector<Camera*> camerasToRemove_)
 	return total_;
 }
 
-int CameraManager::remove (Camera* cameraToRemove_)
+int CameraManager::remove (BaseCamera* cameraToRemove_)
 {
-	std::vector<Camera*> camerasToRemove_ {cameraToRemove_};
+	std::vector<BaseCamera*> camerasToRemove_ {cameraToRemove_};
 
 	return remove(camerasToRemove_);
 }
@@ -246,7 +246,7 @@ void CameraManager::render (
 {
 	for (auto& camera_ : cameras)
 	{
-		if (camera_.visible && camera_.alpha > 0)
+		if (camera_.getVisible() && camera_.getAlpha() > 0)
 		{
 			camera_.preRender();
 
@@ -257,11 +257,11 @@ void CameraManager::render (
 	}
 }
 
-std::vector<GameObject*> CameraManager::getVisibleChildren (
-		std::vector<GameObject*>& children_,
-		Camera& camera_)
+std::vector<GameObjects::GameObject*> CameraManager::getVisibleChildren (
+		std::vector<GameObjects::GameObject*>& children_,
+		BaseCamera& camera_)
 {
-	std::vector<GameObject*> visible_;
+	std::vector<GameObjects::GameObject*> visible_;
 
 	for (auto& child_ : children_)
 	{
@@ -272,7 +272,7 @@ std::vector<GameObject*> CameraManager::getVisibleChildren (
 	return visible_;
 }
 
-void Camera* CameraManager::resetAll ()
+BaseCamera* CameraManager::resetAll ()
 {
 	cameras.clear();
 
@@ -298,7 +298,7 @@ void CameraManager::onResize (
 		// If camera is at 0x0 and was the size of the previous game size, then
 		// we can safely assume it should be updated to match the new game size too
 
-		if (camera_.x == 0 && camera_.y == 0 && camera_.width == previousWidth_ && camera_.height == previousHeight_)
+		if (camera_.getX() == 0 && camera_.getY() == 0 && camera_.getWidth() == previousWidth_ && camera_.getHeight() == previousHeight_)
 			camera_.setSize(gameSize_.getWidth(), gameSize_.getHeight());
 	}
 }

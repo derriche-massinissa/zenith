@@ -171,7 +171,7 @@ public:
 		return *This();
 	}
 
-private:
+protected:
 	/**
 	 * Holds the global alpha value.
 	 *

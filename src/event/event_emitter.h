@@ -96,7 +96,7 @@ public:
 		else
 		{
 			// Add the event to the event map
-			eventMap.emplace(eventName_, std::vector<ListenerBase> {
+			eventMap.emplace(eventName_, std::vector<std::unique_ptr<ListenerBase>> {
 					std::make_unique<Listener<Args...>> (eventName_, boundCB_, once_)
 					});
 		}

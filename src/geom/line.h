@@ -12,6 +12,8 @@
 #include <algorithm>
 
 #include "../math/random_data_generator.h"
+#include "../math/vector2.h"
+#include "point.h"
  
 namespace Zen {
 namespace Math { extern RandomDataGenerator random; }

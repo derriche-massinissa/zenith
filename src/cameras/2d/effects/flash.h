@@ -20,7 +20,16 @@ namespace Effects {
 class Flash
 {
 public:
-	Camera& start (int duration_, int red_, int green_, int blue_, bool force_, std::function<void(Camera, double)> callback_)
+	Flash (Camera& camera_)
+	{}
+
+	Camera& start (int duration_, int red_, int green_, int blue_, bool force_, std::function<void(Camera, double)> callback_ = nullptr)
+	{}
+
+	void reset ()
+	{}
+
+	void update (Uint32 time_, Uint32 delta_)
 	{}
 };
 

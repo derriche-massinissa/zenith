@@ -44,6 +44,18 @@ public:
 
 	Rectangle& setSize (int width_);
 
+	/**
+	 * Moves the top-left corner of a Rectangle so that its center is at the given coordinates.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param x_ The X coordinate of the Rectangle's center.
+	 * @param y_ The Y coordinate of the Rectangle's center.
+	 *
+	 * @return This rectangle.
+	 */
+	Rectangle& centerOn (int x_, int y_);
+
 	bool isEmpty ();
 
 	Line getLineA ();
