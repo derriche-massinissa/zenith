@@ -10,48 +10,50 @@
 namespace Zen {
 namespace Textures {
 
-TextureSource::TextureSource (Texture& texture, std::string source)
-	: texture_(texture)
-	  , renderer_(texture.manager.game.renderer)
-	  , source_(source)
+TextureSource::TextureSource (Texture& texture_, std::string source_)
+	: source (source_)
+	, renderer (texture_.manager.game.renderer)
+	, texture (texture_)
 {
 	init();
 
-	if (!sdlTexture_) {
+	if (!sdlTexture)
+	{
 		messageError("Texture couldn't be created: ", IMG_GetError());
-
 		// sdlTexture_ will stay `nullptr`
-	} else {
-		SDL_QueryTexture(sdlTexture_, nullptr, nullptr, &width_, &height_);
+	}
+	else
+	{
+		SDL_QueryTexture(sdlTexture, nullptr, nullptr, &width, &height);
 	}
 }
 
 TextureSource::~TextureSource ()
 {
-	if (sdlTexture_) {
-		SDL_DestroyTexture(sdlTexture_);
-		sdlTexture_ = nullptr;
+	if (sdlTexture) {
+		SDL_DestroyTexture(sdlTexture);
+		sdlTexture = nullptr;
 	}
 }
 
-void init ()
+void TextureSource::init ()
 {
-	if (source_.size() > 5 && source_.substr(0, 5) == "data:") {
+	if (source.size() > 5 && source.substr(0, 5) == "data:") {
 		// Source is a Base64 Image data
-		SDL_RWops *rw = SDL_RWFromConstMem(&source.c_str(), source.size());
+		SDL_RWops *rw_ = SDL_RWFromConstMem(&source.c_str(), source.size());
 
-		sdlTexture_ = SDL_LoadTextureTyped_RW(
-				renderer_.renderer_,
-				rw,
+		sdlTexture = SDL_LoadTextureTyped_RW(
+				renderer.renderer,
+				rw_,
 				1,		// The SDL_RWops will be closed automatically
 				"PNG"
 				);
 	}
 	else {
 		// Source is an image file path
-		sdlTexture_ = IMG_LoadTexture(
-				renderer_.getSDLRenderer(),
-				source_.c_str()
+		sdlTexture = IMG_LoadTexture(
+				renderer.getSDLRenderer(),
+				source.c_str()
 				);
 	}
 }
