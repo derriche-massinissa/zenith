@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GAMEOBJECTS_COMPONENT_VISIBLE_H
-#define ZEN_GAMEOBJECTS_COMPONENT_VISIBLE_H
+#ifndef ZEN_GAMEOBJECTS_COMPONENTS_VISIBLE_H
+#define ZEN_GAMEOBJECTS_COMPONENTS_VISIBLE_H
 
 #define FLAG 1 // 0001
 

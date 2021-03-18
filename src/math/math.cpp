@@ -6,7 +6,11 @@
  */
 
 #include "math.h"
+
 #include <cmath>
+
+#include "vector2.h"
+#include "../geom/point.h"
 
 namespace Zen {
 namespace Math {
@@ -93,6 +97,20 @@ double degToRad (double degrees)
 {
     return degrees * DEG_TO_RAD;
 };
+
+Math::Vector2 rotateAround (Math::Vector2 point, int x, int y, double angle)
+{
+	double c = std::cos(angle);
+	double s = std::sin(angle);
+
+	int tx = point.x - x;
+	int ty = point.y - y;
+
+	point.x = tx * c - ty * s + x;
+	point.y = tx * s - ty * c + y;
+
+	return point;
+}
 
 }	// namespace Math
 }	// namespace Zen

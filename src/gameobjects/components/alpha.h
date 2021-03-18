@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GAMEOBJECTS_COMPONENT_ALPHA_H
-#define ZEN_GAMEOBJECTS_COMPONENT_ALPHA_H
+#ifndef ZEN_GAMEOBJECTS_COMPONENTS_ALPHA_H
+#define ZEN_GAMEOBJECTS_COMPONENTS_ALPHA_H
 
 #include "../../math/math.h"
 #include "../../defs.h"

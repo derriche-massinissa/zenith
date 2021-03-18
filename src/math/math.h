@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include "vector2.h"
+
 namespace Zen {
 namespace Math {
 /**
@@ -213,6 +215,23 @@ bool fuzzyLessThan (double a, double b, double epsilon = EPSILON);
  * @return The given angle converted to radians.
  */
 double degToRad (double degrees);
+
+/**
+ * Rotate a `point` around `x` and `y` to the given `angle`, at the same distance.
+ *
+ * In polar notation, this maps a point from (r, t) to (r, angle), vs. the origin
+ * (x, y).
+ *
+ * @since 0.0.0
+ *
+ * @param point The point to be rotated.
+ * @param x The horizontal coordinate to rotate around.
+ * @param y The vertical coordinate to rotate around.
+ * @param angle The angle of rotation in radians.
+ *
+ * @return The given point.
+ */
+Math::Vector2 rotateAround (Math::Vector2 point, int x, int y, double angle);
 
 }	// namespace Math
 }	// namespace Zen
