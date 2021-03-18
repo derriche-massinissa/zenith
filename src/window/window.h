@@ -1,12 +1,12 @@
 /**
- * @file		window.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef ZEN_WINDOW_H
+#define ZEN_WINDOW_H
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -36,7 +36,7 @@ namespace Zen {
 class Window : public EventEmitter
 {
 public:
-	Window (Game& g);
+	Window (Game& game_);
 	~Window ();
 
 	/**
@@ -58,14 +58,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SDL_Window *window_ = nullptr;
+	SDL_Window *window = nullptr;
 
 	/** 
 	 * A reference to the SDL window.
 	 *
 	 * @since 0.0.0
 	 */
-	SDL_Renderer *renderer_ = nullptr;
+	SDL_Renderer *renderer = nullptr;
 
 	/**
 	 * Getter for the window's width.
@@ -89,7 +89,7 @@ public:
 	 *
 	 * @return 0 if no problem occured, 1 otherwise.
 	 */
-	int create (GameConfig cfg);
+	int create (GameConfig& config_);
 
 	/**
 	 * This method is responsible for destroying the renderer and the
@@ -171,7 +171,7 @@ public:
 	 *
 	 * @param pixelArt The value to set `pixelArt` to.
 	 */
-	void setPixelArt (bool pixelArt);
+	void setPixelArt (bool pixelArt_);
 
 	/**
 	 * @since 0.0.0
@@ -198,7 +198,7 @@ public:
 	 * @param args Template parameter pack.
 	 */
 	template<typename T, typename... Args>
-		void cleanup (T t, Args&&... args);
+		void cleanup (T t_, Args&&... args_);
 
 	/**
 	 * Sets the window's title.
@@ -209,7 +209,7 @@ public:
 	 *
 	 * @return This window instance.
 	 */
-	Window& setTitle (std::string title);
+	Window& setTitle (std::string title_);
 
 	/**
 	 * Make the window go fullscreen or into windowed mode.
@@ -220,7 +220,7 @@ public:
 	 *
 	 * @return This window instance.
 	 */
-	Window& setFullscreen (bool flag = true);
+	Window& setFullscreen (bool flag_ = true);
 
 	/**
 	 * Sets the minimum size this window can be resized to. Use with no parameter
@@ -236,7 +236,7 @@ public:
 	 *
 	 * @return This window instance.
 	 */
-	Window& setMinSize (int width = 0, int height = 0);
+	Window& setMinSize (int width_ = 0, int height_ = 0);
 
 	/**
 	 * Sets the maximum size this window can be resized to. Use with no parameter
@@ -252,7 +252,7 @@ public:
 	 *
 	 * @return This window instance.
 	 */
-	Window& setMaxSize (int width = 0, int height = 0);
+	Window& setMaxSize (int width_ = 0, int height_ = 0);
 
 	/**
 	 * Is the window minimized?
@@ -313,7 +313,7 @@ public:
  * @sa void cleanup (T t, Args&&... args)
  */
 template<>
-void Window::cleanup<CLEANUP> (CLEANUP c);
+void Window::cleanup<CLEANUP> (CLEANUP c_);
 
 /**
  * The "SDL_Window" specialized cleanup method.
@@ -325,7 +325,7 @@ void Window::cleanup<CLEANUP> (CLEANUP c);
  * @sa void cleanup (T t, Args&&... args)
  */
 template<>
-void Window::cleanup<SDL_Window*> (SDL_Window *win);
+void Window::cleanup<SDL_Window*> (SDL_Window *win_);
 
 /**
  * The "SDL_Renderer" specialized cleanup method.
@@ -337,7 +337,7 @@ void Window::cleanup<SDL_Window*> (SDL_Window *win);
  * @sa void cleanup (T t, Args&&... args)
  */
 template<>
-void Window::cleanup<SDL_Renderer*> (SDL_Renderer *ren);
+void Window::cleanup<SDL_Renderer*> (SDL_Renderer *ren_);
 
 }	// namespace Zen
 

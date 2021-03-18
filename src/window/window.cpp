@@ -1,5 +1,5 @@
 /**
- * @file		window.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -9,8 +9,8 @@
 
 namespace Zen {
 
-Window::Window (Game& g)
-	: game(g)
+Window::Window (Game& game_)
+	: game(game_)
 {}
 
 Window::~Window ()
@@ -20,25 +20,25 @@ Window::~Window ()
 
 int Window::width()
 {
-	int width = 0;
+	int width_ = 0;
 
-	SDL_GetRendererOutputSize(renderer_, &width, nullptr);
+	SDL_GetRendererOutputSize(renderer, &width_, nullptr);
 
-	return width;
+	return width_;
 }
 
 int Window::height()
 {
-	int height = 0;
+	int height_ = 0;
 
-	SDL_GetRendererOutputSize(renderer_, nullptr, &height);
+	SDL_GetRendererOutputSize(renderer, nullptr, &height_);
 
-	return height;
+	return height_;
 }
 
-int Window::create (GameConfig cfg)
+int Window::create (GameConfig config_)
 {
-	config = cfg;
+	config = config_;
 
 	if (initSdl()) {
 		return 1;
@@ -85,8 +85,8 @@ int Window::initSdl ()
 int Window::initSdlImg ()
 {
 	// Initialize SDL_image
-	int imgFlags = IMG_INIT_PNG;
-	if (!(IMG_Init(imgFlags) & imgFlags)) {
+	int imgFlags_ = IMG_INIT_PNG;
+	if (!(IMG_Init(imgFlags_) & imgFlags_)) {
 		messageError("Could not initialize SDL_image: %s\n", IMG_GetError());
 		return 1;
 	}
@@ -98,11 +98,11 @@ int Window::initSdlMixer ()
 {
 	// Initialize SDL_mixer
 	// TODO Set these constants from the config object
-	const int frequency = 44100;
-	Uint16 format = MIX_DEFAULT_FORMAT;
-	int channels = 2;
-	int chunksize = 2048;
-	if (Mix_OpenAudio(frequency, format, channels, chunksize) < 0) {
+	const int frequency_ = 44100;
+	Uint16 format_ = MIX_DEFAULT_FORMAT;
+	int channels_ = 2;
+	int chunksize_ = 2048;
+	if (Mix_OpenAudio(frequency_, format_, channels_, chunksize_) < 0) {
 		messageError("Could not initialize SDL_mixer: %s\n", Mix_GetError());
 		return 1;
 	}
@@ -124,7 +124,7 @@ int Window::initSdlTtf ()
 int Window::createWindow ()
 {
 	// Create a window
-	window_ = SDL_CreateWindow(
+	window = SDL_CreateWindow(
 			config.title.c_str(),
 			SDL_WINDOWPOS_UNDEFINED,
 			SDL_WINDOWPOS_UNDEFINED,
@@ -132,7 +132,7 @@ int Window::createWindow ()
 			config.height,
 			SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 			);
-	if (window_ == nullptr) {
+	if (window == nullptr) {
 		messageError("Window could not be created: %s\n", SDL_GetError());
 		return 1;
 	}
@@ -143,27 +143,27 @@ int Window::createWindow ()
 int Window::createRenderer ()
 {
 	// Create a renderer for the window
-	renderer_ = SDL_CreateRenderer(
-			window_,
+	renderer = SDL_CreateRenderer(
+			window,
 			-1,
 			SDL_RENDERER_ACCELERATED |
 			SDL_RENDERER_PRESENTVSYNC
 			);
-	if (renderer_ == nullptr) {
+	if (renderer == nullptr) {
 		messageError("Renderer could not be created: %s\n", SDL_GetError());
 		return 1;
 	}
 
 	// Initialize the render color
-	SDL_SetRenderDrawColor(renderer_, 0x00, 0x00, 0x00, 0xff);
+	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xff);
 
 	return 0;
 }
 
-void Window::setPixelArt (bool pixelArt)
+void Window::setPixelArt (bool pixelArt_)
 {
 	// Texture filtering
-	if (pixelArt) {
+	if (pixelArt_) {
 		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0")) {
 			messageWarning("Nearest pixel sampling not enabled!");
 		}
@@ -179,15 +179,15 @@ int Window::close ()
 	// Do not forget to free resources in their respective managers before
 	// running this!
 	cleanup(
-			renderer_,
-			window_,
+			renderer,
+			window,
 			CLEANUP::TTF,
 			CLEANUP::MIX,
 			CLEANUP::IMG,
 			CLEANUP::SDL
 		   );
-	renderer_ = nullptr;
-	window_ = nullptr;
+	renderer = nullptr;
+	window = nullptr;
 
 	return 0;
 }
@@ -200,17 +200,17 @@ int Window::close ()
 //}
 
 	template<typename T, typename... Args>
-void Window::cleanup (T t, Args&&... args)
+void Window::cleanup (T t_, Args&&... args_)
 {
-	cleanup(t);
-	cleanup(std::forward<Args>(args)...);
+	cleanup(t_);
+	cleanup(std::forward<Args>(args_)...);
 }
 
 // Specializations
 template<>
-void Window::cleanup<CLEANUP> (CLEANUP c)
+void Window::cleanup<CLEANUP> (CLEANUP c_)
 {
-	switch (c)
+	switch (c_)
 	{
 		case CLEANUP::SDL:
 			SDL_Quit();
@@ -231,38 +231,38 @@ void Window::cleanup<CLEANUP> (CLEANUP c)
 }
 
 template<>
-void Window::cleanup<SDL_Window*> (SDL_Window *win)
+void Window::cleanup<SDL_Window*> (SDL_Window *win_)
 {
-	if (!win) return;
+	if (!win_) return;
 
-	SDL_DestroyWindow(win);
+	SDL_DestroyWindow(win_);
 }
 
 template<>
-void Window::cleanup<SDL_Renderer*> (SDL_Renderer *ren)
+void Window::cleanup<SDL_Renderer*> (SDL_Renderer *ren_)
 {
-	if (!ren) return;
+	if (!ren_) return;
 
-	SDL_DestroyRenderer(ren);
+	SDL_DestroyRenderer(ren_);
 }
 
 void Window::handleSDLEvents ()
 {
-	SDL_Event event;
+	SDL_Event event_;
 
-	while (SDL_PollEvent(&event))
+	while (SDL_PollEvent(&event_))
 	{
-		switch (event.type)
+		switch (event_.type)
 		{
 			case SDL_QUIT:
 				emit("quit");
 				break;
 
 			case SDL_WINDOWEVENT:
-				switch (e.window.event)
+				switch (event_.window.event)
 				{
 					case SDL_WINDOWEVENT_SIZE_CHANGED:
-						emit("resize", e.window.data1, e.window.data2);
+						emit("resize", event_.window.data1, event_.window.data2);
 						break;
 
 					case SDL_WINDOWEVENT_EXPOSED:
@@ -309,33 +309,33 @@ void Window::handleSDLEvents ()
 	}
 }
 
-Window& setTitle (std::string title)
+Window& setTitle (std::string title_)
 {
-	SDL_SetWindowTitle(window_, title.c_str());
+	SDL_SetWindowTitle(window, title_.c_str());
 
 	return *this;
 }
 
-Window& setFullscreen (bool flag = true)
+Window& setFullscreen (bool flag_ = true)
 {
-	if (flag)
-		SDL_SetWindowFullscreen(window_, SDL_TRUE);
+	if (flag_)
+		SDL_SetWindowFullscreen(window, SDL_TRUE);
 	else
-		SDL_SetWindowFullscreen(window_, SDL_FALSE);
+		SDL_SetWindowFullscreen(window, SDL_FALSE);
 
 	return *this;
 }
 
-Window& Window::setMinSize (int width, int height);
+Window& Window::setMinSize (int width_, int height_);
 {
-	SDL_SetWindowMinimumSize(window_, width, height);
+	SDL_SetWindowMinimumSize(window, width_, height_);
 
 	return *this;
 }
 
-Window& Window::setMaxSize (int width, int height)
+Window& Window::setMaxSize (int width_, int height_)
 {
-	SDL_SetWindowMaximumSize(window_, width, height);
+	SDL_SetWindowMaximumSize(window, width_, height_);
 
 	return *this;
 }
