@@ -14,6 +14,7 @@ namespace Zen {
 namespace Textures {
 
 /**
+ * @struct SpriteSheetConfig
  * @since 0.0.0
  *
  * @property atlas The key of the Texture Atlas in which this Sprite Sheet can be

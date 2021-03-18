@@ -1,5 +1,5 @@
 /**
- * @file		texture.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -10,125 +10,123 @@
 namespace Zen {
 namespace Textures {
 
-Texture::Texture(TextureManager& manager, std::string key, std::vector<std::string> sources)
+Texture::Texture(TextureManager& manager_, std::string key_, std::vector<std::string> sources_)
+	: manager (manager_)
 {
 	// Load the Sources
-	for (auto it : sources)
-		source_.emplace_back(*this, it);
+	for (auto& source_ : sources_)
+		source.emplace_back(*this, source_);
 }
 
-Texture::~Texture()
+Frame* Texture::add (std::string name_, int sourceIndex_, int x_, int y_, int width_, int height_)
 {
-}
-
-Frame* Texture::add (std::string name, int sourceIndex, int x, int y, int width, int height)
-{
-	if (has(name))
+	if (has(name_))
 		return nullptr;
 
-	Frame frame (*this, name, sourceIndex, x, y, width, height);
+	Frame frame_ (*this, name_, sourceIndex_, x_, y_, width_, height_);
 
-	frames_.emplace(name, frame);
+	frames.emplace(name_, frame_);
 
 	//  Set the first frame of the Texture (other than __BASE)
 	//  This is used to ensure we don't spam the display with entire
 	//  atlases of sprite sheets, but instead just the first frame of them
 	//  should the dev incorrectly specify the frame index
-	if (firstFrame_ == "__BASE")
-		firstFrame_ = name;
+	if (firstFrame == "__BASE")
+		firstFrame = name_;
 
-	frameTotal_++;
+	frameTotal++;
 
-	return &frames_.find(name)->second;
+	return &frames.find(name_)->second;
 }
 
-bool Texture::remove (std::string name)
+bool Texture::remove (std::string name_)
 {
-	if (!has(name))
+	if (!has(name_))
 		return false;
 
-	frames_.erase(frames_.find(name));
+	frames.erase(frames.find(name_));
 
-	frameTotal_--;
+	frameTotal--;
 
 	return true;
 }
 
-bool Texture::has (std::string name)
+bool Texture::has (std::string name_)
 {
-	return (frames_.find(name) != frames_.end());
+	return (frames.find(name_) != frames.end());
 }
 
-Frame* Texture::get (std::string name)
+Frame* Texture::get (std::string name_)
 {
-	if (name.empty())
-		name = firstFrame_;
+	if (name_.empty())
+		name_ = firstFrame;
 
-	Frame* frame = &frames_.find(name)->second;
+	Frame* frame_ = &frames.find(name_)->second;
 
-	if (!frame) {
-		messageWarning("Texture missing: ", name);
+	if (!frame_)
+	{
+		messageWarning("Texture missing: ", name_);
 
-		frame = &frames_.find(firstFrame_)->second;
+		frame_ = &frames.find(firstFrame)->second;
 	}
 
-	return frame;
+	return frame_;
 }
 
-Frame* Texture::get (int index)
+Frame* Texture::get (int index_)
 {
-	Frame* frame = &frames_.at(index)->second;
+	Frame* frame_ = &frames.at(index_)->second;
 
-	if (!frame) {
-		messageWarning("Texture missing at index: ", index);
+	if (!frame_)
+	{
+		messageWarning("Texture missing at index: ", index_);
 
-		frame = &frames_.find(firstFrame_)->second;
+		frame_ = &frames.find(firstFrame)->second;
 	}
 
-	return frame;
+	return frame_;
 }
 
-int Texture::getTextureSourceIndex (TextureSource& source)
+int Texture::getTextureSourceIndex (TextureSource& source_)
 {
-	for (int i = 0; i < source_.size(); i++) {
-		if (&source[i] == &source)
-			return i;
+	for (int i_ = 0; i_ < source.size(); i_++)
+	{
+		if (&source[i_] == &source_)
+			return i_;
 	}
 
 	return -1;
 }
 
-std::vector<Frame*> Texture::getFramesFromTextureSource (int sourceIndex, bool includeBase)
+std::vector<Frame*> Texture::getFramesFromTextureSource (int sourceIndex_, bool includeBase_)
 {
-	std::vector<Frame*> out;
+	std::vector<Frame*> out_;
 
-	for (auto it = frames_.begin(); it != frames_.end(); it++) {
-		if (it->first == "__BASE" && !includeBase)
+	for (auto it_ = frames.begin(); it_ != frames.end(); it_++)
+	{
+		if (it_->first == "__BASE" && !includeBase_)
 			continue;
 
-		if (it->second.sourceIndex == sourceIndex)
-			out.emplace_back(&it->second);
+		if (it_->second.sourceIndex == sourceIndex_)
+			out_.emplace_back(&it_->second);
 	}
 
-	return out;
+	return out_;
 }
 
-std::vector<std::string> Texture::getFrameNames (bool includeBase)
+std::vector<std::string> Texture::getFrameNames (bool includeBase_)
 {
-	std::vector<std::string> out;
+	std::vector<std::string> out_;
 
-	for (auto it = frames_.begin(); it != frames_.end(); it++) {
-		if (it->first == "__BASE" && !includeBase)
+	for (auto it_ = frames.begin(); it_ != frames.end(); it_++)
+	{
+		if (it_->first == "__BASE" && !includeBase_)
 			continue;
 
-		out.emplace_back(it->first);
+		out_.emplace_back(it_->first);
 	}
 
-	return out;
-}
-
-GameObjects::RenderTexture Texture::getSourceImage (std::string name)
-{
+	return out_;
 }
 
 }	// namespace Textures
