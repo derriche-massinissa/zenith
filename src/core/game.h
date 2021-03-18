@@ -5,15 +5,15 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef GAME_H
-#define GAME_H
+#ifndef ZEN_GAME_H
+#define ZEN_GAME_H
 
 #include <SDL2/SDL.h>
 #include <functional>
 
 #include "../defs.h"
 #include "../const.h"
-#include "game_config.h"
+#include "config.h"
 #include "../messages.h"
 #include "../window/window.h"
 //#include "debug_header.h"
@@ -33,7 +33,7 @@
 /**
  * @namespace Zen
  *
- * The `Zen` namespace is the namespace of the whole `Zenith` framework.
+ * The Zen namespace is the namespace of the whole `Zenith` framework.
  *
  * @since 0.0.0
  */
@@ -56,9 +56,9 @@ public:
 	/**
 	 * @since 0.0.0
 	 *
-	 * @param cfg_ A reference to the game configuration object.
+	 * @param config_ A reference to the game configuration object.
 	 */
-	Game (GameConfig& cfg_);
+	Game (GameConfig& config_);
 
 	/**
 	 * Destroys this Game instance, all systems, all sub-systems, all
@@ -72,11 +72,11 @@ public:
 	~Game ();
 
 	/**
-	 * The renderer is responsible for displaying textures on the screen.
+	 * The renderer is responsible for displaying contents on the screen.
 	 *
 	 * @since 0.0.0
 	 */
-	Renderer renderer(*this);
+	Renderer renderer;
 
 	/**
 	 * An Event Emitter which is used to broadcast game-level events from
@@ -104,7 +104,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	TextureManager textures(*this);
+	TextureManager textures;
 
 	/**
 	 * An instance of the Data Manager.
@@ -155,7 +155,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	ScaleManager scale(*this, config);
+	ScaleManager scale;
 
 	/**
 	 * An instance of the base Audio Manager.
@@ -201,7 +201,9 @@ public:
 	/**
 	 * The main Game Step, called automatically by the Time Step, once per SDL loop.
 	 *
-	 * The step will update the managers first, then proceeds to update each Scene in turn, via the Scene Manager. It will then render each Scene in turn, via the Renderer. This process emits "Prerender" and "Postrender" events.
+	 * The step will update the managers first, then proceeds to update each Scene 
+	 * in turn, via the Scene Manager. It will then render each Scene in turn, via 
+	 * the Renderer. This process emits "prerender" and "postrender" events.
 	 *
 	 * @since 0.0.0
 	 * @param time The total time since SDL was initialized in
@@ -254,12 +256,6 @@ public:
 	 */
 	void shutdown (Data data_);
 
-private:
-	// FIXME Remove and count fps using the loop
-	Uint32 t_threashold = 0;
-	int count_step = 0;
-	// FIXME
-
 	/**
 	 * The Game Configuration structure.
 	 *
@@ -274,7 +270,13 @@ private:
 	 */
 	Window window;
 
-	bool pendingShutdown;
+	/**
+	 * A flag indicating if the Game instance is marked for shutdown in the next
+	 * frame. This will stop the game loop.
+	 *
+	 * @since 0.0.0
+	 */
+	bool pendingShutdown = false;
 
 	/**
 	 * A flag indicating when this Game instance has finished its boot
@@ -282,7 +284,7 @@ private:
 	 *
 	 * @since 0.0.0
 	 */
-	bool isBooted;
+	bool isBooted = false;
 
 	/**
 	 * A flag indicating if this Game instance is currently running its game
@@ -290,31 +292,13 @@ private:
 	 *
 	 * @since 0.0.0
 	 */
-	bool isRunning;
-
-	/**
-	 * Does the game window currently have focus or not?
-	 *
-	 * This is modified by the Visibility Handler.
-	 *
-	 * @since 0.0.0
-	 */
-	bool hasFocus;
-
-	/**
-	 * Is the game window currently visible or not?
-	 *
-	 * This is modified by the Visibility Handler.
-	 *
-	 * @since 0.0.0
-	 */
-	bool isVisible;
+	bool isRunning = false;
 
 	/**
 	 * Shuts down the Game by stopping the main game loop.
 	 *
-	 * Called from the Game `step()` when `pendingShutdown`
-	 * is true, after calling `shutdown()`.
+	 * Called from the Game Game::step when Game::pendingShutdown
+	 * is true, after calling Game::shutdown.
 	 *
 	 * @since 0.0.0
 	 */

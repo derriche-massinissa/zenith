@@ -9,49 +9,32 @@
 
 namespace Zen {
 
-Game::Game (GameConfig& cfg)
-	: window(*this)
-	, scene(*this, cfg.sceneFactory)
-	, config(cfg)
+Game::Game (GameConfig& config_)
+	: loop (*this)
+	, scale (*this)
+	, window (*this)
+	, scene (*this, config_.sceneFactory)
+	, textures (*this)
+	, renderer (*this)
+	, config (config_)
 {
-	// Initialize some members
-	pendingShutdown = false;
-	isBooted = false;
-	isRunning = false;
-	hasFocus = false;
-	isVisible = false;
-
-	messageNote("Game constructed.");
-
 	boot();
 }
 
 Game::~Game ()
 {
-	//scene.destroy();
-
-	events.emit("SYS_DESTROY");
+	events.emit("destroy");
 
 	events.removeAllListeners();
-
-	//renderer.destroy();
-
-	//window.destroy();
-
-	//loop.destroy();
-
-	messageNote("Game destructed.");
 }
 
 void Game::boot ()
 {
 	isBooted = true;
 
-	//scale.preBoot();
+	scale.preBoot();
 
 	window.create(config);
-
-	//DebugHeader();
 
 	events.emit("boot");
 
@@ -62,12 +45,7 @@ void Game::start ()
 {
 	isRunning = true;
 
-	//VisibilityHandler();
-
-	//events.on("hidden", std::bind(&Game::onHidden, this));
-	//events.on("visible", std::bind(&Game::onVisible, this));
-	//events.on("blur", std::bind(&Game::onBlur, this));
-	//events.on("focus", std::bind(&Game::onFocus, this));
+	events.emit("ready");
 
 	window.once("quit", &Game::shutdown, this);
 
@@ -80,88 +58,77 @@ void Game::start ()
 		));
 }
 
-void Game::step (Uint32 time, Uint32 delta)
+void Game::step (Uint32 time_, Uint32 delta_)
 {
 	if (pendingShutdown) {
 		runShutdown();
 		return;
 	}
 
-	t_threashold += delta;
-	count_step++;
-	if (t_threashold >= 1000) {
-		std::cout << "Second passed... Steps: " << count_step << std::endl;
-		t_threashold = 0;
-		count_step = 0;
-	}
-
 	// Only run the logic without rendering anything if the window is hidden
-	//if (!isVisible) {
-	//	headlessStep(time, delta);
-	//	return;
-	//}
-
-	// Managers like Input and Sound in the prestep
-	window.handleSDLEvents();
-	events.emit("SYS_PRE_STEP", {{time, delta}});
-
-	// Mostly meant for user-land code and plugins
-	events.emit("SYS_STEP", {{time, delta}});
-
-	// Update the Scene Manager and all active Scenes
-	//////scene.update(time, delta);
-
-	// Final event before rendering starts
-	events.emit("SYS_POST_STEP", {{time, delta}});
-
-	// Run the Pre-Renderer (Clearing the canvas, setting background colors,
-	// etc...)
-	//////renderer.preRender();
-	events.emit("SYS_PRE_RENDER", {{time, delta}});
-
-	// The main render loop. Iterates all Scenes and all Cameras in those
-	// scenes, rendering to the renderer instance.
-	//////scene.render(renderer);
-
-	// The Post-Render call. Tidies up loose end, takes snapshots, etc...
-	//////renderer.postRender();
-
-	// Final event before the step repeats. Last chance to do anything before
-	// it all starts again.
-	events.emit("SYS_POST_RENDER", {{time, delta}});
-}
-
-void Game::headlessStep (Uint32 time, Uint32 delta)
-{
-	/*
-	if (pendingDestroy) {
-		runDestroy();
+	if (!isVisible) {
+		headlessStep(time_, delta_);
 		return;
 	}
 
+	// Managers like Input and Sound in the prestep
+	window.handleSDLEvents();
+	events.emit("pre-step", time_, delta_);
+
+	// Mostly meant for user-land code and plugins
+	events.emit("step", time_, delta_);
+
+	// Update the Scene Manager and all active Scenes
+	scene.update(time_, delta_);
+
+	// Final event before rendering starts
+	events.emit("post-step", time_, delta_);
+
+	// Run the Pre-Renderer (Clearing the window, setting background colors, etc...)
+	renderer.preRender();
+	events.emit("pre-render", time_, delta_);
+
+	// The main render loop. Iterates all Scenes and all Cameras in those
+	// scenes, rendering to the renderer instance.
+	scene.render();
+
+	// The Post-Render call. Tidies up loose end, takes snapshots, etc...
+	renderer.postRender();
+
+	// Final event before the step repeats. Last chance to do anything before
+	// it all starts again.
+	events.emit("post-render", time_, delta_);
+}
+
+void Game::headlessStep (Uint32 time_, Uint32 delta_)
+{
 	// Managers
-	events.emit(EVENTS::PRE_STEP, time, delta);
-	events.emit(EVENTS::STEP, time, delta);
+
+	events.emit("pre-step", time_, delta_);
+
+	events.emit("step", time_, delta_);
 
 	// Scenes
-	//scene.update(time, delta);
 
-	events.emit(EVENTS::POST_STEP, time, delta);
+	scene.update(time_, delta_);
+
+	events.emit("post-step", time_, delta_);
 
 	// Render
-	events.emit(EVENTS::PRE_RENDER);
-	events.emit(EVENTS::POST_RENDER);
-	*/
+
+	events.emit("pre-render", time_, delta_);
+
+	events.emit("post-render", time_, delta_);
 }
 
 Uint32 Game::getFrame ()
 {
-	//return loop.frame;
+	return loop.frame;
 }
 
 Uint32 Game::getTime ()
 {
-	//return loop.now;
+	return loop.now;
 }
 
 void Game::shutdown (Data data)

@@ -1,5 +1,5 @@
 /**
- * @file		time_step.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -7,39 +7,33 @@
 
 #include "time_step.h"
 
-Zen::TimeStep::TimeStep ()
-{
-	quit = false;
-	now = 0;
-	lastTime = 0;
-	delta = 0;
-	//frame = 0;
-	//fps = 0;
-	//running = false;
-	//started = false;
+namespace Zen {
+namespace Core {
 
-	messageNote("TimeStep constructed.");
-}
+TimeStep::TimeStep ()
+{}
 
-Zen::TimeStep::~TimeStep ()
-{
-	messageNote("TimeStep destructed.");
-}
+TimeStep::~TimeStep ()
+{}
 
-void Zen::TimeStep::start (std::function<void(Uint32, Uint32)> gameStep)
+void TimeStep::start (std::function<void(Uint32, Uint32)> gameStep_)
 {
 	if (started)
 		return;
 
 	started = true;
-	//running = true;
 
-	callback = gameStep;
+	for (int i_ = 0; i_ < fpsSmoothingMax; i_++)
+	{
+		fpsHistory[i_] = 0;
+	}
+
+	callback = gameStep_;
 
 	loop();
 }
 
-void Zen::TimeStep::loop ()
+void TimeStep::loop ()
 {
 	// Main game loop
 	while (!quit) {
@@ -50,7 +44,7 @@ void Zen::TimeStep::loop ()
 	// Clean up and close the program
 }
 
-void Zen::TimeStep::step ()
+void TimeStep::step ()
 {
 	now = SDL_GetTicks();
 
@@ -67,7 +61,10 @@ void Zen::TimeStep::step ()
 	//frame++;
 }
 
-void Zen::TimeStep::shutdown ()
+void TimeStep::shutdown ()
 {
 	quit = true;
 }
+
+}	// namespace Core
+}	// namespace Zen
