@@ -23,6 +23,13 @@
 // Forward declaration
 #include "../core/game.fwd.h"
 
+/**
+ * @todo "What I learned" list!
+ * @todo source files (cpp) are compiled individualy!!!!!!
+ *
+ * @todo move all necessary includes in cpp files!
+ * @todo make as much use of forward dclarations as possible
+ */
 namespace Zen {
 
 /**
@@ -347,8 +354,5 @@ template<>
 void Window::cleanup<SDL_Renderer*> (SDL_Renderer *ren_);
 
 }	// namespace Zen
-
-// Declarations of the forward declared elements
-#include "../core/game.h"
 
 #endif

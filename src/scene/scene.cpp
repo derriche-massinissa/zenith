@@ -6,6 +6,9 @@
  */
 
 #include "scene.h"
+#include "../scale/scale_manager.h"
+#include "../core/game.h"
+#include "../cameras/2d/camera_manager.h"
 
 namespace Zen {
 
@@ -13,8 +16,8 @@ Scene::Scene (Game& game_)
 	: load (*this)
 	, sys (*this)
 	, scene (*this)
-	, cameras (this)
-	, renderer (*this)
+	, cameras (*this)
+	, renderer (game_.renderer)
 	, textures (game_.textures)
 	, scale (game_.scale)
 	, game (game_)

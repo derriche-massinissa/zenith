@@ -6,6 +6,8 @@
  */
 
 #include "loader_plugin.h"
+#include "../cameras/2d/camera_manager.h"
+#include "../scene/scene.h"
 
 namespace Zen {
 namespace Loader {

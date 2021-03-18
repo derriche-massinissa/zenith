@@ -15,12 +15,11 @@
 #include <string>
 #include <vector>
 
-// Forward declarations
-#include "../core/game.fwd.h"
 
-#include "../messages.h"
 #include "../const.h"
 #include "../data.h"
+
+#include "../core/game.fwd.h"
 #include "scene.fwd.h"
 #include "scene_config.h"
 #include "scene_settings_config.h"
@@ -214,9 +213,9 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param data_ A data object, used here to pass the Scene's key.
+	 * @param scene_ A pointer to the Scene that ended loading.
 	 */
-	void loadComplete (Data data_);
+	void loadComplete (Scene* scene_);
 
 	/**
 	 * Updates the scenes.
@@ -562,8 +561,5 @@ public:
 
 }	// namespace Scenes
 }	// namespace Zen
-
-// Declarations of the forward declared elements
-//#include "../core/game.h"
 
 #endif

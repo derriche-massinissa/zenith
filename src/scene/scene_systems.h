@@ -12,6 +12,7 @@
 #include "../data.h"
 #include "scene_settings.h"
 #include "scene_config.h"
+#include "../event/event_emitter.h"
 
 // Forward declarations
 #include "scene.fwd.h"

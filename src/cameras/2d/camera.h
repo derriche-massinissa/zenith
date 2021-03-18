@@ -1876,6 +1876,6 @@ public:
 
 // Declaration of forward declared elements
 #include "camera_manager.h"
-//#include "../../renderer/renderer.h"
+//#include "../../scene/scene.h"
 
 #endif

@@ -18,6 +18,8 @@
 #include "../event/event_emitter.h"
 #include "../cameras/2d/camera_manager.fwd.h"
 
+#include "nlohmann/json.hpp"
+
 namespace Zen {
 namespace Loader {
 
@@ -182,8 +184,5 @@ public:
 
 }	// namespace Loader
 }	// namespace Zen
-
-#include "../cameras/2d/camera_manager.h"
-#include "../scene/scene.h"
 
 #endif

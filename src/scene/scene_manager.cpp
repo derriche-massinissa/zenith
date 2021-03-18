@@ -6,6 +6,7 @@
  */
 
 #include "scene_manager.h"
+#include "../messages.h"
 
 namespace Zen {
 namespace Scenes {
@@ -22,7 +23,7 @@ SceneManager::SceneManager (
 
 		pending.emplace_back(
 				"default",			// key
-				sceneMaker(game_),	// scene
+				sceneMaker_(game_),	// scene
 				as_					// autoStart
 				);
 
@@ -58,7 +59,7 @@ void SceneManager::bootQueue ()
 	{
 		entry_ = &pending.at(i_);
 
-		key_ = entry->key;
+		key_ = entry_->key;
 
 		// Check if the scene has a key
 		if (entry_->scene->sys.settings.key == "")
@@ -255,8 +256,8 @@ void SceneManager::bootScene (Scene *scene_)
 	if (settings_.isTransition)
 		sys_.events.emit(
 				"transition_init",
-				settings_.transitionFrom->sys.settings.key
-				settings_.transitionDuration,
+				settings_.transitionFrom->sys.settings.key,
+				settings_.transitionDuration
 				);
 
 	scene_->load.reset();
@@ -468,7 +469,7 @@ SceneManager& SceneManager::run (std::string key_, Data data_)
 	{
 		for (int i_ = 0; i_ < pending.size(); i_++)
 		{
-			if (pending.at(i_).key_ == key_)
+			if (pending.at(i_).key == key_)
 			{
 				queueOp("start", key_, "", data_);
 				break;
@@ -500,7 +501,7 @@ SceneManager& SceneManager::start (std::string key_, Data data_)
 		if (d_ != bootData.end())
 		{
 			d_->second.autoStart = true;
-			d_->second.data_ = data_;
+			d_->second.data = data_;
 		}
 
 		return *this;

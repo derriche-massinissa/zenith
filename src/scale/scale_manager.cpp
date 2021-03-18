@@ -6,6 +6,8 @@
  */
 
 #include "scale_manager.h"
+#include "../window/window.h""
+#include "../core/game.h"
 
 namespace Zen {
 namespace Scale {
@@ -21,7 +23,7 @@ ScaleManager::~ScaleManager()
 
 void ScaleManager::preBoot ()
 {
-	parseConfig(game.config);
+	parseConfig();
 
 	game.events.once("boot", &ScaleManager::boot, this);
 }
@@ -48,7 +50,7 @@ void ScaleManager::setGameSize (int width_, int height_)
 
 	gameSize.resize(width_, height_);
 
-	refresh(previousWidth_, previousHeight_);
+	refresh();
 
 	emit("resize", gameSize.getWidth(), gameSize.getHeight(), previousWidth_, previousHeight_);
 }
@@ -68,7 +70,7 @@ void ScaleManager::updateScale ()
 {
 	displaySize.setSize(window.width(), window.height());
 
-	if (scaleMode == SCALEMODE::RESIZE)
+	if (scaleMode == SCALE_MODE::RESIZE)
 		displayScale.set(1, 1);
 	else
 		displayScale.set(
@@ -79,7 +81,7 @@ void ScaleManager::updateScale ()
 
 void ScaleManager::updateOffset ()
 {
-	if (scaleMode == SCALEMODE::RESIZE)
+	if (scaleMode == SCALE_MODE::RESIZE)
 		displayOffset.set(0, 0);
 	else
 		displayOffset.set(
@@ -120,12 +122,12 @@ void ScaleManager::setScaleMode (SCALE_MODE sm)
 	displaySize.setAspectMode(sm);
 }
 
-int getWidth ()
+int ScaleManager::getWidth ()
 {
 	return gameSize.getWidth();
 }
 
-int getHeight ()
+int ScaleManager::getHeight ()
 {
 	return gameSize.getHeight();
 }

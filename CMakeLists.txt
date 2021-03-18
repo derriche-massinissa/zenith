@@ -20,6 +20,23 @@ set(zenith_SRCS
 	src/messages.h
 	src/messages.cpp
 
+	src/scene/scene.fwd.h
+	src/scene/scene.h
+	src/scene/scene.cpp
+	src/scene/scene_config.h
+	src/scene/scene_config.cpp
+	src/scene/scene_manager.fwd.h
+	src/scene/scene_manager.h
+	src/scene/scene_manager.cpp
+	src/scene/scene_plugin.h
+	src/scene/scene_plugin.cpp
+	src/scene/scene_settings.h
+	src/scene/scene_settings.cpp
+	src/scene/scene_settings_config.h
+	src/scene/scene_systems.h
+	src/scene/scene_systems.cpp
+	src/scene/scene_transition_config.h
+
 	src/cameras/2d/camera.h
 	src/cameras/2d/camera.fwd.h
 	src/cameras/2d/camera.cpp
@@ -73,23 +90,6 @@ set(zenith_SRCS
 
 	src/scale/scale_manager.h
 	src/scale/scale_manager.cpp
-
-	src/scene/scene.fwd.h
-	src/scene/scene.h
-	src/scene/scene.cpp
-	src/scene/scene_config.h
-	src/scene/scene_config.cpp
-	src/scene/scene_manager.fwd.h
-	src/scene/scene_manager.h
-	src/scene/scene_manager.cpp
-	src/scene/scene_plugin.h
-	src/scene/scene_plugin.cpp
-	src/scene/scene_settings.h
-	src/scene/scene_settings.cpp
-	src/scene/scene_settings_config.h
-	src/scene/scene_systems.h
-	src/scene/scene_systems.cpp
-	src/scene/scene_transition_config.h
 
 	src/structs/size.h
 	src/structs/size.cpp

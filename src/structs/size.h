@@ -8,9 +8,10 @@
 #ifndef ZEN_STRUCTS_SIZE_H
 #define ZEN_STRUCTS_SIZE_H
 
+#include <cmath>
 #include "../const.h"
 #include "../math/math.h"
-#include "cmath"
+#include "../math/vector2.h"
 
 namespace Zen {
 namespace Structs {

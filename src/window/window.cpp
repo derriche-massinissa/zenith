@@ -6,6 +6,7 @@
  */
 
 #include "window.h"
+#include "../core/game.h"
 
 namespace Zen {
 

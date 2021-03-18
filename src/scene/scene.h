@@ -255,8 +255,4 @@ public:
 
 }	// namespace Zen
 
-#include "../scale/scale_manager.h"
-//#include "../cameras/2d/camera_manager.h"
-#include "../core/game.h"
-
 #endif

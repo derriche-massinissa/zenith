@@ -10,6 +10,7 @@
 
 #include <string>
 #include <memory>
+#include "../data.h"
 
 // Forward declarations
 #include "scene.fwd.h"
@@ -30,6 +31,12 @@ struct SceneConfig
 	std::unique_ptr<Scene> scene;
 	bool autoStart;
 	Data data;
+
+	SceneConfig (
+			std::string key_,
+			std::unique_ptr<Scene> scene_,
+			bool autoStart_ = false,
+			Data data_ = {});
 
 	SceneConfig (
 			std::string key_,
