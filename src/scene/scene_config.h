@@ -10,9 +10,9 @@
 
 #include <string>
 #include <memory>
+
 #include "../data.h"
 
-// Forward declarations
 #include "scene.fwd.h"
 
 namespace Zen {

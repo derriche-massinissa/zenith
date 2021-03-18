@@ -9,8 +9,11 @@
 #define ZEN_TEXTURES_PARSERS_SPRITESHEET_ATLAS_H
 
 #include <cmath>
-#include "../texture.h"
+
 #include "../sprite_sheet_config.h"
+
+#include "../texture.fwd.h"
+#include "../frame.fwd.h"
 
 namespace Zen {
 namespace Textures {

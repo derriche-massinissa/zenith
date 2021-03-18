@@ -7,6 +7,8 @@
 
 #include "size.h"
 
+#include "../math/math.h"
+
 namespace Zen {
 namespace Structs {
 
@@ -29,25 +31,25 @@ Size& Size::setAspectMode (SCALE_MODE value_)
 	return setSize(width, height);
 }
 
-Size& Size::setSnap (int snapWidth_, int snapHeight_)
+Size& Size::setSnap (unsigned int snapWidth_, unsigned int snapHeight_)
 {
-	snapTo.set(setWidth_, snapHeight_);
+	snapTo.set(snapWidth_, snapHeight_);
 
 	return setSize(width, height);
 }
 
-Size& Size::setMin (int width_, int height_)
+Size& Size::setMin (unsigned int width_, unsigned int height_)
 {
 	if (height_ == 0)
 		height_ = width_;
 
-	minWidth = Math::clamp(width_, 0, maxWidth);
-	minHeight = Math::clamp(height_, 0, maxHeight);
+	minWidth = Math::clamp((int)width_, 0, (int)maxWidth);
+	minHeight = Math::clamp((int)height_, 0, (int)maxHeight);
 
 	return setSize(width, height);
 }
 
-Size& Size::setMax (int width_, int height_)
+Size& Size::setMax (unsigned int width_, unsigned int height_)
 {
 	if (height_ == 0)
 		height_ = width_;
@@ -58,7 +60,7 @@ Size& Size::setMax (int width_, int height_)
 	return setSize(width, height);
 }
 
-Size& Size::setSize (int width_, int height_)
+Size& Size::setSize (unsigned int width_, unsigned int height_)
 {
 	if (height_ == 0)
 		height_ = width_;
@@ -102,26 +104,26 @@ Size& Size::setAspectRatio (double ratio_)
 	return setSize(width, height);
 }
 
-Size& Size::resize (int width_, int height_)
+Size& Size::resize (unsigned int width_, unsigned int height_)
 {
-	width = getNewWidth(snapFloor(width_, snapTo.x));
-	height = getNewHeight(snapFloor(height_, snapTo.y));
+	width = getNewWidth(Math::snapFloor(width_, snapTo.x));
+	height = getNewHeight(Math::snapFloor(height_, snapTo.y));
 	aspectRatio = (height == 0) ? 1.0 : (1.f*width / height);
 
 	return *this;
 }
 
-int Size::getNewWidth (int value_)
+unsigned int Size::getNewWidth (unsigned int value_)
 {
-	return Math::clamp(value_, minWidth, maxWidth);
+	return Math::clamp((int)value_, (int)minWidth, (int)maxWidth);
 }
 
-int Size::getNewHeight (int value_)
+unsigned int Size::getNewHeight (unsigned int value_)
 {
-	return Math::clamp(value_, minHeight, maxHeight);
+	return Math::clamp((int)value_, (int)minHeight, (int)maxHeight);
 }
 
-Size& Size::constrain (int width_, int height_, bool fit_)
+Size& Size::constrain (unsigned int width_, unsigned int height_, bool fit_)
 {
 	if (height_ == 0)
 		height_ = width_;
@@ -135,13 +137,13 @@ Size& Size::constrain (int width_, int height_, bool fit_)
 	{
 		// We need to change the height to fit the width
 
-		width_ = snapFloor(width_, snapTo.x);
+		width_ = Math::snapFloor(width_, snapTo.x);
 
 		height_ = width_ / aspectRatio;
 
 		if (snapTo.y > 0)
 		{
-			height_ = snapFloor(height_, snapTo.y);
+			height_ = Math::snapFloor(height_, snapTo.y);
 
 			// Reduce the width accordingly
 			width_ = height_ * aspectRatio;
@@ -151,13 +153,13 @@ Size& Size::constrain (int width_, int height_, bool fit_)
 	{
 		// We need to change the width to fit the height
 
-		height_ = snapFloor(height_, snapTo.y);
+		height_ = Math::snapFloor(height_, snapTo.y);
 
 		width_ = height_ * aspectRatio;
 
 		if (snapTo.x > 0)
 		{
-			width_ = snapFloor(width_, setTo.x);
+			width_ = Math::snapFloor(width_, snapTo.x);
 
 			// Reduce the height accordingly
 			height_ = width_ * (1.f / aspectRatio);
@@ -170,22 +172,22 @@ Size& Size::constrain (int width_, int height_, bool fit_)
 	return *this;
 }
 
-Size& Size::fitTo (int width_, int height_)
+Size& Size::fitTo (unsigned int width_, unsigned int height_)
 {
 	return constrain(width_, height_, true);
 }
 
-Size& Size::envelop (int width_, int height_)
+Size& Size::envelop (unsigned int width_, unsigned int height_)
 {
 	return constrain(width_, height_, false);
 }
 
-Size& Size::setWidth (int width_)
+Size& Size::setWidth (unsigned int width_)
 {
 	return setSize(width_, height);
 }
 
-Size& Size::setHeight (int height_)
+Size& Size::setHeight (unsigned int height_)
 {
 	return setSize(width, height_);
 }

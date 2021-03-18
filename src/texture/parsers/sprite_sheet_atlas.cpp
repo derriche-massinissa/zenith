@@ -7,6 +7,11 @@
 
 #include "sprite_sheet_atlas.h"
 
+#include "../../messages.h"
+#include "../texture.h"
+#include "../texture_source.h"
+#include "../frame.h"
+
 namespace Zen {
 namespace Textures {
 
@@ -19,9 +24,9 @@ void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfi
 	}
 
 	// Add in a __BASE entry (for the entire frame)
-	TextureSource *source = texture->source[0];
+	TextureSource& source = texture->source[0];
 
-	texture->add("__BASE", 0, 0, 0, source->width, source->height);
+	texture->add("__BASE", 0, 0, 0, source.width, source.height);
 
 	int startFrame = config.startFrame;
 	int endFrame = config.endFrame;
@@ -33,24 +38,24 @@ void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfi
 
 	int cutWidth = frame->cutWidth;
 	int cutHeight = frame->cutHeight;
-	int sheetWidth = frame->realWidth;
-	int sheetHeight = frame->realHeight;
+	int sheetWidth = frame->getRealWidth();
+	int sheetHeight = frame->getRealHeight();
 
-	int row = std::floor((sheetWidth - margin + spacing) / (frameWidth + spacing));
-	int column = std::floor((sheetHeight - margin + spacing) / (frameHeight + spacing));
+	int row = std::floor((sheetWidth - margin + spacing) / (config.frameWidth + spacing));
+	int column = std::floor((sheetHeight - margin + spacing) / (config.frameHeight + spacing));
 	int total = row * column;
 
 	// Trim offsets
 	
-	int leftPad = frame.x;
-	int leftWidth = frameWidth - leftPad;
+	int leftPad = frame->x;
+	int leftWidth = config.frameWidth - leftPad;
 
-	int rightWidth = frameWidth - ((sheetWidth - cutWidth) - leftPad);
+	int rightWidth = config.frameWidth - ((sheetWidth - cutWidth) - leftPad);
 
-	int topPad = frame.x;
-	int topHeight = frameHeight - topPad;
+	int topPad = frame->y;
+	int topHeight = config.frameHeight - topPad;
 
-	int bottomHeight = frameHeight - ((sheetHeight - cutHeight) - topPad);
+	int bottomHeight = config.frameHeight - ((sheetHeight - cutHeight) - topPad);
 
 	if (startFrame > total || startFrame < -total)
 		startFrame = 0;
@@ -68,7 +73,7 @@ void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfi
 	int frameX = margin;
 	int frameY = margin;
 	int frameIndex = 0;
-	int sourceIndex = frame.sourceIndex;
+	int sourceIndex = frame->sourceIndex;
 
 	for (int sheetY = 0; sheetY < column; sheetY++)
 	{
@@ -80,7 +85,7 @@ void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfi
 			bool leftRow = (sheetX == 0);
 			bool rightRow = (sheetX == row - 1);
 
-			sheetFrame = texture->add(frameIndex, sourceIndex, x + frameX, y + frameY, frameWidth, frameHeight);
+			sheetFrame = texture->add(frameIndex, sourceIndex, x + frameX, y + frameY, config.frameWidth, config.frameHeight);
 
 			if (leftRow || topRow || rightRow || bottomRow)
 			{
@@ -91,24 +96,24 @@ void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfi
 				int trimHeight = 0;
 
 				if (leftRow)
-					trimWidth += frameWidth - leftWidth;
+					trimWidth += config.frameWidth - leftWidth;
 
 				if (rightRow)
-					trimWidth += frameWidth - rightWidth;
+					trimWidth += config.frameWidth - rightWidth;
 
 				if (topRow)
-					trimHeight += frameHeight - topHeight;
+					trimHeight += config.frameHeight - topHeight;
 
 				if (bottomRow)
-					trimHeight += frameHeight - bottomHeight;
+					trimHeight += config.frameHeight - bottomHeight;
 
-				int destWidth = frameWidth - trimWidth;
-				int destHeight = frameHeight - trimHeight;
+				int destWidth = config.frameWidth - trimWidth;
+				int destHeight = config.frameHeight - trimHeight;
 
 				sheetFrame->cutWidth = destWidth;
 				sheetFrame->cutHeight = destHeight;
 
-				sheetFrame->setTrim(frameWidth, frameHeight, destX, destY, destWidth, destHeight);
+				sheetFrame->setTrim(config.frameWidth, config.frameHeight, destX, destY, destWidth, destHeight);
 			}
 
 			frameX += spacing;
@@ -118,7 +123,7 @@ void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfi
 			else if (rightRow)
 				frameX += rightWidth;
 			else
-				frameX += frameWidth;
+				frameX += config.frameWidth;
 
 			frameIndex++;
 		}
@@ -131,7 +136,7 @@ void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfi
 		else if (bottomRow)
 			frameY += bottomHeight;
 		else
-			frameY += frameHeight;
+			frameY += config.frameHeight;
 	}
 }
 

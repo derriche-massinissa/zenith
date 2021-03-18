@@ -9,12 +9,13 @@
 #define ZEN_SCENES_SCENE_SYSTEMS_H
 
 #include <SDL2/SDL.h>
+
 #include "../data.h"
-#include "scene_settings.h"
-#include "scene_config.h"
 #include "../event/event_emitter.h"
 
-// Forward declarations
+#include "scene_settings.h"
+
+#include "scene_config.fwd.h"
 #include "scene.fwd.h"
 #include "../core/game.fwd.h"
 
@@ -27,7 +28,7 @@ public:
 	/**
 	 * @since 0.0.0
 	 */
-	SceneSystems (Scene& scene_);
+	SceneSystems (Scene* scene_);
 
 	/**
 	 * @since 0.0.0
@@ -39,7 +40,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scene& scene;
+	Scene* scene;
 
 	/**
 	 * The Scene Settings.
@@ -278,8 +279,5 @@ public:
 
 }	// namespace Scenes
 }	// namespace Zen
-
-// Declarations of the forward declared elements
-//#include "scene.h"
 
 #endif

@@ -7,13 +7,15 @@
 
 #include "game.h"
 
+#include "../messages.h"
+
 namespace Zen {
 
 Game::Game (Core::GameConfig& config_)
 	: scale (*this)
 	, window (*this)
-	, scene (*this, config_.sceneFactory)
-	, textures (*this)
+	, scene (this, config_.sceneFactory)
+	, textures (this)
 	, renderer (*this)
 	, config (config_)
 {
@@ -33,7 +35,7 @@ void Game::boot ()
 
 	scale.preBoot();
 
-	window.create(config);
+	window.create();
 
 	window.on("minimize", &Game::onMinimize, this);
 	window.on("restore", &Game::onRestore, this);

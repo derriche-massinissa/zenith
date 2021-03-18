@@ -9,7 +9,6 @@
 #define ZEN_GEOM_RECTANGLE_H
 
 #include <vector>
-#include "point.h"
 
 #include "line.h"
 #include "point.h"

@@ -7,6 +7,11 @@
 
 #include "json_array.h"
 
+#include "../../messages.h"
+#include "../texture.h"
+#include "../texture_source.h"
+#include "../frame.h"
+
 namespace Zen {
 namespace Textures {
 
@@ -40,7 +45,7 @@ void parseJsonArray (Texture *texture, int sourceIndex, nlohmann::json json)
         //  The frame values are the exact coordinates to cut the frame out of the 
 		//  atlas from
 		newFrame = texture->add(
-				src["filename"],
+				src["filename"].get<std::string>(),
 				sourceIndex,
 				src["frame"]["x"],
 				src["frame"]["y"],
@@ -52,12 +57,12 @@ void parseJsonArray (Texture *texture, int sourceIndex, nlohmann::json json)
 		if (src["trimmed"] != nullptr && src["trimmed"])
 		{
 			newFrame->setTrim(
-					src["sourceSize"].w,
-					src["sourceSize"].h,
-					src["spriteSourceSize"].x,
-					src["spriteSourceSize"].y,
-					src["spriteSourceSize"].w,
-					src["spriteSourceSize"].h
+					src["sourceSize"]["w"],
+					src["sourceSize"]["h"],
+					src["spriteSourceSize"]["x"],
+					src["spriteSourceSize"]["y"],
+					src["spriteSourceSize"]["w"],
+					src["spriteSourceSize"]["h"]
 					);
 		}
 

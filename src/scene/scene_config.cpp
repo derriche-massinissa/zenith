@@ -6,6 +6,7 @@
  */
 
 #include "scene_config.h"
+
 #include "scene.h"
 
 namespace Zen {

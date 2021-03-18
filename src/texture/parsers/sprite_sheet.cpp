@@ -7,10 +7,14 @@
 
 #include "sprite_sheet.h"
 
+#include "../../messages.h"
+#include "../texture.h"
+#include "../texture_source.h"
+
 namespace Zen {
 namespace Textures {
 
-void parserSpriteSheet (
+void parseSpriteSheet (
 		Texture *texture,
 		int sourceIndex,
 		int x,
@@ -26,17 +30,17 @@ void parserSpriteSheet (
 	}
 
 	// Add in a __BASE entry (for the entire atlas)
-	TextureSource *source = texture->source[sourceIndex];
+	TextureSource& source = texture->source[sourceIndex];
 
-	texture->add("__BASE", sourceIndex, 0, 0, source->width, source->height);
+	texture->add("__BASE", sourceIndex, 0, 0, source.width, source.height);
 
 	int startFrame = config.startFrame;
 	int endFrame = config.endFrame;
 	int margin = config.margin;
 	int spacing = config.spacing;
 
-	int row = std::floor((width - margin + spacing) / (frameWidth + spacing));
-	int column = std::floor((height - margin + spacing) / (frameHeight + spacing));
+	int row = std::floor((width - margin + spacing) / (config.frameWidth + spacing));
+	int column = std::floor((height - margin + spacing) / (config.frameHeight + spacing));
 	int total = row * column;
 
 	if (total == 0)
@@ -64,8 +68,8 @@ void parserSpriteSheet (
 		ax = 0;
 		ay = 0;
 
-		int w = fx + frameWidth;
-		int h = fy + frameHeight;
+		int w = fx + config.frameWidth;
+		int h = fy + config.frameHeight;
 
 		if (w > width)
 			ax = w - width;
@@ -73,14 +77,14 @@ void parserSpriteSheet (
 		if (h > height)
 			ay = h - height;
 
-		texture->add(i, sourceIndex, x + fx, y + fy, frameWidth - ax , frameHeight - ay);
+		texture->add(i, sourceIndex, x + fx, y + fy, config.frameWidth - ax , config.frameHeight - ay);
 
-		fx += frameWidth + spacing;
+		fx += config.frameWidth + spacing;
 
-		if (fx + frameWidth > width)
+		if (fx + config.frameWidth > width)
 		{
 			fx = margin;
-			fy += frameHeight + spacing;
+			fy += config.frameHeight + spacing;
 		}
 	}
 }

@@ -17,11 +17,11 @@
 #include "../event/event_emitter.h"
 #include "../math/vector2.h"
 #include "../display/color.h"
-#include "../texture/frame.h"
-#include "../gameobjects/components/transform_matrix.h"
 #include "../structs/size.h"
-#include "../gameobjects/gameobject.h"
+#include "../gameobjects/components/transform_matrix.h"
 
+#include "../gameobjects/gameobject.fwd.h"
+#include "../texture/frame.fwd.h"
 #include "../cameras/2d/camera.fwd.h"
 #include "../core/game.fwd.h"
 #include "../window/window.fwd.h"
@@ -394,7 +394,5 @@ private:
 };
 
 }	// namespace Zen
-
-#include "../cameras/2d/camera.h"
 
 #endif

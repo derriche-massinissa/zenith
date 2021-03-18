@@ -7,18 +7,21 @@
 
 #include "frame.h"
 
+#include "texture.h"
+#include "texture_source.h"
+
 namespace Zen {
 namespace Textures {
 
-Frame::Frame (Texture& texture_, std::string name_, int sourceIndex_, int x_, int y_, int width_, int height_)
-	: texture_ (texture_)
-    , name_ (name_)
-    , sourceIndex_ (sourceIndex_)
-    , x_ (x_)
-    , y_ (y_)
-    , width_ (width_)
-    , height_ (height_)
-    , source_ (texture_.source_[sourceIndex_])
+Frame::Frame (Texture* texture_, std::string name_, int sourceIndex_, int x_, int y_, int width_, int height_)
+    : name (name_)
+    , sourceIndex (sourceIndex_)
+    , x (x_)
+    , y (y_)
+    , width (width_)
+    , height (height_)
+    , source (&texture_->source[sourceIndex_])
+	, texture (texture_)
 {
 	setSize(width_, height_, x_, y_);
 }
@@ -41,13 +44,13 @@ Frame& Frame::setSize (int width_, int height_, int x_, int y_)
 
 	data.cut.x = x_;
 	data.cut.y = y_;
-	data.cut.w = width_;
-	data.cut.h = height_;
-	data.cut.r = x_ + width_;
-	data.cut.b = y_ + height_;
+	data.cut.width = width_;
+	data.cut.height = height_;
+	data.cut.setRight(x_ + width_);
+	data.cut.setBottom(y_ + height_);
 
-	data.sourceSize.w = width_;
-	data.sourceSize.h = height_;
+	data.sourceSize.setWidth(width_);
+	data.sourceSize.setHeight(height_);
 
 	data.radius = 0.5 * std::sqrt(width_ * width_ + height_ * height_);
 
@@ -65,15 +68,15 @@ Frame& Frame::setTrim (int actualWidth_, int actualHeight_, int destX_, int dest
 
 	data.trim = true;
 
-	data.sourceSize.w = actualWidth_;
-	data.sourceSize.h = actualHeight_;
+	data.sourceSize.setWidth(actualWidth_);
+	data.sourceSize.setHeight(actualHeight_);
 
 	data.spriteSourceSize.x = destX_;
 	data.spriteSourceSize.y = destY_;
-	data.spriteSourceSize.w = destWidth_;
-	data.spriteSourceSize.h = destHeight_;
-	data.spriteSourceSize.r = destX_ + destWidth_;
-	data.spriteSourceSize.b = destY_ + destHeight_;
+	data.spriteSourceSize.width = destWidth_;
+	data.spriteSourceSize.height = destHeight_;
+	data.spriteSourceSize.setRight(destX_ + destWidth_);
+	data.spriteSourceSize.setBottom(destY_ + destHeight_);
 
 	//  Adjust properties
 	x = destX_;
@@ -99,8 +102,8 @@ CropData Frame::setCropUVs (CropData crop_, int x_, int y_, int width_, int heig
 	int cy_ = cutY;
 	int cw_ = cutWidth;
 	int ch_ = cutHeight;
-	int rw_ = realWidth;
-	int rh_ = realHeight;
+	int rw_ = getRealWidth();
+	int rh_ = getRealHeight();
 
 	x_ = Math::clamp(x_, 0, rw_);
 	y_ = Math::clamp(y_, 0, rh_);
@@ -128,13 +131,13 @@ CropData Frame::setCropUVs (CropData crop_, int x_, int y_, int width_, int heig
 		int cropRight_ = x_ + width_;
 		int cropBottom_ = y_ + height_;
 
-		bool intersects_ = !(ss_.r < x_ || ss_.b < y_ || ss_.x > cropRight_ || ss_.y > cropBottom_);
+		bool intersects_ = !(ss_.getRight() < x_ || ss_.getBottom() < y_ || ss_.x > cropRight_ || ss_.y > cropBottom_);
 
 		if (intersects_) {
 			int ix_ = std::max(ss_.x, x_);
 			int iy_ = std::max(ss_.y, y_);
-			int iw_ = std::min(ss_.r, cropRight_) - ix_;
-			int ih_ = std::min(ss_.b, cropBottom_) - iy_;
+			int iw_ = std::min(ss_.getRight(), cropRight_) - ix_;
+			int ih_ = std::min(ss_.getBottom(), cropBottom_) - iy_;
 
 			ow_ = iw_;
 			oh_ = ih_;
@@ -167,14 +170,14 @@ CropData Frame::setCropUVs (CropData crop_, int x_, int y_, int width_, int heig
 			ox_ = cx_ + (cw_ - x_ - width_);
 		}
 
-		if (flipY)
+		if (flipY_)
 		{
 			oy_ = cy_ + (ch_ - y_ - height_);
 		}
 	}
 
-	int tw_ = source.width;
-	int th_ = source.height;
+	int tw_ = source->width;
+	int th_ = source->height;
 
 	//  Map the given coordinates into UV space, clamping to the 0-1 range.
 
@@ -241,8 +244,8 @@ Frame& Frame::updateUVs ()
 
 	//  WebGL data
 
-	int tw_ = source.width;
-	int th_ = source.height;
+	int tw_ = source->width;
+	int th_ = source->height;
 
 	u0 = cx_ / tw_;
 	v0 = cy_ / th_;
@@ -255,8 +258,8 @@ Frame& Frame::updateUVs ()
 
 Frame& Frame::updateUVsInverted ()
 {
-	int tw_ = source.width;
-	int th_ = source.height;
+	int tw_ = source->width;
+	int th_ = source->height;
 
 	u0 = (cutX + cutHeight) / tw_;
 	v0 = cutY / th_;
@@ -274,12 +277,12 @@ Frame Frame::clone()
 
 int Frame::getRealWidth ()
 {
-	return data.sourceSize.w;
+	return data.sourceSize.getWidth();
 }
 
 int Frame::getRealHeight ()
 {
-	return data.sourceSize.h;
+	return data.sourceSize.getHeight();
 }
 
 double Frame::getRadius ()
@@ -292,7 +295,7 @@ bool Frame::isTrimmed ()
 	return data.trim;
 }
 
-FrameDataDrawImage Frame::getDrawImageData ()
+Geom::Rectangle Frame::getDrawImageData ()
 {
 	return data.drawImage;
 }

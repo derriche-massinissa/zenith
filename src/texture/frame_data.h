@@ -9,6 +9,7 @@
 #define ZEN_TEXTURES_FRAME_DATA_h
 
 #include "../geom/rectangle.h"
+#include "../structs/size.h"
 
 namespace Zen {
 namespace Textures {
@@ -48,6 +49,7 @@ struct FrameData
 {
 	Geom::Rectangle cut;
 	bool trim = false;
+	Structs::Size sourceSize;
 	Geom::Rectangle spriteSourceSize;
 	float radius = 0.0;
 	Geom::Rectangle drawImage;

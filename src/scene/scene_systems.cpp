@@ -7,11 +7,15 @@
 
 #include "scene_systems.h"
 
+#include "scene_config.h"
+#include "scene.h"
+#include "../core/game.h"
+
 namespace Zen {
 namespace Scenes {
 
-SceneSystems::SceneSystems (Scene& scene_)
-	: settings(scene_.key)
+SceneSystems::SceneSystems (Scene* scene_)
+	: settings(scene_->key)
 	, scene(scene_)
 {}
 
@@ -22,7 +26,7 @@ SceneSystems::~SceneSystems ()
 	events.emit("destroy");
 
 	events.removeAllListeners();
-	scene.events.removeAllListeners();
+	scene->events.removeAllListeners();
 }
 
 void SceneSystems::init ()
@@ -40,30 +44,30 @@ void SceneSystems::step (Uint32 time_, Uint32 delta_)
 
 	events.emit("update", time_, delta_);
 
-	scene.update(time_, delta_);
+	scene->update(time_, delta_);
 
 	events.emit("post-update", time_, delta_);
 }
 
 void SceneSystems::render ()
 {
-	scene.children.depthSort();
+	scene->children.depthSort();
 
 	events.emit("pre-render");
 
-	scene.cameras.render(scene.children);
+	scene->cameras.render(scene->renderer, scene->children);
 
 	events.emit("render");
 }
 
 void SceneSystems::queueDepthSort ()
 {
-	scene.children.queueDepthSort();
+	scene->children.queueDepthSort();
 }
 
 void SceneSystems::depthSort ()
 {
-	scene.children.depthSort();
+	scene->children.depthSort();
 }
 
 SceneSystems& SceneSystems::pause (Data data_)
@@ -147,13 +151,13 @@ bool SceneSystems::isPaused ()
 
 bool SceneSystems::isTransitioning ()
 {
-	return (settings.isTransition || scene.scene.transitionTarget != nullptr);
+	return (settings.isTransition || scene->scene.transitionTarget != nullptr);
 }
 
 bool SceneSystems::isTransitionOut ()
 {
-	return (scene.scene.transitionTarget != nullptr &&
-			scene.scene.transitionDuration > 0);
+	return (scene->scene.transitionTarget != nullptr &&
+			scene->scene.transitionDuration > 0);
 }
 
 bool SceneSystems::isTransitionIn ()

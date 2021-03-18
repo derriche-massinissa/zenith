@@ -20,9 +20,10 @@
 #include "../data.h"
 #include "../event/event_emitter.h"
 #include "sprite_sheet_config.h"
-#include "parsers/json_array.h"
+#include "texture.h"
 
-#include "../gameobjects/rendertexture/render_texture.h"
+#include "../core/game.fwd.h"
+#include "../gameobjects/rendertexture/render_texture.fwd.h"
 
 namespace Zen {
 namespace Textures {
@@ -43,7 +44,7 @@ public:
 	 *
 	 * @param game_ A reference to the Game owning this TextureManager.
 	 */
-	TextureManager (Game& game_);
+	TextureManager (Game* game_);
 
 	/**
 	 * The boot handler called by the Game instance when it first starts up.
@@ -85,7 +86,7 @@ public:
      *
      * @return This TextureManager instance.
      */
-    TextureManager& addBase64 (std::string key_, std::string data_);
+    Texture* addBase64 (std::string key_, std::string data_);
 
 	/**
 	 * Adds a new Texture to the TextureManager created from the given image.
@@ -114,7 +115,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addRenderTexture (std::string key_, GameObjects::RenderTexture renderTexture_);
+	Texture* addRenderTexture (std::string key_, GameObjects::RenderTexture& renderTexture_);
 
 	/**
 	 * Adds a new Texture Atlas to this TextureManager.
@@ -245,12 +246,38 @@ public:
 	 * @since 0.0.0
 	 *
 	 * @param key_ The unique key of the Texture.
-	 * @param sources_ The path to the image file.
+	 * @param sources_ A vector of file paths.
 	 *
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
 	Texture* create (std::string key_, std::vector<std::string> sources_);
+
+	/**
+	 * @overload
+	 * @since 0.0.0
+	 *
+	 * @param key_ The unique key of the Texture.
+	 * @param sources_ The path to the image file.
+	 *
+	 * @return A pointer to the newly created Texture, or `nullptr` if the key
+	 * is already in use.
+	 */
+	Texture* create (std::string key_, std::string source_);
+
+	/**
+	 * @todo Create texture from renderTexture game object.
+	 *
+	 * @overload
+	 * @since 0.0.0
+	 *
+	 * @param key_ The unique key of the Texture.
+	 * @param renderTexture_ The RenderTexture GameObject to use as a source.
+	 *
+	 * @return A pointer to the newly created Texture, or `nullptr` if the key
+	 * is already in use.
+	 */
+	Texture* create (std::string key_, GameObjects::RenderTexture& renderTexture_);
 
 	/**
 	 * Checks the given key to see if a Texture using it exists within
@@ -282,7 +309,7 @@ public:
 	Texture* get (std::string key_ = "");
 
 	/**
-	 * Takes a Texture key and Frame name and returns a reference to that
+	 * Takes a Texture key and Frame name and returns a pointer to that
 	 * Frame, if found.
 	 *
 	 * @since 0.0.0
@@ -426,13 +453,12 @@ public:
 			cb_(tex_, data_);
 		}
 
-private:
 	/**
 	 * The Game that this TextureManager belongs to.
 	 *
 	 * @since 0.0.0
 	 */
-	Game& game;
+	Game* game;
 
 	/**
 	 * Avector that has all the textures that the TextureManager creates.

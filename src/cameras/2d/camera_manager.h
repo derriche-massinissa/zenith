@@ -68,7 +68,7 @@ public:
 	 *
 	 * @param scene_ The Scene that owns the Camera Manager plugin.
 	 */
-	CameraManager (Scene& scene_);
+	CameraManager (Scene* scene_);
 
 	/**
 	 * @since 0.0.0
@@ -80,7 +80,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scene& scene;
+	Scene* scene;
 
 	/**
 	 * A reference to the SceneSystems handler for the Scene that owns the

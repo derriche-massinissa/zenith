@@ -7,15 +7,17 @@
 
 #include "texture.h"
 
+#include "texture_manager.h"
+
 namespace Zen {
 namespace Textures {
 
 Texture::Texture(TextureManager& manager_, std::string key_, std::vector<std::string> sources_)
-	: manager (manager_)
+	: manager (&manager_)
 {
 	// Load the Sources
 	for (auto& source_ : sources_)
-		source.emplace_back(*this, source_);
+		source.emplace_back(this, source_);
 }
 
 Frame* Texture::add (std::string name_, int sourceIndex_, int x_, int y_, int width_, int height_)
@@ -23,7 +25,7 @@ Frame* Texture::add (std::string name_, int sourceIndex_, int x_, int y_, int wi
 	if (has(name_))
 		return nullptr;
 
-	Frame frame_ (*this, name_, sourceIndex_, x_, y_, width_, height_);
+	Frame frame_ (this, name_, sourceIndex_, x_, y_, width_, height_);
 
 	frames.emplace(name_, frame_);
 
@@ -37,6 +39,11 @@ Frame* Texture::add (std::string name_, int sourceIndex_, int x_, int y_, int wi
 	frameTotal++;
 
 	return &frames.find(name_)->second;
+}
+
+Frame* Texture::add (int name_, int sourceIndex_, int x_, int y_, int width_, int height_)
+{
+	return add(std::to_string(name_), sourceIndex_, x_, y_, width_, height_);
 }
 
 bool Texture::remove (std::string name_)
@@ -75,16 +82,19 @@ Frame* Texture::get (std::string name_)
 
 Frame* Texture::get (int index_)
 {
+	return get(std::to_string(index_));
+	/*
 	Frame* frame_ = &frames.at(index_)->second;
 
 	if (!frame_)
 	{
-		messageWarning("Texture missing at index: ", index_);
+		messageWarning("Texture missing at index: ", std::to_string(index_));
 
 		frame_ = &frames.find(firstFrame)->second;
 	}
 
 	return frame_;
+	*/
 }
 
 int Texture::getTextureSourceIndex (TextureSource& source_)

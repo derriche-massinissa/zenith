@@ -6,18 +6,26 @@
  */
 
 #include "loader_plugin.h"
-#include "../cameras/2d/camera_manager.h"
+
+#include "nlohmann/json.hpp"
+
+#include "../messages.h"
+#include "../event/event_emitter.h"
+
+#include "../texture/texture_manager.h"
 #include "../scene/scene.h"
+#include "../scene/scene_manager.h"
+#include "../cameras/2d/camera_manager.h"
 
 namespace Zen {
 namespace Loader {
 
-LoaderPlugin::LoaderPlugin (Scene& scene_)
+LoaderPlugin::LoaderPlugin (Scene* scene_)
 	: scene (scene_)
-	, textureManager (scene_.textures)
-	, sceneManager (scene_.game.scene)
-	, prefix (scene_.game.config.loaderPrefix)
-	, path (scene_.game.config.loaderPath)
+	, textureManager (scene_->textures)
+	, sceneManager (scene_->game.scene)
+	, prefix (scene_->game.config.loaderPrefix)
+	, path (scene_->game.config.loaderPath)
 {}
 
 LoaderPlugin::~LoaderPlugin ()
@@ -27,7 +35,7 @@ LoaderPlugin::~LoaderPlugin ()
 
 void LoaderPlugin::pluginStart ()
 {
-	scene.sys.events.once("shutdown", &LoaderPlugin::shutdown, this);
+	scene->sys.events.once("shutdown", &LoaderPlugin::shutdown, this);
 }
 
 LoaderPlugin& LoaderPlugin::setPath (std::string path_)
@@ -112,15 +120,15 @@ LoaderPlugin& LoaderPlugin::font (std::string key_, std::string path_)
 
 void LoaderPlugin::reset ()
 {
-	setPath(scene.game.config.loaderPath);
-	setPrefix(scene.game.config.loaderPrefix);
+	setPath(scene->game.config.loaderPath);
+	setPrefix(scene->game.config.loaderPrefix);
 }
 
 void LoaderPlugin::shutdown ()
 {
 	reset();
 
-	scene.sys.events.off("shutdown", &LoaderPlugin::shutdown, this);
+	scene->sys.events.off("shutdown", &LoaderPlugin::shutdown, this);
 }
 
 }	// namespace Loader

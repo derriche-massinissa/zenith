@@ -9,13 +9,15 @@
 #define ZEN_TEXTURES_PARSERS_SPRITESHEET_H
 
 #include <cmath>
-#include "../texture.h"
+
 #include "../sprite_sheet_config.h"
+
+#include "../texture.fwd.h"
 
 namespace Zen {
 namespace Textures {
 
-void parserSpriteSheet (Texture *texture, int sourceIndex, int x, int y, int height, int width, SpriteSheetConfig config);
+void parseSpriteSheet (Texture *texture, int sourceIndex, int x, int y, int height, int width, SpriteSheetConfig config);
 
 }	// namespace Textures
 }	// namespace Zen

@@ -7,12 +7,19 @@
 
 #include "texture_source.h"
 
+#include <SDL2/SDL_image.h>
+
+#include "../window/window.h"
+#include "texture.h"
+#include "texture_manager.h"
+#include "../core/game.h"
+
 namespace Zen {
 namespace Textures {
 
-TextureSource::TextureSource (Texture& texture_, std::string source_)
+TextureSource::TextureSource (Texture* texture_, std::string source_)
 	: source (source_)
-	, renderer (texture_.manager.game.renderer)
+	, window (&texture_->manager->game->window)
 	, texture (texture_)
 {
 	init();
@@ -40,10 +47,10 @@ void TextureSource::init ()
 {
 	if (source.size() > 5 && source.substr(0, 5) == "data:") {
 		// Source is a Base64 Image data
-		SDL_RWops *rw_ = SDL_RWFromConstMem(&source.c_str(), source.size());
+		SDL_RWops *rw_ = SDL_RWFromConstMem(source.c_str(), source.size());
 
-		sdlTexture = SDL_LoadTextureTyped_RW(
-				renderer.renderer,
+		sdlTexture = IMG_LoadTextureTyped_RW(
+				window->renderer,
 				rw_,
 				1,		// The SDL_RWops will be closed automatically
 				"PNG"
@@ -52,7 +59,7 @@ void TextureSource::init ()
 	else {
 		// Source is an image file path
 		sdlTexture = IMG_LoadTexture(
-				renderer.getSDLRenderer(),
+				window->renderer,
 				source.c_str()
 				);
 	}

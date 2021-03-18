@@ -11,13 +11,13 @@ namespace Zen {
 namespace Cameras {
 namespace Scene2D {
 
-CameraManager::CameraManager (Scene& scene_)
-	: systems (scene_.sys)
+CameraManager::CameraManager (Scene* scene_)
+	: systems (scene_->sys)
 	, scene (scene_)
 {
-	scene_.sys.events.once("boot", &CameraManager::boot, this);
+	scene_->sys.events.once("boot", &CameraManager::boot, this);
 
-	scene_.sys.events.on("start", &CameraManager::start, this);
+	scene_->sys.events.on("start", &CameraManager::start, this);
 }
 
 CameraManager::~CameraManager ()
@@ -43,10 +43,10 @@ void CameraManager::boot ()
 	main = &cameras.at(0);
 
 	// Configure the default camera (It already exists)
-	def.setViewport(0, 0, scene.scale.getWidth(), scene.scale.getHeight())
-		.setScene(&scene);
+	def.setViewport(0, 0, scene->scale.getWidth(), scene->scale.getHeight())
+		.setScene(scene);
 
-	scene.scale.on("resize", &CameraManager::onResize, this);
+	scene->scale.on("resize", &CameraManager::onResize, this);
 }
 
 void CameraManager::start ()
@@ -74,14 +74,14 @@ void CameraManager::start ()
 Camera* CameraManager::add (
 		int x_, int y_, int width_, int height_, bool makeMain_, std::string name_)
 {
-	if (width_ == 0)	width_ = scene.scale.getWidth();
-	if (height_ == 0)	height_ = scene.scale.getHeight();
+	if (width_ == 0)	width_ = scene->scale.getWidth();
+	if (height_ == 0)	height_ = scene->scale.getHeight();
 
 	cameras.emplace_back(x_, y_, width_, height_);
 	Camera& camera_ = cameras.back();
 
 	camera_.setName(name_)
-		.setScene(&scene);
+		.setScene(scene);
 
 	camera_.id = getNextID();
 
@@ -134,8 +134,8 @@ int CameraManager::getTotal (bool isVisible_)
 CameraManager& CameraManager::fromConfig (
 		std::vector<CameraConfig> config_)
 {
-	int gameWidth_ = scene.scale.getWidth();
-	int gameHeight_ = scene.scale.getHeight();
+	int gameWidth_ = scene->scale.getWidth();
+	int gameHeight_ = scene->scale.getHeight();
 
 	for (auto& camConfig_ :  config_)
 	{
@@ -256,7 +256,7 @@ void CameraManager::render (
 
 			auto visibleChildren_ = getVisibleChildren(displayList_.getChildren(), camera_);
 
-			renderer_.render(scene, visibleChildren_, camera_);
+			renderer_.render(*scene, visibleChildren_, camera_);
 		}
 	}
 }

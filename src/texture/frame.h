@@ -14,12 +14,11 @@
 #include "../math/math.h"
 #include "../data.h"
 #include "../geom/rectangle.h"
-
 #include "frame_data.h"
-#include "texture.fwd.h"
 #include "crop_data.h"
-#include "frame_data.h"
-#include "texture_source.h"
+
+#include "texture.fwd.h"
+#include "texture_source.fwd.h"
 
 namespace Zen {
 namespace Textures {
@@ -44,14 +43,14 @@ public:
 	 * @param width_ The width of this Frame.
 	 * @param height_ The height of this Frame.
 	 */
-	Frame (Texture& texture_, std::string name_, int sourceIndex_, int x_, int y_, int width_, int height_);
+	Frame (Texture* texture_, std::string name_, int sourceIndex_, int x_, int y_, int width_, int height_);
 
 	/**
 	 * The Texture this Frame is a part of.
 	 *
 	 * @since 0.0.0
 	 */
-	Texture& texture;
+	Texture* texture;
 
 	/**
 	 * The name of this Frame.
@@ -66,7 +65,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	TextureSource& source;
+	TextureSource* source;
 
 	/**
 	 * The index of the TextureSource in the Texture sources array.
@@ -346,7 +345,7 @@ public:
 	 *
 	 * @return A clone of this Frame.
 	 */
-	Frame& clone();
+	Frame clone();
 
 	/**
 	 * The width of the Frame in its un-trimmed, un-padded state, as prepared
@@ -385,7 +384,6 @@ public:
 	 */
 	Geom::Rectangle getDrawImageData ();
 
-private:
 	/**
 	 * The un-modified source frame, trim and UV data.
 	 *

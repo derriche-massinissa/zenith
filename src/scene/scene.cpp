@@ -6,17 +6,24 @@
  */
 
 #include "scene.h"
-#include "../scale/scale_manager.h"
+
+/*
+#include "scene_systems.h"
+#include "scene_plugin.h"
 #include "../core/game.h"
+#include "../scale/scale_manager.h"
 #include "../cameras/2d/camera_manager.h"
+#include "../loader/loader_plugin.h"
+#include "../texture/texture_manager.h"
+*/
 
 namespace Zen {
 
 Scene::Scene (Game& game_)
-	: load (*this)
-	, sys (*this)
-	, scene (*this)
-	, cameras (*this)
+	: load (this)
+	, sys (this)
+	, scene (this)
+	, cameras (this)
 	, renderer (game_.renderer)
 	, textures (game_.textures)
 	, scale (game_.scale)

@@ -6,13 +6,18 @@
  */
 
 #include "scene_manager.h"
+
 #include "../messages.h"
+
+#include "../core/game.h"
+#include "scene.h"
+#include "scene_config.h"
 
 namespace Zen {
 namespace Scenes {
 
 SceneManager::SceneManager (
-		Game& game_,
+		Game* game_,
 		std::queue<std::function<std::unique_ptr<Scene>(Game&)>>& sceneFactory_)
 	: game(game_)
 {
@@ -22,9 +27,9 @@ SceneManager::SceneManager (
 		auto sceneMaker_ = sceneFactory_.front();
 
 		pending.emplace_back(
-				"default",			// key
-				sceneMaker_(game_),	// scene
-				as_					// autoStart
+				"default",				// key
+				sceneMaker_(*game_),	// scene
+				as_						// autoStart
 				);
 
 		sceneFactory_.pop();
@@ -33,7 +38,7 @@ SceneManager::SceneManager (
 	}
 	// By the end of the loop, the game config's sceneFactory is empty.
 
-	game_.events.once("ready", &SceneManager::bootQueue, this);
+	game_->events.once("ready", &SceneManager::bootQueue, this);
 }
 
 SceneManager::~SceneManager ()

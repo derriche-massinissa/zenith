@@ -10,15 +10,13 @@
 
 #include <vector>
 #include <string>
-#include "../messages.h"
+
 #include "../texture/sprite_sheet_config.h"
+
 #include "../texture/texture_manager.fwd.h"
 #include "../scene/scene.fwd.h"
 #include "../scene/scene_manager.fwd.h"
-#include "../event/event_emitter.h"
 #include "../cameras/2d/camera_manager.fwd.h"
-
-#include "nlohmann/json.hpp"
 
 namespace Zen {
 namespace Loader {
@@ -31,7 +29,7 @@ public:
 	 *
 	 * @param scene_ The Scene this LoaderPlugin belongs to.
 	 */
-	LoaderPlugin (Scene& scene_);
+	LoaderPlugin (Scene* scene_);
 
 	/**
 	 * @since 0.0.0
@@ -43,7 +41,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scene& scene;
+	Scene* scene;
 
 	/**
 	 * A reference to the global Texture Manager.

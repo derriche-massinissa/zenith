@@ -15,10 +15,10 @@
 
 #include "../const.h"
 #include "../messages.h"
-#include "../scene/scene.fwd.h"
-#include "../core/game.fwd.h"
-
 #include "../display/color.h"
+
+#include "../core/game.fwd.h"
+#include "../scene/scene.fwd.h"
 
 namespace Zen {
 namespace Core {

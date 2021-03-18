@@ -16,12 +16,11 @@
 #include <string>
 
 #include "../messages.h"
-#include "../core/config.h"
 #include "../const.h"
 #include "../event/event_emitter.h"
 
-// Forward declaration
 #include "../core/game.fwd.h"
+#include "../core/config.fwd.h"
 
 /**
  * @todo "What I learned" list!
@@ -60,13 +59,6 @@ public:
 	 */
 	Game& game;
 
-	/**
-	 * The game config object.
-	 *
-	 * @since 0.0.0
-	 */
-	Core::GameConfig config;
-
 	/** 
 	 * A reference to the SDL window.
 	 *
@@ -103,7 +95,7 @@ public:
 	 *
 	 * @return 0 if no problem occured, 1 otherwise.
 	 */
-	int create (Core::GameConfig& config_);
+	int create ();
 
 	/**
 	 * This method is responsible for destroying the renderer and the

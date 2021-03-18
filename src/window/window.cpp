@@ -6,7 +6,9 @@
  */
 
 #include "window.h"
+
 #include "../core/game.h"
+#include "../core/config.h"
 
 namespace Zen {
 
@@ -39,10 +41,8 @@ int Window::height()
 	return height_;
 }
 
-int Window::create (Core::GameConfig config_)
+int Window::create ()
 {
-	config = config_;
-
 	if (initSdl()) {
 		return 1;
 	} else if (initSdlImg()) {
@@ -58,18 +58,18 @@ int Window::create (Core::GameConfig config_)
 		cleanup(CLEANUP::TTF, CLEANUP::MIX, CLEANUP::IMG, CLEANUP::SDL);
 		return 1;
 	} else if (createRenderer()) {
-		cleanup(window_, CLEANUP::TTF, CLEANUP::MIX, CLEANUP::IMG, CLEANUP::SDL);
+		cleanup(window, CLEANUP::TTF, CLEANUP::MIX, CLEANUP::IMG, CLEANUP::SDL);
 		return 1;
 	} else {
 		// Everything has gone well
 
-		setPixelArt(config.pixelArt);
+		setPixelArt(game.config.pixelArt);
 
-		if (config.minWidth || config.minHeight)
-			setMinSize(config.minWidth, config.minHeight);
+		if (game.config.minWidth || game.config.minHeight)
+			setMinSize(game.config.minWidth, game.config.minHeight);
 
-		if (config.maxWidth || config.maxHeight)
-			setMaxSize(config.maxWidth, config.maxHeight);
+		if (game.config.maxWidth || game.config.maxHeight)
+			setMaxSize(game.config.maxWidth, game.config.maxHeight);
 	}
 
 	return 0;
@@ -100,7 +100,7 @@ int Window::initSdlImg ()
 int Window::initSdlMixer ()
 {
 	// Initialize SDL_mixer
-	// TODO Set these constants from the config object
+	// TODO Set these constants from the game.config object
 	const int frequency_ = 44100;
 	Uint16 format_ = MIX_DEFAULT_FORMAT;
 	int channels_ = 2;
@@ -128,11 +128,11 @@ int Window::createWindow ()
 {
 	// Create a window
 	window = SDL_CreateWindow(
-			config.title.c_str(),
+			game.config.title.c_str(),
 			SDL_WINDOWPOS_UNDEFINED,
 			SDL_WINDOWPOS_UNDEFINED,
-			config.width,
-			config.height,
+			game.config.width,
+			game.config.height,
 			SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 			);
 	if (window == nullptr) {
@@ -312,14 +312,14 @@ void Window::handleSDLEvents ()
 	}
 }
 
-Window& setTitle (std::string title_)
+Window& Window::setTitle (std::string title_)
 {
 	SDL_SetWindowTitle(window, title_.c_str());
 
 	return *this;
 }
 
-Window& setFullscreen (bool flag_ = true)
+Window& Window::setFullscreen (bool flag_)
 {
 	if (flag_)
 		SDL_SetWindowFullscreen(window, SDL_TRUE);
@@ -329,7 +329,7 @@ Window& setFullscreen (bool flag_ = true)
 	return *this;
 }
 
-Window& Window::setMinSize (int width_, int height_);
+Window& Window::setMinSize (int width_, int height_)
 {
 	SDL_SetWindowMinimumSize(window, width_, height_);
 
@@ -343,17 +343,17 @@ Window& Window::setMaxSize (int width_, int height_)
 	return *this;
 }
 
-bool isMinimized ()
+bool Window::isMinimized ()
 {
 	return minimized;
 }
 
-bool isFocused ()
+bool Window::isFocused ()
 {
 	return focused;
 }
 
-bool isPointerIn ()
+bool Window::isPointerIn ()
 {
 	return pointerIn;
 }

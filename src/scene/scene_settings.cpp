@@ -7,6 +7,8 @@
 
 #include "scene_settings.h"
 
+#include "scene.h"
+
 namespace Zen {
 namespace Scenes {
 

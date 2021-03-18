@@ -10,7 +10,10 @@
 
 #include <functional>
 #include <string>
+
 #include "../data.h"
+
+#include "scene.fwd.h"
 
 namespace Zen {
 namespace Scenes {

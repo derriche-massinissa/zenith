@@ -8,6 +8,7 @@
 #ifndef ZEN_SCENES_SCENE_MANAGER_H
 #define ZEN_SCENES_SCENE_MANAGER_H
 
+#include <SDL2/SDL_types.h>
 #include <functional>
 #include <map>
 #include <memory>
@@ -15,14 +16,13 @@
 #include <string>
 #include <vector>
 
-
 #include "../const.h"
 #include "../data.h"
+#include "scene_settings_config.h"
 
 #include "../core/game.fwd.h"
 #include "scene.fwd.h"
-#include "scene_config.h"
-#include "scene_settings_config.h"
+#include "scene_config.fwd.h"
 
 namespace Zen {
 namespace Scenes {
@@ -64,7 +64,7 @@ public:
 	 * instances of user defined scene classes (That inherit from Zen::Scene)
 	 */
 	SceneManager (
-		Game& game_,
+		Game* game_,
 		std::queue<std::function<std::unique_ptr<Scene>(Game&)>>& sceneFactory_);
 
 	/**
@@ -77,7 +77,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Game& game;
+	Game* game;
 
 	/**
 	 * A map of keys and scenes to quickly get a scene from a key without

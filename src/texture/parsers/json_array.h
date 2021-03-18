@@ -8,8 +8,9 @@
 #ifndef ZEN_TEXTURES_PARSERS_JSON_ARRAY_H
 #define ZEN_TEXTURES_PARSERS_JSON_ARRAY_H
 
-#include "../texture.h"
 #include "nlohmann/json.hpp"
+
+#include "../texture.fwd.h"
 
 namespace Zen {
 namespace Textures {

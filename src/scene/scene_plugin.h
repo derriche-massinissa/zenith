@@ -13,14 +13,14 @@
 #include <string>
 #include <memory>
 
-// Forward declarations
-#include "scene.fwd.h"
-#include "scene_manager.fwd.h"
-
-#include "scene_transition_config.h"
 #include "../data.h"
 #include "../math.h"
 #include "../event/event_listener.h"
+#include "scene_transition_config.h"
+
+#include "scene.fwd.h"
+#include "scene_systems.fwd.h"
+#include "scene_manager.fwd.h"
 
 namespace Zen {
 namespace Scenes {
@@ -47,34 +47,34 @@ public:
 	/**
 	 * @since 0.0.0
 	 */
-	ScenePlugin (Scene& scene_);
-
-	/**
-	 * @since 0.0.0
-	 */
-	~ScenePlugin ();
+	ScenePlugin (Scene* scene_);
 
 	/**
 	 * A reference to the Scene that this ScenePlugin belongs to.
 	 *
 	 * @since 0.0.0
 	 */
-	Scene& scene;
+	Scene* scene;
 
 	/**
 	 * The SceneSystems instance of the Scene that this ScenePlugin belongs to.
 	 *
 	 * @since 0.0.0
 	 */
-	SceneSystems& systems;
+	SceneSystems* systems;
 
 	/**
 	 * A reference to the Game's SceneManager.
 	 *
 	 * @since 0.0.0
 	 */
-	SceneManager& manager;
+	SceneManager* manager;
 
+	/**
+	 * The unique key of the Scene that ownd this ScenePlugin.
+	 *
+	 * @since 0.0.0
+	 */
 	std::string key = "";
 
 	/**
@@ -264,7 +264,7 @@ public:
 	 * @return A pointer to the added Scene if it was added immediately,
 	 * otherwise `nullptr`.
 	 */
-	Scene* add (
+	Scene& add (
 			std::string key_,
 			std::unique_ptr<Scene> sceneToAdd_,
 			bool autoStart_ = false,
@@ -620,9 +620,5 @@ public:
 
 }	// namespace Scenes
 }	// namespace Zen
-
-// Declarations of the forward declared elements
-#include "scene.h"
-#include "scene_manager.h"
 
 #endif

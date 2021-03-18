@@ -7,6 +7,13 @@
 
 #include "renderer.h"
 
+#include "../gameobjects/gameobject.h"
+#include "../texture/frame.h"
+#include "../cameras/2d/camera.h"
+#include "../core/game.h"
+#include "../window/window.h"
+#include "../scene/scene.h"
+
 namespace Zen {
 
 Renderer::Renderer (Game& game_)
@@ -446,7 +453,7 @@ void Renderer::batchSprite (
 	int frameHeight_ = frame_.cutHeight;
 	bool customPivot_ = frame_.customPivot;
 
-	float res_ = frame_.source.resolution;
+	float res_ = frame_.source->resolution;
 
 	int displayOriginX_ = sprite_.getDisplayOriginX();
 	int displayOriginY_ = sprite_.getDisplayOriginY();
@@ -569,7 +576,7 @@ void Renderer::batchSprite (
 
 	SDL_RenderCopyEx(
 			window.renderer,
-			frame_.source.sdlTexture,
+			frame_.source->sdlTexture,
 			&source_,
 			&destination_,
 			angle_,

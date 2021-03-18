@@ -9,19 +9,14 @@
 #define ZEN_GAME_H
 
 #include <SDL2/SDL.h>
-#include <functional>
 
-#include "../defs.h"
-#include "../const.h"
-#include "config.h"
-#include "../messages.h"
-#include "../window/window.h"
-//#include "debug_header.h"
 #include "../event/event_emitter.h"
+
+#include "config.h"
+#include "../window/window.h"
 #include "time_step.h"
 //#include "visibility_handler.h"
 //#include "../device.h"
-
 //#include "../animations/animation_manager.h"
 //#include "../data/data_manager.h"
 //#include "../input/input_manager.h"

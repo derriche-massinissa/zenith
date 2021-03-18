@@ -11,7 +11,7 @@
 #include <string>
 #include <SDL2/SDL.h>
 
-#include "../renderer/renderer.fwd.h"
+#include "../window/window.fwd.h"
 #include "texture.fwd.h"
 
 namespace Zen {
@@ -40,7 +40,7 @@ public:
 	 * @param height_ Optional height of the source image. If not given it's derived
 	 * from the source itself.
 	 */
-	TextureSource(Texture& texture_, std::string source_);
+	TextureSource(Texture* texture_, std::string source_);
 
 	/**
 	 * @since 0.0.0
@@ -52,14 +52,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Renderer& renderer;
+	Window* window;
 
 	/**
 	 * The Texture object this TextureSource belongs to.
 	 *
 	 * @since 0.0.0
 	 */
-	Texture& texture;
+	Texture* texture;
 
 	/**
 	 * The source of the image loaded in this source. It is either a file path

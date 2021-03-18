@@ -5,14 +5,15 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GAME_FWD_H
-#define ZEN_GAME_FWD_H
+#ifndef ZEN_LOADER_LOADER_PLUGIN_FWD_H
+#define ZEN_LOADER_LOADER_PLUGIN_FWD_H
 
-namespace Zen
-{
+namespace Zen {
+namespace Loader {
 
-class Game;
+class LoaderPlugin;
 
+}	// namespace Loader
 }	// namespace Zen
 
 #endif

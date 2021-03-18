@@ -12,8 +12,12 @@
 #include <string>
 #include <vector>
 
+#include "../data.h"
+#include "../display/color.h"
+
 #include "frame.h"
 #include "texture_source.h"
+
 #include "texture_manager.fwd.h"
 
 namespace Zen {
@@ -75,6 +79,21 @@ public:
 	 * if the given name already exists.
 	 */
 	Frame* add (std::string name_, int sourceIndex_, int x_, int y_, int width_, int height_);
+	/**
+	 * @overload
+	 * @since 0.0.0
+	 *
+	 * @param name_ The name of this Frame. The name is unique within the Texture.
+	 * @param sourceIndex_ - The index of the TextureSource that this Frame is a part of.
+	 * @param x_ The x coordinate of the top-left of this Frame.
+	 * @param y_ The y coordinate of the top-left of this Frame.
+	 * @param width_ The width of this Frame.
+	 * @param height_ The height of this Frame.
+	 *
+	 * @return A pointer to the Frame that was added to this Texture, or `null`
+	 * if the given name already exists.
+	 */
+	Frame* add (int name_, int sourceIndex_, int x_, int y_, int width_, int height_);
 
 	/**
 	 * Removes the given Frame from this Texture. The Frame is destroyed immediately.
@@ -173,7 +192,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	TextureManager& manager;
+	TextureManager* manager;
 
 	/**
 	 * The unique key of this Texture.

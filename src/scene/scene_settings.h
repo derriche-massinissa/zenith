@@ -12,12 +12,11 @@
 #include <string>
 #include <vector>
 
-// Forward declarations
-#include "scene.fwd.h"
-
 #include "../data.h"
 #include "../const.h"
 #include "../cameras/2d/camera_config.h"
+
+#include "scene.fwd.h"
 
 namespace Zen {
 namespace Scenes {

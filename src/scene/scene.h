@@ -9,17 +9,20 @@
 #define ZEN_SCENE_H
 
 #include <string>
+#include <SDL2/SDL_types.h>
 
-// Forward declarations
-#include "../core/game.fwd.h"
-#include "../scale/scale_manager.fwd.h"
-#include "../cameras/2d/camera_manager.fwd.h"
+#include "../data.h"
+#include "../event/event_emitter.h"
 
 #include "scene_systems.h"
 #include "scene_plugin.h"
-#include "../event/event_emitter.h"
+#include "../core/game.h"
+#include "../scale/scale_manager.h"
+#include "../cameras/2d/camera_manager.h"
 #include "../loader/loader_plugin.h"
 #include "../texture/texture_manager.h"
+#include "../gameobjects/display_list.h"
+
 
 namespace Zen {
 
@@ -138,7 +141,7 @@ public:
 	 * @since 0.0.0
 	 * @todo TODO
 	 */
-	//GameObjects::DisplayList children;
+	GameObjects::DisplayList children;
 
 	/**
 	 * A scene level DataManager Plugin.

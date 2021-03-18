@@ -10,6 +10,8 @@
 
 #include <vector>
 
+#include "gameobject.fwd.h"
+
 namespace Zen {
 namespace GameObjects {
 
@@ -23,6 +25,12 @@ public:
 	}
 
 	std::vector<GameObject*> list;
+
+	void depthSort ()
+	{}
+
+	void queueDepthSort ()
+	{}
 };
 
 }	// namespace Input
