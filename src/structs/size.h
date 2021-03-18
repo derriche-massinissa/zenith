@@ -1,12 +1,12 @@
 /**
- * @file		size.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef SIZE_H
-#define SIZE_H
+#ifndef ZEN_STRUCTS_SIZE_H
+#define ZEN_STRUCTS_SIZE_H
 
 #include "../const.h"
 #include "../math/math.h"
@@ -18,58 +18,58 @@ namespace Structs {
 class Size
 {
 public:
-	Size (unsigned int width = 0, unsigned int height = 0, double aspectMode = SCALE_MODE::NONE);
+	Size (unsigned int width_ = 0, unsigned int height_ = 0, double aspectMode_ = SCALE_MODE::RESIZE);
 
-	Size& setAspectMode (SCALE_MODE value = SCALE_MODE::RESIZE);
+	Size& setAspectMode (SCALE_MODE value_ = SCALE_MODE::RESIZE);
 
-	Size& setSnap (int snapWidth = 0, int snapHeight = 0);
+	Size& setSnap (int snapWidth_ = 0, int snapHeight_ = 0);
 
-	Size& setMin (int width = 0, int height = 0);
+	Size& setMin (int width_ = 0, int height_ = 0);
 
-	Size& setMax (int width = 0, int height = 0);
+	Size& setMax (int width_ = 0, int height_ = 0);
 
-	Size& setSize (int width = 0, int height = 0);
+	Size& setSize (int width_ = 0, int height_ = 0);
 
-	Size& setAspectRatio (double ratio);
+	Size& setAspectRatio (double ratio_);
 
-	Size& resize (int width, int height);
+	Size& resize (int width_, int height_);
 
-	int getNewWidth (int value);
+	int getNewWidth (int value_);
 
-	int getNewHeight (int value);
+	int getNewHeight (int value_);
 
-	Size& constrain (int width = 0, int height = 0, bool fit = true);
+	Size& constrain (int width_ = 0, int height_ = 0, bool fit_ = true);
 
-	Size& fitTo (int width, int height);
+	Size& fitTo (int width_, int height_);
 
-	Size& envelop (int width, int height);
+	Size& envelop (int width_, int height_);
 
-	Size& setWidth (int width);
+	Size& setWidth (int width_);
 
-	Size& setHeight (int height);
+	Size& setHeight (int height_);
 
 	int getWidth ();
 
 	int getHeight ();
 
 private:
-	unsigned int width_ = 0;
+	unsigned int width = 0;
 
-	unsigned int height_ = 0;
+	unsigned int height = 0;
 
-	SCALE_MODE aspectMode_ = SCALE_MODE::RESIZE;
+	SCALE_MODE aspectMode = SCALE_MODE::RESIZE;
 
-	double aspectRatio_ = 1.0;
+	double aspectRatio = 1.0;
 
-	unsigned int minWidth_ = 0;
+	unsigned int minWidth = 0;
 
-	unsigned int minHeight_ = 0;
+	unsigned int minHeight = 0;
 
-	unsigned int maxWidth_ = 0;
+	unsigned int maxWidth = 0;
 
-	unsigned int maxHeight_ = 0;
+	unsigned int maxHeight = 0;
 
-	Math::Vector2 snapTo_ {0, 0};
+	Math::Vector2 snapTo {0, 0};
 };
 
 }	// namespace Structs
