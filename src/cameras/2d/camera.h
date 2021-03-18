@@ -22,6 +22,7 @@
 #include "../../geom/rectangle.h"
 
 #include "camera_manager.fwd.h"
+#include "../../renderer/renderer.fwd.h"
 
 #include "../../scene/scene.fwd.h"
 #include "../../scene/scene_manager.fwd.h"
@@ -1875,6 +1876,6 @@ public:
 
 // Declaration of forward declared elements
 #include "camera_manager.h"
-#include "../../renderer/renderer.h"
+//#include "../../renderer/renderer.h"
 
 #endif

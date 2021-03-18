@@ -79,7 +79,7 @@ double RandomDataGenerator::rotation ()
 	return real(-M_PI, M_PI);
 }
 
-unsigned int getSeed ()
+unsigned int RandomDataGenerator::getSeed ()
 {
 	return seeds;
 }

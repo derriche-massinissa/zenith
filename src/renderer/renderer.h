@@ -22,6 +22,11 @@
 #include "../structs/size.h"
 #include "../gameobjects/gameobject.h"
 
+#include "../cameras/2d/camera.fwd.h"
+#include "../core/game.fwd.h"
+#include "../window/window.fwd.h"
+#include "../scene/scene.fwd.h"
+
 namespace Zen {
 
 /**
@@ -228,7 +233,7 @@ public:
 	 * @param baseSize_ The base Size object. The game dimensions multiplied by
 	 * the resolution. The window width / height values match this.
 	 */
-	void onResize (Structs::Size gameSize_, Structs::Size baseSize_);
+	void onResize (int width_, int height_, int previousWidth_, int previousHeight_);
 
 	/**
 	 * Resize the main game canvas.
@@ -389,5 +394,7 @@ private:
 };
 
 }	// namespace Zen
+
+#include "../cameras/2d/camera.h"
 
 #endif

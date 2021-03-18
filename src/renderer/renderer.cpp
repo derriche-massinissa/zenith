@@ -26,7 +26,7 @@ Renderer::Renderer (Game& game_)
 		return;
 	}
 
-	pixelFormat = infoSurface_->format;
+	pixelFormat = *infoSurface_->format;
 
 	SDL_FreeSurface(infoSurface_);
 
@@ -49,10 +49,13 @@ Renderer::~Renderer ()
 		SDL_FreeSurface(snapshotState.surface);
 
 	if (maskBuffer)
-		SDL_FreeSurface(maskBuffer);
+		SDL_DestroyTexture(maskBuffer);
 
 	if (cameraBuffer)
-		SDL_FreeSurface(cameraBuffer);
+		SDL_DestroyTexture(cameraBuffer);
+
+	if (maskTexture)
+		SDL_DestroyTexture(maskTexture);
 }
 
 void Renderer::onResize (int width_, int height_, int previousWidth_, int previousHeight_)
@@ -69,12 +72,12 @@ void Renderer::resize (int width_, int height_)
 
 	// Free the mask buffer
 	if (maskBuffer)
-		SDL_FreeSurface(maskBuffer);
+		SDL_DestroyTexture(maskBuffer);
 
 	// Reset it to the same size as the renderer
 	maskBuffer = SDL_CreateTexture(
 			window.renderer,
-			pixelFormat->format,
+			pixelFormat.format,
 			SDL_TEXTUREACCESS_TARGET,
 			width,
 			height
@@ -82,12 +85,12 @@ void Renderer::resize (int width_, int height_)
 
 	// Free the camera buffer
 	if (cameraBuffer)
-		SDL_FreeSurface(cameraBuffer);
+		SDL_DestroyTexture(cameraBuffer);
 
 	// Reset it to the same size as the renderer
 	cameraBuffer = SDL_CreateTexture(
 			window.renderer,
-			pixelFormat->format,
+			pixelFormat.format,
 			SDL_TEXTUREACCESS_TARGET,
 			width,
 			height
@@ -95,12 +98,12 @@ void Renderer::resize (int width_, int height_)
 
 	// Free the mask texture
 	if (maskTexture)
-		SDL_FreeSurface(maskTexture);
+		SDL_DestroyTexture(maskTexture);
 
 	// Reset it to the same size as the renderer
 	maskTexture = SDL_CreateTexture(
 			window.renderer,
-			pixelFormat->format,
+			pixelFormat.format,
 			SDL_TEXTUREACCESS_TARGET,
 			width,
 			height
@@ -138,10 +141,10 @@ void Renderer::render (
 	emit("render");
 
 	SDL_Rect c_;
-	c_.x = camera_.x_;
-	c_.y = camera_.y_;
-	c_.w = camera_.width_;
-	c_.h = camera_.height_;
+	c_.x = camera_.getX();
+	c_.y = camera_.getY();
+	c_.w = camera_.getWidth();
+	c_.h = camera_.getHeight();
 
 	// Set a viewport if the camera isn't the same size as the window
 	if (game.scene.customViewports) {
@@ -152,7 +155,7 @@ void Renderer::render (
 		preRenderMask(nullptr);
 
 	// Camera's background color if not transparent
-	if (!camera_.transparent_) {
+	if (!camera_.transparent) {
 		SDL_SetRenderDrawColor(
 				window.renderer,
 				camera_.backgroundColor.red(),
@@ -166,7 +169,11 @@ void Renderer::render (
 
 	// Render the GameObject
 	for (auto& child_ : children_)
-		child_->render(*this, *child_, camera_);
+	{
+		camera_.addToRenderList(*child_);
+
+		batchSprite(*child_, *child_->frame, camera_, child_->parentMatrix_);
+	}
 
 	camera_.flashEffect.postRender();
 	camera_.fadeEffect.postRender();
@@ -174,7 +181,7 @@ void Renderer::render (
 	camera_.dirty = false;
 
 	if (camera_.mask)
-		postRenderMask(camera_.mask, nullptr, camera_);
+		postRenderMask(camera_.mask, nullptr, &camera_);
 
 	// Remove the viewport if previously set
 	if (game.scene.customViewports)
@@ -198,7 +205,7 @@ void Renderer::postRender ()
 
 Renderer& Renderer::snapshot (std::string path_, std::function<void(SDL_Surface*)> callback_)
 {
-	return snapshotArea(0, 0, window.width(), window.height(), callback_, path_);
+	return snapshotArea(0, 0, window.width(), window.height(), path_, callback_);
 }
 
 Renderer& Renderer::snapshotArea (
@@ -217,9 +224,9 @@ Renderer& Renderer::snapshotArea (
 
 	snapshotState.getPixel = false;
 
-	snapshotState.x = Math::clamp(x, 0, window.width());
+	snapshotState.x = Math::clamp(x_, 0, window.width());
 
-	snapshotState.y = Math::clamp(y, 0, window.height());
+	snapshotState.y = Math::clamp(y_, 0, window.height());
 
 	snapshotState.width = Math::clamp(
 			width_,
@@ -269,7 +276,7 @@ void Renderer::takeSnapshot ()
 		if (SDL_RenderReadPixels(
 					window.renderer,
 					&rect_,
-					pixelFormat->format,
+					pixelFormat.format,
 					&pixel_,
 					pitch_
 					))
@@ -280,7 +287,7 @@ void Renderer::takeSnapshot ()
 
 		// Get the color components of the pixel
 		Uint8 r_ = 0, g_ = 0, b_ = 0, a_ = 0;
-		SDL_GetRGBA(pixel_, pixelFormat, &r_, &g_, &b_, &a_);
+		SDL_GetRGBA(pixel_, &pixelFormat, &r_, &g_, &b_, &a_);
 
 		// Save the color components to the output color object
 		Display::Color out_;
@@ -306,22 +313,22 @@ void Renderer::takeSnapshot ()
 					0,
 					snapshotState.width,
 					snapshotState.height,
-					pixelFormat->BitsPerPixel,
-					pixelFormat->Rmask,
-					pixelFormat->Gmask,
-					pixelFormat->Bmask,
-					pixelFormat->Amask
+					pixelFormat.BitsPerPixel,
+					pixelFormat.Rmask,
+					pixelFormat.Gmask,
+					pixelFormat.Bmask,
+					pixelFormat.Amask
 					);
 		} else {
 			snapshotState.surface = SDL_CreateRGBSurface(
 					0,
 					width,
 					height,
-					pixelFormat->BitsPerPixel,
-					pixelFormat->Rmask,
-					pixelFormat->Gmask,
-					pixelFormat->Bmask,
-					pixelFormat->Amask
+					pixelFormat.BitsPerPixel,
+					pixelFormat.Rmask,
+					pixelFormat.Gmask,
+					pixelFormat.Bmask,
+					pixelFormat.Amask
 					);
 		}
 		if (!snapshotState.surface) {
@@ -343,7 +350,7 @@ void Renderer::takeSnapshot ()
 			readFailed_ = SDL_RenderReadPixels(
 					window.renderer,
 					&rect_,
-					pixelFormat->format,
+					pixelFormat.format,
 					snapshotState.surface->pixels,
 					snapshotState.surface->pitch);
 		} else {
@@ -351,7 +358,7 @@ void Renderer::takeSnapshot ()
 			readFailed_ = SDL_RenderReadPixels(
 					window.renderer,
 					nullptr,
-					pixelFormat->format,
+					pixelFormat.format,
 					snapshotState.surface->pixels,
 					snapshotState.surface->pitch);
 		}
@@ -380,35 +387,44 @@ void Renderer::saveSnapshot ()
 	std::string extension_ = "";
 
 	// Figure out the file type
-	for (auto c_ = path_.rbegin(), c_ != path_.rend(); c_++) {
+	for (auto c_ = path_.rbegin(); c_ != path_.rend(); c_++) {
 		if (*c_ == '.')
 		{
 			// We read all the extension's characters
 			break;
 		}
 
-		extension_.insert(0, *c_);
+		extension_.insert(0, 1, *c_);
 	}
 
-	if (extension_ == "bmp") {
-		if (SDL_SaveBMP(snapshotState.surface, path_))
+	if (extension_ == "bmp")
+	{
+		if (SDL_SaveBMP(snapshotState.surface, path_.c_str()))
 			messageError("Failed to save snapshot in a 'BMP' file: ", SDL_GetError());
-	} else (extension_ == "png") {
-		if (IMG_SavePNG(snapshotState.surface, path_))
+	}
+	else if (extension_ == "png")
+	{
+		if (IMG_SavePNG(snapshotState.surface, path_.c_str()))
 			messageError("Failed to save snapshot in a 'PNG' file: ", IMG_GetError());
-	} else (extension_ = "jpg") {
-		if (IMG_SaveJPG(snapshotState.surface, path_))
+	}
+	else if (extension_ == "jpg")
+	{
+		if (IMG_SaveJPG(snapshotState.surface, path_.c_str(), 100))
 			messageError("Failed to save snapshot in a 'JPG' file: ", IMG_GetError());
-	} else (extension_ == "jpeg") {
-		if (IMG_SaveJPG(snapshotState.surface, path_))
+	}
+	else if (extension_ == "jpeg")
+	{
+		if (IMG_SaveJPG(snapshotState.surface, path_.c_str(), 100))
 			messageError("Failed to save snapshot in a 'JPEG' file: ", IMG_GetError());
-	} else {
-		messageError("Couldn't deduce the image file type");
+	}
+	else
+	{
+		messageError("File type unsupported! Try something else like 'png' or 'jpg'.");
 	}
 }
 
 void Renderer::batchSprite (
-		GameObject::GameObject& sprite_,
+		GameObjects::GameObject& sprite_,
 		Textures::Frame& frame_,
 		Cameras::Scene2D::Camera& camera_,
 		GameObjects::Components::TransformMatrix *parentTransformMatrix_)
@@ -422,7 +438,7 @@ void Renderer::batchSprite (
 	auto& camMatrix_ = tempMatrix1;
 	auto& spriteMatrix_ = tempMatrix2;
 
-	int dd_ = getDrawImageData();
+	auto dd_ = frame_.getDrawImageData();
 
 	int frameX_ = dd_.x;
 	int frameY_ = dd_.y;
@@ -442,7 +458,7 @@ void Renderer::batchSprite (
 		auto& crop_ = sprite_.crop;
 
 		if (crop_.flipX != sprite_.flipX || crop_.flipY != sprite_.flipY)
-			frame.updateCropUVs(crop_, sprite_.flipX, sprite_.flipY);
+			frame_.updateCropUVs(crop_, sprite_.flipX, sprite_.flipY);
 
 		frameWidth_ = crop_.cw;
 		frameHeight_ = crop_.ch;
@@ -473,19 +489,19 @@ void Renderer::batchSprite (
 
 	if (sprite_.flipX) {
 		if (!customPivot_)
-			x_ += (-frame_.realWidth + (displayOriginX_ * 2));
+			x_ += (-frame_.getRealWidth() + (displayOriginX_ * 2));
 
 		flipX_ = -1;
 	}
 
-	if (sprite.flipY) {
+	if (sprite_.flipY) {
 		if (!customPivot_)
-			x += (-frame_.realHeight + (displayOriginY_ * 2));
+			y_ += (-frame_.getRealHeight() + (displayOriginY_ * 2));
 
 		flipY_ = -1;
 	}
 
-	spriteMatrix_.applyITRS(sprite_.x, sprite_.y, sprite_.rotation, sprite_.scaleX * flipX_, sprite_.scaleY * flipY_);
+	spriteMatrix_.applyITRS(sprite_.x, sprite_.y, sprite_.rotation, sprite_.getScaleX() * flipX_, sprite_.getScaleY() * flipY_);
 
 	camMatrix_.copyFrom(camera_.matrix);
 
@@ -494,8 +510,8 @@ void Renderer::batchSprite (
 		// Multiply the camera by the parent matrix
 		camMatrix_.multiplyWithOffset(
 				*parentTransformMatrix_,
-				-camera_.scrollX * sprite_.scrollFactorX,
-				-camera_.scrollY * sprite_.scrollFactorY
+				-camera_.scrollX * sprite_.getScrollFactorX(),
+				-camera_.scrollY * sprite_.getScrollFactorY()
 				);
 
 		// Undo the camera scroll
@@ -505,9 +521,9 @@ void Renderer::batchSprite (
 	else
 	{
 		spriteMatrix_.setE(
-				spriteMatrix_.getE() - (camera_.scrollX * sprite_.scrollFactorX));
+				spriteMatrix_.getE() - (camera_.scrollX * sprite_.getScrollFactorX()));
 		spriteMatrix_.setF(
-				spriteMatrix_.getF() - (camera_.scrollY * sprite_.scrollFactorY));
+				spriteMatrix_.getF() - (camera_.scrollY * sprite_.getScrollFactorY()));
 	}
 
 	// Multiply by the Sprite matrix
@@ -518,7 +534,7 @@ void Renderer::batchSprite (
 	// But here it is: translate, scale, rotate
 	// Should either rotate after rendering, or add a decomposition method
 	// that returns the appropriate transform matrix
-	DecomposedMatrix dm_ = camMatrix_.decomposeMatrix();
+	GameObjects::Components::DecomposedMatrix dm_ = camMatrix_.decomposeMatrix();
 
 	// TODO
 	//setGlobalCompositionOperation(sprite.blendMode);
@@ -544,12 +560,16 @@ void Renderer::batchSprite (
 	SDL_Point origin_ {displayOriginX_, displayOriginY_};
 
 	SDL_RendererFlip flip_ = SDL_FLIP_NONE;
-	flip_ |= (sprite_.flipX) ? SDL_FLIP_HORIZONTAL : 0;
-	flip_ |= (sprite_.flipY) ? SDL_FLIP_VERTICAL : 0;
+	if (sprite_.flipX)
+		flip_ = (SDL_RendererFlip)SDL_FLIP_HORIZONTAL;
+	else if (sprite_.flipY)
+		flip_ = (SDL_RendererFlip)SDL_FLIP_VERTICAL;
+	else if (sprite_.flipX && sprite_.flipY)
+		flip_ = (SDL_RendererFlip)(SDL_FLIP_VERTICAL | SDL_FLIP_HORIZONTAL);
 
 	SDL_RenderCopyEx(
 			window.renderer,
-			frame.source.sdlTexture,
+			frame_.source.sdlTexture,
 			&source_,
 			&destination_,
 			angle_,
@@ -558,11 +578,11 @@ void Renderer::batchSprite (
 			);
 
 	if (sprite_.mask)
-		postRenderMask(sprite_->mask, &sprite_, &camera_);
+		postRenderMask(sprite_.mask, &sprite_, &camera_);
 }
 
 void Renderer::preRenderMask (
-		GameObjects::GameObject *maskedObject_ = nullptr)
+		GameObjects::GameObject *maskedObject_)
 {
 	// Is this a camera mask?
 	if (!maskedObject_)
@@ -595,7 +615,8 @@ void Renderer::postRenderMask (
 	SDL_RenderClear(window.renderer);
 
 	// Draw the mask GameObject
-	maskObject_->render(*this, *maskObject_, *camera_);
+	camera_->addToRenderList(*maskObject_);
+	batchSprite(*maskObject_, *maskObject_->frame, *camera_, maskObject_->parentMatrix_);
 
 	// Reset the target to the buffer
 	SDL_SetRenderTarget(window.renderer, currentTarget_);

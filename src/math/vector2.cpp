@@ -241,9 +241,11 @@ Vector2& Vector2::limit (double max_)
 
 Vector2& Vector2::reflect (const Vector2& normal_)
 {
-	Vector2 normal_ = *this;
+	Vector2 vec_ = normal_;
 
-	return subtract(normal_.scale(2 * dot(normal_)));
+	vec_.normalize();
+
+	return subtract(vec_.scale(2.0 * dot(vec_)));
 }
 
 Vector2& Vector2::mirror (const Vector2& axis_)

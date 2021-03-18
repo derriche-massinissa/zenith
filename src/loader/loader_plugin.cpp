@@ -28,9 +28,9 @@ void LoaderPlugin::pluginStart ()
 	scene.sys.events.once("shutdown", &LoaderPlugin::shutdown, this);
 }
 
-LoaderPlugin& LoaderPlugin::setPath (std::string path_ = "")
+LoaderPlugin& LoaderPlugin::setPath (std::string path_)
 {
-	if (!path_.empty() && path_.back() != "/")
+	if (!path_.empty() && path_.back() != '/')
 		path_.append("/");
 
 	path = path_;
@@ -38,7 +38,7 @@ LoaderPlugin& LoaderPlugin::setPath (std::string path_ = "")
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::setPrefix (std::string prefix_ = "")
+LoaderPlugin& LoaderPlugin::setPrefix (std::string prefix_)
 {
 	prefix = prefix_;
 
@@ -59,7 +59,7 @@ LoaderPlugin& LoaderPlugin::atlas (std::string key_, std::string texturePath_, s
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_, std::string path_ = "")
+LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_, std::string path_)
 {
 	std::vector<std::string> sources_;
 
@@ -74,13 +74,13 @@ LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_
 
 	// Create a JSON object
 	nlohmann::json data_;
-	file >> data_;
+	file_ >> data_;
 
 	// Close file
 	file_.close();
 
-	for (const auto& fileName_ : data_["textures"])
-		sources_.emplace_back(path_ + fileName_);
+	for (const auto& textureFile_ : data_["textures"])
+		sources_.emplace_back(path_ + textureFile_["image"].get<std::string>());
 
 	textureManager.addAtlas(key_, sources_, atlasPath_);
 

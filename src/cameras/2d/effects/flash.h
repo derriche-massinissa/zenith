@@ -31,6 +31,9 @@ public:
 
 	void update (Uint32 time_, Uint32 delta_)
 	{}
+
+	void postRender()
+	{}
 };
 
 }	// namespace Effects

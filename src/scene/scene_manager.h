@@ -564,6 +564,6 @@ public:
 }	// namespace Zen
 
 // Declarations of the forward declared elements
-#include "../core/game.h"
+//#include "../core/game.h"
 
 #endif
