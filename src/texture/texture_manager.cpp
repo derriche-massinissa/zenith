@@ -85,16 +85,19 @@ Texture* TextureManager::addImage (std::string key_, std::string path_)
 	{
 		texture_ = create(key_, path_);
 
-		int sourceIndex_ = 0;
+		if (texture_)
+		{
+			int sourceIndex_ = 0;
 
-		texture_->add("__BASE",
-				sourceIndex_,
-				0,
-				0,
-				texture_->source[sourceIndex_].width,
-				texture_->source[sourceIndex_].height);
+			texture_->add("__BASE",
+					sourceIndex_,
+					0,
+					0,
+					texture_->source[sourceIndex_].width,
+					texture_->source[sourceIndex_].height);
 
-		emit("add", key_);
+			emit("add", key_);
+		}
 	}
 
 	return texture_;
@@ -317,13 +320,17 @@ Texture* TextureManager::create (std::string key_, std::vector<std::string> sour
 		list.emplace(key_, tex_);
 		*/
 
-		list.emplace(
+		auto [it, _] = list.emplace(
 				std::piecewise_construct,
 				std::forward_as_tuple(key_),
 				std::forward_as_tuple(*this, key_, sources_)
 				);
 
-		texture_ = &list.find(key_)->second;
+		// Check if the Texture was created successfuly
+		if (it->second.source.size() == 0)
+			list.erase(it);
+		else
+			texture_ = &list.find(key_)->second;
 	}
 
 	return texture_;

@@ -59,7 +59,7 @@ public:
 
 	T& setOrigin (double value_ = 0.5)
 	{
-		return setOrigin(value_);
+		return setOrigin(value_, value_);
 	}
 
 	T& setOriginFromFrame ()

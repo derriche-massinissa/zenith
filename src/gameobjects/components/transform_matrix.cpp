@@ -13,12 +13,13 @@ namespace Components {
 
 TransformMatrix::TransformMatrix (double a_, double b_, double c_, double d_, double tx_, double ty_)
 {
-	matrix.reserve(6);
+	for (int i = 0; i < 6; i ++)
+		matrix.emplace_back(0);
 
 	setTransform (a_, b_, c_, d_, tx_, ty_);
 }
 
-double TransformMatrix::getA ()
+double TransformMatrix::getA () const
 {
 	return matrix[0];
 }
@@ -30,7 +31,7 @@ TransformMatrix& TransformMatrix::setA (double value_)
 	return *this;
 }
 
-double TransformMatrix::getB ()
+double TransformMatrix::getB () const
 {
 	return matrix[1];
 }
@@ -42,7 +43,7 @@ TransformMatrix& TransformMatrix::setB (double value_)
 	return *this;
 }
 
-double TransformMatrix::getC ()
+double TransformMatrix::getC () const
 {
 	return matrix[2];
 }
@@ -54,7 +55,7 @@ TransformMatrix& TransformMatrix::setC (double value_)
 	return *this;
 }
 
-double TransformMatrix::getD ()
+double TransformMatrix::getD () const
 {
 	return matrix[3];
 }
@@ -66,7 +67,7 @@ TransformMatrix& TransformMatrix::setD (double value_)
 	return *this;
 }
 
-double TransformMatrix::getE ()
+double TransformMatrix::getE () const
 {
 	return matrix[4];
 }
@@ -78,7 +79,7 @@ TransformMatrix& TransformMatrix::setE (double value_)
 	return *this;
 }
 
-double TransformMatrix::getF ()
+double TransformMatrix::getF () const
 {
 	return matrix[5];
 }
@@ -90,7 +91,7 @@ TransformMatrix& TransformMatrix::setF (double value_)
 	return *this;
 }
 
-double TransformMatrix::getTx ()
+double TransformMatrix::getTx () const
 {
 	return matrix[4];
 }
@@ -102,7 +103,7 @@ TransformMatrix& TransformMatrix::setTx (double value_)
 	return *this;
 }
 
-double TransformMatrix::getTy ()
+double TransformMatrix::getTy () const
 {
 	return matrix[5];
 }
@@ -114,12 +115,12 @@ TransformMatrix& TransformMatrix::setTy (double value_)
 	return *this;
 }
 
-double TransformMatrix::getRotation ()
+double TransformMatrix::getRotation () const
 {
 	return std::acos(getA() / getScaleX()) * ((std::atan(-getC() / getA()) < 0) ? -1 : 1);
 }
 
-double TransformMatrix::getRotationNormalized ()
+double TransformMatrix::getRotationNormalized () const
 {
 	double a_ = matrix[0];
 	double b_ = matrix[1];
@@ -135,12 +136,12 @@ double TransformMatrix::getRotationNormalized ()
 	}
 }
 
-double TransformMatrix::getScaleX ()
+double TransformMatrix::getScaleX () const
 {
 	return std::sqrt((getA() * getA()) + (getB() * getB()));
 }
 
-double TransformMatrix::getScaleY ()
+double TransformMatrix::getScaleY () const
 {
 	return std::sqrt((getC() * getC()) + (getD() * getD()));
 }
@@ -193,23 +194,23 @@ TransformMatrix& TransformMatrix::rotate (double angle_)
 	return *this;
 }
 
-TransformMatrix& TransformMatrix::multiply (TransformMatrix rhs_)
+TransformMatrix& TransformMatrix::multiply (const TransformMatrix& rhs_)
 {
-	auto source_ = rhs_.getVector();
+	std::vector<double> source_ = rhs_.getVector();
 
-	double localA_ = matrix[0];
-	double localB_ = matrix[1];
-	double localC_ = matrix[2];
-	double localD_ = matrix[3];
-	double localE_ = matrix[4];
-	double localF_ = matrix[5];
+	double localA_ = matrix.at(0);
+	double localB_ = matrix.at(1);
+	double localC_ = matrix.at(2);
+	double localD_ = matrix.at(3);
+	double localE_ = matrix.at(4);
+	double localF_ = matrix.at(5);
 
-	double sourceA_ = source_[0];
-	double sourceB_ = source_[1];
-	double sourceC_ = source_[2];
-	double sourceD_ = source_[3];
-	double sourceE_ = source_[4];
-	double sourceF_ = source_[5];
+	double sourceA_ = source_.at(0);
+	double sourceB_ = source_.at(1);
+	double sourceC_ = source_.at(2);
+	double sourceD_ = source_.at(3);
+	double sourceE_ = source_.at(4);
+	double sourceF_ = source_.at(5);
 
 	setA( (sourceA_ * localA_) + (sourceB_ * localC_) );
 	setB( (sourceA_ * localB_) + (sourceB_ * localD_) );
@@ -221,7 +222,7 @@ TransformMatrix& TransformMatrix::multiply (TransformMatrix rhs_)
 	return *this;
 }
 
-TransformMatrix& TransformMatrix::multiplyWithOffset (TransformMatrix src_, double offsetX_, double offsetY_)
+TransformMatrix& TransformMatrix::multiplyWithOffset (const TransformMatrix& src_, double offsetX_, double offsetY_)
 {
 	auto otherMatrix_ = src_.getVector();
 
@@ -271,7 +272,7 @@ TransformMatrix& TransformMatrix::transform (double a_, double b_, double c_, do
 	return *this;
 }
 
-Math::Vector2 TransformMatrix::transformPoint (double x_, double y_)
+Math::Vector2 TransformMatrix::transformPoint (double x_, double y_) const
 {
 	Math::Vector2 point_ (x_, y_);
 
@@ -309,7 +310,7 @@ TransformMatrix& TransformMatrix::invert ()
 	return *this;
 }
 
-TransformMatrix& TransformMatrix::copyFrom (TransformMatrix src_)
+TransformMatrix& TransformMatrix::copyFrom (const TransformMatrix& src_)
 {
 	setA( src_.getA() );
 	setB( src_.getB() );
@@ -345,7 +346,7 @@ TransformMatrix& TransformMatrix::copyFromVector (std::vector<double> src_)
 	return *this;
 }
 
-std::vector<double> TransformMatrix::getVector ()
+std::vector<double> TransformMatrix::getVector () const
 {
 	return matrix;
 }
@@ -362,7 +363,7 @@ TransformMatrix& TransformMatrix::setTransform (double a_, double b_, double c_,
 	return *this;
 }
 
-DecomposedMatrix TransformMatrix::decomposeMatrix ()
+DecomposedMatrix TransformMatrix::decomposeMatrix () const
 {
 	DecomposedMatrix decomposedMatrix_;
 
@@ -434,17 +435,17 @@ Math::Vector2 TransformMatrix::applyInverse (double x_, double y_)
 	return output_;
 }
 
-double TransformMatrix::getX (double x_, double y_)
+double TransformMatrix::getX (double x_, double y_) const
 {
 	return x_ * getA() + y_ * getC() + getE();
 }
 
-double TransformMatrix::getY (double x_, double y_)
+double TransformMatrix::getY (double x_, double y_) const
 {
 	return x_ * getB() + y_ * getD() + getF();
 }
 
-int TransformMatrix::getXRound (double x_, double y_, bool round_)
+int TransformMatrix::getXRound (double x_, double y_, bool round_) const
 {
 	double v_ = getX(x_, y_);
 
@@ -454,7 +455,7 @@ int TransformMatrix::getXRound (double x_, double y_, bool round_)
 	return v_;
 }
 
-int TransformMatrix::getYRound (double x_, double y_, bool round_)
+int TransformMatrix::getYRound (double x_, double y_, bool round_) const
 {
 	double v_ = getY(x_, y_);
 

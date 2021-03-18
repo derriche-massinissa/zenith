@@ -10,8 +10,10 @@
 
 #include <vector>
 #include <SDL2/SDL_types.h>
+
 #include "gameobject.fwd.h"
 #include "../scene/scene.fwd.h"
+#include "../data.h"
 
 namespace Zen {
 namespace GameObjects {
@@ -52,7 +54,7 @@ public:
 
 	void sceneUpdate (Uint32 time_, Uint32 delta_);
 
-	void shutdown ();
+	void shutdown (Data data_ = {});
 
 	/**
 	 * Add a GameObject instance to this display list.
@@ -74,14 +76,14 @@ public:
 
 	void removeAll ();
 
-	void update ();
+	void update (Uint32 time_, Uint32 delta_);
 
 	std::vector<GameObject*> getActive ();
 
 	int getLength ();
 };
 
-}	// namespace Input
+}	// namespace GameObjects
 }	// namespace Zen
 
 #endif

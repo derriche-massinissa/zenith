@@ -41,7 +41,7 @@ public:
 		COMPONENT_MASK_TRANSFORM		|
 		COMPONENT_MASK_VISIBLE			;
 
-	bool hasComponent (int compMask_);
+	static bool hasComponent (int compMask_);
 
 	Textures::CropData crop;
 };

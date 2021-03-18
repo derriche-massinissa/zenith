@@ -10,13 +10,15 @@
 #include <algorithm>
 #include <vector>
 #include "../scene/scene.h"
+#include "../event/event_emitter.h"
 
 namespace Zen {
 namespace GameObjects {
 
 UpdateList::UpdateList (Scene* scene_)
+	: scene (scene_)
 {
-	scene->sys.events.on("start", &UpdateList::start, this);
+	scene_->sys.events.on("start", &UpdateList::start, this);
 }
 
 UpdateList::~UpdateList ()
@@ -44,7 +46,7 @@ void UpdateList::sceneUpdate (Uint32 time_, Uint32 delta_)
 	}
 }
 
-void UpdateList::shutdown ()
+void UpdateList::shutdown (Data data_)
 {
 	scene->sys.events.off("pre-update", &UpdateList::update, this);
 	scene->sys.events.off("update", &UpdateList::sceneUpdate, this);
@@ -77,7 +79,7 @@ void UpdateList::removeAll ()
 	active.clear();
 }
 
-void UpdateList::update ()
+void UpdateList::update (Uint32 time_, Uint32 delta_)
 {
 	if (toProcess == 0)
 		return;

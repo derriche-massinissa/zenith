@@ -227,6 +227,13 @@ public:
 	double v1 = 0;
 
 	/**
+	 * The un-modified source frame, trim and UV data.
+	 *
+	 * @since 0.0.0
+	 */
+	FrameData data;
+
+	/**
 	 * Sets the width, height, x and y of this Frame.
 	 *
 	 * This is called automatically by the constructor
@@ -382,13 +389,6 @@ public:
 	 * @since 0.0.0
 	 */
 	Geom::Rectangle getDrawImageData ();
-
-	/**
-	 * The un-modified source frame, trim and UV data.
-	 *
-	 * @since 0.0.0
-	 */
-	FrameData data;
 };	// class Frame
 
 }	// namespace Textures

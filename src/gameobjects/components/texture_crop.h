@@ -74,13 +74,13 @@ public:
 		else
 			This()->renderFlags |= FLAG;
 
-		if constexpr (This()->hasComponent(COMPONENT_MASK_SIZE))
+		if constexpr (T::COMPONENT_MASK & COMPONENT_MASK_SIZE)
 		{
 			if (updateSize_)
 				This()->setSizeToFrame();
 		}
 
-		if constexpr (This()->hasComponent(COMPONENT_MASK_ORIGIN))
+		if constexpr (T::COMPONENT_MASK & COMPONENT_MASK_ORIGIN)
 		{
 			if (updateSize_)
 			{

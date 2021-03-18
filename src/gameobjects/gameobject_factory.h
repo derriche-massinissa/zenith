@@ -23,7 +23,7 @@ public:
 
 	void boot ();
 
-	void image (int x, int y, std::string key, std::string frame);
+	void image (int x, int y, std::string key, std::string frame = "");
 };
 
 }	//namespace GameObjects

@@ -6,9 +6,10 @@
  */
 
 #include "texture.h"
+#include <tuple>
 
 #include "texture_manager.h"
-#include <tuple>
+#include "../messages.h"
 
 namespace Zen {
 namespace Textures {
@@ -19,6 +20,17 @@ Texture::Texture (TextureManager& manager_, std::string key_, std::vector<std::s
 	// Load the Sources
 	for (const auto source_ : sources_)
 		source.emplace_back(this, source_);
+
+	// Check if _ALL_ the sources are valid and loaded
+	// If one is not, this Texture is invalid
+	for (const auto& source_ : source)
+	{
+		if (!source_.sdlTexture)
+		{
+			source.clear();
+			break;
+		}
+	}
 }
 
 Frame* Texture::add (std::string name_, int sourceIndex_, int x_, int y_, int width_, int height_)
@@ -81,7 +93,7 @@ Frame* Texture::get (std::string name_)
 
 	if (!frame_)
 	{
-		messageWarning("Texture missing: ", name_);
+		messageWarning("Texture Frame missing: ", name_);
 
 		frame_ = &frames.find(firstFrame)->second;
 	}

@@ -183,7 +183,8 @@ void Renderer::render (
 	{
 		camera_.addToRenderList(*child_);
 
-		batchSprite(*child_, *child_->frame, camera_, child_->parentMatrix);
+		if (child_ && child_->frame)
+			batchSprite(*child_, *child_->frame, camera_, child_->parentMatrix);
 	}
 
 	camera_.flashEffect.postRender();
@@ -449,7 +450,7 @@ void Renderer::batchSprite (
 	auto& camMatrix_ = tempMatrix1;
 	auto& spriteMatrix_ = tempMatrix2;
 
-	auto dd_ = frame_.getDrawImageData();
+	Geom::Rectangle dd_ = frame_.getDrawImageData();
 
 	int frameX_ = dd_.x;
 	int frameY_ = dd_.y;

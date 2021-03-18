@@ -43,6 +43,8 @@ void DisplayList::remove (GameObject* gameObject_)
 			break;
 		}
 	}
+
+	queueDepthSort();
 }
 
 void DisplayList::queueDepthSort ()

@@ -74,7 +74,7 @@ public:
 	 *
 	 * @return Scale X.
 	 */
-	double getA ();
+	double getA () const;
 	/**
 	 * Setter for the Scale X value.
 	 *
@@ -91,7 +91,7 @@ public:
 	 *
 	 * @return Skew Y.
 	 */
-	double getB ();
+	double getB () const;
 	/**
 	 * Setter for the Skew Y value.
 	 *
@@ -108,7 +108,7 @@ public:
 	 *
 	 * @return Skew X.
 	 */
-	double getC ();
+	double getC () const;
 	/**
 	 * Setter for the Skew X value.
 	 *
@@ -125,7 +125,7 @@ public:
 	 *
 	 * @return Scale Y.
 	 */
-	double getD ();
+	double getD () const;
 	/**
 	 * Setter for the Scale Y value.
 	 *
@@ -142,7 +142,7 @@ public:
 	 *
 	 * @return Translate X.
 	 */
-	double getE ();
+	double getE () const;
 	/**
 	 * Setter for the Translate X value.
 	 *
@@ -159,7 +159,7 @@ public:
 	 *
 	 * @return Translate Y.
 	 */
-	double getF ();
+	double getF () const;
 	/**
 	 * Setter for the Translate Y value.
 	 *
@@ -176,7 +176,7 @@ public:
 	 *
 	 * @return Translate X.
 	 */
-	double getTx ();
+	double getTx () const;
 	/**
 	 * Setter for the Translate X value.
 	 *
@@ -193,7 +193,7 @@ public:
 	 *
 	 * @return Translate Y.
 	 */
-	double getTy ();
+	double getTy () const;
 	/**
 	 * Setter for the Translate Y value.
 	 *
@@ -210,7 +210,7 @@ public:
 	 *
 	 * @return The rotation of the Matrix.
 	 */
-	double getRotation ();
+	double getRotation () const;
 
 	/**
 	 * The rotation of the Matrix, normalized to be within the Zenith right-handed
@@ -220,7 +220,7 @@ public:
 	 *
 	 * @return The normalized rotation of the Matrix.
 	 */
-	double getRotationNormalized ();
+	double getRotationNormalized () const;
 
 	/**
 	 * The decomposed horizontal scale of the Matrix. This value is always positive.
@@ -229,7 +229,7 @@ public:
 	 *
 	 * @return The Scale X of the Matrix.
 	 */
-	double getScaleX ();
+	double getScaleX () const;
 
 	/**
 	 * The decomposed vertical scale of the Matrix. This value is always positive.
@@ -238,7 +238,7 @@ public:
 	 *
 	 * @return The Scale Y of the Matrix.
 	 */
-	double getScaleY ();
+	double getScaleY () const;
 
 	/**
 	 * Reset the Matrix to an identity matrix.
@@ -293,7 +293,7 @@ public:
 	 *
 	 * @return This TransformMatrix.
 	 */
-	TransformMatrix& multiply (TransformMatrix rhs_);
+	TransformMatrix& multiply (const TransformMatrix& rhs_);
 
 	/**
 	 * Multiply this Matrix by the matrix given, including the offset.
@@ -309,7 +309,7 @@ public:
 	 *
 	 * @return This TransformMatrix.
 	 */
-	TransformMatrix& multiplyWithOffset (TransformMatrix src_, double offsetX_, double offsetY_);
+	TransformMatrix& multiplyWithOffset (const TransformMatrix& src_, double offsetX_, double offsetY_);
 
 	/**
 	 * Transform the Matrix.
@@ -337,7 +337,7 @@ public:
 	 *
 	 * @return The Point containing the transformed coordinates.
 	 */
-	Math::Vector2 transformPoint (double x_, double y_);
+	Math::Vector2 transformPoint (double x_, double y_) const;
 
 	/**
 	 * Invert the Matrix.
@@ -357,7 +357,7 @@ public:
 	 *
 	 * @return This TransformMatrix.
 	 */
-	TransformMatrix& copyFrom (TransformMatrix src_);
+	TransformMatrix& copyFrom (const TransformMatrix& src_);
 
 	/**
 	 * Set the values of this Matrix to copy those of the array given.
@@ -392,7 +392,7 @@ public:
 	 *
 	 * @return A vector where elements 0 to 5 contain the values from this matrix.
 	 */
-	std::vector<double> getVector ();
+	std::vector<double> getVector () const;
 
 	/**
 	 * Set the values of this Matrix.
@@ -421,7 +421,7 @@ public:
 	 *
 	 * @return The decomposed Matrix.
 	 */
-	DecomposedMatrix decomposeMatrix ();
+	DecomposedMatrix decomposeMatrix () const;
 
 	/**
 	 * Apply the identity, translate, rotate and scale operations on the Matrix.
@@ -464,7 +464,7 @@ public:
 	 *
 	 * @return The calculated x value.
 	 */
-	double getX (double x_, double y_);
+	double getX (double x_, double y_) const;
 
 	/**
 	 * Returns the Y component of this matrix multiplied by the given values.
@@ -477,7 +477,7 @@ public:
 	 *
 	 * @return The calculated y value.
 	 */
-	double getY (double x_, double y_);
+	double getY (double x_, double y_) const;
 
 	/**
 	 * Returns the X component of this matrix multiplied by the given values.
@@ -492,7 +492,7 @@ public:
 	 *
 	 * @return The calculated x value.
 	 */
-	int getXRound (double x_, double y_, bool round_ = false);
+	int getXRound (double x_, double y_, bool round_ = false) const;
 
 	/**
 	 * Returns the Y component of this matrix multiplied by the given values.
@@ -507,7 +507,7 @@ public:
 	 *
 	 * @return The calculated y value.
 	 */
-	int getYRound (double x_, double y_, bool round_ = false);
+	int getYRound (double x_, double y_, bool round_ = false) const;
 };
 
 }	// namespace Components

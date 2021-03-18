@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.19.4)
 
 # GCC warnings
-add_compile_options(-w) #Wall -Wextra -Wpedantic)
+add_compile_options(-w -g) #Wall -Wextra -Wpedantic)
 
 # Set up the project
 project(

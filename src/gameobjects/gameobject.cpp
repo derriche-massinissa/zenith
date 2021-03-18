@@ -27,7 +27,7 @@ GameObject::~GameObject ()
 	destroy();
 }
 
-bool hasComponent (int compMask_)
+bool GameObject::hasComponent (int compMask_)
 {
 	//return compMask_ | COMPONENT_MASK;
 	return true;
@@ -104,7 +104,7 @@ std::vector<int> GameObject::getIndexList ()
 	return indices_;
 }
 
-int getIndex (GameObject* child_)
+int GameObject::getIndex (GameObject* child_)
 {
 	return 0;
 }
@@ -121,11 +121,13 @@ void GameObject::destroy ()
 
 	removeAllListeners();
 
+	/*
 	if (displayList)
 	{
 		displayList->queueDepthSort();
 		displayList->remove(this);
 	}
+	*/
 
 	/**
 	 * @todo TODO input

@@ -6,19 +6,18 @@
  */
 
 #include "image.h"
+#include "../../scene/scene.h"
 
 namespace Zen {
 namespace GameObjects {
 
 Image::Image (Scene* scene_, int x_, int y_, std::string texture_, std::string frame_)
-	: GameObject (scene)
+	: GameObject (scene_)
 {
-	/*
-	setTexture(texture, frame);
-	setPosition(x, y);
+	setTexture(texture_, frame_);
+	setPosition(x_, y_);
 	setSizeToFrame();
 	setOriginFromFrame();
-	*/
 }
 
 bool Image::hasComponent (int compMask_)

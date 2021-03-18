@@ -104,7 +104,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	int width = 0;
+	int width = 1;
 
 	/**
 	 * The height of the source image. If not specified in the constructor, it will
@@ -112,7 +112,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	int height = 0;
+	int height = 1;
 };
 
 }	// namespace Textures

@@ -16,7 +16,6 @@
 #include <map>
 #include <memory>
 
-#include "../messages.h"
 #include "event_listener.h"
 
 namespace Zen {

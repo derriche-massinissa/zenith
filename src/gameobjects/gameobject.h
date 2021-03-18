@@ -74,7 +74,20 @@ public:
 	 */
 	~GameObject ();
 
-	static const int COMPONENT_MASK = 0;
+	static const int COMPONENT_MASK =
+		COMPONENT_MASK_ALPHA			|
+		COMPONENT_MASK_BLENDMODE		|
+		COMPONENT_MASK_DEPTH			|
+		COMPONENT_MASK_FLIP				|
+		COMPONENT_MASK_BOUNDS			|
+		COMPONENT_MASK_MASK				|
+		COMPONENT_MASK_ORIGIN			|
+		COMPONENT_MASK_SCROLLFACTOR		|
+		COMPONENT_MASK_SIZE				|
+		COMPONENT_MASK_TEXTURECROP		|
+		COMPONENT_MASK_TINT				|
+		COMPONENT_MASK_TRANSFORM		|
+		COMPONENT_MASK_VISIBLE			;
 
 	Scene* scene = nullptr;
 
@@ -126,7 +139,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	virtual bool hasComponent (int compMask_);
+	static bool hasComponent (int compMask_);
 
 	void setActive (bool value_);
 
