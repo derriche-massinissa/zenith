@@ -13,6 +13,7 @@ namespace Scene2D {
 
 Camera::Camera (int x_, int y_, int width_, int height_)
 	: BaseCamera(x_, y_, width_, height_)
+	, lerp (1.0, 1.0)
 	, zoomEffect (*this)
 	, rotateToEffect (*this)
 	, panEffect (*this)

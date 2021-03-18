@@ -8,6 +8,7 @@
 #include "bitmap_mask.h"
 
 namespace Zen {
+namespace Display {
 namespace Masks {
 
 BitmapMask::BitmapMask (GameObjects:GameObject& renderable_)
@@ -18,7 +19,7 @@ BitmapMask::BitmapMask (GameObjects:GameObject& renderable_)
 void BitmapMask::preRender (
 		Renderer *renderer_,
 		GameObjects::GameObject *maskedObject_,
-		Camera *camera_)
+		Cameras::Scene2D::Camera *camera_)
 {
 	// Is this a camera mask?
 	if (!maskedObject_)
@@ -38,7 +39,7 @@ void BitmapMask::preRender (
 void BitmapMask::postRender (
 		Renderer *renderer_,
 		GameObjects::GameObject *maskedObject_,
-		Camera *camera_)
+		Cameras::Scene2D::Camera *camera_)
 {
 	// Save the target buffer
 	SDL_Texture *currentTarget_ = SDL_GetRenderTarget(renderer_->window.renderer;)
@@ -95,4 +96,5 @@ void BitmapMask::postRender (
 }
 
 }	// namespace Masks
+}	// namespace Display
 }	// namespace Zen

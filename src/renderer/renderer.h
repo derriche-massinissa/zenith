@@ -8,12 +8,16 @@
 #ifndef ZEN_RENDERER_H
 #define ZEN_RENDERER_H
 
+#include <SDL2/SDL.h>
 #include <functional>
 #include <vector>
 #include <cmath>
 #include <algorithm>
+
 #include "../event/event_emitter.h"
 #include "../math/vector2.h"
+#include "../display/color.h"
+#include "../texture/frame.h"
 
 namespace Zen {
 
@@ -47,9 +51,9 @@ struct SnapshotState
 
 	std::string path = "";
 
-	std::function<void(SDL_Surface*)> callback = nullptr,
+	std::function<void(SDL_Surface*)> callback = nullptr;
 
-	std::function<void(Display::Color)> callbackPixel = nullptr,
+	std::function<void(Display::Color)> callbackPixel = nullptr;
 
 	/**
 	 * An internal surface pointer that keeps that last snapshot taken, or has
@@ -62,7 +66,7 @@ struct SnapshotState
 	bool active = false;
 };
 
-class Renderer : public EventEmitter
+class Renderer : public Events::EventEmitter
 {
 public:
 	Renderer (Game& game_);
@@ -178,7 +182,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SDL_PixelFormat pixelFormat = 0;
+	SDL_PixelFormat pixelFormat;
 
 	/**
 	 * A temporary Transform Matrix, re-used internally during batching.

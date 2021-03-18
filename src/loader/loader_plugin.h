@@ -9,8 +9,12 @@
 #define ZEN_LOADER_LOADER_PLUGIN_H
 
 #include <vector>
+#include <string>
 #include "../messages.h"
 #include "../texture/sprite_sheet_config.h"
+#include "../texture/texture_manager.fwd.h"
+#include "../scene/scene.fwd.h"
+#include "../scene/scene_manager.fwd.h"
 
 namespace Zen {
 namespace Loader {
@@ -42,14 +46,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	TextureManager& textureManager;
+	Textures::TextureManager& textureManager;
 
 	/**
 	 * A reference to the global Scene Manager.
 	 *
 	 * @since 0.0.0
 	 */
-	SceneManager& sceneManager;
+	Scenes::SceneManager& sceneManager;
 
 	/**
 	 * An optional prefix that is automatically prepended to the start of every 
@@ -143,7 +147,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& spritesheet (std::string key_, std::string path_, SpriteSheetConfig config_);
+	LoaderPlugin& spritesheet (std::string key_, std::string path_, Textures::SpriteSheetConfig config_);
 
 	/**
 	 * Load an audio file.

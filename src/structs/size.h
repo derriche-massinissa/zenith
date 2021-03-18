@@ -18,7 +18,7 @@ namespace Structs {
 class Size
 {
 public:
-	Size (unsigned int width_ = 0, unsigned int height_ = 0, double aspectMode_ = SCALE_MODE::RESIZE);
+	Size (unsigned int width_ = 0, unsigned int height_ = 0, SCALE_MODE aspectMode_ = SCALE_MODE::RESIZE);
 
 	Size& setAspectMode (SCALE_MODE value_ = SCALE_MODE::RESIZE);
 

@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_EVENT_LISTENER_H
-#define ZEN_EVENT_LISTENER_H
+#ifndef ZEN_EVENTS_EVENT_LISTENER_H
+#define ZEN_EVENTS_EVENT_LISTENER_H
 
 #include <string>
 #include <functional>
@@ -22,14 +22,10 @@ namespace Events {
  */
 class ListenerBase
 {
-private:
-	/**
-	 * A flag indicating if the listener is one timed. If true, it will be
-	 * removed when activating only once.
-	 *
-	 * @since 0.0.0
-	 */
-	bool once;
+protected:
+	ListenerBase (std::string event_, bool once_)
+		: event (event_), once (once_)
+	{}
 
 	/**
 	 * The event this listener is listening to.
@@ -37,6 +33,14 @@ private:
 	 * @since 0.0.0
 	 */
 	std::string event;
+
+	/**
+	 * A flag indicating if the listener is one timed. If true, it will be
+	 * removed when activating only once.
+	 *
+	 * @since 0.0.0
+	 */
+	bool once;
 };
 
 /**
@@ -53,12 +57,12 @@ public:
 	/**
 	 * @since 0.0.0
 	 *
-	 * @param eventName The event to listen for.
-	 * @param cb The callback function to activate when an event happens.
-	 * @param flag Whether this listener is one timed or not.
+	 * @param event_ The event to listen for.
+	 * @param cb_ The callback function to activate when an event happens.
+	 * @param flag_ Whether this listener is one timed or not.
 	 */
-	Listener(std::string eventName_, std::function<void(Args...)> cb_, bool flag_)
-		: event(eventName_), callback(cb_), once(flag_)
+	Listener(std::string event_, std::function<void(Args...)> cb_, bool flag_)
+		: callback(cb_), ListenerBase(event_, flag_)
 	{}
 
 	/**

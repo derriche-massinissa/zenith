@@ -15,12 +15,14 @@
 #include <vector>
 #include <fstream>
 
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 
 #include "../data.h"
 #include "../event/event_emitter.h"
 #include "sprite_sheet_config.h"
 #include "parsers/json_array.h"
+
+#include "../gameobjects/rendertexture/render_texture.h"
 
 namespace Zen {
 namespace Textures {
@@ -33,7 +35,7 @@ namespace Textures {
  *
  * @since 0.0.0
  */
-class TextureManager : public EventEmitter
+class TextureManager : public Events::EventEmitter
 {
 public:
 	/**
@@ -169,7 +171,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlasJSONArray (std::string key_, std::vector<std::string> sources_, nlohmann::json data_);
+	Texture* addAtlasJSONArray (std::string key_, std::vector<std::string> sources_, std::vector<nlohmann::json> data_);
 
 	/**
 	 * Adds a Texture Atlas to this TextureManager.
@@ -186,6 +188,22 @@ public:
 	 * is already in use.
 	 */
 	Texture* addAtlasJSONHash (std::string key_, std::vector<std::string> sources_, nlohmann::json data_);
+
+	/**
+	 * Adds a Texture Atlas to this TextureManager.
+	 * The frame data of the atlas must be stored in an Object within the JSON.
+	 * This is known as a JSON Hash in software such as Texture Packer.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key_ The unique key of the Texture.
+	 * @param sources_ A path to the image file.
+	 * @param data_ The Texture Atlas data.
+	 *
+	 * @return A pointer to the newly created Texture, or `nullptr` if the key
+	 * is already in use.
+	 */
+	Texture* addAtlasJSONHash (std::string key_, std::vector<std::string> sources_, std::vector<nlohmann::json> data_);
 
 	/**
 	 * Adds a Sprite Sheet to this TextureManager.

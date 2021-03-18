@@ -10,7 +10,7 @@
 namespace Zen {
 namespace Display {
 
-Color::Color (int red_, int green_, int blue_, int alpha_, validity_)
+Color::Color (int red_, int green_, int blue_, int alpha_, bool validity_)
 {
 	setTo(red_, green_, blue_, alpha_);
 	valid = validity_;
@@ -52,22 +52,6 @@ Color& Color::setGLTo (double red_, double green_, double blue_, double alpha_)
 	greenGL(green_);
 	blueGL(blue_);
 	alphaGL(alpha_);
-
-	locked = false;
-
-	return update(true);
-}
-
-Color& Color::setFromRGB (InputColorObject color_)
-{
-	locked = true;
-
-	red(color_.r);
-	green(color_.g);
-	blue(color_.b);
-
-	if (color_.a >= 0)
-		alpha(color_.a);
 
 	locked = false;
 

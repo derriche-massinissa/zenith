@@ -8,16 +8,30 @@
 #ifndef ZEN_CAMERAS_SCENE2D_BASE_CAMERA_H
 #define ZEN_CAMERAS_SCENE2D_BASE_CAMERA_H
 
+#include <SDL2/SDL_types.h>
+
 #include <memory>
 #include <vector>
 #include <cmath>
 #include <algorithm>
+
 #include "../../defs.h"
 #include "../../event/event_emitter.h"
 #include "../../gameobjects/components/alpha.h"
 #include "../../gameobjects/components/visible.h"
 #include "../../gameobjects/components/transform_matrix.h"
 #include "../../geom/rectangle.h"
+#include "../../scene/scene.fwd.h"
+#include "../../scene/scene_manager.fwd.h"
+#include "camera_manager.fwd.h"
+#include "../../display/color.h"
+#include "../../display/masks/mask.h"
+
+#include "../../gameobjects/gameobject.h"
+#include "../../gameobjects/group/group.h"
+
+#include "../../scene/scene_manager.fwd.h"
+#include "../../scale/scale_manager.h"
 
 namespace Zen {
 namespace Cameras {
@@ -54,6 +68,162 @@ class BaseCamera
 	, public GameObjects::Components::Alpha<BaseCamera>
 	, public GameObjects::Components::Visible<BaseCamera>
 {
+protected:
+	/**
+	 * The x position of the Camera viewport, relative to the top-left of the game canvas.
+	 * The viewport is the area into which the camera renders.
+	 * To adjust the position the camera is looking at in the game world, see the `scrollX` value.
+	 *
+	 * @since 0.0.0
+	 */
+	int x;
+
+	/**
+	 * The y position of the Camera, relative to the top-left of the game canvas.
+	 * The viewport is the area into which the camera renders.
+	 * To adjust the position the camera is looking at in the game world, see the `scrollY` value.
+	 *
+	 * @since 0.0.0
+	 */
+	int y;
+
+	/**
+	 * The width of the Camera viewport, in pixels.
+	 *
+	 * The viewport is the area into which the Camera renders. Setting the viewport does
+	 * not restrict where the Camera can scroll to.
+	 *
+	 * @since 0.0.0
+	 */
+	int width;
+
+	/**
+	 * The height of the Camera viewport, in pixels.
+	 *
+	 * The viewport is the area into which the Camera renders. Setting the viewport does
+	 * not restrict where the Camera can scroll to.
+	 *
+	 * @since 0.0.0
+	 */
+	int height;
+
+	/**
+	 * The horizontal scroll position of this Camera.
+	 *
+	 * Change this value to cause the Camera to scroll around your Scene.
+	 *
+	 * Alternatively, setting the Camera to follow a Game Object, via the `startFollow` method,
+	 * will automatically adjust the Camera scroll values accordingly.
+	 *
+	 * You can set the bounds within which the Camera can scroll via the `setBounds` method.
+	 *
+	 * @since 0.0.0
+	 */
+	int scrollX = 0;
+
+	/**
+	 * The vertical scroll position of this Camera.
+	 *
+	 * Change this value to cause the Camera to scroll around your Scene.
+	 *
+	 * Alternatively, setting the Camera to follow a Game Object, via the `startFollow` method,
+	 * will automatically adjust the Camera scroll values accordingly.
+	 *
+	 * You can set the bounds within which the Camera can scroll via the `setBounds` method.
+	 *
+	 * @since 0.0.0
+	 */
+	int scrollY = 0;
+
+	/**
+	 * The Camera horizontal zoom value. Change this value to zoom in, or out of, a Scene.
+	 *
+	 * A value of 0.5 would zoom the Camera out, so you can now see twice as much
+	 * of the Scene as before. A value of 2 would zoom the Camera in, so every pixel
+	 * now takes up 2 pixels when rendered.
+	 *
+	 * Set to 1 to return to the default zoom level.
+	 *
+	 * Be careful to never set this value to zero.
+	 *
+	 * @since 0.0.0
+	 */
+	double zoomX = 1;
+
+	/**
+	 * The Camera vertical zoom value. Change this value to zoom in, or out of, a Scene.
+	 *
+	 * A value of 0.5 would zoom the Camera out, so you can now see twice as much
+	 * of the Scene as before. A value of 2 would zoom the Camera in, so every pixel
+	 * now takes up 2 pixels when rendered.
+	 *
+	 * Set to 1 to return to the default zoom level.
+	 *
+	 * Be careful to never set this value to zero.
+	 *
+	 * @since 0.0.0
+	 */
+	double zoomY = 1;
+
+	/**
+	 * The rotation of the Camera in radians.
+	 *
+	 * Camera rotation always takes place based on the Camera viewport. By default, rotation happens
+	 * in the center of the viewport. You can adjust this with the `originX` and `originY` properties.
+	 *
+	 * Rotation influences the rendering of _all_ Game Objects visible by this Camera. However, it does not
+	 * rotate the Camera viewport itself, which always remains an axis-aligned rectangle.
+	 *
+	 * @since 0.0.0
+	 */
+	double rotation = 0;
+
+	/**
+	 * The bounds the camera is restrained to during scrolling.
+	 *
+	 * @since 0.0.0
+	 */
+	Geom::Rectangle bounds;
+
+	/**
+	 * A local transform matrix used for internal calculations.
+	 *
+	 * @since 0.0.0
+	 */
+	GameObjects::Components::TransformMatrix matrix;
+
+	/**
+	 * A temporary array of culled objects.
+	 *
+	 * @since 0.0.0
+	 */
+	std::vector<GameObjects::GameObject*> culledObjects;
+
+	/**
+	 * Does this Camera have a custom viewport?
+	 *
+	 * @since 0.0.0
+	 */
+	bool customViewport = false;
+
+	/**
+	 * The Camera that this Camera uses for translation during masking.
+	 *
+	 * If the mask is fixed in position this will be a reference to
+	 * the `CameraManager.def` instance. Otherwise, it'll be a reference
+	 * to itself.
+	 *
+	 * @since 0.0.0
+	 */
+	BaseCamera* maskCamera = nullptr;
+
+	/**
+	 * Internal method called automatically when the viewport changes.
+	 *
+	 * @since 0.0.0
+	 */
+	void updateSystem ();
+
 public:
 	/**
 	 * This mask is used to determine what GameObject compenents this class inherits from.
@@ -94,21 +264,21 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SceneManager *sceneManager;
+	Scenes::SceneManager *sceneManager;
 
 	/**
 	 * A pointer to the Game's ScaleManager.
 	 *
 	 * @since 0.0.0
 	 */
-	ScaleManager *scaleManager;
+	Scale::ScaleManager *scaleManager;
 
 	/**
 	 * A pointer to the Scene's CameraManager.
 	 *
 	 * @since 0.0.0
 	 */
-	CameraManager *cameraManager;
+	Cameras::Scene2D::CameraManager *cameraManager;
 
 	/**
 	 * The Camera ID. Assigned by the Camera Manager and used to handle camera exclusion.
@@ -257,7 +427,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::unique_ptr<Display::Masks::Mask> mask(nullptr);
+	std::unique_ptr<Display::Masks::Mask> mask;
 
 	/**
 	 * This array is populated with all of the Game Objects that this Camera 
@@ -445,7 +615,7 @@ public:
 	 *
 	 * @return This Camera instance.
 	 */
-	BaseCamera& ignore (std::vector<GameObjects::GameObject*> entries_);
+	BaseCamera& ignore (std::vector<GameObjects::GameObject*>& entries_);
 
 	/**
 	 * @overload
@@ -455,7 +625,7 @@ public:
 	 *
 	 * @return This Camera instance.
 	 */
-	BaseCamera& ignore (GameObjects::Group entries_);
+	BaseCamera& ignore (GameObjects::Group& entries_);
 
 	/**
 	 * Internal preRender step.
@@ -1028,166 +1198,13 @@ public:
 	 * @return The display height.
 	 */
 	int getDisplayHeight ();
-
-private:
-	/**
-	 * The x position of the Camera viewport, relative to the top-left of the game canvas.
-	 * The viewport is the area into which the camera renders.
-	 * To adjust the position the camera is looking at in the game world, see the `scrollX` value.
-	 *
-	 * @since 0.0.0
-	 */
-	int x;
-
-	/**
-	 * The y position of the Camera, relative to the top-left of the game canvas.
-	 * The viewport is the area into which the camera renders.
-	 * To adjust the position the camera is looking at in the game world, see the `scrollY` value.
-	 *
-	 * @since 0.0.0
-	 */
-	int y;
-
-	/**
-	 * The width of the Camera viewport, in pixels.
-	 *
-	 * The viewport is the area into which the Camera renders. Setting the viewport does
-	 * not restrict where the Camera can scroll to.
-	 *
-	 * @since 0.0.0
-	 */
-	int width;
-
-	/**
-	 * The height of the Camera viewport, in pixels.
-	 *
-	 * The viewport is the area into which the Camera renders. Setting the viewport does
-	 * not restrict where the Camera can scroll to.
-	 *
-	 * @since 0.0.0
-	 */
-	int height;
-
-	/**
-	 * The horizontal scroll position of this Camera.
-	 *
-	 * Change this value to cause the Camera to scroll around your Scene.
-	 *
-	 * Alternatively, setting the Camera to follow a Game Object, via the `startFollow` method,
-	 * will automatically adjust the Camera scroll values accordingly.
-	 *
-	 * You can set the bounds within which the Camera can scroll via the `setBounds` method.
-	 *
-	 * @since 0.0.0
-	 */
-	int scrollX = 0;
-
-	/**
-	 * The vertical scroll position of this Camera.
-	 *
-	 * Change this value to cause the Camera to scroll around your Scene.
-	 *
-	 * Alternatively, setting the Camera to follow a Game Object, via the `startFollow` method,
-	 * will automatically adjust the Camera scroll values accordingly.
-	 *
-	 * You can set the bounds within which the Camera can scroll via the `setBounds` method.
-	 *
-	 * @since 0.0.0
-	 */
-	int scrollY = 0;
-
-	/**
-	 * The Camera horizontal zoom value. Change this value to zoom in, or out of, a Scene.
-	 *
-	 * A value of 0.5 would zoom the Camera out, so you can now see twice as much
-	 * of the Scene as before. A value of 2 would zoom the Camera in, so every pixel
-	 * now takes up 2 pixels when rendered.
-	 *
-	 * Set to 1 to return to the default zoom level.
-	 *
-	 * Be careful to never set this value to zero.
-	 *
-	 * @since 0.0.0
-	 */
-	double zoomX = 1;
-
-	/**
-	 * The Camera vertical zoom value. Change this value to zoom in, or out of, a Scene.
-	 *
-	 * A value of 0.5 would zoom the Camera out, so you can now see twice as much
-	 * of the Scene as before. A value of 2 would zoom the Camera in, so every pixel
-	 * now takes up 2 pixels when rendered.
-	 *
-	 * Set to 1 to return to the default zoom level.
-	 *
-	 * Be careful to never set this value to zero.
-	 *
-	 * @since 0.0.0
-	 */
-	double zoomY = 1;
-
-	/**
-	 * The rotation of the Camera in radians.
-	 *
-	 * Camera rotation always takes place based on the Camera viewport. By default, rotation happens
-	 * in the center of the viewport. You can adjust this with the `originX` and `originY` properties.
-	 *
-	 * Rotation influences the rendering of _all_ Game Objects visible by this Camera. However, it does not
-	 * rotate the Camera viewport itself, which always remains an axis-aligned rectangle.
-	 *
-	 * @since 0.0.0
-	 */
-	double rotation = 0;
-
-	/**
-	 * The bounds the camera is restrained to during scrolling.
-	 *
-	 * @since 0.0.0
-	 */
-	Geom::Rectangle bounds;
-
-	/**
-	 * A local transform matrix used for internal calculations.
-	 *
-	 * @since 0.0.0
-	 */
-	GameObjects::Components::TransformMatrix matrix;
-
-	/**
-	 * A temporary array of culled objects.
-	 *
-	 * @since 0.0.0
-	 */
-	std::vector<GameObjects*> culledObjects;
-
-	/**
-	 * Does this Camera have a custom viewport?
-	 *
-	 * @since 0.0.0
-	 */
-	bool customViewport = false;
-
-	/**
-	 * The Camera that this Camera uses for translation during masking.
-	 *
-	 * If the mask is fixed in position this will be a reference to
-	 * the `CameraManager.def` instance. Otherwise, it'll be a reference
-	 * to itself.
-	 *
-	 * @since 0.0.0
-	 */
-	Camera* maskCamera = nullptr;
-
-	/**
-	 * Internal method called automatically when the viewport changes.
-	 *
-	 * @since 0.0.0
-	 */
-	void updateSystem ();
 };
 
 }	// namespace Scene2D
 }	// namespace Cameras
 }	// namespace Zen
+
+// Declaration of forward declared elements
+//#include "../../scene/scene_manager.h"
 
 #endif

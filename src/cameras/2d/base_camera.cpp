@@ -44,7 +44,7 @@ void BaseCamera::addToRenderList (GameObjects::GameObject& child_)
 	renderList.emplace_back(&child_);
 }
 
-BaseCamera& BaseCamera::setOrigin (float x_, float y_)
+BaseCamera& BaseCamera::setOrigin (double x_, double y_)
 {
 	originX = x_;
 	originY = y_;
@@ -52,7 +52,7 @@ BaseCamera& BaseCamera::setOrigin (float x_, float y_)
 	return *this;
 }
 
-BaseCamera& BaseCamera::setOrigin (float x_ = 0.5)
+BaseCamera& BaseCamera::setOrigin (double x_)
 {
 	return setOrigin(x_, x_);
 }
@@ -77,7 +77,7 @@ Math::Vector2 BaseCamera::getScroll (int x_, int y_)
 
 BaseCamera& BaseCamera::centerOnX (int x_)
 {
-	float originX_ = width * 0.5;
+	double originX_ = width * 0.5;
 
 	midPoint.x = x_;
 
@@ -91,7 +91,7 @@ BaseCamera& BaseCamera::centerOnX (int x_)
 
 BaseCamera& BaseCamera::centerOnY (int y_)
 {
-	float originY_ = height * 0.5;
+	double originY_ = height * 0.5;
 
 	midPoint.y = y_;
 
@@ -134,7 +134,7 @@ BaseCamera& BaseCamera::centerToSize ()
 	return *this;
 }
 
-std::vector<GameObjects::GameObject*> cull (
+std::vector<GameObjects::GameObject*> BaseCamera::cull (
 		std::vector<GameObjects::GameObject*> renderableObjects_)
 {
 	if (disableCull)
@@ -165,7 +165,8 @@ std::vector<GameObjects::GameObject*> cull (
 
 	culledObjects.clear();
 
-	for (auto& object_ : renderableObjects_) {
+	for (auto& object_ : renderableObjects_)
+	{
 		if (~object_->getComponentMask() & COMPONENT_MASK_SIZE
 			|| object_->parentContainer != nullptr)
 		{
@@ -175,14 +176,14 @@ std::vector<GameObjects::GameObject*> cull (
 
 		auto objectW_ = object_->width;
 		auto objectH_ = object_->height;
-		auto objectX_ = (object_->x - (scrollX * object_->scrollFactorX)) - (objectW_ * object_->originX);
-		auto objectY_ = (object_->y - (scrollY * object_->scrollFactorY)) - (objectH_ * object_->originY);
+		auto objectX_ = (object_->x - (scrollX * object_->getScrollFactorX())) - (objectW_ * object_->getOriginX());
+		auto objectY_ = (object_->y - (scrollY * object_->getScrollFactorY())) - (objectH_ * object_->getOriginY());
 		auto tx_ = (objectX_ * mva_ + objectY_ * mvc_ + mve_);
 		auto ty_ = (objectX_ * mvb_ + objectY_ * mvd_ + mvf_);
 		auto tw_ = ((objectX_ + objectW_) * mva_ + (objectY_ + objectH_) * mvc_ + mve_);
 		auto th_ = ((objectX_ + objectW_) * mvb_ + (objectY_ + objectH_) * mvd_ + mvf_);
 
-		if ((tw_ > cullLeft_ && tx _< cullRight_) && (th_ > cullTop_ && ty_ < cullBottom_))
+		if ((tw_ > cullLeft_ && tx_ < cullRight_) && (th_ > cullTop_ && ty_ < cullBottom_))
 		{
 			culledObjects.emplace_back(object_);
 		}
@@ -205,7 +206,7 @@ Math::Vector2 BaseCamera::getWorldPoint (int x_, int y_)
 	auto mvf_ = cameraMatrix_[5];
 
 	// Invert Matrix
-	float determinant_ = (mva_ * mvd_) - (mvb_ * mvc_);
+	double determinant_ = (mva_ * mvd_) - (mvb_ * mvc_);
 
 	if (!determinant_) {
 		output_.x = x_;
@@ -223,11 +224,11 @@ Math::Vector2 BaseCamera::getWorldPoint (int x_, int y_)
 	auto ime_ = (mvc_ * mvf_ - mvd_ * mve_) * determinant_;
 	auto imf_ = (mvb_ * mve_ - mva_ * mvf_) * determinant_;
 
-	float c_ = std::cos(rotation);
-	float s_ = std::sin(rotation);
+	double c_ = std::cos(rotation);
+	double s_ = std::sin(rotation);
 
-	float sx_ = x_ + ((scrollX * c_ - scrollY * s_) * zoomX);
-	float sy_ = y_ + ((scrollX * s_ - scrollY * c_) * zoomY);
+	double sx_ = x_ + ((scrollX * c_ - scrollY * s_) * zoomX);
+	double sy_ = y_ + ((scrollX * s_ - scrollY * c_) * zoomY);
 
 	// Apply transform to point
 	output_.x = (sx_ * ima_ + sy_ * imc_) + ime_;
@@ -256,11 +257,11 @@ BaseCamera& BaseCamera::ignore (GameObjects::Group& entry_)
 {
 	for (auto& child_ : entry_)
 	{
-		if (child_.isParent)
+		if (child_->isParent)
 			// A group in the group
 			ignore(child_);
 		else
-			child_.cameraFilter |= id;
+			child_->cameraFilter |= id;
 	}
 
 	return *this;
@@ -281,7 +282,7 @@ void BaseCamera::preRender ()
 
 	if (useBounds) {
 		sx_ = clampX(sx_);
-		sY_ = clampY(sy_);
+		sy_ = clampY(sy_);
 	}
 
 	// Values are in pixels and not impacted by zooming the Camera
@@ -311,8 +312,8 @@ void BaseCamera::preRender ()
 
 int BaseCamera::clampX (int x_)
 {
-	int bx_ = bounds.x + ((displayWidth - width) / 2);
-	int bw_ = std::max(bx_, bx_ + bounds.width - displayWidth);
+	int bx_ = bounds.x + ((getDisplayWidth() - width) / 2);
+	int bw_ = std::max(bx_, bx_ + bounds.width - getDisplayWidth());
 
 	if (x_ < bx_)
 		x_ = bx_;
@@ -324,8 +325,8 @@ int BaseCamera::clampX (int x_)
 
 int BaseCamera::clampY (int y_)
 {
-	int by_ = bounds.y + ((displayHeight - height) / 2);
-	int bh_ = std::max(by_, by_ + bounds.height - displayHeight);
+	int by_ = bounds.y + ((getDisplayHeight() - height) / 2);
+	int bh_ = std::max(by_, by_ + bounds.height - getDisplayHeight());
 
 	if (y_ < by_)
 		y_ = by_;
@@ -346,7 +347,7 @@ BaseCamera& BaseCamera::removeBounds ()
 	return *this;
 }
 
-BaseCamera& BaseCamera::setAngle (float value_)
+BaseCamera& BaseCamera::setAngle (double value_)
 {
 	setRotation(Math::degToRad(value_));
 
@@ -416,7 +417,7 @@ BaseCamera& BaseCamera::setPosition (int x_)
 	return setPosition(x_, x_);
 }
 
-BaseCamera& BaseCamera::setRotation (float value_)
+BaseCamera& BaseCamera::setRotation (double value_)
 {
 	rotation = value_;
 	dirty = true;
@@ -427,13 +428,13 @@ BaseCamera& BaseCamera::setRotation (float value_)
 BaseCamera& BaseCamera::setScene (Scene* scene_)
 {
 	if (scene != nullptr && customViewport)
-		sceneManager->customViewport--;
+		sceneManager->customViewports--;
 
 	scene = scene_;
 
 	sceneManager = &scene_->game.scene;
-	scaleManager = &scene_->sys.scale;
-	cameraManager = &scene_->sys.cameras;
+	scaleManager = &scene_->scale;
+	cameraManager = &scene_->cameras;
 
 	updateSystem();
 
@@ -476,7 +477,7 @@ BaseCamera& BaseCamera::setViewport (int x_, int y_, int width_, int height_)
 	return *this;
 }
 
-BaseCamera& BaseCamera::setZoom (float x_, float y_)
+BaseCamera& BaseCamera::setZoom (double x_, double y_)
 {
 	if (x_ == 0)
 		x_ = 0.001;
@@ -495,7 +496,7 @@ BaseCamera& BaseCamera::setMask (Display::Masks::Mask mask_, bool fixedPosition_
 	mask = std::make_unique<Display::Masks::Mask>();
 	*mask = mask_;
 
-	maskCamera = (fixedPosition_) ? cameraManager->def : this;
+	//maskCamera = (fixedPosition_) ? static_cast<BaseCamera*>(&cameraManager->def) : this;
 
 	return *this;
 }
@@ -503,8 +504,9 @@ BaseCamera& BaseCamera::setMask (Display::Masks::Mask mask_, bool fixedPosition_
 BaseCamera& BaseCamera::clearMask ()
 {
 	mask = nullptr;
+	maskCamera = nullptr;
 
-	return * this;
+	return *this;
 }
 
 void BaseCamera::update (Uint32 time_, Uint32 delta_)
@@ -515,7 +517,7 @@ void BaseCamera::updateSystem ()
 	if (scaleManager == nullptr)
 		return;
 
-	bool custom_ = (x != 0 || y != 0 || scaleManager->width != width || scaleManager->height != height);
+	bool custom_ = (x != 0 || y != 0 || scaleManager->getWidth() != width || scaleManager->getHeight() != height);
 
 	if (custom_ && !customViewport)
 		// We need a custom viewport for this camera
@@ -606,17 +608,17 @@ BaseCamera& BaseCamera::setScrollY (int value_)
 	return *this;
 }
 
-float BaseCamera::getZoom ()
+double BaseCamera::getZoom ()
 {
 	return (zoomX + zoomY) / 2.0;
 }
 
-float BaseCamera::getZoomX ()
+double BaseCamera::getZoomX ()
 {
 	return zoomX;
 }
 
-BaseCamera& BaseCamera::setZoomX (float value_)
+BaseCamera& BaseCamera::setZoomX (double value_)
 {
 	zoomX = value_;
 	dirty = true;
@@ -624,12 +626,12 @@ BaseCamera& BaseCamera::setZoomX (float value_)
 	return *this;
 }
 
-float BaseCamera::getZoomY ()
+double BaseCamera::getZoomY ()
 {
 	return zoomY;
 }
 
-BaseCamera& BaseCamera::setZoomY (float value_)
+BaseCamera& BaseCamera::setZoomY (double value_)
 {
 	zoomY = value_;
 	dirty = true;
@@ -637,17 +639,17 @@ BaseCamera& BaseCamera::setZoomY (float value_)
 	return *this;
 }
 
-float BaseCamera::getRotation ()
+double BaseCamera::getRotation ()
 {
 	return rotation;
 }
 
-float BaseCamera::getCenterX ()
+double BaseCamera::getCenterX ()
 {
 	return getX() + (0.5 * getWidth());
 }
 
-float BaseCamera::getCenterY ()
+double BaseCamera::getCenterY ()
 {
 	return getY() + (0.5 * getHeight());
 }

@@ -10,6 +10,9 @@
 
 #include <string>
 
+#include "../../display/color.h"
+#include "../../geom/rectangle.h"
+
 namespace Zen {
 namespace Cameras {
 namespace Scene2D {
@@ -33,15 +36,25 @@ namespace Scene2D {
 struct CameraConfig
 {
 	std::string name = "";
+
 	int x = 0;
+
 	int y = 0;
+
 	int width;
+
 	int height;
+
 	double zoom = 1.0;
+
 	double rotation = 0.0;
+
 	int scrollX = 0;
+
 	int scrollY = 0;
-	Display::Color backgroundColor (0, 0, 0, 0);
+
+	Display::Color backgroundColor;
+
 	Geom::Rectangle bounds {0, 0, 0, 0};
 };
 

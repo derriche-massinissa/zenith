@@ -11,6 +11,8 @@
 #include <vector>
 #include <cmath>
 
+#include "../../math/vector2.h"
+
 namespace Zen {
 namespace GameObjects {
 namespace Components {

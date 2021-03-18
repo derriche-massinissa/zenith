@@ -10,8 +10,16 @@
 
 #include <string>
 #include <cmath>
-#include "frame_data.h"
+
 #include "../math/math.h"
+#include "../data.h"
+#include "../geom/rectangle.h"
+
+#include "frame_data.h"
+#include "texture.fwd.h"
+#include "crop_data.h"
+#include "frame_data.h"
+#include "texture_source.h"
 
 namespace Zen {
 namespace Textures {
@@ -375,7 +383,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	FrameDataDrawImage getDrawImageData ();
+	Geom::Rectangle getDrawImageData ();
 
 private:
 	/**
@@ -383,36 +391,7 @@ private:
 	 *
 	 * @since 0.0.0
 	 */
-	FrameData data = {
-		{	// cut
-			0,	// x
-			0,	// y
-			0,	// w
-			0,	// h
-			0,	// r
-			0	// b
-		},
-		false,	// trim
-		{	// sourceSize
-			0,	// w
-			0	// h
-		},
-		{	// spriteSourceSize
-			0,	// x
-			0,	// y
-			0,	// w
-			0,	// h
-			0,	// r
-			0	// b
-		},
-		0,	// radius
-		{	// drawImage
-			0,	// x
-			0,	// y
-			0,	// width
-			0	// height
-		}
-	};
+	FrameData data;
 };	// class Frame
 
 }	// namespace Textures

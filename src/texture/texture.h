@@ -12,6 +12,10 @@
 #include <string>
 #include <vector>
 
+#include "frame.h"
+#include "texture_source.h"
+#include "texture_manager.fwd.h"
+
 namespace Zen {
 namespace Textures {
 

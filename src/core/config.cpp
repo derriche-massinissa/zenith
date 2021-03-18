@@ -119,7 +119,7 @@ GameConfig& GameConfig::setBackgroundColor (unsigned int color)
 
 	return *this;
 }
-GameConfig& clearBeforeRender (bool flag)
+GameConfig& setClearBeforeRender (bool flag)
 {
 	clearBeforeRender = flag;
 

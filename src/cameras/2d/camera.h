@@ -14,6 +14,19 @@
 
 #include "base_camera.h"
 
+#include "../../gameobjects/components/flip.h"
+#include "../../gameobjects/components/tint.h"
+
+#include "effects/fade.h"
+#include "effects/flash.h"
+#include "effects/pan.h"
+#include "effects/rotate_to.h"
+#include "effects/shake.h"
+#include "effects/zoom.h"
+
+#include "../../math/vector2.h"
+#include "../../scale/scale_manager.h"
+
 namespace Zen {
 namespace Cameras {
 namespace Scene2D {
@@ -57,13 +70,18 @@ class Camera
 {
 public:
 	/**
+	 * @since 0.0.0
+	 */
+	Camera (int x_, int y_, int width_, int height_);
+
+	/**
 	 * This mask is used to determine what GameObject compenents this class inherits from.
 	 *
 	 * It is a bitmask.
 	 *
 	 * @since 0.0.0
 	 */
-	const int COMPONENT_MASK = BaseCamera::COMPONENT_MASK | COMPONENT_MASK_FLIP | COMPONENT_MASK_TINT;
+	const int COMPONENT_MASK = 0b0001; //BaseCamera::COMPONENT_MASK | COMPONENT_MASK_FLIP | COMPONENT_MASK_TINT;
 
 	/**
 	 * Returns the object's Component Bitmask. This method is used to
@@ -74,11 +92,6 @@ public:
 	 * @return The object's Component Bitmask.
 	 */
 	int getComponentMask ();
-
-	/**
-	 * @since 0.0.0
-	 */
-	Camera (int x_, int y_, int width_, int height_);
 
 	/**
 	 * @since 0.0.0
@@ -114,7 +127,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Effect::Shake shakeEffect;
+	Effects::Shake shakeEffect;
 
 	/**
 	 * The Camera Pan effect handler.
@@ -154,7 +167,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Math::Vector2 lerp (1.0, 1.0);
+	Math::Vector2 lerp;
 
 	/**
 	 * The values stored in this property are subtracted from the Camera targets position, allowing you to
@@ -242,9 +255,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fadeIn (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera&, double), T* context_)
+    Camera& fadeIn (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera, double), T* context_)
 	{
-		std::function<void(Camera&, double)> cb_ = std::bind(
+		std::function<void(Camera, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -283,9 +296,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fadeOut (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera&, double), T* context_)
+    Camera& fadeOut (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera, double), T* context_)
 	{
-		std::function<void(Camera&, double)> cb_ = std::bind(
+		std::function<void(Camera, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -331,9 +344,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fadeFrom (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, double), T* context_)
+    Camera& fadeFrom (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera, double), T* context_)
 	{
-		std::function<void(Camera&, double)> cb_ = std::bind(
+		std::function<void(Camera, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -374,9 +387,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fade (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, double), T* context_)
+    Camera& fade (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera, double), T* context_)
 	{
-		std::function<void(Camera&, double)> cb_ = std::bind(
+		std::function<void(Camera, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -417,9 +430,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& flash (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, double), T* context_)
+    Camera& flash (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera, double), T* context_)
 	{
-		std::function<void(Camera&, double)> cb_ = std::bind(
+		std::function<void(Camera, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -439,7 +452,7 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& shake (int duration_ = 100, Math::Vector2 intensity_ = {0.05}, bool force_ = false);
+    Camera& shake (int duration_ = 100, Math::Vector2 intensity_ = Math::Vector2 (0.05), bool force_ = false);
 
 	/**
 	 * @overload
@@ -456,9 +469,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& shake (int duration_, Math::Vector2 intensity_, bool force_, void (T::* callback_)(Camera&, double), T* context_)
+    Camera& shake (int duration_, Math::Vector2 intensity_, bool force_, void (T::* callback_)(Camera, double), T* context_)
 	{
-		std::function<void(Camera&, double)> cb_ = std::bind(
+		std::function<void(Camera, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -501,9 +514,9 @@ public:
      * @return This Camera instance.
      */
 	template <typename T>
-    Camera& pan (int x_, int y_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, double, int, int), T* context_)
+    Camera& pan (int x_, int y_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera, double, int, int), T* context_)
 	{
-		std::function<void(Camera&, double, int, int)> cb_ = std::bind(
+		std::function<void(Camera, double, int, int)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -553,9 +566,9 @@ public:
      * @return This Camera instance.
      */
 	template <typename T>
-    Camera& rotateTo (double radians_, bool shortestPath_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, double, double), T* context_)
+    Camera& rotateTo (double radians_, bool shortestPath_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera, double, double), T* context_)
 	{
-		std::function<void(Camera&, double, double)> cb_ = std::bind(
+		std::function<void(Camera, double, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -596,9 +609,9 @@ public:
      * @return This Camera instance.
      */
 	template <typename T>
-    Camera& zoomTo (double zoom_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, double, int, int), T* context_)
+    Camera& zoomTo (double zoom_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera, double, int, int), T* context_)
 	{
-		std::function<void(Camera&, double, int, int)> cb_ = std::bind(
+		std::function<void(Camera, double, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,

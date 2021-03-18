@@ -10,7 +10,7 @@
 namespace Zen {
 namespace Structs {
 
-Size::Size (unsigned int width_, unsigned int height_, double aspectMode_)
+Size::Size (unsigned int width_, unsigned int height_, SCALE_MODE aspectMode_)
 {
 	width = width_;
 

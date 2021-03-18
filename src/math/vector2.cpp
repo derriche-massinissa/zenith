@@ -11,7 +11,11 @@
 namespace Zen {
 namespace Math {
 
-Vector2 (double x_, double y_)
+Vector2::Vector2 (double v_)
+	: x (v_), y (v_)
+{}
+
+Vector2::Vector2 (double x_, double y_)
 	: x (x_), y (y_)
 {}
 

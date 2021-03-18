@@ -9,7 +9,7 @@
 #define ZEN_TEXTURES_PARSERS_JSON_HASH_H
 
 #include "../texture.h"
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 
 namespace Zen {
 namespace Textures {

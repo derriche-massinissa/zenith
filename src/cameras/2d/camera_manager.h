@@ -13,9 +13,12 @@
 #include <string>
 
 #include "camera_config.h"
+#include "camera.h"
 #include "../../geom/rectangle.h"
 #include "../../structs/size.h"
-#include "../../input/pointer.h""
+#include "../../input/pointer.h"
+#include "../../gameobjects/gameobject.h"
+#include "../../gameobjects/display_list.h"
 
 namespace Zen {
 namespace Cameras {
@@ -82,7 +85,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SceneSystems& systems;
+	Scenes::SceneSystems& systems;
 
 	/**
 	 * A vector of the Camera objects being managed by this Camera Manager.
@@ -279,8 +282,8 @@ public:
 	 * @return A filtered list of only Game Objects within the Scene that will 
 	 * render against the given Camera.
 	 */
-	std::vector<GameObject*> getVisibleChildren (
-			std::vector<GameObject*>& children_,
+	std::vector<GameObjects::GameObject*> getVisibleChildren (
+			std::vector<GameObjects::GameObject*>& children_,
 			Camera& camera_);
 
 	/**

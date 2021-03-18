@@ -19,7 +19,7 @@ namespace Math {
 class RandomDataGenerator
 {
 public:
-	Random ();
+	RandomDataGenerator ();
 
 	/**
 	 * Sets the seed of this Random Data Generator using the internal random device.
@@ -214,7 +214,7 @@ private:
 	 *
 	 * @since 0.0.0
 	 */
-	unsigned int seed = 0;
+	unsigned int seeds = 0;
 };
 
 }	// namespace Math

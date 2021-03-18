@@ -87,7 +87,7 @@ LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::spritesheet (std::string key_, std::string path_, SpriteSheetConfig config_)
+LoaderPlugin& LoaderPlugin::spritesheet (std::string key_, std::string path_, Textures::SpriteSheetConfig config_)
 {
 	textureManager.addSpriteSheet(key_, path_, config_);
 

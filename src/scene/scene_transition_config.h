@@ -54,8 +54,6 @@ struct SceneTransitionConfig
 
 	bool moveBelow = false;
 	
-	std::function<void(double)> onUpdate = nullptr;
-
 	void (Scene::* onUpdate) (double) = nullptr;
 
 	Scene* onUpdateScope = nullptr;

@@ -16,6 +16,8 @@ namespace Math {
 class Vector2
 {
 public:
+	Vector2 (double v_ = 0);
+
 	Vector2 (double x_, double y_);
 
 	double x = 0;

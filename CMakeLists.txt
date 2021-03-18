@@ -51,12 +51,16 @@ set(zenith_SRCS
 	src/gameobjects/components/transform_matrix.cpp
 	src/gameobjects/components/visible.h
 
+	src/gameobjects/gameobject.h
+
 	src/geom/line.h
 	src/geom/line.cpp
 	src/geom/point.h
 	src/geom/point.cpp
 	src/geom/rectangle.h
 	src/geom/rectangle.cpp
+
+	src/input/pointer.h
 
 	src/loader/loader_plugin.h
 	src/loader/loader_plugin.cpp

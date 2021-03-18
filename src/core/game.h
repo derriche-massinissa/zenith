@@ -25,9 +25,10 @@
 //#include "../animations/animation_manager.h"
 //#include "../data/data_manager.h"
 //#include "../input/input_manager.h"
+#include "../renderer/renderer.h"
 #include "../scale/scale_manager.h"
 #include "../scene/scene_manager.h"
-#include "../textures/texture_manager.h"
+#include "../texture/texture_manager.h"
 //#include "../audio/audio_manager.h"
 
 /**
@@ -58,7 +59,7 @@ public:
 	 *
 	 * @param config_ A reference to the game configuration object.
 	 */
-	Game (GameConfig& config_);
+	Game (Core::GameConfig& config_);
 
 	/**
 	 * Destroys this Game instance, all systems, all sub-systems, all
@@ -261,7 +262,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	GameConfig& config;
+	Core::GameConfig& config;
 
 	/**
 	 * A reference to the window object.

@@ -13,12 +13,13 @@
 #include "../event/event_emitter.h"
 #include "../math/math.h"
 #include "../math/vector2.h"
+#include "../window/window.fwd.h""
+#include "../core/game.fwd.h"
 
 namespace Zen {
 namespace Scale {
 
 /**
- * @class ScaleManager
  * The Scale Manager handles the scaling, resizing and alignment of the
  * game in the window.
  *
@@ -34,15 +35,16 @@ namespace Scale {
  * property. The default is "NONE", which prevents the scaling of the game
  * at all.
  *
+ * @class ScaleManager
  * @since 0.0.0
  */
-class ScaleManager : public EventEmitter
+class ScaleManager : public Events::EventEmitter
 {
 public:
 	/**
 	 * @since 0.0.0
 	 *
-	 * @param game - The Game instance.
+	 * @param game_ - The Game instance.
 	 */
 	ScaleManager (Game& game_);
 

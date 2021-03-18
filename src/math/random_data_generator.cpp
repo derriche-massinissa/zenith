@@ -18,16 +18,16 @@ RandomDataGenerator::RandomDataGenerator ()
 
 void RandomDataGenerator::seed ()
 {
-	seed = randomDevice();
+	seeds = randomDevice();
 
-	engine.seed(seed);
+	engine.seed(seeds);
 }
 
 void RandomDataGenerator::seed (unsigned int seed_)
 {
-	seed = seed_;
+	seeds = seed_;
 
-	engine.seed(seed);
+	engine.seed(seeds);
 }
 
 int RandomDataGenerator::integer (int min_, int max_)
@@ -81,7 +81,7 @@ double RandomDataGenerator::rotation ()
 
 unsigned int getSeed ()
 {
-	return seed;
+	return seeds;
 }
 
 // Instantiate a Random object in the Zen::Math namespace

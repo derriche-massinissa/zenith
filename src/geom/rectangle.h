@@ -10,6 +10,9 @@
 
 #include <vector>
 #include "point.h"
+
+#include "line.h"
+#include "point.h"
 #include "../math/random_data_generator.h"
 
 namespace Zen {

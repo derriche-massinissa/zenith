@@ -11,6 +11,7 @@
 #include "mask.h"
 
 namespace Zen {
+namespace Display {
 namespace Masks {
 
 /**
@@ -35,7 +36,7 @@ public:
 	void preRender (
 			Renderer *renderer_,
 			GameObjects::GameObject *maskedObject_,
-			Camera *camera_);
+			Cameras::Scene2D::Camera *camera_);
 
 	/**
 	 * @since 0.0.0
@@ -43,10 +44,11 @@ public:
 	void postRender (
 			Renderer *renderer_,
 			GameObjects::GameObject *maskedObject_ = nullptr,
-			Camera *camera_ = nullptr);
+			Cameras::Scene2D::Camera *camera_ = nullptr);
 };
 
 }	// namespace Masks
+}	// namespace Display
 }	// namespace Zen
 
 #endif

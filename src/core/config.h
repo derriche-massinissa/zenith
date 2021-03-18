@@ -178,7 +178,7 @@ public:
 	 * @since 0.0.0
 	 * @param flag If `true`, the renderer will be cleared each frame.
 	 */
-	GameConfig& clearBeforeRender (bool flag = true);
+	GameConfig& setClearBeforeRender (bool flag = true);
 
 	/**
 	 * Sets the background color used by the renderer for cleaning the screen.

@@ -36,7 +36,7 @@ int Window::height()
 	return height_;
 }
 
-int Window::create (GameConfig config_)
+int Window::create (Core::GameConfig config_)
 {
 	config = config_;
 

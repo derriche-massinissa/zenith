@@ -16,7 +16,7 @@
 #include <string>
 
 #include "../messages.h"
-#include "../core/game_config.h"
+#include "../core/config.h"
 #include "../const.h"
 #include "../event/event_emitter.h"
 
@@ -26,17 +26,24 @@
 namespace Zen {
 
 /**
- * A wrapper for the SDL_Window and it's renderer.
+ * A wrapper for the SDL_Window and its renderer.
  *
  * @class Window
  * @since 0.0.0
- *
- * @param g The Game instance.
  */
-class Window : public EventEmitter
+class Window : public Events::EventEmitter
 {
 public:
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param game_ The Game instance.
+	 */
 	Window (Game& game_);
+
+	/**
+	 * @since 0.0.0
+	 */
 	~Window ();
 
 	/**
@@ -51,7 +58,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	GameConfig config;
+	Core::GameConfig config;
 
 	/** 
 	 * A reference to the SDL window.
@@ -89,7 +96,7 @@ public:
 	 *
 	 * @return 0 if no problem occured, 1 otherwise.
 	 */
-	int create (GameConfig& config_);
+	int create (Core::GameConfig& config_);
 
 	/**
 	 * This method is responsible for destroying the renderer and the

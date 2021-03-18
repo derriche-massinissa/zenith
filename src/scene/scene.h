@@ -16,6 +16,10 @@
 #include "scene_systems.h"
 #include "scene_plugin.h"
 #include "../event/event_emitter.h"
+#include "../cameras/2d/camera_manager.h"
+#include "../loader/loader_plugin.h"
+#include "../texture/texture_manager.h"
+#include "../scale/scale_manager.fwd.h"
 
 namespace Zen {
 
@@ -50,7 +54,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scenes::Systems sys;
+	Scenes::SceneSystems sys;
 
 	/**
 	 * A reference to the Zenith Game instance.
@@ -250,5 +254,7 @@ public:
 };
 
 }	// namespace Zen
+
+#include "../scale/scale_manager.h"
 
 #endif

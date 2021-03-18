@@ -8,7 +8,12 @@
 #ifndef ZEN_DISPLAY_MASK_H
 #define ZEN_DISPLAY_MASK_H
 
+#include "../../renderer/renderer.fwd.h"
+#include "../../gameobjects/gameobject.h"
+#include "../../cameras/2d/camera.fwd.h"
+
 namespace Zen {
+namespace Display {
 namespace Masks {
 
 /**
@@ -24,7 +29,7 @@ public:
 	virtual void preRender (
 			Renderer& renderer_,
 			GameObjects::GameObject& maskedObject_,
-			Camera& camera_)
+			Cameras::Scene2D::Camera& camera_)
 	{}
 
 	/**
@@ -33,11 +38,12 @@ public:
 	virtual void postRender (
 			Renderer& renderer_,
 			GameObjects::GameObject& maskedObject_,
-			Camera& camera_)
+			Cameras::Scene2D::Camera& camera_)
 	{}
 };
 
 }	// namespace Masks
+}	// namespace Display
 }	// namespace Zen
 
 #endif

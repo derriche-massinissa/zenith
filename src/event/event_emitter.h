@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_EVENT_EMITTER_H
-#define ZEN_EVENT_EMITTER_H
+#ifndef ZEN_EVENTS_EVENT_EMITTER_H
+#define ZEN_EVENTS_EVENT_EMITTER_H
 
 #include <functional>
 #include <string>
@@ -68,7 +68,7 @@ public:
 	 * @param context_ The context to invoke the listener with.
 	 * @param once_ If `true`, makes the listener one timed.
 	 */
-	template <typename... Args>
+	template <typename T, typename... Args>
 	void addListener (
 			std::string eventName_,
 			void (T::* callback_)(Args...),
@@ -81,7 +81,7 @@ public:
 			(Args... args_) -> void
 			{
 				(context_->*callback_)(args_...);
-			}
+			};
 
 		// Check if the event already has listeners (Exists in the event map)
 		auto iterator_ = eventMap.find(eventName_);
@@ -127,7 +127,7 @@ public:
 	 * @param callback_ The listener callback function.
 	 * @param context_ The context to invoke the listener with.
 	 */
-	template <typename T>
+	template <typename T, typename... Args>
 	void once (std::string eventName_, void (T::* callback_)(Args...), T *context_)
 	{
 		// Add the listener to this EventEmitter
@@ -159,7 +159,7 @@ public:
 			// Activate the listeners
 			for (auto l_ = iterator_->second.begin(); l_ != iterator_->second.end();)
 			{
-				if ( static_cast<Listener<Args...>*>(l_.get())->activate(args_...) )
+				if ( static_cast<Listener<Args...>*>(l_->get())->activate(args_...) )
 				{
 					iterator_->second.erase(l_);
 				}
@@ -218,7 +218,7 @@ public:
 	 *
 	 * @param listener_ Only remove this particular listener.
 	 */
-	void removeListener (std::string event_, Listener* listener_);
+	void removeListener (std::string event_, ListenerBase* listener_);
 
 	/**
 	 * Remove the listeners of a given event.
@@ -244,15 +244,16 @@ public:
 				(Args... args_) -> void
 				{
 					(context_->*function_)(args_...);
-				}
+				};
 
 			// Get a pointer to the target function
-			auto target_ = boundFunc_.target<void(*)(Args...)>();
+			auto target_ = boundFunc_.template target<void(*)(Args...)>();
 
 			// Find Listener by comparing functor targets
 			for (auto l_ = it_->second.begin(); l_ != it_->second.end(); l_++)
 			{
-				auto listenerTarget_ = l_->getCallback().target<void(*)(Args...)>();
+				auto listenerTarget_ = static_cast<Listener<Args...>*>(l_->get())->getCallback().template target<void(*)(Args...)>();
+
 				if (target_ == listenerTarget_)
 				{
 					it_->second.erase(l_);

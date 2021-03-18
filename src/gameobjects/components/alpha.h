@@ -8,7 +8,7 @@
 #ifndef ZEN_GAMEOBJECTS_COMPONENT_ALPHA_H
 #define ZEN_GAMEOBJECTS_COMPONENT_ALPHA_H
 
-#include "math.h"
+#include "../../math/math.h"
 #include "../../defs.h"
 
 #define FLAG 2 // 0010
@@ -149,7 +149,7 @@ public:
 	{
 		double v_ = Math::clamp(value_, 0.0, 1.0);
 
-		alphaBL_ = v_;
+		alphaBL = v_;
 
 		if (v_)
 			// Turn the alpha bit to 1
@@ -162,7 +162,7 @@ public:
 	{
 		double v_ = Math::clamp(value_, 0.0, 1.0);
 
-		alphaBR_ = v_;
+		alphaBR = v_;
 
 		if (v_)
 			// Turn the alpha bit to 1

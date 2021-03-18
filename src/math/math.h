@@ -212,7 +212,7 @@ bool fuzzyLessThan (double a, double b, double epsilon = EPSILON);
  *
  * @return The given angle converted to radians.
  */
-double DegToRad (double degrees);
+double degToRad (double degrees);
 
 }	// namespace Math
 }	// namespace Zen

@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <SDL2/SDL_types.h>
 
 namespace Zen {
 namespace Display {
@@ -32,7 +33,7 @@ public:
 	 * @param blue_ The blue color value. A number between 0 and 255.
 	 * @param alpha_ The red value. A number between 0 and 255.
 	 */
-	Color (int red_ = 0, int green_ = 0, int blue_ = 0, int alpha_ = 255, validity_ = true);
+	Color (int red_ = 0, int green_ = 0, int blue_ = 0, int alpha_ = 255, bool validity_ = true);
 
 	/**
 	 * Is this a valid color?
@@ -155,18 +156,6 @@ public:
      * @return This Color object.
      */
     Color& setGLTo (double red_, double green_, double blue_, double alpha_ = 1.0);
-
-    /**
-     * Sets the color based on the color object given.
-     *
-     * @since 0.0.0
-     *
-     * @param color_ An object containing `r`, `g`, `b` and optionally `a` values in 
-	 * the range 0 to 255.
-     *
-     * @return This Color object.
-     */
-    Color& setFromRGB (InputColorObject color_);
 
     /**
      * Sets the color based on the hue, saturation and lightness values given.

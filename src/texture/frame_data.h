@@ -13,12 +13,43 @@
 namespace Zen {
 namespace Textures {
 
+/*
+	FrameData data = {
+		{	// cut
+			0,	// x
+			0,	// y
+			0,	// w
+			0,	// h
+			0,	// r
+			0	// b
+		},
+		false,	// trim
+		{	// sourceSize
+			0,	// w
+			0	// h
+		},
+		{	// spriteSourceSize
+			0,	// x
+			0,	// y
+			0,	// w
+			0,	// h
+			0,	// r
+			0	// b
+		},
+		0,	// radius
+		{	// drawImage
+			0,	// x
+			0,	// y
+			0,	// width
+			0	// height
+		}
+		*/
 struct FrameData
 {
 	Geom::Rectangle cut;
-	bool trim;
+	bool trim = false;
 	Geom::Rectangle spriteSourceSize;
-	float radius;
+	float radius = 0.0;
 	Geom::Rectangle drawImage;
 };
 
