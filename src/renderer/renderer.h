@@ -1,12 +1,12 @@
 /**
- * @file		renderer.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef ZEN_RENDERER_H
+#define ZEN_RENDERER_H
 
 #include <functional>
 #include <vector>
@@ -87,14 +87,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Display::Color backgroundColor_;
+	Display::Color backgroundColor;
 
 	/**
 	 * The total number of Game Objects which were rendered in a frame.
 	 *
 	 * @since 0.0.0
 	 */
-	unsigned int drawCount_ = 0;
+	unsigned int drawCount = 0;
 
 	/**
 	 * An intermediary render target, used to render any masked GameObject to it.
@@ -108,7 +108,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SDL_Texture *maskBuffer_ = nullptr;
+	SDL_Texture *maskBuffer = nullptr;
 
 	/**
 	 * An intermediary render target, used to render any camera views to it.
@@ -120,7 +120,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SDL_Texture *cameraBuffer_ = nullptr;
+	SDL_Texture *cameraBuffer = nullptr;
 
 	/**
 	 * This texture receives the mask texture before being rendered over the masked
@@ -134,7 +134,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SDL_Texture *maskTexture_ = nullptr;
+	SDL_Texture *maskTexture = nullptr;
 
 	/**
 	 * The mask texture's blend mode.
@@ -157,28 +157,28 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SDL_BlendMode maskBlendMode_;
+	SDL_BlendMode maskBlendMode;
 
 	/**
 	 * The width of the renderer of the window.
 	 *
 	 * @since 0.0.0
 	 */
-	int width_ = 0;
+	int width = 0;
 
 	/**
 	 * The width of the renderer of the window.
 	 *
 	 * @since 0.0.0
 	 */
-	int height_ = 0;
+	int height = 0;
 	
 	/**
 	 * The pixel format of the SDL_Window.
 	 *
 	 * @since 0.0.0
 	 */
-	SDL_PixelFormat pixelFormat_ = 0;
+	SDL_PixelFormat pixelFormat = 0;
 
 	/**
 	 * A temporary Transform Matrix, re-used internally during batching.
@@ -216,22 +216,22 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param gameSize The default Game Size object. This is the un-modified
+	 * @param gameSize_ The default Game Size object. This is the un-modified
 	 * game dimensions.
-	 * @param baseSize The base Size object. The game dimensions multiplied by
+	 * @param baseSize_ The base Size object. The game dimensions multiplied by
 	 * the resolution. The window width / height values match this.
 	 */
-	void onResize (Structs::Size gameSize, Structs::Size baseSize);
+	void onResize (Structs::Size gameSize_, Structs::Size baseSize_);
 
 	/**
 	 * Resize the main game canvas.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param width The new width of the renderer.
-	 * @param height The new height of the renderer.
+	 * @param width_ The new width of the renderer.
+	 * @param height_ The new height of the renderer.
 	 */
-	void resize (int width, int height);
+	void resize (int width_, int height_);
 
 	/**
 	 * Called at the start of the render loop.
@@ -255,11 +255,11 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param scene The Scene to render.
-	 * @param children An array of filtered Game Objects that can be rendered by the given Camera.
-	 * @param camera The Scene Camera to render with.
+	 * @param scene_ The Scene to render.
+	 * @param children_ An array of filtered Game Objects that can be rendered by the given Camera.
+	 * @param camera_ The Scene Camera to render with.
 	 */
-	void render (Scene& scene, std::vector<GameObjects::GameObject*> children, Cameras::Scene2D::Camera& camera);
+	void render (Scene& scene_, std::vector<GameObjects::GameObject*> children_, Cameras::Scene2D::Camera& camera_);
 
 	/**
 	 * Takes a snapshot if one is scheduled.
@@ -283,13 +283,13 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param callback The function to invoke once the snapshot is created.
-	 * @param path The file path to save the image to. Leave empty to not save any 
+	 * @param callback_ The function to invoke once the snapshot is created.
+	 * @param path_ The file path to save the image to. Leave empty to not save any 
 	 * file, just an SDL_Surface.
 	 *
 	 * @return This Renderer instance.
 	 */
-	Renderer& snapshot (std::function<void(SDL_Surface*)> callback, std::string path = "");
+	Renderer& snapshot (std::string path_ = "", std::function<void(SDL_Surface*)> callback_ = nullptr);
 
 	/**
 	 * Schedules a snapshot of the given area of the game viewport to be taken 
@@ -303,17 +303,17 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param x The x coordinate to grab from.
-	 * @param y The y coordinate to grab from.
-	 * @param width The width of the area to grab.
-	 * @param height The height of the area to grab.
-	 * @param callback The function to invoke once the snapshot is created.
-	 * @param path The file path to save the image to. Leave empty to not save any 
+	 * @param x_ The x coordinate to grab from.
+	 * @param y_ The y coordinate to grab from.
+	 * @param width_ The width of the area to grab.
+	 * @param height_ The height of the area to grab.
+	 * @param callback_ The function to invoke once the snapshot is created.
+	 * @param path_ The file path to save the image to. Leave empty to not save any 
 	 * file, just an SDL_Surface.
 	 *
 	 * @return This Renderer instance.
 	 */
-	Renderer& snapshotArea (int x, int y, int width, int height, std::function<void(SDL_Surface*)> callback, std::string path = "");
+	Renderer& snapshotArea (int x_, int y_, int width_, int height_, std::string path_ = "", std::function<void(SDL_Surface*)> callback_ = nullptr);
 
 	/**
 	 * Schedules a snapshot of the given pixel from the game viewport to be taken 
@@ -331,31 +331,31 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param x - The x coordinate of the pixel to get.
-	 * @param y - The y coordinate of the pixel to get.
-	 * @param callback The function to invoke once the snapshot is created.
+	 * @param x_ - The x coordinate of the pixel to get.
+	 * @param y_ - The y coordinate of the pixel to get.
+	 * @param callback_ The function to invoke once the snapshot is created.
 	 *
 	 * @return This Renderer instance.
 	 */
-	Renderer& snapshotPixel (int x, int y, std::function<void(Display::Color)> callback);
+	Renderer& snapshotPixel (int x_, int y_, std::function<void(Display::Color)> callback_);
 
 	/**
 	 * Takes a Sprite Game Object, or any object that extends it, and draws it to the window.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param sprite The texture based Game Object to draw.
-	 * @param frame The frame to draw, doesn't have to be owned by the		
+	 * @param sprite_ The texture based Game Object to draw.
+	 * @param frame_ The frame to draw, doesn't have to be owned by the		
 	 * GameObject.
-	 * @param camera The Camera to use for the rendering transform.
-	 * @param parentTransformMatrix The transform matrix of the parent container, 
+	 * @param camera_ The Camera to use for the rendering transform.
+	 * @param parentTransformMatrix_ The transform matrix of the parent container, 
 	 * if set.
 	 */
 	void batchSprite (
-			GameObjects::GameObject& sprite,
-			Textures::Frame& frame,
-			Cameras::Scene2D::Camera& camera,
-			GameObjects::Components::TransformMatrix* parentTransformMatrix = nullptr);
+			GameObjects::GameObject& sprite_,
+			Textures::Frame& frame_,
+			Cameras::Scene2D::Camera& camera_,
+			GameObjects::Components::TransformMatrix* parentTransformMatrix_ = nullptr);
 
 private:
 	/**
@@ -372,6 +372,7 @@ private:
 	 */
 	void saveSnapshot ();
 };
+
 }	// namespace Zen
 
 #endif
