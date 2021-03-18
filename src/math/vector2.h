@@ -1,14 +1,14 @@
 /**
- * @file		vector2.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef VECTOR_2_H
-#define VECTOR_2_H
+#ifndef ZEN_MATH_VECTOR_2_H
+#define ZEN_MATH_VECTOR_2_H
 
-#include <math.h>
+#include <cmath>
 
 namespace Zen {
 namespace Math {
@@ -28,37 +28,37 @@ public:
 	Vector2& setTo (double x_);
 	Vector2& setTo (double x_, double y_);
 
-	Vector2& setToPolar (double azimuth, double radius = 1.0);
+	Vector2& setToPolar (double azimuth_, double radius_ = 1.0);
 
-	bool operator == (const Vector2& other);
+	bool operator == (const Vector2& other_);
 
-	bool equals (const Vector2& other);
+	bool equals (const Vector2& other_);
 
-	bool fuzzyEquals (const Vector2& other, double epsilon = Math::EPSILON);
+	bool fuzzyEquals (const Vector2& other_, double epsilon_ = EPSILON);
 
 	double angle ();
 
-	Vector2& setAngle (double angle);
+	Vector2& setAngle (double angle_);
 
-	Vector2& add (const Vector2& source);
+	Vector2& add (const Vector2& source_);
 
-	Vector2& subtract (const Vector2& source);
+	Vector2& subtract (const Vector2& source_);
 
-	Vector2& multiply (const Vector2& source);
+	Vector2& multiply (const Vector2& source_);
 
-	Vector2& scale (double value);
+	Vector2& scale (double value_);
 
-	Vector2& divide (const Vector2& source);
+	Vector2& divide (const Vector2& source_);
 
 	Vector2& negate ();
 
-	double distance (const Vector2& source);
+	double distance (const Vector2& source_);
 
-	double distanceSq (const Vector2& source);
+	double distanceSq (const Vector2& source_);
 
 	double length ();
 
-	Vector2& setLength (double length);
+	Vector2& setLength (double length_);
 
 	double lengthSq ();
 
@@ -68,11 +68,11 @@ public:
 
 	Vector2& normalizeLeftHand ();
 
-	double dot (const Vector2& other);
+	double dot (const Vector2& other_);
 
-	double cross (const Vector2& other);
+	double cross (const Vector2& other_);
 
-	Vector2& lerp (const Vector2& other, double t = 0.0);
+	Vector2& lerp (const Vector2& other_, double t_ = 0.0);
 
 	/*
 	 * TODO
@@ -83,13 +83,13 @@ public:
 
 	Vector2& reset ();
 
-	Vector2& limit (double max);
+	Vector2& limit (double max_);
 
-	Vector2& reflect (const Vector2& normal);
+	Vector2& reflect (const Vector2& normal_);
 
-	Vector2& mirror (const Vector2& axis);
+	Vector2& mirror (const Vector2& axis_);
 
-	Vector2& rotate (double delta);
+	Vector2& rotate (double delta_);
 };
 
 }	// namespace Math

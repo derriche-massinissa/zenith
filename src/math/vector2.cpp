@@ -1,5 +1,5 @@
 /**
- * @file		vector2.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -12,7 +12,7 @@ namespace Zen {
 namespace Math {
 
 Vector2 (double x_, double y_)
-	: x(x_), y(y_)
+	: x (x_), y (y_)
 {}
 
 Vector2& Vector2::set (double x_)
@@ -41,83 +41,83 @@ Vector2& Vector2::setTo (double x_, double y_)
 	return set(x_, y_);
 }
 
-Vector2& Vector2::setToPolar (double azimuth, double radius)
+Vector2& Vector2::setToPolar (double azimuth_, double radius_)
 {
-	x = std::cos(azimuth) * radius;
-	y = std::sin(azimuth) * radius;
+	x = std::cos(azimuth_) * radius_;
+	y = std::sin(azimuth_) * radius_;
 
 	return *this;
 }
 
-bool Vector2::equals (const Vector2& other)
+bool Vector2::equals (const Vector2& other_)
 {
-	return ((x == other.x) && (y == other.y));
+	return ((x == other_.x) && (y == other_.y));
 }
 
-bool Vector2::operator == (const Vector2& other)
+bool Vector2::operator == (const Vector2& other_)
 {
-	return equals(other);
+	return equals(other_);
 }
 
-bool Vector2::fuzzyEquals (const Vector2& other, double epsilon = Math::EPSILON)
+bool Vector2::fuzzyEquals (const Vector2& other_, double epsilon_)
 {
-	return (Math::fuzzyEqual(x, other.x, epsilon) &&
-			Math::fuzzyEqual(y, other.y, epsilon));
+	return (Math::fuzzyEqual(x, other_.x, epsilon_) &&
+			Math::fuzzyEqual(y, other_.y, epsilon_));
 }
 
 double Vector2::angle ()
 {
 	// computes the angle in radians with respect to the positive x-axis
 
-	double angle = std::atan2(y, x);
+	double angle_ = std::atan2(y, x);
 
-	if (angle < 0)
-		angle += 2 * M_PI;
+	if (angle_ < 0)
+		angle_ += 2 * M_PI;
 
-	return angle;
+	return angle_;
 }
 
-Vector2& Vector2::setAngle (double angle)
+Vector2& Vector2::setAngle (double angle_)
 {
-	return setToPolar(angle, length());
+	return setToPolar(angle_, length());
 }
 
-Vector2& Vector2::add (const Vector2& source)
+Vector2& Vector2::add (const Vector2& source_)
 {
-	x += source.x;
-	y += source.y;
+	x += source_.x;
+	y += source_.y;
 
 	return *this;
 }
 
-Vector2& Vector2::subtract (const Vector2& source)
+Vector2& Vector2::subtract (const Vector2& source_)
 {
-	x -= source.x;
-	y -= source.y;
+	x -= source_.x;
+	y -= source_.y;
 
 	return *this;
 }
 
-Vector2& Vector2::multiply (const Vector2& source)
+Vector2& Vector2::multiply (const Vector2& source_)
 {
-	x *= source.x;
-	y *= source.y;
+	x *= source_.x;
+	y *= source_.y;
 
 	return *this;
 }
 
-Vector2& Vector2::scale (double value)
+Vector2& Vector2::scale (double value_)
 {
-	x *= value;
-	y *= value;
+	x *= value_;
+	y *= value_;
 
 	return *this;
 }
 
-Vector2& Vector2::divide (const Vector2& source)
+Vector2& Vector2::divide (const Vector2& source_)
 {
-	x /= source.x;
-	y /= source.y;
+	x /= source_.x;
+	y /= source_.y;
 
 	return *this;
 }
@@ -130,30 +130,30 @@ Vector2& Vector2::negate ()
 	return *this;
 }
 
-double Vector2::distance (const Vector2& source)
+double Vector2::distance (const Vector2& source_)
 {
-	double dx = source.x - x;
-	double dy = source.y - y;
+	double dx_ = source_.x - x;
+	double dy_ = source_.y - y;
 
-	return std::sqrt(dx * dx + dy * dy);
+	return std::sqrt(dx_ * dx_ + dy_ * dy_);
 }
 
-double Vector2::distanceSq (const Vector2& source)
+double Vector2::distanceSq (const Vector2& source_)
 {
-	double dx = source.x - x;
-	double dy = source.y - y;
+	double dx_ = source_.x - x;
+	double dy_ = source_.y - y;
 
-	return dx * dx + dy * dy;
+	return dx_ * dx_ + dy_ * dy_;
 }
 
 double Vector2::length ()
 {
-	return *this;
+	return std::sqrt(x * x + y * y);
 }
 
-Vector2& Vector2::setLength (double length)
+Vector2& Vector2::setLength (double length_)
 {
-	return std::sqrt(x * x + y * y);
+	return normalize().scale(length_);
 }
 
 double Vector2::lengthSq ()
@@ -163,14 +163,14 @@ double Vector2::lengthSq ()
 
 Vector2& Vector2::normalize ()
 {
-	double len = x * x + y * y;
+	double len_ = x * x + y * y;
 
-	if (len > 0)
+	if (len_ > 0)
 	{
-		len = 1 / std::sqrt(len);
+		len_ = 1 / std::sqrt(len_);
 
-		x = x * len;
-		y = y * len;
+		x = x * len_;
+		y = y * len_;
 	}
 
 	return *this;
@@ -196,23 +196,23 @@ Vector2& Vector2::normalizeLeftHand ()
 	return *this;
 }
 
-double Vector2::dot (const Vector2& other)
+double Vector2::dot (const Vector2& source_)
 {
-	return x * source.x + y * source.y;
+	return x * source_.x + y * source_.y;
 }
 
-double Vector2::cross (const Vector2& other)
+double Vector2::cross (const Vector2& source_)
 {
-	return x * source.x + y * source.y;
+	return x * source_.x + y * source_.y;
 }
 
-Vector2& Vector2::lerp (const Vector2& other, double t)
+Vector2& Vector2::lerp (const Vector2& source_, double t_)
 {
-	double ax = x;
-	double ay = y;
+	double ax_ = x;
+	double ay_ = y;
 
-	x = ax + t * (source.x - ax);
-	y = ay + t * (source.y - ay);
+	x = ax_ + t_ * (source_.x - ax_);
+	y = ay_ + t_ * (source_.y - ay_);
 
 	return *this;
 }
@@ -225,34 +225,34 @@ Vector2& Vector2::reset ()
 	return *this;
 }
 
-Vector2& Vector2::limit (double max)
+Vector2& Vector2::limit (double max_)
 {
-	double len = length();
+	double len_ = length();
 
-	if (len && len > max)
-		scale(max / len);
+	if (len_ && len_ > max_)
+		scale(max_ / len_);
 
 	return *this;
 }
 
-Vector2& Vector2::reflect (const Vector2& normal)
+Vector2& Vector2::reflect (const Vector2& normal_)
 {
-	Vector2 normal = *this;
+	Vector2 normal_ = *this;
 
-	return subtract(normal.scale(2 * dot(normal)));
+	return subtract(normal_.scale(2 * dot(normal_)));
 }
 
-Vector2& Vector2::mirror (const Vector2& axis)
+Vector2& Vector2::mirror (const Vector2& axis_)
 {
-	return reflect(axis).negate();
+	return reflect(axis_).negate();
 }
 
-Vector2& Vector2::rotate (double delta)
+Vector2& Vector2::rotate (double delta_)
 {
-	double cos = std::cos(delta);
-	double sin = std::sin(delta);
+	double cos_ = std::cos(delta_);
+	double sin_ = std::sin(delta_);
 
-	return set(cos * x - sin * y, sin * x + cos * y);
+	return set(cos_ * x - sin_ * y, sin_ * x + cos_ * y);
 }
 
 }	// namespace Math
