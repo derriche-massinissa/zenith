@@ -218,6 +218,15 @@ public:
 	 */
 	GameConfig& setLoaderPrefix (std::string prefix);
 
+	/**
+	 * The delta time between each game step when the window isn't visible, as it
+	 * isn't rendering and so not vsynced.
+	 * It is recommended to never set it to zero.
+	 *
+	 * @since 0.0.0
+	 */
+	GameConfig& setHiddenDelta (unsigned int delta);
+
 	// Member variables
 	/**
 	 * The width of the window, in pixels.
@@ -278,6 +287,15 @@ public:
 	 * @since 0.0.0
 	 */
 	int maxHeight = 0;
+
+	/**
+	 * The delta time between each game step when the window isn't visible, as it
+	 * isn't rendering and so not vsynced.
+	 * It is recommended to never set it to zero.
+	 *
+	 * @since 0.0.0
+	 */
+	unsigned int hiddenDelta = 100;
 
 	/**
 	 * A queue of functors responsible for making and returning a 

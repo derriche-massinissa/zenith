@@ -68,6 +68,13 @@ GameConfig& GameConfig::setMaxHeight (int mh)
 	return *this;
 }
 
+GameConfig& GameConfig::setHiddenDelta (unsigned int delta)
+{
+	hiddenDelta = delta;
+
+	return *this;
+}
+
 GameConfig& GameConfig::setTitle (std::string t)
 {
 	title = t;

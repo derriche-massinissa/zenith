@@ -19,6 +19,8 @@ Game::Game (Core::GameConfig& config_)
 	, textures (this)
 	, scale (*this)
 {
+	hiddenDelta = config_.hiddenDelta;
+
 	boot();
 }
 
@@ -65,19 +67,23 @@ void Game::start ()
 
 void Game::step (Uint32 time_, Uint32 delta_)
 {
-	if (pendingShutdown) {
+	if (pendingShutdown)
+	{
 		runShutdown();
 		return;
 	}
 
+	// Handle SDL events
+	window.handleSDLEvents();
+
 	// Only run the logic without rendering anything if the window is hidden
-	if (!isVisible) {
+	if (!isVisible)
+	{
 		headlessStep(time_, delta_);
 		return;
 	}
 
 	// Managers like Input and Sound in the prestep
-	window.handleSDLEvents();
 	events.emit("pre-step", time_, delta_);
 
 	// Mostly meant for user-land code and plugins
@@ -107,22 +113,19 @@ void Game::step (Uint32 time_, Uint32 delta_)
 
 void Game::headlessStep (Uint32 time_, Uint32 delta_)
 {
+	if (hiddenDelta)
+		SDL_Delay(hiddenDelta);
+
 	// Managers
-
 	events.emit("pre-step", time_, delta_);
-
 	events.emit("step", time_, delta_);
 
 	// Scenes
-
 	scene.update(time_, delta_);
-
 	events.emit("post-step", time_, delta_);
 
 	// Render
-
 	events.emit("pre-render", time_, delta_);
-
 	events.emit("post-render", time_, delta_);
 }
 

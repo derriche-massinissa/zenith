@@ -310,6 +310,15 @@ public:
 	bool isVisible = true;
 
 	/**
+	 * The delta time between each game step when the window isn't visible, as it
+	 * isn't rendering and so not vsynced.
+	 * It is recommended to never set it to zero.
+	 *
+	 * @since 0.0.0
+	 */
+	unsigned int hiddenDelta = 100;
+
+	/**
 	 * Shuts down the Game by stopping the main game loop.
 	 *
 	 * Called from the Game Game::step when Game::pendingShutdown
