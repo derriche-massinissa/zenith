@@ -1,5 +1,5 @@
 /**
- * @file		scene_systems.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -7,196 +7,208 @@
 
 #include "scene_systems.h"
 
-Zen::SceneSystems::SceneSystems (Zen::Scene& s)
-	: scene(s)
-	, settings(s.key)
+namespace Zen {
+namespace Scenes {
+
+SceneSystems::SceneSystems (Scene& scene_)
+	: settings(scene_.key)
+	, scene(scene_)
 {}
 
-Zen::SceneSystems::~SceneSystems ()
+SceneSystems::~SceneSystems ()
 {
 	settings.status = SCENE::DESTROYED;
 
-	settings.active = false;
+	events.emit("destroy");
 
-	settings.visible = false;
-
-	scene.events.emit("SYS_DESTROY");
-
+	events.removeAllListeners();
 	scene.events.removeAllListeners();
 }
 
-void Zen::SceneSystems::init ()
+void SceneSystems::init ()
 {
 	settings.status = SCENE::INIT;
 
-	scene.events.emit("SYS_BOOT");
+	events.emit("boot");
 
 	settings.isBooted = true;
 }
 
-void Zen::SceneSystems::step (Uint32 time, Uint32 delta)
+void SceneSystems::step (Uint32 time_, Uint32 delta_)
 {
-	scene.events.emit("SYS_PRE_UPDATE", {{time, delta}});
+	events.emit("pre-update", time_, delta_);
 
-	scene.events.emit("SYS_UPDATE", {{time, delta}});
+	events.emit("update", time_, delta_);
 
-	scene.update(time, delta);
+	scene.update(time_, delta_);
 
-	scene.events.emit("SYS_POST_UPDATE", {{time, delta}});
+	events.emit("post-update", time_, delta_);
 }
 
-void Zen::SceneSystems::render ()
+void SceneSystems::render ()
 {
-	//scene.children.depthSort();
+	scene.children.depthSort();
 
-	scene.events.emit("SYS_PRE_RENDER");
+	events.emit("pre-render");
 
-	//scene.cameras.render(scene.children);
+	scene.cameras.render(scene.children);
 
-	scene.events.emit("SYS_RENDER");
+	events.emit("render");
 }
 
-void Zen::SceneSystems::queueDepthSort ()
+void SceneSystems::queueDepthSort ()
 {
-	//scene.children.queueDepthSort();
+	scene.children.queueDepthSort();
 }
 
-void Zen::SceneSystems::depthSort ()
+void SceneSystems::depthSort ()
 {
-	//scene.children.depthSort();
+	scene.children.depthSort();
 }
 
-Zen::SceneSystems& Zen::SceneSystems::pause (Zen::Data e)
+SceneSystems& SceneSystems::pause (Data data_)
 {
 	if (settings.active) {
 		settings.status = SCENE::PAUSED;
 
 		settings.active = false;
 
-		scene.events.emit("SYS_PAUSE", e);
+		events.emit("pause", data_);
 	}
 
 	return *this;
 }
 
-Zen::SceneSystems& Zen::SceneSystems::resume (Zen::Data e)
+SceneSystems& SceneSystems::resume (Data data_)
 {
-	if (settings.active) {
+	if (!settings.active) {
 		settings.status = SCENE::RUNNING;
 
 		settings.active = true;
 
-		scene.events.emit("SYS_RESUME", e);
+		events.emit("resume", data_);
 	}
 
 	return *this;
 }
 
-Zen::SceneSystems& Zen::SceneSystems::sleep (Zen::Data e)
+SceneSystems& SceneSystems::sleep (Data data_)
 {
 	settings.status = SCENE::SLEEPING;
 
 	settings.active = false;
-
 	settings.visible = false;
 
-	scene.events.emit("SYS_SLEEP", e);
+	events.emit("sleep", data_);
 
 	return *this;
 }
 
-Zen::SceneSystems& Zen::SceneSystems::wake (Zen::Data e)
+SceneSystems& SceneSystems::wake (Data data_)
 {
 	settings.status = SCENE::RUNNING;
 
 	settings.active = true;
-
 	settings.visible = true;
 
-	scene.events.emit("SYS_WAKE", e);
+	events.emit("wake", data_);
 
 	if (settings.isTransition)
-		scene.events.emit("SYS_TRANSITION_WAKE", {{settings.transitionDuration}, {settings.transitionFrom->sys.settings.key}});
+	{
+		events.emit(
+				"transition-wake",
+				settings.transitionFrom->sys.settings.key,
+				settings.transitionDuration
+				);
+	}
 
 	return *this;
 }
 
-bool Zen::SceneSystems::isSleeping ()
+Data SceneSystems::getData ()
+{
+	return settings.data;
+}
+
+bool SceneSystems::isSleeping ()
 {
 	return settings.status == SCENE::SLEEPING;
 }
 
-bool Zen::SceneSystems::isActive ()
+bool SceneSystems::isActive ()
 {
 	return settings.status == SCENE::RUNNING;
 }
 
-bool Zen::SceneSystems::isPaused ()
+bool SceneSystems::isPaused ()
 {
 	return settings.status == SCENE::PAUSED;
 }
 
-bool Zen::SceneSystems::isTransitioning ()
+bool SceneSystems::isTransitioning ()
 {
-	return (settings.isTransition || scene.scene._target != nullptr);
+	return (settings.isTransition || scene.scene.transitionTarget != nullptr);
 }
 
-bool Zen::SceneSystems::isTransitionOut ()
+bool SceneSystems::isTransitionOut ()
 {
-	return (scene.scene._target != nullptr && scene.scene._duration > 0);
+	return (scene.scene.transitionTarget != nullptr &&
+			scene.scene.transitionDuration > 0);
 }
 
-bool Zen::SceneSystems::isTransitionIn ()
+bool SceneSystems::isTransitionIn ()
 {
 	return settings.isTransition;
 }
 
-bool Zen::SceneSystems::isVisible ()
+bool SceneSystems::isVisible ()
 {
 	return settings.visible;
 }
 
-Zen::SceneSystems& Zen::SceneSystems::setVisible (bool value)
+SceneSystems& SceneSystems::setVisible (bool value_)
 {
-	settings.visible = value;
+	settings.visible = value_;
 
 	return *this;
 }
 
-Zen::SceneSystems& Zen::SceneSystems::setActive (bool value, Data data)
+SceneSystems& SceneSystems::setActive (bool value_, Data data_)
 {
-	if (value)
-		return resume (data);
+	if (value_)
+		return resume (data_);
 	else
-		return pause (data);
+		return pause (data_);
 }
 
-void Zen::SceneSystems::start (Zen::Data data)
+void SceneSystems::start (Data data_)
 {
-	settings.data = data;
+	settings.data = data_;
 
 	settings.status = SCENE::START;
 
 	settings.active = true;
-
 	settings.visible = true;
 
-	scene.events.emit("SYS_START");
+	events.emit("start");
 
-	scene.events.emit("SYS_READY", data);
+	events.emit("ready", data_);
 }
 
-void Zen::SceneSystems::shutdown (Zen::Data data)
+void SceneSystems::shutdown (Data data_)
 {
-	scene.events.removeAllListeners({"SYS_TRANSITION_INIT"});
-	scene.events.removeAllListeners({"SYS_TRANSITION_START"});
-	scene.events.removeAllListeners({"SYS_TRANSITION_COMPLETE"});
-	scene.events.removeAllListeners({"SYS_TRANSITION_OUT"});
+	events.removeAllListeners("transition-init");
+	events.removeAllListeners("transition-start");
+	events.removeAllListeners("transition-complete");
+	events.removeAllListeners("transition-out");
 
 	settings.status = SCENE::SHUTDOWN;
 
 	settings.active = false;
 	settings.visible = false;
 
-	scene.events.emit("SYS_SHUTDOWN", data);
+	events.emit("shutdown", data_);
 }
+
+}	// namespace Scenes
+}	// namespace Zen

@@ -266,9 +266,18 @@ public:
 	 * Remove all listeners, or those of the specified events.
 	 *
 	 * @since 0.0.0
+	 *
 	 * @param eventNames_ A vector of event names.
 	 */
 	void removeAllListeners (std::vector<std::string> eventNames_ = {});
+
+	/**
+	 * @overload
+	 * @since 0.0.0
+	 *
+	 * @param eventNames_ A vector of event names.
+	 */
+	void removeAllListeners (std::string eventName_);
 
 	/**
 	 * Removes all listeners.

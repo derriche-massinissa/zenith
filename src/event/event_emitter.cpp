@@ -6,6 +6,7 @@
  */
 
 #include "event_emitter.h"
+#include <vector>
 
 namespace Zen {
 namespace Events {
@@ -83,6 +84,13 @@ void EventEmitter::removeAllListeners (std::vector<std::string> eventNames_)
 				eventMap.erase(iterator_);
 		}
 	}
+}
+
+void EventEmitte::removeAllListeners (std::string eventName_)
+{
+	std::vector<std::string> events_ {eventName_};
+
+	removeAllListeners(events_);
 }
 
 void EventEmitter::shutdown ()

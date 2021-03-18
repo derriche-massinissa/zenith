@@ -80,14 +80,14 @@ namespace Zen
 		 *
 		 * @since 0.0.0
 		 */
-		Scene *_target;
+		Scene *transitionTarget;
 
 		/**
 		 * Transition duration.
 		 *
 		 * @since 0.0.0
 		 */
-		Uint32 _duration;
+		Uint32 transitionDuration;
 
 		/**
 		 * The update event listener, we store it to later remove it from
