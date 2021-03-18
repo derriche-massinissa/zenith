@@ -10,6 +10,8 @@
 
 #include <functional>
 #include <vector>
+#include <cmath>
+#include <algorithm>
 #include "../event/event_emitter.h"
 
 namespace Zen {
@@ -83,21 +85,98 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Display::Color backgroundColor;
+	Display::Color backgroundColor_;
 
 	/**
 	 * The total number of Game Objects which were rendered in a frame.
 	 *
 	 * @since 0.0.0
 	 */
-	unsigned int drawCount = 0;
+	unsigned int drawCount_ = 0;
 
 	/**
-	 * This global alpha value is applied to anything rendered by this Renderer.
+	 * An intermediary render target, used to render any masked GameObject to it.
+	 *
+	 * The masked GameObject is drawn first, then the Masking GameObject is drawn, 
+	 * with a blend operation that zeros out its RGB channels, so the color
+	 * of its pixels do not matter. The operation multiplies the mask's alpha to 
+	 * the destination's alpha, hiding anything not covered by the mask.
+	 *
+	 * The frame buffer is then itself rendered to the renderer of the window.
 	 *
 	 * @since 0.0.0
 	 */
-	float globalAlpha = 1.0;
+	SDL_Texture *maskBuffer_ = nullptr;
+
+	/**
+	 * An intermediary render target, used to render any camera views to it.
+	 *
+	 * The same operation than the maskBuffer happens here, but with the Camera view
+	 * instead of a masked GameObject.
+	 *
+	 * The frame buffer is then itself rendered to the renderer of the window.
+	 *
+	 * @since 0.0.0
+	 */
+	SDL_Texture *cameraBuffer_ = nullptr;
+
+	/**
+	 * This texture receives the mask texture before being rendered over the masked
+	 * GameObject.
+	 *
+	 * The reason the masking GameObject isn't directly used is because if it 
+	 * doesn't cover the entirety of the masked GameObject, whatever isn't covered
+	 * won't be hidden.
+	 *
+	 * This texture has the same size as the renderer, solving this problem.
+	 *
+	 * @since 0.0.0
+	 */
+	SDL_Texture *maskTexture_ = nullptr;
+
+	/**
+	 * The mask texture's blend mode.
+	 *
+	 * It is a custom SDL blend mode, configured in the Renderer's constructor,
+	 * using the following components:
+	 * * The pixel colors:
+	 *   - Zero out the mask's color, as only the transparency matters.
+	 *   - Keep the target's color by multiplying it by 1.
+	 *   - Sum the two values, which will simply result in the target's color.
+	 * * The pixel alpha (transparency):
+	 *   - Zero out the mask's alpha, so that it won't be rendered, hidding the
+	 *   target under it.
+	 *   - Multiply the target's alpha by the mask's alpha (Original, not zeroed 
+	 *   out). So the target will appear fully where the mask has an opacity of
+	 *   1, and be completely hidden where the mask is fully transparent (alpha
+	 *   of 0).
+	 *   - Sum the two values, which will be the target's alpha multiplied by the
+	 *   mask's alpha, plus 0.
+	 *
+	 * @since 0.0.0
+	 */
+	SDL_BlendMode maskBlendMode_;
+
+	/**
+	 * The width of the renderer of the window.
+	 *
+	 * @since 0.0.0
+	 */
+	int width_ = 0;
+
+	/**
+	 * The width of the renderer of the window.
+	 *
+	 * @since 0.0.0
+	 */
+	int height_ = 0;
+	
+	/**
+	 * The pixel format of the SDL_Window.
+	 *
+	 * @since 0.0.0
+	 */
+	SDL_PixelFormat pixelFormat_ = 0;
 
 	/**
 	 * A temporary Transform Matrix, re-used internally during batching.
@@ -118,7 +197,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	GameObjects::Components::TransformMatrix tempMatrix2;
+	GameObjects::Components::TransformMatrix tempMatrix3;
 
 	/**
 	 * Details about the currently scheduled snapshot.

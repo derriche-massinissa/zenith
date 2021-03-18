@@ -11,22 +11,18 @@ namespace Zen {
 
 Window::Window (Game& g)
 	: game(g)
-{
-	messageNote("Window constructed.");
-}
+{}
 
 Window::~Window ()
 {
 	close();
-
-	messageNote("Window destructed.");
 }
 
 int Window::width()
 {
 	int width = 0;
 
-	SDL_GetRendererOutputSize(renderer, &width, nullptr);
+	SDL_GetRendererOutputSize(renderer_, &width, nullptr);
 
 	return width;
 }
@@ -35,7 +31,7 @@ int Window::height()
 {
 	int height = 0;
 
-	SDL_GetRendererOutputSize(renderer, nullptr, &height);
+	SDL_GetRendererOutputSize(renderer_, nullptr, &height);
 
 	return height;
 }
@@ -59,7 +55,7 @@ int Window::create (GameConfig cfg)
 		cleanup(CLEANUP::TTF, CLEANUP::MIX, CLEANUP::IMG, CLEANUP::SDL);
 		return 1;
 	} else if (createRenderer()) {
-		cleanup(window, CLEANUP::TTF, CLEANUP::MIX, CLEANUP::IMG, CLEANUP::SDL);
+		cleanup(window_, CLEANUP::TTF, CLEANUP::MIX, CLEANUP::IMG, CLEANUP::SDL);
 		return 1;
 	} else {
 		setPixelArt(config.pixelArt);
@@ -93,6 +89,7 @@ int Window::initSdlImg ()
 int Window::initSdlMixer ()
 {
 	// Initialize SDL_mixer
+	// TODO Set these constants from the config object
 	const int frequency = 44100;
 	Uint16 format = MIX_DEFAULT_FORMAT;
 	int channels = 2;
@@ -119,7 +116,7 @@ int Window::initSdlTtf ()
 int Window::createWindow ()
 {
 	// Create a window
-	window = SDL_CreateWindow(
+	window_ = SDL_CreateWindow(
 			config.title.c_str(),
 			SDL_WINDOWPOS_UNDEFINED,
 			SDL_WINDOWPOS_UNDEFINED,
@@ -127,7 +124,7 @@ int Window::createWindow ()
 			config.height,
 			SDL_WINDOW_SHOWN
 			);
-	if (window == nullptr) {
+	if (window_ == nullptr) {
 		messageError("Window could not be created: %s\n", SDL_GetError());
 		return 1;
 	}
@@ -138,19 +135,19 @@ int Window::createWindow ()
 int Window::createRenderer ()
 {
 	// Create a renderer for the window
-	renderer = SDL_CreateRenderer(
-			window,
+	renderer_ = SDL_CreateRenderer(
+			window_,
 			-1,
 			SDL_RENDERER_ACCELERATED |
 			SDL_RENDERER_PRESENTVSYNC
 			);
-	if (renderer == nullptr) {
+	if (renderer_ == nullptr) {
 		messageError("Renderer could not be created: %s\n", SDL_GetError());
 		return 1;
 	}
 
 	// Initialize the render color
-	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xff);
+	SDL_SetRenderDrawColor(renderer_, 0x00, 0x00, 0x00, 0xff);
 
 	return 0;
 }
@@ -174,15 +171,15 @@ int Window::close ()
 	// Do not forget to free resources in their respective managers before
 	// running this!
 	cleanup(
-			renderer,
-			window,
+			renderer_,
+			window_,
 			CLEANUP::TTF,
 			CLEANUP::MIX,
 			CLEANUP::IMG,
 			CLEANUP::SDL
 		   );
-	renderer = nullptr;
-	window = nullptr;
+	renderer_ = nullptr;
+	window_ = nullptr;
 
 	return 0;
 }

@@ -6,8 +6,6 @@
  */
 
 #include "renderer.h"
-#include <algorithm>
-#include <cmath>
 
 namespace Zen {
 
@@ -18,6 +16,29 @@ Renderer::Renderer (Game& game_)
 
 	game.scale.on("SYS_RESIZE", &Renderer::onResize, this);
 
+	// Get the pixel format of the window
+	// Get the window's surface
+	SDL_Surface *infoSurface = nullptr;
+	infoSurface = SDL_GetWindowSurface(window.window_);
+	if (!infoSurface) {
+		messageError("Failed to create info surface from window: ", SDL_GetError());
+		return;
+	}
+
+	pixelFormat_ = infoSurface->format;
+
+	SDL_FreeSurface(infoSurface);
+
+	// Set the mask texture blend mode
+	maskBlendMode_ = SDL_ComposeCustomBlendMode(
+			SDL_BLENDFACTOR_ZERO,			// Zero out the mask color
+			SDL_BLENDFACTOR_ONE,			// Keep the masked color
+			SDL_BLENDOPERATION_ADD,
+			SDL_BLENDFACTOR_ZERO,			// Zero out the mask alpha
+			SDL_BLENDFACTOR_SRC_ALPHA,		// Multiply masked alpha by mask alpha
+			SDL_BLENDOPERATION_ADD
+			);
+
 	resize(window.width(), window.height());
 }
 
@@ -25,6 +46,12 @@ Renderer::~Renderer ()
 {
 	if (snapshotState.surface)
 		SDL_FreeSurface(snapshotState.surface);
+
+	if (maskBuffer_)
+		SDL_FreeSurface(maskBuffer_);
+
+	if (cameraBuffer_)
+		SDL_FreeSurface(cameraBuffer_);
 }
 
 void Renderer::onResize (Data data)
@@ -39,7 +66,51 @@ void Renderer::onResize (Data data)
 
 void Renderer::resize (int width, int height)
 {
-	emit("SYS_RESIZE", {{width, height}});
+	emit("SYS_RESIZE", width, height);
+
+	width_ = width;
+	height_ = height;
+
+	// Free the mask buffer
+	if (maskBuffer_)
+		SDL_FreeSurface(maskBuffer_);
+
+	// Reset it to the same size as the renderer
+	maskBuffer_ = SDL_CreateTexture(
+			window.renderer_,
+			pixelFormat_->format,
+			SDL_TEXTUREACCESS_TARGET,
+			width,
+			height
+			);
+
+	// Free the camera buffer
+	if (cameraBuffer_)
+		SDL_FreeSurface(cameraBuffer_);
+
+	// Reset it to the same size as the renderer
+	cameraBuffer_ = SDL_CreateTexture(
+			window.renderer_,
+			pixelFormat_->format,
+			SDL_TEXTUREACCESS_TARGET,
+			width,
+			height
+			);
+
+	// Free the mask texture
+	if (maskTexture_)
+		SDL_FreeSurface(maskTexture_);
+
+	// Reset it to the same size as the renderer
+	maskTexture_ = SDL_CreateTexture(
+			window.renderer_,
+			pixelFormat_->format,
+			SDL_TEXTUREACCESS_TARGET,
+			width,
+			height
+			);
+	// Set the mask texture's blend mode
+	SDL_SetTextureBlendMode(maskTexture_, maskBlendMode_);
 }
 
 void Renderer::preRender ()
@@ -75,7 +146,7 @@ void Renderer::render (Scene& scene, std::vector<GameObjects::GameObject*> child
 	}
 
 	if (camera.mask_)
-		camera.mask_->preRender(*this, nullptr, camera.maskCamera_);
+		camera.mask_->preRender(this, nullptr, &camera.maskCamera_);
 
 	// Camera's background color if not transparent
 	if (!camera.transparent_) {
@@ -88,19 +159,11 @@ void Renderer::render (Scene& scene, std::vector<GameObjects::GameObject*> child
 		SDL_RenderFillRect(window.renderer_, &c);
 	}
 
-	drawCount += children.size();
+	drawCount_ += children.size();
 
-	matrix.copyFrom(camera.matrix_);
-
-	for (int i = 0; i < children.size(); i++) {
-		if (children[i]->mask_)
-			children[i]->mask_->preRender(*this, *children[i], camera);
-
+	// Render the GameObject
+	for (int i = 0; i < children.size(); i++) 
 		children[i]->render(*this, *children[i], camera);
-
-		if (children[i]->mask_)
-			children[i]->mask_->postRender(*this, *children[i], camera);
-	}
 
 	camera.flashEffect.postRender();
 	camera.fadeEffect.postRender();
@@ -108,7 +171,7 @@ void Renderer::render (Scene& scene, std::vector<GameObjects::GameObject*> child
 	camera.dirty_ = false;
 
 	if (camera.mask_)
-		camera.mask_->postRender(*this);
+		camera.mask_->postRender(this);
 
 	// Remove the viewport if previously set
 	if (game.scene.customViewports_)
@@ -193,31 +256,20 @@ void Renderer::takeSnapshot ()
 		rect.w = 1;
 		rect.h = 1;
 
-		// Get the window's surface
-		SDL_Surface *infoSurface = nullptr;
-		infoSurface = SDL_GetWindowSurface(window.window);
-		if (!infoSurface) {
-			messageError("Failed to create info surface from window: ", SDL_GetError());
-			return;
-		}
-
 		if (SDL_RenderReadPixels(
 					window.renderer,
 					&rect,
-					infoSurface->format->format,
+					pixelFormat_->format,
 					&pixel,
 					pitch
 					)) {
 			messageError("Failed to read the window pixel data: ", SDL_GetError());
-			SDL_FreeSurface(infoSurface);
 			return;
 		}
 
 		// Get the color components of the pixel
 		Uint8 r = 0, g = 0, b = 0, a = 0;
-		SDL_GetRGBA(pixel, infoSurface->format, &r, &g, &b, &a);
-
-		SDL_FreeSurface(infoSurface);
+		SDL_GetRGBA(pixel, pixelFormat_, &r, &g, &b, &a);
 
 		// Save the color components to the output color object
 		Display::Color out;
@@ -235,40 +287,32 @@ void Renderer::takeSnapshot ()
 				snapshotState.height != window.height()
 				);
 
-		SDL_Surface infoSurface = nullptr;
-		infoSurface = SDL_GetWindowSurface(window.window);
-		if (!infoSurface) {
-			messageError("Failed to create info surface from window: ", SDL_GetError());
-			return;
-		}
-
 		// Create a blank surface
 		if (areaSnapshot) {
 			snapshotState.surface = SDL_CreateRGBSurface(
 					0,
 					snapshotState.width,
 					snapshotState.height,
-					infoSurface->format->BitsPerPixel,
-					infoSurface->format->Rmask,
-					infoSurface->format->Gmask,
-					infoSurface->format->Bmask,
-					infoSurface->format->Amask
+					pixelFormat_->BitsPerPixel,
+					pixelFormat_->Rmask,
+					pixelFormat_->Gmask,
+					pixelFormat_->Bmask,
+					pixelFormat_->Amask
 					);
 		} else {
 			snapshotState.surface = SDL_CreateRGBSurface(
 					0,
-					infoSurface->w,
-					infoSurface->h,
-					infoSurface->format->BitsPerPixel,
-					infoSurface->format->Rmask,
-					infoSurface->format->Gmask,
-					infoSurface->format->Bmask,
-					infoSurface->format->Amask
+					width_,
+					height_,
+					pixelFormat_->BitsPerPixel,
+					pixelFormat_->Rmask,
+					pixelFormat_->Gmask,
+					pixelFormat_->Bmask,
+					pixelFormat_->Amask
 					);
 		}
 		if (!snapshotState.surface) {
 			messageError("Failed to create an RGB surface: ", SDL_GetError());
-			SDL_FreeSurface(infoSurface);
 			return;
 		}
 
@@ -286,7 +330,7 @@ void Renderer::takeSnapshot ()
 			readFailed = SDL_RenderReadPixels(
 					window.renderer,
 					&rect,
-					infoSurface->format->format,
+					pixelFormat_->format,
 					snapshotState.surface->pixels,
 					snapshotState.surface->pitch);
 		} else {
@@ -294,7 +338,7 @@ void Renderer::takeSnapshot ()
 			readFailed = SDL_RenderReadPixels(
 					window.renderer,
 					nullptr,
-					infoSurface->format->format,
+					pixelFormat_->format,
 					snapshotState.surface->pixels,
 					snapshotState.surface->pitch);
 		}
@@ -303,11 +347,8 @@ void Renderer::takeSnapshot ()
 		if (readFailed) {
 			messageError("Failed to read the window pixel data: ", SDL_GetError());
 			SDL_FreeSurface(snapshotState.surface);
-			SDL_FreeSurface(infoSurface);
 			return;
 		}
-
-		SDL_FreeSurface(infoSurface);
 
 		// Save an image file if a path is given
 		if (snapshotState.path != "") {
@@ -465,7 +506,7 @@ void Renderer::batchSprite (
 	setGlobalCompositionOperation(sprite.blendMode);
 
 	if (sprite.mask)
-		sprite.mask.preRender(*this, sprite, camera);
+		sprite.mask->preRender(this, &sprite, &camera, dm);
 
 	// Render the texture
 	SDL_Rect source {frameX, frameY, frameWidth, frameHeight};
@@ -495,7 +536,7 @@ void Renderer::batchSprite (
 			);
 
 	if (sprite.mask)
-		sprite.mask.postRender(*this, sprite, camera);
+		sprite.mask->postRender(this, &sprite, &camera);
 }
 
 }	// namespace Zen

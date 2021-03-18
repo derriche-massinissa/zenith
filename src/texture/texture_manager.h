@@ -16,7 +16,7 @@
 #include <fstream>
 #include "../data.h"
 #include "../event/event_emitter.h"
-#include "../utils/json.h"
+#include "../utils/json.hpp"
 #include "sprite_sheet_config.h"
 
 namespace Zen {

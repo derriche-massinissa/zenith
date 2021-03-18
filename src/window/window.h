@@ -56,14 +56,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SDL_Window *window = nullptr;
+	SDL_Window *window_ = nullptr;
 
 	/** 
 	 * A reference to the SDL window.
 	 *
 	 * @since 0.0.0
 	 */
-	SDL_Renderer *renderer = nullptr;
+	SDL_Renderer *renderer_ = nullptr;
 
 	/**
 	 * Getter for the window's width.
