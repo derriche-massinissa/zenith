@@ -1,12 +1,12 @@
 /**
- * @file		alpha.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef GAMEOBJECT_COMPONENT_ALPHA_H
-#define GAMEOBJECT_COMPONENT_ALPHA_H
+#ifndef ZEN_GAMEOBJECTS_COMPONENT_ALPHA_H
+#define ZEN_GAMEOBJECTS_COMPONENT_ALPHA_H
 
 #include "math.h"
 #include "../../defs.h"
@@ -53,29 +53,29 @@ public:
 
 	/**
 	 * Set the Alpha level of this Game Object. The alpha controls the opacity of the Game Object as it renders.
-	 * Alpha values are provided as a float between 0, fully transparent, and 1, fully opaque.
+	 * Alpha values are provided as a double between 0, fully transparent, and 1, fully opaque.
 	 *
 	 * You can optionally specify four different alpha values, each of which
 	 * correspond to the four corners of the Game Object.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param topLeft The alpha value used for the top-left of the Game Object. If this is the only value given it's applied across the whole Game Object.
-	 * @param topRight The alpha value used for the top-right of the Game Object.
-	 * @param bottomLeft The alpha value used for the bottom-left of the Game Object.
-	 * @param bottomRight The alpha value used for the bottom-right of the Game Object.
+	 * @param topLeft_ The alpha value used for the top-left of the Game Object. If this is the only value given it's applied across the whole Game Object.
+	 * @param topRight_ The alpha value used for the top-right of the Game Object.
+	 * @param bottomLeft_ The alpha value used for the bottom-left of the Game Object.
+	 * @param bottomRight_ The alpha value used for the bottom-right of the Game Object.
 	 *
 	 * @return This Game Object instance.
 	 */
-	T& setAlpha (float topLeft = 1, float topRight = -1, float bottomLeft = -1, float bottomRight = -1)
+	T& setAlpha (double topLeft_ = 1, double topRight_ = -1, double bottomLeft_ = -1, double bottomRight_ = -1)
 	{
-		if (topRight == -1) {
-			alpha_ = 1.0;
+		if (topRight_ == -1) {
+			alpha = 1.0;
 		} else {
-			alphaTL_ = Math::clamp(topLeft, 0.0, 1.0);
-			alphaTR_ = Math::clamp(topRight, 0.0, 1.0);
-			alphaBL_ = Math::clamp(bottomLeft, 0.0, 1.0);
-			alphaBR_ = Math::clamp(bottomRight, 0.0, 1.0);
+			alphaTL = Math::clamp(topLeft_, 0.0, 1.0);
+			alphaTR = Math::clamp(topRight_, 0.0, 1.0);
+			alphaBL = Math::clamp(bottomLeft_, 0.0, 1.0);
+			alphaBR = Math::clamp(bottomRight_, 0.0, 1.0);
 		}
 
 		return *This();
@@ -88,28 +88,28 @@ public:
 	 *
 	 * @return Alpha value.
 	 */
-	float getAlpha () { return alpha_; }
-	float getAlphaTopLeft () { return alphaTL_; }
-	float getAlphaTopRight () { return alphaTR_; }
-	float getAlphaBottomLeft () { return alphaBL_; }
-	float getAlphaBottomRight () { return alphaBR_; }
+	double getAlpha () { return alpha; }
+	double getAlphaTopLeft () { return alphaTL; }
+	double getAlphaTopRight () { return alphaTR; }
+	double getAlphaBottomLeft () { return alphaBL; }
+	double getAlphaBottomRight () { return alphaBR; }
 
 	/**
 	 * Sets alpha values.
 	 *
 	 * @since 0.0.0
 	 */
-	T& setAlpha (float value)
+	T& setAlpha (double value_)
 	{
-		float v = Math::clamp(value, 0.0, 1.0);
+		double v_ = Math::clamp(value_, 0.0, 1.0);
 
-		alpha_ = v;
-		alphaTL_ = v;
-		alphaTR_ = v;
-		alphaBL_ = v;
-		alphaBR_ = v;
+		alpha = v_;
+		alphaTL = v_;
+		alphaTR = v_;
+		alphaBL = v_;
+		alphaBR = v_;
 
-		if (!v)
+		if (!v_)
 			// Turn the alpha bit to 0
 			This()->renderFlags &= ~FLAG;
 		else
@@ -119,52 +119,52 @@ public:
 		return *This();
 	}
 
-	T& setAlphaTopLeft (float value)
+	T& setAlphaTopLeft (double value_)
 	{
-		float v = Math::clamp(value, 0.0, 1.0);
+		double v_ = Math::clamp(value_, 0.0, 1.0);
 
-		alphaTL_ = v;
+		alphaTL = v_;
 
-		if (v)
+		if (v_)
 			// Turn the alpha bit to 1
 			This()->renderFlags |= FLAG;
 
 		return *This();
 	}
 
-	T& setAlphaTopRight (float value)
+	T& setAlphaTopRight (double value_)
 	{
-		float v = Math::clamp(value, 0.0, 1.0);
+		double v_ = Math::clamp(value_, 0.0, 1.0);
 
-		alphaTR_ = v;
+		alphaTR = v_;
 
-		if (v)
+		if (v_)
 			// Turn the alpha bit to 1
 			This()->renderFlags |= FLAG;
 
 		return *This();
 	}
 
-	T& setAlphaBottomLeft (float value)
+	T& setAlphaBottomLeft (double value_)
 	{
-		float v = Math::clamp(value, 0.0, 1.0);
+		double v_ = Math::clamp(value_, 0.0, 1.0);
 
-		alphaBL_ = v;
+		alphaBL_ = v_;
 
-		if (v)
+		if (v_)
 			// Turn the alpha bit to 1
 			This()->renderFlags |= FLAG;
 
 		return *This();
 	}
 
-	T& setAlphaBottomRight (float value)
+	T& setAlphaBottomRight (double value_)
 	{
-		float v = Math::clamp(value, 0.0, 1.0);
+		double v_ = Math::clamp(value_, 0.0, 1.0);
 
-		alphaBR_ = v;
+		alphaBR_ = v_;
 
-		if (v)
+		if (v_)
 			// Turn the alpha bit to 1
 			This()->renderFlags |= FLAG;
 
@@ -177,35 +177,35 @@ private:
 	 *
 	 * @since 0.0.0
 	 */
-	float alpha_ = 1;
+	double alpha = 1;
 
 	/**
 	 * Holds the top-left alpha value.
 	 *
 	 * @since 0.0.0
 	 */
-	float alphaTL_ = 1;
+	double alphaTL = 1;
 
 	/**
 	 * Holds the top-right alpha value.
 	 *
 	 * @since 0.0.0
 	 */
-	float alphaTR_ = 1;
+	double alphaTR = 1;
 
 	/**
 	 * Holds the bottom-left alpha value.
 	 *
 	 * @since 0.0.0
 	 */
-	float alphaBL_ = 1;
+	double alphaBL = 1;
 
 	/**
 	 * Holds the bottom-right alpha value.
 	 *
 	 * @since 0.0.0
 	 */
-	float alphaBR_ = 1;
+	double alphaBR = 1;
 };
 
 }	// namespace Components
