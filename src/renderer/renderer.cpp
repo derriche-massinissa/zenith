@@ -14,6 +14,8 @@
 #include "../window/window.h"
 #include "../scene/scene.h"
 
+#include "../math/rad_to_deg.h"
+
 namespace Zen {
 
 Renderer::Renderer (Game& game_)
@@ -65,6 +67,9 @@ void Renderer::start ()
 			SDL_BLENDFACTOR_SRC_ALPHA,		// Multiply masked alpha by mask alpha
 			SDL_BLENDOPERATION_ADD
 			);
+
+	// Create the supported blend modes
+	createBlendModes();
 
 	resize(window.width(), window.height());
 }
@@ -146,9 +151,6 @@ void Renderer::render (
 		std::vector<GameObjects::GameObject*> children_,
 		Cameras::Scene2D::Camera& camera_)
 {
-	if (window.isMinimized())
-		return;
-
 	emit("render");
 
 	SDL_Rect c_;
@@ -496,24 +498,24 @@ void Renderer::batchSprite (
 		}
 	}
 
-	int flipX_ = 1;
-	int flipY_ = 1;
+	bool flipX_ = false;
+	bool flipY_ = false;
 
 	if (sprite_.flipX) {
 		if (!customPivot_)
 			x_ += (-frame_.getRealWidth() + (displayOriginX_ * 2));
 
-		flipX_ = -1;
+		flipX_ = true;
 	}
 
 	if (sprite_.flipY) {
 		if (!customPivot_)
 			y_ += (-frame_.getRealHeight() + (displayOriginY_ * 2));
 
-		flipY_ = -1;
+		flipY_ = true;
 	}
 
-	spriteMatrix_.applyITRS(sprite_.getX(), sprite_.getY(), sprite_.getRotation(), sprite_.getScaleX() * flipX_, sprite_.getScaleY() * flipY_);
+	spriteMatrix_.applyITRS(sprite_.getX(), sprite_.getY(), sprite_.getRotation(), sprite_.getScaleX(), sprite_.getScaleY());
 
 	camMatrix_.copyFrom(camera_.matrix);
 
@@ -562,22 +564,65 @@ void Renderer::batchSprite (
 	Math::Vector2 sOffset_ = game.scale.displayOffset;
 
 	SDL_Rect destination_;
+	// Position
 	destination_.x = x_ + dm_.translateX + sOffset_.x;
 	destination_.y = y_ + dm_.translateY + sOffset_.y;
+	// Scale
 	destination_.w = (frameWidth_ / res_) * dm_.scaleX * sScale_.x;
 	destination_.h = (frameHeight_ / res_) * dm_.scaleY * sScale_.y;
 
-	double angle_ = dm_.rotation;
+	// Rotation
+	double angle_ = Math::radToDeg( dm_.rotation );
 
-	SDL_Point origin_ {displayOriginX_, displayOriginY_};
+	// Origin
+	SDL_Point origin_ {
+		displayOriginX_ * dm_.scaleX,
+		displayOriginY_ * dm_.scaleY
+	};
 
+	// Flip
 	SDL_RendererFlip flip_ = SDL_FLIP_NONE;
-	if (sprite_.flipX)
-		flip_ = (SDL_RendererFlip)SDL_FLIP_HORIZONTAL;
-	else if (sprite_.flipY)
-		flip_ = (SDL_RendererFlip)SDL_FLIP_VERTICAL;
-	else if (sprite_.flipX && sprite_.flipY)
+	if (flipX_ && flipY_)
+	{
 		flip_ = (SDL_RendererFlip)(SDL_FLIP_VERTICAL | SDL_FLIP_HORIZONTAL);
+	}
+	else if (flipX_)
+	{
+		flip_ = (SDL_RendererFlip)SDL_FLIP_HORIZONTAL;
+	}
+	else if (flipY_)
+	{
+		flip_ = (SDL_RendererFlip)SDL_FLIP_VERTICAL;
+	}
+
+	// Tint (Color Modulation)
+	if (sprite_.isTinted())
+	{
+		SDL_SetTextureColorMod(
+			frame_.source->sdlTexture,
+			sprite_.tint.red(),
+			sprite_.tint.green(),
+			sprite_.tint.blue()
+			);
+	}
+
+	// Alpha (Transparency)
+	if (alpha_ < 1.0)
+	{
+		SDL_SetTextureAlphaMod(
+			frame_.source->sdlTexture,
+			alpha_ * 255
+			);
+	}
+
+	// Blending
+	if (sprite_.getBlendMode() != BLEND_MODE::NORMAL)
+	{
+		SDL_SetTextureBlendMode(
+			frame_.source->sdlTexture,
+			blendModes[sprite_.getBlendMode()]
+			);
+	}
 
 	SDL_RenderCopyEx(
 			window.renderer,
@@ -588,6 +633,35 @@ void Renderer::batchSprite (
 			&origin_,
 			flip_
 			);
+
+	// Clear blending
+	if (sprite_.getBlendMode() != BLEND_MODE::NORMAL)
+	{
+		SDL_SetTextureBlendMode(
+			frame_.source->sdlTexture,
+			blendModes[BLEND_MODE::NORMAL]
+			);
+	}
+
+	// Clear alpha from texture
+	if (alpha_ < 1.0)
+	{
+		SDL_SetTextureAlphaMod(
+			frame_.source->sdlTexture,
+			255
+			);
+	}
+
+	// Clear tint from texture
+	if (sprite_.isTinted())
+	{
+		SDL_SetTextureColorMod(
+			frame_.source->sdlTexture,
+			0xff,
+			0xff,
+			0xff
+			);
+	}
 
 	if (sprite_.getMask())
 		postRenderMask(sprite_.getMask(), &sprite_, &camera_);
