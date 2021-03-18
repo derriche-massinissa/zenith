@@ -120,5 +120,15 @@ void ScaleManager::setScaleMode (SCALE_MODE sm)
 	displaySize.setAspectMode(sm);
 }
 
+int getWidth ()
+{
+	return gameSize.getWidth();
+}
+
+int getHeight ()
+{
+	return gameSize.getHeight();
+}
+
 }	// namespace Scale
 }	// namespace Zen

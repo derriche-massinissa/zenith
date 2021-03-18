@@ -103,10 +103,14 @@ set_target_properties(${PROJECT_NAME}
 	PROPERTIES LINKER_LANGUAGE CXX
 	)
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(includes/json)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+
 # External includes
-target_include_directories(${PROJECT} PUBLIC
-	"${CMAKE_SOURCE_DIR}/includes"
-	)
+#target_include_directories(${PROJECT} PUBLIC
+#	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/includes"
+#	)
 
 # External includes
 #target_include_directories(${PROJECT_NAME} PUBLIC

@@ -10,7 +10,7 @@
 namespace Zen {
 namespace Math {
 
-RandomDataGenerator::Random ()
+RandomDataGenerator::RandomDataGenerator ()
 {
 	// Use the random device to generate a seed for the random engine
 	seed();

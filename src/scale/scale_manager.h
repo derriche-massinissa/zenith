@@ -172,6 +172,10 @@ public:
 
 	int transformY (int windowY_);
 
+	int getWidth ();
+
+	int getHeight ();
+
 };	// class ScaleManager
 
 }	// namespace Scale

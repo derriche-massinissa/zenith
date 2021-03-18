@@ -9,17 +9,17 @@
 
 namespace Zen {
 
-void Zen::messageError (std::string message, const std::string& opt)
+void messageError (std::string message, const std::string opt)
 {
 	std::cerr << "Error: " << message << opt << std::endl;
 }
 
-void Zen::messageWarning (std::string message, const std::string& opt)
+void messageWarning (std::string message, const std::string opt)
 {
 	std::cout << "Warning: " << message << opt << std::endl;
 }
 
-void Zen::messageNote (std::string message, const std::string& opt)
+void messageNote (std::string message, const std::string opt)
 {
 	std::cout << "Note: " << message << opt << std::endl;
 }

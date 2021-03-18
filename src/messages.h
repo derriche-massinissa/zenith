@@ -13,11 +13,12 @@
 
 namespace Zen {
 
-void messageError (std::string message, const std::string& opt = "");
+void messageError (std::string message, const std::string opt = "");
 
-void messageWarning (std::string message, const std::string& opt = "");
+void messageWarning (std::string message, const std::string opt = "");
 
-void messageNote (std::string message, const std::string& opt = "");
-}
+void messageNote (std::string message, const std::string opt = "");
+
+}	// namespace Zen
 
 #endif

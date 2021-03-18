@@ -1,5 +1,5 @@
 /**
- * @file		camera_manager.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -7,192 +7,222 @@
 
 #include "camera_manager.h"
 
-Zen::CameraManager::CameraManager (Zen::Scene& s)
-	: scene(s)
-{
-	scene.events.once("SYS_BOOT", &CameraManager::boot, this);
+namespace Zen {
+namespace Cameras {
+namespace Scene2D {
 
-	scene.events.on("SYS_START", &CameraManager::start, this);
+CameraManager::CameraManager (Scene& scene_)
+	: systems (scene_.sys)
+	, scene (scene_)
+{
+	scene_.sys.events.once("boot", &CameraManager::boot, this);
+
+	scene_.sys.events.on("start", &CameraManager::start, this);
 }
 
-Zen::CameraManager::~CameraManager ()
+CameraManager::~CameraManager ()
 {
 	shutdown();
 
-	scene.events.off("SYS_START", &CameraManager::start, this);
+	systems.events.off("start", &CameraManager::start, this);
 }
 
-void Zen::CameraManager::boot (Zen::Data data)
+void CameraManager::boot ()
 {
-	if (scene.sys.settings.cameras.size())
+	if (systems.settings.cameras.size())
+	{
 		// We have cameras to create
-		fromConfig(scene.sys.settings.cameras);
+		fromConfig(systems.settings.cameras);
+	}
 	else
+	{
 		// Make one
 		add();
+	}
 
 	main = &cameras.at(0);
 
 	// Configure the default camera (It already exists)
 	def.setViewpointX(0)
 		.setViewpointY(0)
-		.setViewpointWidth(scene.sys.scale.width)
-		.setViewpointHeight(scene.sys.scale.height)
+		.setViewpointWidth(systems.scale.width)
+		.setViewpointHeight(systems.scale.height)
 		.setScene(&scene);
 
-	scene.events.on("SYS_RESIZE", &CameraManager::onResize, this);
+	systems.game.scale.on("resize", &CameraManager::onResize, this);
 }
 
-void Zen::CameraManager::start (Zen::Data data)
+void CameraManager::start ()
 {
-	if (main == nullptr) {
-		if (scene.sys.settings.cameras.size())
+	if (main == nullptr)
+	{
+		if (systems.settings.cameras.size())
+		{
 			// We have cameras to create
-			fromConfig(scene.sys.settings.cameras);
+			fromConfig(systems.settings.cameras);
+		}
 		else
+		{
 			// Make one
 			add();
+		}
 
 		main = &cameras.at(0);
 	}
 
-	scene.events.on("SYS_UPDATE", &CameraManager::update, this);
-	scene.events.on("SYS_SHUTDOWN", &CameraManager::shutdown, this);
+	systems.events.on("update", &CameraManager::update, this);
+	systems.events.on("shutdown", &CameraManager::shutdown, this);
 }
 
-Zen::Camera* Zen::CameraManager::add (
-	int x, int y, int width, int height, bool makeMain, std::string name)
+Camera* CameraManager::add (
+		int x_, int y_, int width_, int height_, bool makeMain_, std::string name_)
 {
-	cameras.emplace_back(x, y, width, height);
-	Camera& camera = cameras.back();
+	if (width_ == 0)	width_ = systems.scale.getWidth();
+	if (height_ == 0)	height_ = systems.scale.getHeight();
 
-	camera.setName(name)
+	cameras.emplace_back(x_, y_, width_, height_);
+	Camera& camera_ = cameras.back();
+
+	camera_.setName(name_)
 		.setScene(&scene);
 
-	camera.id = getNextID();
+	camera_.id = getNextID();
 
-	if (makeMain)
-		main = &camera;
+	if (makeMain_)
+		main = &camera_;
 
-	return &camera;
+	return &camera_;
 }
 
-int Zen::CameraManager::getNextID ()
+int CameraManager::getNextID ()
 {
-	int testID = 1;
+	int testID_ = 1;
 
 	// Find the first free camera ID we can use
-	for (int t = 0; t < 32; t++) {
-		bool found = false;
+	for (int t_ = 0; t_ < 32; t_++)
+	{
+		bool found_ = false;
 
-		for (int i = 0; i < cameras.size(); i++) {
-			if (cameras.at(i).id == testID) {
-				found = true;
+		for (auto& camera_ : cameras)
+		{
+			if (camera_.id == testID_)
+			{
+				found_ = true;
 				break;
 			}
 		}
 
-		if (found)
-			testID = testID << 1;
+		if (found_)
+			testID_ <<= 1;
 		else
-			return testID;
+			return testID_;
 	}
 
 	return 0;
 }
 
-int Zen::CameraManager::getTotal (bool isVisible)
+int CameraManager::getTotal (bool isVisible_)
 {
-	int total = 0;
+	int total_ = 0;
 
-	for (int i = 0; i < cameras.size(); i++) {
-		if (!isVisible || (isVisible && cameras.get(i).visible))
-			total++;
+	for (auto& camera_ : cameras)
+	{
+		if (!isVisible_ || (isVisible_ && camera_.visible))
+			total_++;
 	}
 
-	return total;
+	return total_;
 }
 
-Zen::CameraManager& Zen::CameraManager::fromConfig (
-	std::vector<Zen::CameraConfig> config)
+CameraManager& CameraManager::fromConfig (
+		std::vector<CameraConfig> config_)
 {
-	int gameWidth = scene.sys.scale.width;
-	int gameHeight = scene.sys.scale.height;
+	int gameWidth_ = systems.scale.getWidth();
+	int gameHeight_ = systems.scale.getHeight();
 
-	for (int i = 0; i < config.size(); i++) {
-		auto camera = add(
-				config[i].x,
-				config[i].y,
-				config[i].width,
-				config[i].height
-			);
+	for (auto& camConfig_ :  config_)
+	{
+		auto camera_ = add(
+				camConfig_.x,
+				camConfig_.y,
+				camConfig_.width,
+				camConfig_.height
+				);
 
 		// Direct properties
-		camera->name = config[i].name;
-		camera->zoom = config[i].zoom;
-		camera->rotation = config[i].rotation;
-		camera->scrollX = config[i].scrollX;
-		camera->scrollY = config[i].scrollY;
-		camera->visible = config[i].visible;
-		camera->backgroundColor = config[i].backgroundColor;
+		camera_->setName(camConfig_.name)
+			.setZoom(camConfig_.zoom)
+			.setRotation(camConfig_.rotation)
+			.setScroll(camConfig_.scrollX, camConfig_.scrollY)
+			.setVisible(camConfig_.visible)
+			.setBackgroundColor(camConfig_.backgroundColor);
 
-		camera->setBounds(
-				config[i].bounds.x,
-				config[i].bounds.y,
-				config[i].bounds.width,
-				config[i].bounds.height
-			);
+		if (camConfig_.bounds.width)
+		{
+			camera_->setBounds(
+					camConfig_.bounds.x,
+					camConfig_.bounds.y,
+					camConfig_.bounds.width,
+					camConfig_.bounds.height
+					);
+		}
 	}
 
 	return *this;
 }
 
-Zen::Camera* Zen::CameraManager::getCamera (std::string name)
+Camera* CameraManager::getCamera (std::string name_)
 {
-	for (int i = 0; i < cameras.size(); i++) {
-		if (cameras[i].name == name)
-			return &cameras[i];
+	for (auto& camera_ : cameras)
+	{
+		if (camera.name == name_)
+			return &camera;
 	}
 
 	return nullptr;
 }
 
-std::vector<Zen::Camera*> Zen::CameraManager::getCamerasBelowPointer (
-	Zen::Pointer pointer)
+std::vector<Camera*> CameraManager::getCamerasBelowPointer (
+		Input::Pointer pointer_)
 {
-	std::vector<Camera*> output;
+	std::vector<Camera*> output_;
+	Geom::Rectangle camRect_;
 
 	// So the top-most camera is at the top of the search vector
-	for (int i = cameras.size() - 1; i >= 0; i++) {
+	for (int i = cameras.size() - 1; i >= 0; i++)
+	{
+		camRect_.setTo(
+			cameras[i].getX(),
+			cameras[i].getY(),
+			cameras[i].getWidth(),
+			cameras[i].getHeight()
+			);
+
 		if (cameras[i].visible &&
 			cameras[i].inputEnabled &&
-			Geom::Rectangle::contains(
-				cameras[i].x,
-				cameras[i].y,
-				cameras[i].width,
-				cameras[i].height,
-				pointer.x,
-				pointer.y)
-			)
+			camRect_.contains(pointer_.x, pointer_.y)
+		   )
 		{
-			output.emplace_back(&cameras[i]);
+			output_.emplace_back(&cameras[i]);
 		}
 	}
 
-	return output;
+	return output_;
 }
 
-int Zen::CameraManager::remove (
-	std::vector<Zen::Camera*> camerasToRemove)
+int CameraManager::remove (std::vector<Camera*> camerasToRemove_)
 {
-	int total = 0;
+	int total_ = 0;
 
-	for (auto it = cameras.begin(); it != cameras.end(); it++) {
-		for (auto c : camerasToRemove) {
-			if (*c == &*it) {
-				if (*c == main) main = nullptr;
-				cameras.erase(it);
-				total++;
+	for (auto it_ = cameras.begin(); it_ != cameras.end(); it_++)
+	{
+		for (auto c_ : camerasToRemove_)
+		{
+			if (*c_ == &*it_)
+			{
+				if (*c_ == main) main = nullptr;
+				cameras.erase(it_);
+				total_++;
 			}
 		}
 	}
@@ -200,44 +230,49 @@ int Zen::CameraManager::remove (
 	if (main == nullptr && cameras.size())
 		main = &cameras[0];
 
-	return total;
+	return total_;
 }
 
-int Zen::CameraManager::remove (Zen::Camera* cameraToRemove)
+int CameraManager::remove (Camera* cameraToRemove_)
 {
-	std::vector<Camera*> camerasToRemove {cameraToRemove};
+	std::vector<Camera*> camerasToRemove_ {cameraToRemove_};
 
-	return remove(camerasToRemove);
+	return remove(camerasToRemove_);
 }
 
-void Zen::CameraManager::render (Zen::Renderer& renderer, Zen::DisplayList& displayList)
+void CameraManager::render (
+		Renderer& renderer_,
+		GameObjects::DisplayList& displayList_)
 {
-	for (int i = 0; i < cameras.size(); i++) {
-		if (cameras[i].visible && cameras[i].alpha > 0) {
-			cameras[i].preRender();
+	for (auto& camera_ : cameras)
+	{
+		if (camera_.visible && camera_.alpha > 0)
+		{
+			camera_.preRender();
 
-			auto visibleChildren = getVisibleChildren(displayList.getChildren(), cameras[i]);
+			auto visibleChildren_ = getVisibleChildren(displayList_.getChildren(), camera_);
 
-			renderer.render(scene, visibleChildren, cameras[i]);
+			renderer_.render(scene, visibleChildren_, camera_);
 		}
 	}
 }
 
-std::vector<Zen::GameObject*> Zen::CameraManager::getVisibleChildren (
-	std::vector<Zen::GameObject*>& children,
-	Zen::Camera& camera)
+std::vector<GameObject*> CameraManager::getVisibleChildren (
+		std::vector<GameObject*>& children_,
+		Camera& camera_)
 {
-	std::vector<GameObject*> visible;
+	std::vector<GameObject*> visible_;
 
-	for (int i = 0; i < children.size(); i ++) {
-		if (children[i]->willRender(camera))
-			visible.emplace_back(children[i]);
+	for (auto& child_ : children_)
+	{
+		if (child_->willRender(camera_))
+			visible_.emplace_back(child_);
 	}
 
-	return visible;
+	return visible_;
 }
 
-void Zen::Camera* resetAll ()
+void Camera* resetAll ()
 {
 	cameras.clear();
 
@@ -246,42 +281,44 @@ void Zen::Camera* resetAll ()
 	return main;
 }
 
-void Zen::update (Uint32 time, Uint32 delta)
+void update (Uint32 time_, Uint32 delta_)
 {
-	for (int i = 0; i < cameras.size(); i++)
-		cameras[i].update(time, delta);
+	for (auto& camera_ : cameras)
+		camera_.update(time_, delta_);
 }
 
-void Zen::CameraManager::onResize (Zen::Data data)
+void CameraManager::onResize (
+		Structs::Size gameSize_,
+		Structs::Size displaySize_,
+		int previousWidth_,
+		int previousHeight_)
 {
-	int gameWidth = data.i[0];
-	int gameHeight = data.i[1];
-	int baseWidth = data.i[2];
-	int baseHeight = data.i[3];
-	int previousWidth = data.i[4];
-	int previousHeight = data.i[5];
-
-	for (int i = 0; i < cameras.size(); i++) {
+	for (auto& camera_ : cameras)
+	{
 		// If camera is at 0x0 and was the size of the previous game size, then
 		// we can safely assume it should be updated to match the new game size too
 
-		if (cameras[i].x == 0 && cameras[i].y == 0 && cameras[i].width == previousWidth && cameras[i].height == previousHeight)
-			cameras[i].setSize(baseWidth, baseHeight);
+		if (camera_.x == 0 && camera_.y == 0 && camera_.width == previousWidth_ && camera_.height == previousHeight_)
+			camera_.setSize(gameSize_.getWidth(), gameSize_.getHeight());
 	}
 }
 
-void Zen::CameraManager::resize (int width, int height)
+void CameraManager::resize (int width_, int height_)
 {
-	for (int i = 0; i < cameras.size(); i++)
-		cameras[i].setSize(width, height);
+	for (auto& camera_ : cameras)
+		camera_.setSize(width_, height_);
 }
 
-void Zen::CameraManager::shutdown ()
+void CameraManager::shutdown ()
 {
 	main = nullptr;
 
 	cameras.clear();
 
-	scene.events.off("SYS_UPDATE", &CameraManager::update, this);
-	scene.events.off("SYS_SHUTDOWN", &CameraManager::shutdown, this);
+	systems.events.off("update", &CameraManager::update, this);
+	systems.events.off("shutdown", &CameraManager::shutdown, this);
 }
+
+}	// namespace Scene2D
+}	// namespace Cameras
+}	// namespace Zen

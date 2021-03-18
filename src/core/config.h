@@ -1,12 +1,12 @@
 /**
- * @file		game_config.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef GAME_CONFIG_H
-#define GAME_CONFIG_H
+#ifndef ZEN_CORE_CONFIG_H
+#define ZEN_CORE_CONFIG_H
 
 #include <string>
 #include <queue>
@@ -21,8 +21,8 @@
 namespace Zen {
 namespace Core {
 
-class GameConfig
-{
+class GameConfig {
+
 public:
 	// Setters
 	/**
