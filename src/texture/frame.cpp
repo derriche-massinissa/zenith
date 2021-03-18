@@ -9,260 +9,260 @@
 
 namespace Zen {
 namespace Textures {
+
+Frame::Frame (Texture& texture_, std::string name_, int sourceIndex_, int x_, int y_, int width_, int height_)
+	: texture_ (texture_)
+    , name_ (name_)
+    , sourceIndex_ (sourceIndex_)
+    , x_ (x_)
+    , y_ (y_)
+    , width_ (width_)
+    , height_ (height_)
+    , source_ (texture_.source_[sourceIndex_])
 {
-Frame::Frame (Texture& texture, std::string name, int sourceIndex, int x, int y, int width, int height)
-	: texture_(texture)
-	  , name_(name)
-	  , sourceIndex_(sourceIndex)
-	  , x_(x)
-	  , y_(y)
-	  , width_(width)
-	  , height_(height)
-	  , source_(texture.source_[sourceIndex])
-{
-	setSize(width, height, x, y);
+	setSize(width_, height_, x_, y_);
 }
 
-Frame& Frame::setSize (int width, int height, int x = 0, int y = 0)
+Frame& Frame::setSize (int width_, int height_, int x_, int y_)
 {
-	cutX_ = x;
-	cutY_ = y;
-	cutWidth_ = width;
-	cutHeight_ = height;
+	cutX = x_;
+	cutY = y_;
+	cutWidth = width_;
+	cutHeight = height_;
 
-	width_ = width;
-	height_ = height;
+	width = width_;
+	height = height_;
 
-	halfWidth_ = width * 0.5;
-	halfHeight_ = height * 0.5;
+	halfWidth = width_ * 0.5;
+	halfHeight = height_ * 0.5;
 
-	centerX_ = width / 2.0;
-	centerY_ = height / 2.0;
+	centerX = width_ / 2.0;
+	centerY = height_ / 2.0;
 
-	data_.cut.x = x;
-	data_.cut.y = y;
-	data_.cut.w = width;
-	data_.cut.h = height;
-	data_.cut.r = x + width;
-	data_.cut.b = y + height;
+	data.cut.x = x_;
+	data.cut.y = y_;
+	data.cut.w = width_;
+	data.cut.h = height_;
+	data.cut.r = x_ + width_;
+	data.cut.b = y_ + height_;
 
-	data.sourceSize.w = width;
-	data.sourceSize.h = height;
+	data.sourceSize.w = width_;
+	data.sourceSize.h = height_;
 
-	data.radius = 0.5 * std::sqrt(width * width + height * height);
+	data.radius = 0.5 * std::sqrt(width_ * width_ + height_ * height_);
 
-	data_.drawImage.x = x;
-	data_.drawImage.y = y;
-	data_.drawImage.width = width;
-	data_.drawImage.height = height;
+	data.drawImage.x = x_;
+	data.drawImage.y = y_;
+	data.drawImage.width = width_;
+	data.drawImage.height = height_;
 
 	return updateUVs();
 }
 
-Frame& Frame::setTrim (int actualWidth, int actualHeight, int destX, int destY, int destWidth, int destHeight)
+Frame& Frame::setTrim (int actualWidth_, int actualHeight_, int destX_, int destY_, int destWidth_, int destHeight_)
 {
 	//  Store actual values
 
-	data_.trim = true;
+	data.trim = true;
 
-	data_.sourceSize.w = actualWidth;
-	data_.sourceSize.h = actualHeight;
+	data.sourceSize.w = actualWidth_;
+	data.sourceSize.h = actualHeight_;
 
-	data_.spriteSourceSize.x = destX;
-	data_.spriteSourceSize.y = destY;
-	data_.spriteSourceSize.w = destWidth;
-	data_.spriteSourceSize.h = destHeight;
-	data_.spriteSourceSize.r = destX + destWidth;
-	data_.spriteSourceSize.b = destY + destHeight;
+	data.spriteSourceSize.x = destX_;
+	data.spriteSourceSize.y = destY_;
+	data.spriteSourceSize.w = destWidth_;
+	data.spriteSourceSize.h = destHeight_;
+	data.spriteSourceSize.r = destX_ + destWidth_;
+	data.spriteSourceSize.b = destY_ + destHeight_;
 
 	//  Adjust properties
-	x_ = destX;
-	y_ = destY;
+	x = destX_;
+	y = destY_;
 
-	width_ = destWidth;
-	height_ = destHeight;
+	width = destWidth_;
+	height = destHeight_;
 
-	halfWidth_ = destWidth * 0.5;
-	halfHeight_ = destHeight * 0.5;
+	halfWidth = destWidth_ * 0.5;
+	halfHeight = destHeight_ * 0.5;
 
-	centerX_ = destWidth / 2.0;
-	centerY_ = destHeight / 2.0;
+	centerX = destWidth_ / 2.0;
+	centerY = destHeight_ / 2.0;
 
 	return updateUVs();
 }
 
-CropData Frame::setCropUVs (CropData crop, int x, int y, int width, int height, bool flipX, bool flipY)
+CropData Frame::setCropUVs (CropData crop_, int x_, int y_, int width_, int height_, bool flipX_, bool flipY_)
 {
 	//  Clamp the input values
 
-	int cx = cutX_;
-	int cy = cutY_;
-	int cw = cutWidth_;
-	int ch = cutHeight_;
-	int rw = realWidth_;
-	int rh = realHeight_;
+	int cx_ = cutX;
+	int cy_ = cutY;
+	int cw_ = cutWidth;
+	int ch_ = cutHeight;
+	int rw_ = realWidth;
+	int rh_ = realHeight;
 
-	x = Math::clamp(x, 0, rw);
-	y = Math::clamp(y, 0, rh);
+	x_ = Math::clamp(x_, 0, rw_);
+	y_ = Math::clamp(y_, 0, rh_);
 
-	width = Math::clamp(width, 0, rw - x);
-	height = Math::clamp(height, 0, rh - y);
+	width_ = Math::clamp(width_, 0, rw_ - x_);
+	height_ = Math::clamp(height_, 0, rh_ - y_);
 
-	int ox = cx + x;
-	int oy = cy + y;
-	int ow = width;
-	int oh = height;
+	int ox_ = cx_ + x_;
+	int oy_ = cy_ + y_;
+	int ow_ = width_;
+	int oh_ = height_;
 
-	if (data_.trim)
+	if (data.trim)
 	{
-		auto& ss = data_.spriteSourceSize;
+		auto& ss_ = data.spriteSourceSize;
 
 		// Need to check for intersection between the cut area and the
 		// crop area.
 		// If there is none, we set UV to be empty, otherwise set it to be
 		// the intersection area.
 
-		width = Math::clamp(width, 0, cw - x);
-		height = Math::clamp(height, 0, ch - y);
+		width_ = Math::clamp(width_, 0, cw_ - x_);
+		height_ = Math::clamp(height_, 0, ch_ - y_);
 
-		int cropRight = x + width;
-		int cropBottom = y + height;
+		int cropRight_ = x_ + width_;
+		int cropBottom_ = y_ + height_;
 
-		bool intersects = !(ss.r < x || ss.b < y || ss.x > cropRight || ss.y > cropBottom);
+		bool intersects_ = !(ss_.r < x_ || ss_.b < y_ || ss_.x > cropRight_ || ss_.y > cropBottom_);
 
-		if (intersects) {
-			int ix = std::max(ss.x, x);
-			int iy = std::max(ss.y, y);
-			int iw = std::min(ss.r, cropRight) - ix;
-			int ih = std::min(ss.b, cropBottom) - iy;
+		if (intersects_) {
+			int ix_ = std::max(ss_.x, x_);
+			int iy_ = std::max(ss_.y, y_);
+			int iw_ = std::min(ss_.r, cropRight_) - ix_;
+			int ih_ = std::min(ss_.b, cropBottom_) - iy_;
 
-			ow = iw;
-			oh = ih;
+			ow_ = iw_;
+			oh_ = ih_;
 
-			if (flipX) {
-				ox = cx + (cw - (ix - ss.x) - iw);
+			if (flipX_) {
+				ox_ = cx_ + (cw_ - (ix_ - ss_.x) - iw_);
 			} else {
-				ox = cx + (ix - ss.x);
+				ox_ = cx_ + (ix_ - ss_.x);
 			}
 
-			if (flipY) {
-				oy = cy + (ch - (iy - ss.y) - ih);
+			if (flipY_) {
+				oy_ = cy_ + (ch_ - (iy_ - ss_.y) - ih_);
 			} else {
-				oy = cy + (iy - ss.y);
+				oy_ = cy_ + (iy_ - ss_.y);
 			}
 
-			x = ix;
-			y = iy;
+			x_ = ix_;
+			y_ = iy_;
 
-			width = iw;
-			height = ih;
+			width_ = iw_;
+			height_ = ih_;
 		} else {
-			ox = 0;
-			oy = 0;
-			ow = 0;
-			oh = 0;
+			ox_ = 0;
+			oy_ = 0;
+			ow_ = 0;
+			oh_ = 0;
 		}
 	} else {
-		if (flipX) {
-			ox = cx + (cw - x - width);
+		if (flipX_) {
+			ox_ = cx_ + (cw_ - x_ - width_);
 		}
 
 		if (flipY)
 		{
-			oy = cy + (ch - y - height);
+			oy_ = cy_ + (ch_ - y_ - height_);
 		}
 	}
 
-	int tw = source.width;
-	int th = source.height;
+	int tw_ = source.width;
+	int th_ = source.height;
 
 	//  Map the given coordinates into UV space, clamping to the 0-1 range.
 
-	crop.u0 = std::max(0, ox / tw);
-	crop.v0 = std::max(0, oy / th);
-	crop.u1 = std::min(1, (ox + ow) / tw);
-	crop.v1 = std::min(1, (oy + oh) / th);
+	crop_.u0 = std::max(0, ox_ / tw_);
+	crop_.v0 = std::max(0, oy_ / th_);
+	crop_.u1 = std::min(1, (ox_ + ow_) / tw_);
+	crop_.v1 = std::min(1, (oy_ + oh_) / th_);
 
-	crop.x = x;
-	crop.y = y;
+	crop_.x = x_;
+	crop_.y = y_;
 
-	crop.cx = ox;
-	crop.cy = oy;
-	crop.cw = ow;
-	crop.ch = oh;
+	crop_.cx = ox_;
+	crop_.cy = oy_;
+	crop_.cw = ow_;
+	crop_.ch = oh_;
 
-	crop.width = width;
-	crop.height = height;
+	crop_.width = width_;
+	crop_.height = height_;
 
-	crop.flipX = flipX;
-	crop.flipY = flipY;
+	crop_.flipX = flipX_;
+	crop_.flipY = flipY_;
 
-	return crop;
+	return crop_;
 }
 
-CropData Frame::updateCropUVs (CropData crop, bool flipX, bool flipY)
+CropData Frame::updateCropUVs (CropData crop_, bool flipX_, bool flipY_)
 {
-	return setCropUVs(crop, crop.x, crop.y, crop.width, crop.height, flipX, flipY);
+	return setCropUVs(crop_, crop_.x, crop_.y, crop_.width, crop_.height, flipX_, flipY_);
 }
 
-Frame& Frame::setUVs (int width, int height, double u0, double v0, double u1, double v1)
+Frame& Frame::setUVs (int width_, int height_, double u0_, double v0_, double u1_, double v1_)
 {
 	//  Canvas data
 
-	auto& cd = data_.drawImage;
+	auto& cd_ = data.drawImage;
 
-	cd.width = width;
-	cd.height = height;
+	cd_.width = width_;
+	cd_.height = height_;
 
 	//  WebGL data
       
-	u0_ = u0;
-	v0_ = v0;
+	u0 = u0_;
+	v0 = v0_;
 
-	u1_ = u1;
-	v1_ = v1;
+	u1 = u1_;
+	v1 = v1_;
 
 	return *this;
 }
 
 Frame& Frame::updateUVs ()
 {
-	int cx = cutX_;
-	int cy = cutY_;
-	int cw = cutWidth_;
-	int ch = cutHeight_;
+	int cx_ = cutX;
+	int cy_ = cutY;
+	int cw_ = cutWidth;
+	int ch_ = cutHeight;
 
 	//  Canvas data
 
-	auto& cd = data_.drawImage;
+	auto& cd_ = data.drawImage;
 
-	cd.width = cw;
-	cd.height = ch;
+	cd_.width = cw_;
+	cd_.height = ch_;
 
 	//  WebGL data
 
-	int tw = source.width;
-	int th = source.height;
+	int tw_ = source.width;
+	int th_ = source.height;
 
-	u0_ = cx / tw;
-	v0_ = cy / th;
+	u0 = cx_ / tw_;
+	v0 = cy_ / th_;
 
-	u1_ = (cx + cw) / tw;
-	v1_ = (cy + ch) / th;
+	u1 = (cx_ + cw_) / tw_;
+	v1 = (cy_ + ch_) / th_;
 
 	return *this;
 }
 
 Frame& Frame::updateUVsInverted ()
 {
-	int tw = source.width;
-	int th = source.height;
+	int tw_ = source.width;
+	int th_ = source.height;
 
-	u0_ = (cutX_ + cutHeight_) / tw;
-	v0_ = cutY_ / th;
+	u0 = (cutX + cutHeight) / tw_;
+	v0 = cutY / th_;
 
-	u1_ = cutX_ / tw;
-	v1_ = (cutY_ + cutWidth_) / th;
+	u1 = cutX / tw_;
+	v1 = (cutY + cutWidth) / th_;
 
 	return *this;
 }
@@ -274,27 +274,27 @@ Frame Frame::clone()
 
 int Frame::getRealWidth ()
 {
-	return data_.sourceSize.w;
+	return data.sourceSize.w;
 }
 
 int Frame::getRealHeight ()
 {
-	return data_.sourceSize.h;
+	return data.sourceSize.h;
 }
 
 double Frame::getRadius ()
 {
-	return data_.radius;
+	return data.radius;
 }
 
 bool Frame::isTrimmed ()
 {
-	return data_.trim;
+	return data.trim;
 }
 
 FrameDataDrawImage Frame::getDrawImageData ()
 {
-	return data_.drawImage;
+	return data.drawImage;
 }
 
 }	// namespace Textures

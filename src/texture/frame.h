@@ -1,17 +1,17 @@
 /**
- * @file		frame.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef FRAME_H
-#define FRAME_H
+#ifndef ZEN_TEXTURES_FRAME_H
+#define ZEN_TEXTURES_FRAME_H
 
 #include <string>
 #include <cmath>
 #include "frame_data.h"
-#include "../math.h"
+#include "../math/math.h"
 
 namespace Zen {
 namespace Textures {
@@ -28,22 +28,22 @@ public:
 	/**
 	 * @since 0.0.0
 	 *
-	 * @param texture The Texture this Frame is a part of.
-	 * @param name The name of this Frame. The name is unique within the Texture.
-	 * @param sourceIndex The index of the TextureSource that this Frame is a part of.
-	 * @param x The x coordinate of the top-left of this Frame.
-	 * @param y The y coordinate of the top-left of this Frame.
-	 * @param width The width of this Frame.
-	 * @param height The height of this Frame.
+	 * @param texture_ The Texture this Frame is a part of.
+	 * @param name_ The name of this Frame. The name is unique within the Texture.
+	 * @param sourceIndex_ The index of the TextureSource that this Frame is a part of.
+	 * @param x_ The x coordinate of the top-left of this Frame.
+	 * @param y_ The y coordinate of the top-left of this Frame.
+	 * @param width_ The width of this Frame.
+	 * @param height_ The height of this Frame.
 	 */
-	Frame (Texture& texture, std::string name, int sourceIndex, int x, int y, int width, int height);
+	Frame (Texture& texture_, std::string name_, int sourceIndex_, int x_, int y_, int width_, int height_);
 
 	/**
 	 * The Texture this Frame is a part of.
 	 *
 	 * @since 0.0.0
 	 */
-	Texture& texture_;
+	Texture& texture;
 
 	/**
 	 * The name of this Frame.
@@ -51,77 +51,77 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::string name_;
+	std::string name;
 
 	/**
 	 * The TextureSource this Frame is part of.
 	 *
 	 * @since 0.0.0
 	 */
-	TextureSource& source_;
+	TextureSource& source;
 
 	/**
 	 * The index of the TextureSource in the Texture sources array.
 	 *
 	 * @since 0.0.0
 	 */
-	int sourceIndex_;
+	int sourceIndex;
 
 	/**
 	 * X position within the source image to cut from.
 	 *
 	 * @since 0.0.0
 	 */
-	int cutX_;
+	int cutX;
 
 	/**
 	 * Y position within the source image to cut from.
 	 *
 	 * @since 0.0.0
 	 */
-	int cutY_;
+	int cutY;
 
 	/**
 	 * The width of the area in the source image to cut.
 	 *
 	 * @since 0.0.0
 	 */
-	int cutWidth_;
+	int cutWidth;
 
 	/**
 	 * The height of the area in the source image to cut.
 	 *
 	 * @since 0.0.0
 	 */
-	int cutHeight_;
+	int cutHeight;
 
 	/**
 	 * The X rendering offset of this Frame, taking trim into account.
 	 *
 	 * @since 0.0.0
 	 */
-	int x_ = 0;
+	int x = 0;
 
 	/**
 	 * The Y rendering offset of this Frame, taking trim into account.
 	 *
 	 * @since 0.0.0
 	 */
-	int y_ = 0;
+	int y = 0;
 
 	/**
 	 * The rendering width of this Frame, taking trim into account.
 	 *
 	 * @since 0.0.0
 	 */
-	int width_;
+	int width;
 
 	/**
 	 * The rendering height of this Frame, taking trim into account.
 	 *
 	 * @since 0.0.0
 	 */
-	int height_;
+	int height;
 
 	/**
 	 * Half the width, floored.
@@ -129,7 +129,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	int halfWidth_;
+	int halfWidth;
 
 	/**
 	 * Half the height, floored.
@@ -137,88 +137,88 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	int halfHeight_;
+	int halfHeight;
 
 	/**
 	 * The x center of this frame, floored.
 	 *
 	 * @since 0.0.0
 	 */
-	int centerX_;
+	int centerX;
 
 	/**
 	 * The y center of this frame, floored.
 	 *
 	 * @since 0.0.0
 	 */
-	int centerY_;
+	int centerY;
 
 	/**
 	 * The horizontal pivot point of this Frame.
 	 *
 	 * @since 0.0.0
 	 */
-	int pivotX_ = 0;
+	int pivotX = 0;
 
 	/**
 	 * The vertical pivot point of this Frame.
 	 *
 	 * @since 0.0.0
 	 */
-	int pivotY_ = 0;
+	int pivotY = 0;
 
 	/**
 	 * Does this Frame have a custom pivot point?
 	 *
 	 * @since 0.0.0
 	 */
-	bool customPivot_ = false;
+	bool customPivot = false;
 
 	/**
 	 * **CURRENTLY UNSUPPORTED**
 	 *
-	 * Is this frame is rotated or not in the Texture?
+	 * Is this frame rotated or not in the Texture?
 	 * Rotation allows you to use rotated frames in texture atlas packing.
 	 * It has nothing to do with Sprite rotation.
 	 *
 	 * @since 0.0.0
 	 */
-	bool rotated_ = false;
+	bool rotated = false;
 
 	/**
 	 * Any Frame specific custom data can be stored here.
 	 *
 	 * @since 0.0.0
 	 */
-	Data customData_;
+	Data customData;
 
 	/**
 	 * OpenGL UV u0 value.
 	 *
 	 * @since 0.0.0
 	 */
-	double u0_ = 0;
+	double u0 = 0;
 
 	/**
 	 * OpenGL UV v0 value.
 	 *
 	 * @since 0.0.0
 	 */
-	double v0_ = 0;
+	double v0 = 0;
 
 	/**
 	 * OpenGL UV u1 value.
 	 *
 	 * @since 0.0.0
 	 */
-	double u1_ = 0;
+	double u1 = 0;
 
 	/**
 	 * OpenGL UV v1 value.
 	 *
 	 * @since 0.0.0
 	 */
-	double v1_ = 0;
+	double v1 = 0;
 
 	/**
 	 * Sets the width, height, x and y of this Frame.
@@ -228,14 +228,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param width The width of the frame before being trimmed.
-	 * @param height The height of the frame before being trimmed.
-	 * @param x The x coordinate of the top-left of this Frame.
-	 * @param y The y coordinate of the top-left of this Frame.
+	 * @param width_ The width of the frame before being trimmed.
+	 * @param height_ The height of the frame before being trimmed.
+	 * @param x_ The x coordinate of the top-left of this Frame.
+	 * @param y_ The y coordinate of the top-left of this Frame.
 	 *
 	 * @return This Frame object.
 	 */
-	Frame& setSize (int width, int height, int x = 0, int y = 0);
+	Frame& setSize (int width_, int height_, int x_ = 0, int y_ = 0);
 
 	/**
 	 * If the frame was trimmed when added to the Texture Atlas, this records
@@ -243,16 +243,16 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param actualWidth The width of the frame before being trimmed.
-	 * @param actualHeight The height of the frame before being trimmed.
-	 * @param destX The destination X position of the trimmed frame for display.
-	 * @param destY The destination Y position of the trimmed frame for display.
-	 * @param destWidth The destination width of the trimmed frame for display.
-	 * @param destHeight The destination height of the trimmed frame for display.
+	 * @param actualWidth_ The width of the frame before being trimmed.
+	 * @param actualHeight_ The height of the frame before being trimmed.
+	 * @param destX_ The destination X position of the trimmed frame for display.
+	 * @param destY_ The destination Y position of the trimmed frame for display.
+	 * @param destWidth_ The destination width of the trimmed frame for display.
+	 * @param destHeight_ The destination height of the trimmed frame for display.
 	 *
 	 * @return This Frame object.
 	 */
-	Frame& setTrim (int actualWidth, int actualHeight, int destX, int destY, int destWidth, int destHeight);
+	Frame& setTrim (int actualWidth_, int actualHeight_, int destX_, int destY_, int destWidth_, int destHeight_);
 
 	/**
 	 * Takes a crop data object and, based on the rectangular region given,
@@ -264,20 +264,20 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param crop The crop data object. This is the `GameObject.crop_` property.
-	 * @param x The x coordinate to start the crop from. Cannot be negative or
+	 * @param crop_ The crop data object. This is the `GameObject.crop_` property.
+	 * @param x_ The x coordinate to start the crop from. Cannot be negative or
 	 * exceed the Frame width.
-	 * @param y The y coordinate to start the crop from. Cannot be negative or
+	 * @param y_ The y coordinate to start the crop from. Cannot be negative or
 	 * exceed the Frame height.
-	 * @param width The width of the crop rectangle. Cannot exceed the Frame width.
-	 * @param height The height of the crop rectangle. Cannot exceed the Frame
+	 * @param width_ The width of the crop rectangle. Cannot exceed the Frame width.
+	 * @param height_ The height of the crop rectangle. Cannot exceed the Frame
 	 * height.
-	 * @param flipX Does the parent Game Object have flipX set?
-	 * @param flipY Does the parent Game Object have flipY set?
+	 * @param flipX_ Does the parent Game Object have flipX set?
+	 * @param flipY_ Does the parent Game Object have flipY set?
 	 *
 	 * @return The updated crop data object.
 	 */
-	CropData setCropUVs (CropData crop, int x, int y, int width, int height, bool flipX, bool flipY);
+	CropData setCropUVs (CropData crop_, int x_, int y_, int width_, int height_, bool flipX_, bool flipY_);
 
 	/**
 	 * Takes a crop data object and recalculates the UVs based on the dimensions
@@ -286,13 +286,13 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param crop The crop data object. This is the `GameObject.crop_` property.
-	 * @param flipX Does the parent Game Object have flipX set?
-	 * @param flipY Does the parent Game Object have flipY set?
+	 * @param crop_ The crop data object. This is the `GameObject.crop_` property.
+	 * @param flipX_ Does the parent Game Object have flipX set?
+	 * @param flipY_ Does the parent Game Object have flipY set?
 	 *
 	 * @return The updated crop data object.
 	 */
-	CropData updateCropUVs (CropData crop, bool flipX, bool flipY);
+	CropData updateCropUVs (CropData crop_, bool flipX_, bool flipY_);
 
 	/**
 	 * Directly sets the canvas and OpenGL UV data for this frame.
@@ -302,16 +302,16 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param width Width of this frame for the Canvas data.
-	 * @param height Height of this frame for the Canvas data.
-	 * @param u0 UV u0 value.
-	 * @param v0 UV v0 value.
-	 * @param u1 UV u1 value.
-	 * @param v1 UV v1 value.
+	 * @param width_ Width of this frame for the Canvas data.
+	 * @param height_ Height of this frame for the Canvas data.
+	 * @param u0_ UV u0 value.
+	 * @param v0_ UV v0 value.
+	 * @param u1_ UV u1 value.
+	 * @param v1_ UV v1 value.
 	 *
 	 * @return This Frame object.
 	 */
-	Frame& setUVs (int width, int height, double u0, double v0, double u1, double v1);
+	Frame& setUVs (int width_, int height_, double u0_, double v0_, double u1_, double v1_);
 
 	/**
 	 * Updates the internal WebGL UV cache and the drawImage cache.
@@ -383,7 +383,7 @@ private:
 	 *
 	 * @since 0.0.0
 	 */
-	FrameData data_ = {
+	FrameData data = {
 		{	// cut
 			0,	// x
 			0,	// y

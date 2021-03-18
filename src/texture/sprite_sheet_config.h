@@ -1,14 +1,17 @@
 /**
- * @file		sprite_sheet_config.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef SPRITE_SHEET_CONFIG_H
-#define SPRITE_SHEET_CONFIG_H
+#ifndef ZEN_TEXTURES_SPRITE_SHEET_CONFIG_H
+#define ZEN_TEXTURES_SPRITE_SHEET_CONFIG_H
 
 #include <string>
+
+namespace Zen {
+namespace Textures {
 
 /**
  * @since 0.0.0
@@ -41,5 +44,8 @@ struct SpriteSheetConfig
 	int margin = 0;
 	int spacing = 0;
 };
+
+}	//namespace Textures
+}	//namespace Zen
 
 #endif
