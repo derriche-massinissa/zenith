@@ -28,7 +28,7 @@ Math::Vector2 transformXY (int x, int y, int positionX, int positionY, double ro
     double outX = (d * id * x) + (-c * id * y) + (((positionY * c) - (positionX * d)) * id);
     double outY = (a * id * y) + (-b * id * x) + (((-positionY * a) + (positionX * b)) * id);
 
-    return {outX, outY}
+    return {outX, outY};
 }
 
 }	// namespace Math

@@ -11,8 +11,6 @@
 #include "../../math/clamp.h"
 #include "../../defs.h"
 
-#define FLAG 2 // 0010
-
 namespace Zen {
 namespace GameObjects {
 namespace Components {
@@ -206,12 +204,13 @@ protected:
 	 * @since 0.0.0
 	 */
 	double alphaBR = 1;
+
+private:
+	static const int FLAG = 0b0010;
 };
 
 }	// namespace Components
 }	// namespace GameObjects
 }	// namespace Zen
-
-#undef FLAG
 
 #endif

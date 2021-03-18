@@ -7,6 +7,7 @@
 
 #include "vector2.h"
 #include <cmath>
+#include "fuzzy/equal.h"
 
 namespace Zen {
 namespace Math {
@@ -23,6 +24,20 @@ Vector2& Vector2::set (double x_)
 {
 	x = x_;
 	y = x_;
+
+	return *this;
+}
+
+Vector2& Vector2::setX (double x_)
+{
+	x = x_;
+
+	return *this;
+}
+
+Vector2& Vector2::setY (double y_)
+{
+	y = y_;
 
 	return *this;
 }
@@ -65,8 +80,8 @@ bool Vector2::operator == (const Vector2& other_)
 
 bool Vector2::fuzzyEquals (const Vector2& other_, double epsilon_)
 {
-	return (Math::fuzzyEqual(x, other_.x, epsilon_) &&
-			Math::fuzzyEqual(y, other_.y, epsilon_));
+	return (Math::Fuzzy::equal(x, other_.x, epsilon_) &&
+			Math::Fuzzy::equal(y, other_.y, epsilon_));
 }
 
 double Vector2::angle ()

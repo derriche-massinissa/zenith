@@ -286,7 +286,7 @@ public:
 	 * render against the given Camera.
 	 */
 	std::vector<GameObjects::GameObject*> getVisibleChildren (
-			std::vector<GameObjects::GameObject*>& children_,
+			std::vector<GameObjects::GameObject*> children_,
 			Camera& camera_);
 
 	/**

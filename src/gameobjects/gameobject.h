@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <SDL2/SDL_types.h>
 
 #include "../event/event_emitter.h"
 
@@ -19,6 +20,18 @@
 #include "components/transform_matrix.h"
 #include "display_list.h"
 
+#include "components/alpha.h"
+#include "components/blend_mode.h"
+#include "components/depth.h"
+#include "components/get_bounds.h"
+#include "components/mask.h"
+#include "components/origin.h"
+#include "components/scroll_factor.h"
+#include "components/size.h"
+#include "components/texture_crop.h"
+#include "components/tint.h"
+#include "components/transform.h"
+#include "components/visible.h"
 
 namespace Zen {
 namespace GameObjects {
@@ -32,7 +45,21 @@ namespace GameObjects {
  * @class GameObject
  * @since 0.0.0
  */
-class GameObject : public Events::EventEmitter
+class GameObject
+	: public Events::EventEmitter
+	, public Components::Alpha<GameObject>
+	, public Components::BlendMode<GameObject>
+	, public Components::Depth<GameObject>
+	, public Components::Flip<GameObject>
+	, public Components::GetBounds<GameObject>
+	, public Components::Mask<GameObject>
+	, public Components::Origin<GameObject>
+	, public Components::ScrollFactor<GameObject>
+	, public Components::Size<GameObject>
+	, public Components::TextureCrop<GameObject>
+	, public Components::Tint<GameObject>
+	, public Components::Transform<GameObject>
+	, public Components::Visible<GameObject>
 {
 public:
 	/**
@@ -56,6 +83,7 @@ public:
 	std::string state = "";
 
 	GameObject* parentContainer = nullptr;
+	Components::TransformMatrix* parentMatrix = nullptr;
 
 	std::string name = "";
 
@@ -71,6 +99,8 @@ public:
 	int renderFlags = 15;
 
 	int cameraFilter = 0;
+
+	Textures::CropData crop;
 
 	/**
 	 * @todo TODO interactivity for GameObject
@@ -135,18 +165,19 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	virtual void addedToScene ()
-	{}
+	virtual void addedToScene ();
 
-	virtual void removedFromScene ()
-	{}
+	virtual void removedFromScene ();
 
-	virtual void update ()
-	{}
+	virtual void preUpdate (Uint32 time_, Uint32 delta_);
+
+	virtual void update (Uint32 time_, Uint32 delta_);
 
 	bool willRender (Cameras::Scene2D::Camera& camera_);
 
 	std::vector<int> getIndexList ();
+
+	int getIndex (GameObject* child_);
 
 	virtual void preDestroy ();
 

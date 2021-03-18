@@ -8,8 +8,6 @@
 #ifndef ZEN_GAMEOBJECTS_COMPONENTS_TRANSFORM_H
 #define ZEN_GAMEOBJECTS_COMPONENTS_TRANSFORM_H
 
-#define FLAG 4 // 0100
-
 #include "../../const.h"
 #include "../../math/const.h"
 #include "transform_matrix.h"
@@ -232,7 +230,7 @@ public:
 	{
 		GameObject* parent_ = This()->parentContainer;
 
-		if (!parent)
+		if (!parent_)
 		{
 			return getLocalTransformMatrix();
 		}
@@ -253,39 +251,39 @@ public:
 		return out_;
 	}
 
-	Math::Vector2 getLocalPoint (int x_, int y_, Camera* camera_ = nullptr)
+	Math::Vector2 getLocalPoint (int x_, int y_, Cameras::Scene2D::Camera* camera_ = nullptr)
 	{
-		Math::Vector2 out;
+		Math::Vector2 out_;
 
 		if (!camera_)
 			camera_ = This()->scene->cameras.main;
 
-		int csx_ = camera_.getScrollX;
-		int csy_ = camera_.getScrollY;
+		int csx_ = camera_->getScrollX();
+		int csy_ = camera_->getScrollY();
 
 		int px_ = x_ + (csx_ * This()->getScrollFactorX()) - csx_;
 		int py_ = y_ + (csy_ * This()->getScrollFactorY()) - csy_;
 
 		if (This()->parentContainer)
 		{
-			out = getWorldTransformMatrix().applyInverse(px_, py_);
+			out_ = getWorldTransformMatrix().applyInverse(px_, py_);
 		}
 		else
 		{
-			out = transformXY(px_, py_, x, y, rotation, scaleX, scaleY);
+			out_ = Math::transformXY(px_, py_, x, y, rotation, scaleX, scaleY);
 		}
 
 		// Normalize origin
 		if constexpr (This()->hasComponent(COMPONENT_MASK_ORIGIN))
 		{
-			out.setX(out.x + This()->getDisplayOriginX());
-			out.setY(out.y + This()->getDisplayOriginY());
+			out_.setX(out_.x + This()->getDisplayOriginX());
+			out_.setY(out_.y + This()->getDisplayOriginY());
 		}
 
-		return out;
+		return out_;
 	}
 
-	getParentRotation ()
+	double getParentRotation ()
 	{
 		double rotation_ = 0;
 		GameObject* parent_ = This()->parentContainer;
@@ -307,12 +305,11 @@ private:
 	int y = 0;
 	int z = 0;
 	int w = 0;
+	static const int FLAG = 0b0100;
 };
 
 }	// namespace Components
 }	// namespace GameObjects
 }	// namespace Zen
-
-#undef FLAG
 
 #endif

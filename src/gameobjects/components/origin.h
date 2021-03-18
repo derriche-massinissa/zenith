@@ -74,7 +74,7 @@ public:
 			originY = This()->frame->pivotY;
 		}
 
-		return updateDisplayOrigin()
+		return updateDisplayOrigin();
 	}
 
 	T& setDisplayOrigin (int x_, int y_)
@@ -96,6 +96,16 @@ public:
 		displayOriginY = originY * This()->height;
 
 		return *This();
+	}
+
+	double getOriginX ()
+	{
+		return originX;
+	}
+
+	double getOriginY ()
+	{
+		return originY;
 	}
 
 protected:

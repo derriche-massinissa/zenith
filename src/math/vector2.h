@@ -28,6 +28,9 @@ public:
 	Vector2& set (double x_);
 	Vector2& set (double x_, double y_);
 
+	Vector2& setX (double x_);
+	Vector2& setY (double y_);
+
 	Vector2& setTo (double x_);
 	Vector2& setTo (double x_, double y_);
 

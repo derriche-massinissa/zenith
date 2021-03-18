@@ -51,24 +51,44 @@ set(zenith_SRCS
 	src/event/event_emitter.h
 	src/event/event_listener.h
 
-	src/gameobjects/display_list.h
-	src/gameobjects/gameobject.fwd.h
-	src/gameobjects/gameobject.h
 	src/gameobjects/components/alpha.h
+	src/gameobjects/components/blend_mode.h
+	src/gameobjects/components/depth.h
 	src/gameobjects/components/flip.h
+	src/gameobjects/components/get_bounds.h
+	src/gameobjects/components/mask.h
+	src/gameobjects/components/origin.h
+	src/gameobjects/components/scroll_factor.h
+	src/gameobjects/components/size.h
+	src/gameobjects/components/texture_crop.h
 	src/gameobjects/components/tint.h
+	src/gameobjects/components/transform.h
 	src/gameobjects/components/transform_matrix.cpp
 	src/gameobjects/components/transform_matrix.h
 	src/gameobjects/components/visible.h
+	src/gameobjects/group/group.fwd.h
 	src/gameobjects/group/group.h
+	src/gameobjects/image/image.cpp
+	src/gameobjects/image/image.h
 	src/gameobjects/rendertexture/render_texture.fwd.h
 	src/gameobjects/rendertexture/render_texture.h
+	src/gameobjects/sprite/
+	src/gameobjects/display_list.cpp
+	src/gameobjects/display_list.h
+	src/gameobjects/gameobject.cpp
+	src/gameobjects/gameobject.fwd.h
+	src/gameobjects/gameobject.h
+	src/gameobjects/gameobject_factory.cpp
+	src/gameobjects/gameobject_factory.h
+	src/gameobjects/update_list.cpp
+	src/gameobjects/update_list.h
 
 	src/geom/line.cpp
 	src/geom/line.h
 	src/geom/point.cpp
 	src/geom/point.h
 	src/geom/rectangle.cpp
+	src/geom/rectangle.fwd.h
 	src/geom/rectangle.h
 
 	src/input/pointer.fwd.h
@@ -78,12 +98,44 @@ set(zenith_SRCS
 	src/loader/loader_plugin.fwd.h
 	src/loader/loader_plugin.h
 
-	src/math/math.cpp
-	src/math/math.h
-	src/math/random_data_generator.cpp
+	src/math/angle/wrap.h
+	src/math/angle/wrap.cpp
+	src/math/angle/wrap_degrees.h
+	src/math/angle/wrap_degrees.cpp
+	src/math/fuzzy/ceil.cpp
+	src/math/fuzzy/ceil.h
+	src/math/fuzzy/equal.cpp
+	src/math/fuzzy/equal.h
+	src/math/fuzzy/floor.cpp
+	src/math/fuzzy/floor.h
+	src/math/fuzzy/greater_than.cpp
+	src/math/fuzzy/greater_than.h
+	src/math/fuzzy/less_than.cpp
+	src/math/fuzzy/less_than.h
+	src/math/snap/snap_ceil.cpp
+	src/math/snap/snap_ceil.h
+	src/math/snap/snap_floor.cpp
+	src/math/snap/snap_floor.h
+	src/math/snap/snap_to.cpp
+	src/math/snap/snap_to.h
+	src/math/clamp.h
+	src/math/const.h
+	src/math/deg_to_rad.h
+	src/math/linear.h
+	src/math/random.h
 	src/math/random_data_generator.h
-	src/math/vector2.cpp
+	src/math/rotate_around.h
+	src/math/transform_xy.h
 	src/math/vector2.h
+	src/math/wrap.h
+	src/math/clamp.cpp
+	src/math/deg_to_rad.cpp
+	src/math/linear.cpp
+	src/math/random_data_generator.cpp
+	src/math/rotate_around.cpp
+	src/math/transform_xy.cpp
+	src/math/vector2.cpp
+	src/math/wrap.cpp
 
 	src/renderer/renderer.cpp
 	src/renderer/renderer.fwd.h
@@ -164,9 +216,9 @@ add_library(
 	${zenith_SRCS}
 	)
 
-# Require C++17
+# Require C++20
 target_compile_features(${PROJECT_NAME}
-	PUBLIC cxx_std_17
+	PUBLIC cxx_std_20
 	)
 
 # Impose the use of C++ for the linker

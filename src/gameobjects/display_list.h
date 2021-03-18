@@ -53,7 +53,7 @@ public:
 	 *
 	 * @param gameObject_ A unique pointer to a GameObject instance.
 	 */
-	void add (std::unique_ptr<GameObject>& gameObject_);
+	void add (std::unique_ptr<GameObject> gameObject_);
 
 	/**
 	 * Remove a GameObject instance from the list.
@@ -90,8 +90,8 @@ public:
 	 * otherwise.
 	 */
 	static bool sortByDepth (
-			std::unique_ptr<GameObject> childA,
-			std::unique_ptr<GameObject> childB);
+			const std::unique_ptr<GameObject>& childA,
+			const std::unique_ptr<GameObject>& childB);
 
 	/**
 	 * Returns a vector which contains all objects currently on the DisplayList.
@@ -101,6 +101,8 @@ public:
 	 * @return The GameObject instances.
 	 */
 	std::vector<GameObject*> getChildren ();
+
+	int getIndex (GameObject* child_);
 };
 
 }	// namespace Input

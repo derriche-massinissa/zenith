@@ -40,7 +40,16 @@ public:
 		return setScrollFactor(value_, value_);
 	}
 
-protected:
+	double getScrollFactorX ()
+	{
+		return scrollFactorX;
+	}
+
+	double getScrollFactorY ()
+	{
+		return scrollFactorY;
+	}
+
 	double scrollFactorX = 1.0;
 	double scrollFactorY = 1.0;
 };

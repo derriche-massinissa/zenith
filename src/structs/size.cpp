@@ -69,20 +69,20 @@ Size& Size::setSize (unsigned int width_, unsigned int height_)
 	switch (aspectMode)
 	{
 		case SCALE_MODE::RESIZE:
-			width = getNewWidth(Math::snapFloor(width_, snapTo.x));
-			height = getNewHeight(Math::snapFloor(height_, snapTo.y));
+			width = getNewWidth(Math::Snap::floor(width_, snapTo.x));
+			height = getNewHeight(Math::Snap::floor(height_, snapTo.y));
 			aspectRatio = (height == 0) ? 1.0 : (1.f*width / height);
 			break;
 
 		case SCALE_MODE::WIDTH_CONTROLS_HEIGHT:
 			height = getNewHeight((width / width_) * height);
-			width = getNewWidth(Math::snapFloor(width_, snapTo.x));
+			width = getNewWidth(Math::Snap::floor(width_, snapTo.x));
 			aspectRatio = (height == 0) ? 1.0 : (1.f*width / height);
 			break;
 
 		case SCALE_MODE::HEIGHT_CONTROLS_WIDTH:
 			width = getNewHeight((height / height_) * width);
-			height = getNewWidth(Math::snapFloor(height_, snapTo.y));
+			height = getNewWidth(Math::Snap::floor(height_, snapTo.y));
 			aspectRatio = (height == 0) ? 1.0 : (1.f*width / height);
 			break;
 
@@ -107,8 +107,8 @@ Size& Size::setAspectRatio (double ratio_)
 
 Size& Size::resize (unsigned int width_, unsigned int height_)
 {
-	width = getNewWidth(Math::snapFloor(width_, snapTo.x));
-	height = getNewHeight(Math::snapFloor(height_, snapTo.y));
+	width = getNewWidth(Math::Snap::floor(width_, snapTo.x));
+	height = getNewHeight(Math::Snap::floor(height_, snapTo.y));
 	aspectRatio = (height == 0) ? 1.0 : (1.f*width / height);
 
 	return *this;
@@ -138,13 +138,13 @@ Size& Size::constrain (unsigned int width_, unsigned int height_, bool fit_)
 	{
 		// We need to change the height to fit the width
 
-		width_ = Math::snapFloor(width_, snapTo.x);
+		width_ = Math::Snap::floor(width_, snapTo.x);
 
 		height_ = width_ / aspectRatio;
 
 		if (snapTo.y > 0)
 		{
-			height_ = Math::snapFloor(height_, snapTo.y);
+			height_ = Math::Snap::floor(height_, snapTo.y);
 
 			// Reduce the width accordingly
 			width_ = height_ * aspectRatio;
@@ -154,13 +154,13 @@ Size& Size::constrain (unsigned int width_, unsigned int height_, bool fit_)
 	{
 		// We need to change the width to fit the height
 
-		height_ = Math::snapFloor(height_, snapTo.y);
+		height_ = Math::Snap::floor(height_, snapTo.y);
 
 		width_ = height_ * aspectRatio;
 
 		if (snapTo.x > 0)
 		{
-			width_ = Math::snapFloor(width_, snapTo.x);
+			width_ = Math::Snap::floor(width_, snapTo.x);
 
 			// Reduce the height accordingly
 			height_ = width_ * (1.f / aspectRatio);

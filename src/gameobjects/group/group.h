@@ -11,6 +11,8 @@
 #include <iterator>
 #include <vector>
 
+#include "../gameobject.h"
+
 namespace Zen {
 namespace GameObjects {
 

@@ -6,8 +6,10 @@
  */
 
 #include "update_list.h"
+
 #include <algorithm>
 #include <vector>
+#include "../scene/scene.h"
 
 namespace Zen {
 namespace GameObjects {
@@ -35,9 +37,9 @@ void UpdateList::sceneUpdate (Uint32 time_, Uint32 delta_)
 {
 	for (const auto& obj_ : active)
 	{
-		if (obj_.active)
+		if (obj_->active)
 		{
-			obj_.preUpdate(time_, delta_);
+			obj_->preUpdate(time_, delta_);
 		}
 	}
 }
@@ -75,7 +77,7 @@ void UpdateList::removeAll ()
 	active.clear();
 }
 
-std::vector<GameObject*> UpdateList::update ()
+void UpdateList::update ()
 {
 	if (toProcess == 0)
 		return;
@@ -109,8 +111,6 @@ std::vector<GameObject*> UpdateList::update ()
 	pending.clear();
 
 	toProcess = 0;
-
-	return active;
 }
 
 std::vector<GameObject*> UpdateList::getActive ()

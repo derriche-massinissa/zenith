@@ -6,7 +6,7 @@
  */
 
 #include "deg_to_rad.h"
-#include "../const.h"
+#include "const.h"
 
 namespace Zen {
 namespace Math {

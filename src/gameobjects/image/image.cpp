@@ -10,7 +10,7 @@
 namespace Zen {
 namespace GameObjects {
 
-Image::Image (Scene* scene, int x, int y, Textures::Texture* texture, Textures::Frame* frame)
+Image::Image (Scene* scene_, int x_, int y_, std::string texture_, std::string frame_)
 	: GameObject (scene)
 {
 	/*

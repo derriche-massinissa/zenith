@@ -18,7 +18,7 @@ namespace GameObjects {
 namespace Components {
 
 template <typename T>
-class Tint
+class TextureCrop
 {
 public:
 	/**
@@ -34,7 +34,7 @@ public:
 
 	T& setCrop (int x_ = -1, int y_ = -1, int width_ = -1, int height_ = -1)
 	{
-		if (x < 0)
+		if (x_ < 0)
 		{
 			isCropped = false;
 		}
@@ -52,7 +52,7 @@ public:
 	{
 		if (frame)
 		{
-			frame->setCropUVs(This()->crop, rect_.x_, rect_.y_, rect_.width_, rect_.height_, This()->flipX, This()->flipY);
+			frame->setCropUVs(This()->crop, rect_.x, rect_.y, rect_.width, rect_.height, This()->flipX, This()->flipY);
 
 			isCropped = true;
 		}
@@ -67,9 +67,9 @@ public:
 
 	T& setFrame (std::string frame_, bool updateSize_ = true, bool updateOrigin_ = true)
 	{
-		frame = texture.get(frame_);
+		frame = texture->get(frame_);
 
-		if (!frame.cutWidth || !frame.cutHeight)
+		if (!frame->cutWidth || !frame->cutHeight)
 			This()->renderFlags &= ~FLAG;
 		else
 			This()->renderFlags |= FLAG;
@@ -84,9 +84,9 @@ public:
 		{
 			if (updateSize_)
 			{
-				if (frame.customPivot)
+				if (frame->customPivot)
 				{
-					This()->setOrigin(frame.pivotX, frame.pivotY);
+					This()->setOrigin(frame->pivotX, frame->pivotY);
 				}
 				else
 				{
@@ -96,7 +96,7 @@ public:
 		}
 
 		if (isCropped)
-			frame.updateCropUVs(This()->crop, flipX, flipY);
+			frame->updateCropUVs(This()->crop, This()->flipX, This()->flipY);
 
 		return *This();
 	}

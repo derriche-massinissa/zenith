@@ -183,7 +183,7 @@ void Renderer::render (
 	{
 		camera_.addToRenderList(*child_);
 
-		batchSprite(*child_, *child_->frame, camera_, child_->parentMatrix_);
+		batchSprite(*child_, *child_->frame, camera_, child_->parentMatrix);
 	}
 
 	camera_.flashEffect.postRender();
@@ -512,7 +512,7 @@ void Renderer::batchSprite (
 		flipY_ = -1;
 	}
 
-	spriteMatrix_.applyITRS(sprite_.x, sprite_.y, sprite_.rotation, sprite_.getScaleX() * flipX_, sprite_.getScaleY() * flipY_);
+	spriteMatrix_.applyITRS(sprite_.getX(), sprite_.getY(), sprite_.getRotation(), sprite_.getScaleX() * flipX_, sprite_.getScaleY() * flipY_);
 
 	camMatrix_.copyFrom(camera_.matrix);
 
@@ -526,8 +526,8 @@ void Renderer::batchSprite (
 				);
 
 		// Undo the camera scroll
-		spriteMatrix_.setE(sprite_.x);
-		spriteMatrix_.setF(sprite_.y);
+		spriteMatrix_.setE(sprite_.getX());
+		spriteMatrix_.setF(sprite_.getY());
 	}
 	else
 	{
@@ -550,7 +550,7 @@ void Renderer::batchSprite (
 	// TODO
 	//setGlobalCompositionOperation(sprite.blendMode);
 
-	if (sprite_.mask)
+	if (sprite_.getMask())
 		preRenderMask(&sprite_);
 
 	// Render the texture
@@ -588,8 +588,8 @@ void Renderer::batchSprite (
 			flip_
 			);
 
-	if (sprite_.mask)
-		postRenderMask(sprite_.mask, &sprite_, &camera_);
+	if (sprite_.getMask())
+		postRenderMask(sprite_.getMask(), &sprite_, &camera_);
 }
 
 void Renderer::preRenderMask (
@@ -627,7 +627,7 @@ void Renderer::postRenderMask (
 
 	// Draw the mask GameObject
 	camera_->addToRenderList(*maskObject_);
-	batchSprite(*maskObject_, *maskObject_->frame, *camera_, maskObject_->parentMatrix_);
+	batchSprite(*maskObject_, *maskObject_->frame, *camera_, maskObject_->parentMatrix);
 
 	// Reset the target to the buffer
 	SDL_SetRenderTarget(window.renderer, currentTarget_);

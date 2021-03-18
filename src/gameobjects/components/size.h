@@ -53,7 +53,7 @@ public:
 		return std::abs(scaleY * This()->frame->getRealHeight());
 	}
 
-	T& setSizeToFrame (Frame* frame_)
+	T& setSizeToFrame (Textures::Frame* frame_)
 	{
 		width = frame_->getRealWidth();
 		height = frame_->getRealHeight();
@@ -77,7 +77,6 @@ public:
 		return *This();
 	}
 
-protected:
 	int width = 0;
 	int height = 0;
 	double scaleX = 1.0;

@@ -102,7 +102,7 @@ public:
 		return prepareBoundsOutput(output_, includeParent_);
 	}
 
-	Math::Vector2 getTopCenter (includeParent_)
+	Math::Vector2 getTopCenter (bool includeParent_)
 	{
 		Math::Vector2 output_;
 
@@ -118,7 +118,7 @@ public:
 		return prepareBoundsOutput(output_, includeParent_);
 	}
 
-	Math::Vector2 getTopRight (includeParent_)
+	Math::Vector2 getTopRight (bool includeParent_)
 	{
 		Math::Vector2 output_;
 
@@ -134,7 +134,7 @@ public:
 		return prepareBoundsOutput(output_, includeParent_);
 	}
 
-	Math::Vector2 getLeftCenter (includeParent_)
+	Math::Vector2 getLeftCenter (bool includeParent_)
 	{
 		Math::Vector2 output_;
 
@@ -150,7 +150,7 @@ public:
 		return prepareBoundsOutput(output_, includeParent_);
 	}
 
-	Math::Vector2 getRightCenter (includeParent_)
+	Math::Vector2 getRightCenter (bool includeParent_)
 	{
 		Math::Vector2 output_;
 
@@ -167,7 +167,7 @@ public:
 		return prepareBoundsOutput(output_, includeParent_);
 	}
 
-	Math::Vector2 getBottomLeft (includeParent_)
+	Math::Vector2 getBottomLeft (bool includeParent_)
 	{
 		Math::Vector2 output_;
 
@@ -183,7 +183,7 @@ public:
 		return prepareBoundsOutput(output_, includeParent_);
 	}
 
-	Math::Vector2 getBottomCenter (includeParent_)
+	Math::Vector2 getBottomCenter (bool includeParent_)
 	{
 		Math::Vector2 output_;
 
@@ -200,7 +200,7 @@ public:
 		return prepareBoundsOutput(output_, includeParent_);
 	}
 
-	Math::Vector2 getBottomRight (includeParent_)
+	Math::Vector2 getBottomRight (bool includeParent_)
 	{
 		Math::Vector2 output_;
 
@@ -219,10 +219,13 @@ public:
 
 	Geom::Rectangle getBounds ()
 	{
+		Geom::Rectangle output_;
+
 		int TLx_, TLy_, TRx_, TRy_, BLx_, BLy_, BRx_, BRy_;
 
 		if (This()->parentContainer)
 		{
+
 			auto& parentMatrix_ = *This()->parentContainer->getBoundsTransformMatrix();
 
 			output_ = getTopLeft();

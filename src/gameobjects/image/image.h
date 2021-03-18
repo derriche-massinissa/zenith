@@ -8,54 +8,23 @@
 #ifndef ZEN_GAMEOBJECTS_IMAGE_H
 #define ZEN_GAMEOBJECTS_IMAGE_H
 
+#include <string>
 #include "../../defs.h"
-#include "../../texture/texture.fwd.h"
-#include "../../texture/frame.fwd.h"
 #include "../../texture/crop_data.h"
 #include "../../scene/scene.fwd.h"
 #include "../gameobject.h"
-
-/*
-#include "../components/alpha.h"
-#include "../components/blend_mode.h"
-#include "../components/depth.h"
-#include "../components/get_bounds.h"
-#include "../components/mask.h"
-#include "../components/origin.h"
-#include "../components/scroll_factor.h"
-#include "../components/size.h"
-#include "../components/texture_crop.h"
-#include "../components/tint.h"
-#include "../components/transform.h"
-#include "../components/visible.h"
-*/
 
 namespace Zen {
 namespace GameObjects {
 
 class Image
 	: public GameObject
-	/*
-	, public Components::Alpha<Image>
-	, public Components::BlendMode<Image>
-	, public Components::Depth<Image>
-	, public Components::Flip<Image>
-	, public Components::GetBounds<Image>
-	, public Components::Mask<Image>
-	, public Components::Origin<Image>
-	, public Components::ScrollFactor<Image>
-	, public Components::Size<Image>
-	, public Components::TextureCrop<Image>
-	, public Components::Tint<Image>
-	, public Components::Transform<Image>
-	, public Components::Visible<Image>
-	*/
 {
 public:
 	/**
 	 * @since 0.0.0
 	 */
-	Image (Scene* scene, int x, int y, Textures::Texture* texture, Textures::Frame* frame);
+	Image (Scene* scene_, int x_, int y_, std::string texture_, std::string frame_);
 
 	static const int COMPONENT_MASK =
 		COMPONENT_MASK_ALPHA			|

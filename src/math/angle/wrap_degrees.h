@@ -8,8 +8,6 @@
 #ifndef ZEN_MATH_ANGLE_WRAPDEGREES_H
 #define ZEN_MATH_ANGLE_WRAPDEGREES_H
 
-#include "wrap.h"
-
 namespace Zen {
 namespace Math {
 namespace Angle {

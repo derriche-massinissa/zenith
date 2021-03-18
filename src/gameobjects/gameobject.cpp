@@ -7,14 +7,16 @@
 
 #include "gameobject.h"
 
+#include "../scene/scene.h"
+
 namespace Zen {
 namespace GameObjects {
 
 GameObject::GameObject (Scene* scene_)
-	scene (scene_)
+	: scene (scene_)
 {
 	on("added-to-scene", &GameObject::addedToScene, this);
-	on("removed-from-scene", &GameObject::removesFromScene, this);
+	on("removed-from-scene", &GameObject::removedFromScene, this);
 
 	// Tell the Scene to re-sort the children
 	scene->sys.queueDepthSort();
@@ -27,7 +29,8 @@ GameObject::~GameObject ()
 
 bool hasComponent (int compMask_)
 {
-	return compMask_ | COMPONENT_MASK;
+	//return compMask_ | COMPONENT_MASK;
+	return true;
 }
 
 void GameObject::setActive (bool value_)
@@ -35,12 +38,12 @@ void GameObject::setActive (bool value_)
 	active = value_;
 }
 
-void GameObject::setName (std::string name_);
+void GameObject::setName (std::string name_)
 {
 	name = name_;
 }
 
-void GameObject::setState (std::string state_);
+void GameObject::setState (std::string state_)
 {
 	state = state_;
 }
@@ -51,7 +54,10 @@ void GameObject::addedToScene ()
 void GameObject::removedFromScene ()
 {}
 
-void GameObject::update ()
+void GameObject::preUpdate (Uint32 time_, Uint32 delta_)
+{}
+
+void GameObject::update (Uint32 time_, Uint32 delta_)
 {}
 
 bool GameObject::willRender (Cameras::Scene2D::Camera& camera_)
@@ -59,43 +65,48 @@ bool GameObject::willRender (Cameras::Scene2D::Camera& camera_)
 	return !(
 		0b1111 != renderFlags ||
 		cameraFilter != 0 &&
-		(cameraFilter & camera_->id)
+		(cameraFilter & camera_.id)
 		);
 }
 
 std::vector<int> GameObject::getIndexList ()
 {
-	GameObject* child = this;
-	GameObject* parent = parentContainer;
+	GameObject* child_ = this;
+	GameObject* parent_ = parentContainer;
 
-	std::vector<int> indices;
+	std::vector<int> indices_;
 
-	while (parent)
+	while (parent_)
 	{
-		indices.emplace(0, parent.getIndex(child));
+		indices_.emplace(indices_.begin(), parent_->getIndex(child_));
 
-		child = parent;
+		child_ = parent_;
 
-		if (!parent.parentContainer)
+		if (!parent_->parentContainer)
 		{
 			break;
 		}
 		else
 		{
-			parent = parent.parentContainer;
+			parent_ = parent_->parentContainer;
 		}
 	}
 
 	if (displayList)
 	{
-		indices.emplace(0, displayList.getIndex(child));
+		indices_.emplace(indices_.begin(), displayList->getIndex(child_));
 	}
 	else
 	{
-		indices.emplace(0, scene->children.getIndex(child));
+		indices_.emplace(indices_.begin(), scene->children.getIndex(child_));
 	}
 
-	return indices;
+	return indices_;
+}
+
+int getIndex (GameObject* child_)
+{
+	return 0;
 }
 
 void GameObject::preDestroy ()
@@ -112,14 +123,19 @@ void GameObject::destroy ()
 
 	if (displayList)
 	{
-		displayList.queueDepthSort();
-		displayList.remove(this);
+		displayList->queueDepthSort();
+		displayList->remove(this);
 	}
 
+	/**
+	 * @todo TODO input
+	 */
+	/*
 	if (input)
 	{
 		scene->input.clear(this);
 	}
+	*/
 }
 
 }	// namespace GameObjects

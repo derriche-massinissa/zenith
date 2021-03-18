@@ -262,7 +262,7 @@ void CameraManager::render (
 }
 
 std::vector<GameObjects::GameObject*> CameraManager::getVisibleChildren (
-		std::vector<GameObjects::GameObject*>& children_,
+		std::vector<GameObjects::GameObject*> children_,
 		Camera& camera_)
 {
 	std::vector<GameObjects::GameObject*> visible_;

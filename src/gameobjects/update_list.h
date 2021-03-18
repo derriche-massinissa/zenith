@@ -11,6 +11,7 @@
 #include <vector>
 #include <SDL2/SDL_types.h>
 #include "gameobject.fwd.h"
+#include "../scene/scene.fwd.h"
 
 namespace Zen {
 namespace GameObjects {
@@ -73,7 +74,7 @@ public:
 
 	void removeAll ();
 
-	std::vector<GameObject*> update ();
+	void update ();
 
 	std::vector<GameObject*> getActive ();
 

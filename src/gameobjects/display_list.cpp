@@ -8,13 +8,14 @@
 #include "display_list.h"
 
 #include <algorithm>
+#include <iterator>
 
 #include "gameobject.h"
 
 namespace Zen {
 namespace GameObjects {
 
-void DisplayList::add (std::unique_ptr<GameObject>& gameObject_)
+void DisplayList::add (std::unique_ptr<GameObject> gameObject_)
 {
 	GameObject* obj_ = gameObject_.get();
 
@@ -32,7 +33,7 @@ void DisplayList::add (std::unique_ptr<GameObject>& gameObject_)
 	obj_->emit("added-to-scene");
 }
 
-void remove (GameObject* gameObject_)
+void DisplayList::remove (GameObject* gameObject_)
 {
 	for (auto it = list.begin(); it != list.end(); it++)
 	{
@@ -59,23 +60,36 @@ void DisplayList::depthSort ()
 	}
 }
 
-static bool DisplayList::sortByDepth (
-		std::unique_ptr<GameObject> childA,
-		std::unique_ptr<GameObject> childB)
+bool DisplayList::sortByDepth (
+		const std::unique_ptr<GameObject>& childA,
+		const std::unique_ptr<GameObject>& childB)
 {
 	return childA->getDepth() < childB->getDepth();
 }
 
 std::vector<GameObject*> DisplayList::getChildren ()
 {
-	std::vector<GameObject*> out;
+	std::vector<GameObject*> out_;
 
-	for (const auto& obj : list)
+	for (const auto& obj_ : list)
 	{
-		out.emplace_back(list.get());
+		out_.emplace_back(obj_.get());
 	}
 
-	return out;
+	return out_;
+}
+
+int DisplayList::getIndex (GameObject* child_)
+{
+	for (int i = 0; i < list.size(); i++)
+	{
+		if (child_ == list[i].get())
+		{
+			return i;
+		}
+	}
+
+	return -1;
 }
 
 }	// namespace Input

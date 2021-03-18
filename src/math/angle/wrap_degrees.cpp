@@ -5,7 +5,7 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "wrap.h"
+#include "wrap_degrees.h"
 
 #include "../wrap.h"
 
@@ -16,7 +16,7 @@ namespace Angle {
 double wrapDegrees (double angle)
 {
     return Math::wrap(angle, -180, 180);
-};
+}
 
 }	// namespace Angle
 }	// namespace Math

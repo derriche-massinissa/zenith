@@ -8,9 +8,14 @@
 #include "camera.h"
 #include "camera_manager.h"
 
+#include "../../math/linear.h"
+#include "../../math/deg_to_rad.h"
+
 #include "../../gameobjects/gameobject.h"
 #include "../../gameobjects/group/group.h"
 #include "../../scale/scale_manager.h"
+
+#include "../../gameobjects/components/size.h"
 
 namespace Zen {
 namespace Cameras {
@@ -185,23 +190,30 @@ std::vector<GameObjects::GameObject*> Camera::cull (
 
 	for (auto& object_ : renderableObjects_)
 	{
-		if (~object_->getComponentMask() & COMPONENT_MASK_SIZE
-			|| object_->parentContainer != nullptr)
+		//if constexpr (object_->hasComponent(COMPONENT_MASK_SIZE))
+		if (true)
 		{
-			culledObjects.emplace_back(object_);
-			continue;
+			if (object_->parentContainer != nullptr)
+			{
+				culledObjects.emplace_back(object_);
+				continue;
+			}
+
+			auto objectW_ = object_->width;
+			auto objectH_ = object_->height;
+			auto objectX_ = (object_->getX() - (scrollX * object_->getScrollFactorX())) - (objectW_ * object_->getOriginX());
+			auto objectY_ = (object_->getY() - (scrollY * object_->getScrollFactorY())) - (objectH_ * object_->getOriginY());
+			auto tx_ = (objectX_ * mva_ + objectY_ * mvc_ + mve_);
+			auto ty_ = (objectX_ * mvb_ + objectY_ * mvd_ + mvf_);
+			auto tw_ = ((objectX_ + objectW_) * mva_ + (objectY_ + objectH_) * mvc_ + mve_);
+			auto th_ = ((objectX_ + objectW_) * mvb_ + (objectY_ + objectH_) * mvd_ + mvf_);
+
+			if ((tw_ > cullLeft_ && tx_ < cullRight_) && (th_ > cullTop_ && ty_ < cullBottom_))
+			{
+				culledObjects.emplace_back(object_);
+			}
 		}
-
-		auto objectW_ = object_->width;
-		auto objectH_ = object_->height;
-		auto objectX_ = (object_->x - (scrollX * object_->getScrollFactorX())) - (objectW_ * object_->getOriginX());
-		auto objectY_ = (object_->y - (scrollY * object_->getScrollFactorY())) - (objectH_ * object_->getOriginY());
-		auto tx_ = (objectX_ * mva_ + objectY_ * mvc_ + mve_);
-		auto ty_ = (objectX_ * mvb_ + objectY_ * mvd_ + mvf_);
-		auto tw_ = ((objectX_ + objectW_) * mva_ + (objectY_ + objectH_) * mvc_ + mve_);
-		auto th_ = ((objectX_ + objectW_) * mvb_ + (objectY_ + objectH_) * mvd_ + mvf_);
-
-		if ((tw_ > cullLeft_ && tx_ < cullRight_) && (th_ > cullTop_ && ty_ < cullBottom_))
+		else
 		{
 			culledObjects.emplace_back(object_);
 		}
@@ -306,8 +318,8 @@ void Camera::preRender ()
 	bool emitFollowEvent_ = false;
 
 	if (follow && !panEffect.isRunning) {
-		int fx_ = follow->x - followOffset.x;
-		int fy_ = follow->y - followOffset.y;
+		int fx_ = follow->getX() - followOffset.x;
+		int fy_ = follow->getY() - followOffset.y;
 
 		if (deadzone)
 		{
@@ -747,8 +759,8 @@ Camera& Camera::setDeadzone (int width_, int height_)
 			int originX_ = width / 2;
 			int originY_ = height / 2;
 
-			int fx_ = follow->x - followOffset.x;
-			int fy_ = follow->y - followOffset.y;
+			int fx_ = follow->getX() - followOffset.x;
+			int fy_ = follow->getY() - followOffset.y;
 
 			midPoint.set(fx_, fy_);
 
@@ -846,8 +858,8 @@ Camera& Camera::startFollow (
 	int originX_ = getWidth() / 2;
 	int originY_ = getHeight() / 2;
 
-	int fx_ = target_.x - offsetX_;
-	int fy_ = target_.y - offsetY_;
+	int fx_ = target_.getX() - offsetX_;
+	int fy_ = target_.getY() - offsetY_;
 
 	midPoint.set(fx_, fy_);
 

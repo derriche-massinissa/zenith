@@ -27,6 +27,8 @@
 #include "../../scene/scene.fwd.h"
 #include "../../scene/scene_manager.fwd.h"
 
+#include "../../scale/scale_manager.fwd.h"
+
 #include "../../display/color.h"
 #include "../../math/vector2.h"
 

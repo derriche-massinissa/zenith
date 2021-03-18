@@ -8,10 +8,13 @@
 #include "../scene/scene.h"
 #include "image/image.h"
 
+#include <memory>
+
 namespace Zen {
 namespace GameObjects {
 
 GameObjectFactory::GameObjectFactory (Scene* scene_)
+	: scene (scene_)
 {}
 
 void GameObjectFactory::boot ()
@@ -19,7 +22,7 @@ void GameObjectFactory::boot ()
 
 void GameObjectFactory::image (int x, int y, std::string key, std::string frame)
 {
-	scene->children.add(std::make<Image>(x, y, key, frame));
+	scene->children.add(std::move( std::make_unique<Image>(scene, x, y, key, frame) ));
 }
 
 }	//namespace GameObjects
