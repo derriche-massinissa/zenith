@@ -1,5 +1,5 @@
 /**
- * @file		scene_settings.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -7,25 +7,12 @@
 
 #include "scene_settings.h"
 
-Zen::SceneSettings::SceneSettings (std::string k, bool a, bool v)
-{
-	status = SCENE::PENDING;
+namespace Zen {
+namespace Scenes {
 
-	key = k;
-
-	active = a;
-
-	visible = v;
-
-	isBooted = false;
-
-	isTransition = false;
-	transitionFrom = nullptr;
-	transitionDuration = 0;
-	transitionAllowInput = false;
-
-	data = {};
-}
-
-Zen::SceneSettings::~SceneSettings ()
+SceneSettings::SceneSettings (std::string key_, bool active_, bool visible_)
+	: key (key_), active (active_), visible (visible_)
 {}
+
+}	// namespace Scenes
+}	// namespace Zen

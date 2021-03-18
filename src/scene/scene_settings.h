@@ -1,12 +1,12 @@
 /**
- * @file		scene_settings.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef SCENE_SETTINGS_H
-#define SCENE_SETTINGS_H
+#ifndef ZEN_SCENES_SCENE_SETTINGS_H
+#define ZEN_SCENES_SCENE_SETTINGS_H
 
 #include <SDL2/SDL.h>
 #include <memory>
@@ -18,37 +18,45 @@
 #include "../data.h"
 #include "../const.h"
 
-namespace Zen
+namespace Zen {
+namespace Scenes {
+
+/**
+ * The settings of a SceneSystems object.
+ *
+ * @class SceneSettings
+ * @since 0.0.0
+ */
+class SceneSettings
 {
-	class SceneSettings
-	{
-	public:
-		SceneSettings (std::string k, bool a = true, bool v = true);
-		~SceneSettings ();
+public:
+	/**
+	 * @since 0.0.0
+	 */
+	SceneSettings (std::string key_, bool active_ = false, bool visible_ = true);
 
-		SCENE status;
+	SCENE status = SCENE::PENDING;
 
-		std::string key;
+	std::string key;
 
-		bool active;
+	bool active = false;
 
-		bool visible;
+	bool visible = true;
 
-		bool isBooted;
+	bool isBooted = false;
 
-		bool isTransition;
+	bool isTransition = false;
 
-		Scene* transitionFrom;
+	Scene* transitionFrom = nullptr;
 
-		Uint32 transitionDuration;
+	Uint32 transitionDuration = 0;
 
-		bool transitionAllowInput;
+	bool transitionAllowInput = true;
 
-		Data data = {};
-	};
-}
+	Data data = {};
+};
 
-// Declarations of the forward declared elements
-//#include "scene.h"
+}	// namespace Scenes
+}	// namespace Zen
 
 #endif

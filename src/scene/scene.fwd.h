@@ -8,9 +8,10 @@
 #ifndef ZEN_SCENE_FWD_H
 #define ZEN_SCENE_FWD_H
 
-namespace Zen
-{
+namespace Zen {
+
 class Scene;
-}
+
+}	// namespace Zen
 
 #endif
