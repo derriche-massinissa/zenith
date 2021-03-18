@@ -1,12 +1,12 @@
 /**
- * @file		texture_manager.h
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef TEXTURE_MANAGER_H
-#define TEXTURE_MANAGER_H
+#ifndef ZEN_TEXTURES_TEXTURE_MANAGER_H
+#define ZEN_TEXTURES_TEXTURE_MANAGER_H
 
 #include <SDL2/SDL.h>
 #include <map>
@@ -36,7 +36,12 @@ namespace Textures {
 class TextureManager : public EventEmitter
 {
 public:
-	TextureManager (Game& g);
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param game_ A reference to the Game owning this TextureManager.
+	 */
+	TextureManager (Game& game_);
 
 	/**
 	 * The boot handler called by the Game instance when it first starts up.
@@ -49,21 +54,23 @@ public:
 	 * Checks the given texture key and to see if it is already in use.
 	 *
 	 * @since 0.0.0
-	 * @param key The texture key to check.
+	 *
+	 * @param key_ The texture key to check.
 	 * @return `true` if it's safe to use the key, otherwise `false`.
 	 */
-	bool checkKey (std::string key);
+	bool checkKey (std::string key_);
 
 	/**
 	 * Removes a Texture from the TextureManager and destroys it. This
 	 * will immediately clear all references to it.
 	 *
 	 * @since 0.0.0
-	 * @param key The key of the Texture to remove.
+	 *
+	 * @param key_ The key of the Texture to remove.
 	 *
 	 * @return This TextureManager instance.
 	 */
-	TextureManager& remove (std::string key);
+	TextureManager& remove (std::string key_);
 
     /**
      * Adds a new Texture to the Texture Manager created from the given Base64
@@ -71,25 +78,25 @@ public:
      *
      * @since 0.0.0
      *
-     * @param key The unique key of the Texture.
-     * @param data The Base64 encoded data.
+     * @param key_ The unique key of the Texture.
+     * @param data_ The Base64 encoded data.
      *
      * @return This TextureManager instance.
      */
-    TextureManager& addBase64 (std::string key, std::string data);
+    TextureManager& addBase64 (std::string key_, std::string data_);
 
 	/**
 	 * Adds a new Texture to the TextureManager created from the given image.
 	 * 
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param path The path to the image file.
+	 * @param key_ The unique key of the Texture.
+	 * @param path_ The path to the image file.
 	 *
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addImage (std::string key, std::string path);
+	Texture* addImage (std::string key_, std::string path_);
 
 	/**
 	 * Adds a Render Texture to the TextureManager using the given key.
@@ -99,13 +106,13 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param renderTexture The source Render Texture.
+	 * @param key_ The unique key of the Texture.
+	 * @param renderTexture_ The source Render Texture.
 	 *
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addRenderTexture (std::string key, GameObjects::RenderTexture renderTexture);
+	Texture* addRenderTexture (std::string key_, GameObjects::RenderTexture renderTexture_);
 
 	/**
 	 * Adds a new Texture Atlas to this TextureManager.
@@ -114,27 +121,27 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param sources A vector of paths to the image file.
-	 * @param dataPath A path to the Texture Atlas data.
+	 * @param key_ The unique key of the Texture.
+	 * @param sources_ A vector of paths to the image file.
+	 * @param dataPath_ A path to the Texture Atlas data.
 	 *
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlas (std::string key, std::vector<std::string> sources, std::string dataPath);
+	Texture* addAtlas (std::string key_, std::vector<std::string> sources_, std::string dataPath_);
 	/**
 	 * @overload
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param sources A path to the image file.
-	 * @param dataPath A path to the Texture Atlas data.
+	 * @param key_ The unique key of the Texture.
+	 * @param sources_ A path to the image file.
+	 * @param dataPath_ A path to the Texture Atlas data.
 	 *
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlas (std::string key, std::string source, std::string dataPath);
+	Texture* addAtlas (std::string key_, std::string source_, std::string dataPath_);
 
 	/**
 	 * Adds a Texture Atlas to this TextureManager.
@@ -143,26 +150,26 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param sources A path to the image file.
-	 * @param data The Texture Atlas data.
+	 * @param key_ The unique key of the Texture.
+	 * @param sources_ A path to the image file.
+	 * @param data_ The Texture Atlas data.
 	 *
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlasJSONArray (std::string key, std::vector<std::string> sources, nlohmann::json data);
+	Texture* addAtlasJSONArray (std::string key_, std::vector<std::string> sources_, nlohmann::json data_);
 	/**
 	 * @overload
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param sources A path to the image file.
-	 * @param data A vector of Texture Atlas data.
+	 * @param key_ The unique key of the Texture.
+	 * @param sources_ A path to the image file.
+	 * @param data_ A vector of Texture Atlas data.
 	 *
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlasJSONArray (std::string key, std::vector<std::string> sources, nlohmann::json data);
+	Texture* addAtlasJSONArray (std::string key_, std::vector<std::string> sources_, nlohmann::json data_);
 
 	/**
 	 * Adds a Texture Atlas to this TextureManager.
@@ -171,14 +178,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param sources A path to the image file.
-	 * @param data The Texture Atlas data.
+	 * @param key_ The unique key of the Texture.
+	 * @param sources_ A path to the image file.
+	 * @param data_ The Texture Atlas data.
 	 *
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlasJSONHash (std::string key, std::vector<std::string> sources, nlohmann::json data);
+	Texture* addAtlasJSONHash (std::string key_, std::vector<std::string> sources_, nlohmann::json data_);
 
 	/**
 	 * Adds a Sprite Sheet to this TextureManager.
@@ -188,14 +195,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param path The path to the image file.
-	 * @param config The configuration of this Sprite Sheet.
+	 * @param key_ The unique key of the Texture.
+	 * @param path_ The path to the image file.
+	 * @param config_ The configuration of this Sprite Sheet.
 	 *
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addSpriteSheet (std::string key, std::string path, SpriteSheetConfig config);
+	Texture* addSpriteSheet (std::string key_, std::string path_, SpriteSheetConfig config_);
 
 	/**
 	 * Adds a Sprite Sheet to this TextureManager, where the Sprite Sheet exists
@@ -206,26 +213,26 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param config The configuration of this Sprite Sheet.
+	 * @param key_ The unique key of the Texture.
+	 * @param config_ The configuration of this Sprite Sheet.
 	 *
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addSpriteSheetFromAtlas (std::string key, SpriteSheetConfig config);
+	Texture* addSpriteSheetFromAtlas (std::string key_, SpriteSheetConfig config_);
 
 	/**
 	 * Creates a new Texture using the given source and dimensions.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param sources The path to the image file.
+	 * @param key_ The unique key of the Texture.
+	 * @param sources_ The path to the image file.
 	 *
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* create (std::string key, std::vector<std::string> sources);
+	Texture* create (std::string key_, std::vector<std::string> sources_);
 
 	/**
 	 * Checks the given key to see if a Texture using it exists within
@@ -233,12 +240,12 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
+	 * @param key_ The unique key of the Texture.
 	 *
 	 * @return `true` if a Texture matching the given key exists in this
 	 * TextureManager.
 	 */
-	bool exists (std::string key = "__DEFAULT");
+	bool exists (std::string key_ = "__DEFAULT");
 
 	/**
 	 * Returns a Texture from the TextureManager that matches the given
@@ -250,11 +257,11 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
+	 * @param key_ The unique key of the Texture.
 	 *
 	 * @return A pointer to the Texture.
 	 */
-	Texture* get (std::string key = "");
+	Texture* get (std::string key_ = "");
 
 	/**
 	 * Takes a Texture key and Frame name and returns a reference to that
@@ -262,22 +269,22 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param frame The key of the frame to get from the Texture.
+	 * @param key_ The unique key of the Texture.
+	 * @param frame_ The key of the frame to get from the Texture.
 	 *
 	 * @return A pointer to the Frame, or `nullptr` if no Frame was found.
 	 */
-	Frame* getFrame (std::string key, std::string frame);
+	Frame* getFrame (std::string key_, std::string frame_);
 	/**
 	 * @overload
 	 * @since 0.0.0
 	 *
-	 * @param key The unique key of the Texture.
-	 * @param frame The index of the frame to get from the Texture.
+	 * @param key_ The unique key of the Texture.
+	 * @param frame_ The index of the frame to get from the Texture.
 	 *
 	 * @return A pointer to the Frame, or `nullptr` if no Frame was found.
 	 */
-	Frame* getFrame (std::string key, int frame);
+	Frame* getFrame (std::string key_, int frame_);
 
 	/**
 	 * Returns a vector with all the keys of all the Textures in this
@@ -302,26 +309,26 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param x The x coordinate of the pixel.
-	 * @param y The y coordinate of the pixel.
-	 * @param key The unique key of the Texture.
-	 * @param frame The key of the frame.
+	 * @param x_ The x coordinate of the pixel.
+	 * @param y_ The y coordinate of the pixel.
+	 * @param key_ The unique key of the Texture.
+	 * @param frame_ The key of the frame.
 	 *
 	 * @return Color object populated with the color value of the requested pixel.
 	 */
-	Display::Color getPixel (int x, int y, std::string key, std::string frame);
+	Display::Color getPixel (int x_, int y_, std::string key_, std::string frame_);
 	/**
 	 * @overload
 	 * @since 0.0.0
 	 *
-	 * @param x The x coordinate of the pixel.
-	 * @param y The y coordinate of the pixel.
-	 * @param key The unique key of the Texture.
-	 * @param frame The index of the frame.
+	 * @param x_ The x coordinate of the pixel.
+	 * @param y_ The y coordinate of the pixel.
+	 * @param key_ The unique key of the Texture.
+	 * @param frame_ The index of the frame.
 	 *
 	 * @return Color object populated with the color value of the requested pixel.
 	 */
-	Display::Color getPixel (int x, int y, std::string key, int frame);
+	Display::Color getPixel (int x_, int y_, std::string key_, int frame_);
 
 	/**
 	 * Given a Texture and an `x` and `y` coordinates, this method will
@@ -332,26 +339,26 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param x The x coordinate of the pixel.
-	 * @param y The y coordinate of the pixel.
-	 * @param key The unique key of the Texture.
-	 * @param frame The key of the frame.
+	 * @param x_ The x coordinate of the pixel.
+	 * @param y_ The y coordinate of the pixel.
+	 * @param key_ The unique key of the Texture.
+	 * @param frame_ The key of the frame.
 	 *
 	 * @return Alpha value (0-255) of the given pixel, or `-1` if the coordinates were out of bounds.
 	 */
-	int getPixelAlpha (int x, int y, std::string key, std::string frame);
+	int getPixelAlpha (int x_, int y_, std::string key_, std::string frame_);
 	/**
 	 * @overload
 	 * @since 0.0.0
 	 *
-	 * @param x The x coordinate of the pixel.
-	 * @param y The y coordinate of the pixel.
-	 * @param key The unique key of the Texture.
-	 * @param frame The index of the frame.
+	 * @param x_ The x coordinate of the pixel.
+	 * @param y_ The y coordinate of the pixel.
+	 * @param key_ The unique key of the Texture.
+	 * @param frame_ The index of the frame.
 	 *
 	 * @return Alpha value (0-255) of the given pixel, or `-1` if the coordinates were out of bounds.
 	 */
-	int getPixelAlpha (int x, int y, std::string key, int frame);
+	int getPixelAlpha (int x_, int y_, std::string key_, int frame_);
 
 	/**
 	 * Changes the key being used by a Texture to the new key provided.
@@ -363,12 +370,12 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param currentKey The current key of the Texture you wish to rename.
-	 * @param newKey The new unique key to use for the Texture.
+	 * @param currentKey_ The current key of the Texture you wish to rename.
+	 * @param newKey_ The new unique key to use for the Texture.
 	 *
 	 * @return `true` if the Texture key was successfully renamed, otherwise `false`.
 	 */
-	bool renameTexture (std::string currentKey, std::string newKey);
+	bool renameTexture (std::string currentKey_, std::string newKey_);
 
 	/**
 	 * Passes all Textures to the given callback.
@@ -379,25 +386,26 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param callback The callback function to be sent the Textures.
-	 * @param scope The context of the callback execution.
-	 * @param data Additional data that will be passed to the callback.
+	 * @param callback_ The callback function to be sent the Textures.
+	 * @param scope_ The context of the callback execution.
+	 * @param data_ Additional data that will be passed to the callback.
 	 */
 	template <typename T>
-		void each (void (T::* callback)(std::vector<Texture*>, Data), T* scope, Data data = {})
+		void each (void (T::* callback_)(std::vector<Texture*>, Data), T* scope_, Data data_ = {})
 		{
-			std::function<void(std::vector<Texture*>, Data)> cb = std::bind(
-					callback,
-					scope,
+			std::function<void(std::vector<Texture*>, Data)> cb_ = std::bind(
+					callback_,
+					scope_,
 					std::placeholders::_1,
 					std::placeholders::_2);
 
-			std::vector<Texture*> tex;
-			for (auto it = list_.begin(); it != list_.end(); it++) {
-				tex.emplace_back(&it->second);
+			std::vector<Texture*> tex_;
+
+			for (auto it_ = list.begin(); it_ != list.end(); it_++) {
+				tex_.emplace_back(&it_->second);
 			}
 
-			cb(tex, data);
+			cb_(tex_, data_);
 		}
 
 private:
@@ -406,7 +414,7 @@ private:
 	 *
 	 * @since 0.0.0
 	 */
-	Game& game_;
+	Game& game;
 
 	/**
 	 * Avector that has all the textures that the TextureManager creates.
@@ -414,7 +422,7 @@ private:
 	 *
 	 * @since 0.0.0
 	 */
-	std::map<std::string, Texture> list_;
+	std::map<std::string, Texture> list;
 };
 
 }	// namespace Textures

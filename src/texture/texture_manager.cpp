@@ -1,5 +1,5 @@
 /**
- * @file		texture_manager.cpp
+ * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
@@ -10,23 +10,23 @@
 namespace Zen {
 namespace Textures {
 
-TextureManager::TextureManager (Game& g)
-	: game_(g)
+TextureManager::TextureManager (Game& game_)
+	: game (game_)
 {
-	game_.events.once("SYS_BOOT", &TextureManager::boot, this);
+	game_.events.once("boot", &TextureManager::boot, this);
 }
 
 void TextureManager::boot ()
 {
-	addBase64("__DEFAULT", game_.config.defaultImage);
-	addBase64("__MISSING", game_.config.missingImage);
-	addBase64("__WHITE", game_.config.whiteImage);
+	addBase64("__DEFAULT", game.config.defaultImage);
+	addBase64("__MISSING", game.config.missingImage);
+	addBase64("__WHITE", game.config.whiteImage);
 }
 
-bool TextureManager::checkKey (std::string key)
+bool TextureManager::checkKey (std::string key_)
 {
-	if (exists(key)) {
-		messageError("The texture key is already in use: ", key);
+	if (exists(key_)) {
+		messageError("The texture key is already in use: ", key_);
 
 		return false;
 	}
@@ -34,19 +34,19 @@ bool TextureManager::checkKey (std::string key)
 	return true;
 }
 
-TextureManager& TextureManager::remove (std::string key)
+TextureManager& TextureManager::remove (std::string key_)
 {
-	if (!exists(key)) {
-		messageWarning("No texture found matching the key: ", key);
+	if (!exists(key_)) {
+		messageWarning("No texture found matching the key: ", key_);
 		
 		return *this;
 	}
 
-	for (auto it = list_.begin(); it != list_.end(); it++) {
-		if (it->first == key) {
-			list_.erase(it);
+	for (auto it_ = list.begin(); it_ != list.end(); it_++) {
+		if (it_->first == key_) {
+			list.erase(it_);
 
-			emit("SYS_REMOVE", {{}, {key}});
+			emit("remove", key_);
 
 			break;
 		}
@@ -56,276 +56,353 @@ TextureManager& TextureManager::remove (std::string key)
 }
 
 TextureManager& TextureManager::addBase64 (
-		std::string key, std::string data)
+		std::string key_, std::string data_)
 {
-	return addImage(key, data);
+	return addImage(key_, data_);
 }
 
-Texture* TextureManager::addImage (std::string key, std::string path)
+Texture* TextureManager::addImage (std::string key_, std::string path_)
 {
-	Texture *texture = nullptr;
+	Texture *texture_ = nullptr;
 
-	if (checkKey(key)) {
-		texture = create(key, path);
+	if (checkKey(key_)) {
+		texture_ = create(key_, path_);
 
-		int sourceIndex = 0;
+		int sourceIndex_ = 0;
 
-		texture->add("__BASE",
-				sourceIndex,
+		texture_->add("__BASE",
+				sourceIndex_,
 				0,
 				0,
-				texture->source_[sourceIndex].width_,
-				texture->source_[sourceIndex].height_);
+				texture_->source_[sourceIndex_].width_,
+				texture_->source_[sourceIndex_].height_);
 
-		emit("SYS_ADD", {{}, {key}});
+		emit("add", key_);
 	}
 
-	return texture;
+	return texture_;
 }
 
-Texture* TextureManager::addRenderTexture (std::string key, GameObjects::RenderTexture renderTexture)
+Texture* TextureManager::addRenderTexture (std::string key_, GameObjects::RenderTexture renderTexture_)
 {
-	Texture *texture = nullptr;
+	Texture *texture_ = nullptr;
 
-	if (checkKey(key)) {
-		texture = create(key, renderTexture);
+	if (checkKey(key_)) {
+		texture_ = create(key_, renderTexture_);
 
-		int sourceIndex = 0;
+		int sourceIndex_ = 0;
 
-		texture->add("__BASE",
-				sourceIndex,
+		texture_->add("__BASE",
+				sourceIndex_,
 				0,
 				0,
-				renameTexture.width_,
-				renameTexture.height_);
+				renderTexture_.width_,
+				renderTexture_.height_);
 
-		emit("SYS_ADD", {{}, {key}});
+		emit("add", key_);
 	}
 
-	return texture;
+	return texture_;
 }
 
 Texture* TextureManager::addAtlas (
-		std::string key, std::vector<std::string> sources, std::string dataPath)
+		std::string key_, std::vector<std::string> sources_, std::string dataPath_)
 {
 	// Open file
-	std::fstream file (dataPath, std::ios::in);
+	std::fstream file_ (dataPath_, std::ios::in);
 
-	if (!file) {
-		messageError("JSON file couldn't be opened: ", dataPath);
+	if (!file_) {
+		messageError("JSON file couldn't be opened: ", dataPath_);
 
 		return nullptr;
 	}
 	// Create a JSON object
-	nlohmann::json data;
-	file >> data;
+	nlohmann::json data_;
+	file_ >> data_;
 
 	// Close file
-	file.close();
+	file_.close();
 
-	auto texturesIt = data.find("textures");
-	auto framesIt = data.find("frames");
+	auto texturesIt_ = data_.find("textures");
+	auto framesIt_ = data_.find("frames");
 
-	if ((texturesIt != data.end() && texturesIt->is_array()) ||
-		(framesIt != data.end() && framesIt->is_array()))
+	if ((texturesIt_ != data_.end() && texturesIt_->is_array()) ||
+		(framesIt_ != data_.end() && framesIt_->is_array()))
 	{
-		return addAtlasJSONArray(key, sources, data);
+		return addAtlasJSONArray(key_, sources_, data_);
 	}
 	else
 	{
-		return addAtlasJSONHash(key, sources, data);
+		return addAtlasJSONHash(key_, sources_, data_);
 	}
 }
 
 Texture* TextureManager::addAtlas (
-		std::string key, std::string source, std::string dataPath)
+		std::string key_, std::string source_, std::string dataPath_)
 {
-	std::vector<std::string> sources;
-	sources.emplace_back(source);
+	std::vector<std::string> sources_;
+	sources_.emplace_back(source_);
 
-	return addAtlas(key, sources, dataPath);
+	return addAtlas(key_, sources_, dataPath_);
 }
 
 Texture* TextureManager::addAtlasJSONArray (
-		std::string key, std::vector<std::string> sources, nlohmann::json data)
+		std::string key_, std::vector<std::string> sources_, nlohmann::json data_)
 {
-	Texture *texture = nullptr;
+	Texture *texture_ = nullptr;
 
-	if (checkKey(key)) {
-		texture = create(key, sources);
+	if (checkKey(key_)) {
+		texture_ = create(key_, sources_);
 		
-		parseJsonArray(texture, 0, data);
+		parseJsonArray(texture_, 0, data_);
 
-		emit("SYS_ADD", {{}, {key}});
+		emit("add", key_);
 	}
 
-	return texture;
+	return texture_;
 }
 
 Texture* TextureManager::addAtlasJSONArray (
-		std::string key, std::vector<std::string> sources, std::vector<nlohmann::json> data)
+		std::string key_, std::vector<std::string> sources_, std::vector<nlohmann::json> data_)
 {
 	// Multi-Atlas
 
-	Texture *texture = nullptr;
+	Texture *texture_ = nullptr;
 
-	if (checkKey(key)) {
-		texture = create(key, sources);
+	if (checkKey(key_)) {
+		texture_ = create(key_, sources_);
 
 		// Multi-pack with on atlas file for all images
-		bool singleAtlasFile = (data.size() == 1);
+		bool singleAtlasFile_ = (data_.size() == 1);
 
 		// Assumes the textures are in the same order in the source array as in the json data
-		for (int i = 0; i < texture->source_.size(); i++) {
-			auto atlasData = singleAtlasFile ? data[0] : data[i];
+		for (int i_ = 0; i_ < texture_->source_.size(); i_++) {
+			auto atlasData_ = singleAtlasFile_ ? data_[0] : data_[i];
 
-			parseJsonArray(texture, i, atlasData);
+			parseJsonArray(*texture_, i_, atlasData_);
 		}
 
-		emit("SYS_ADD", {{}, {key}});
+		emit("add", key_);
 	}
 
-	return texture;
+	return texture_;
 }
 
 Texture* TextureManager::addAtlasJSONHash (
-		std::string key, std::vector<std::string> sources, nlohmann::json data)
+		std::string key_, std::vector<std::string> sources_, nlohmann::json data_)
 {
-	Texture *texture = nullptr;
+	Texture *texture_ = nullptr;
 
-	if (checkKey(key)) {
-		texture = create(key, sources);
+	if (checkKey(key_)) {
+		texture_ = create(key_, sources_);
 
-		Parser.JSONHash(*texture, 0, data);
+		parseJsonHash(*texture_, 0, data_);
 
-		emit("SYS_ADD", {{}, {key}});
+		emit("add", key_);
 	}
 
-	return texture;
+	return texture_;
 }
 
 Texture* TextureManager::addAtlasJSONHash (
-		std::string key, std::vector<std::string> sources, std::vector<nlohmann::json> data)
+		std::string key_, std::vector<std::string> sources_, std::vector<nlohmann::json> data_)
 {
-	Texture *texture = nullptr;
+	Texture *texture_ = nullptr;
 
-	if (checkKey(key)) {
-		texture = create(key, sources);
+	if (checkKey(key_)) {
+		texture_ = create(key_, sources_);
 
-		for (int i = 0; i < data.size(), i++) {
-			Parser.JSONHash(*texture, i, data[i]);
+		for (int i_ = 0; i_ < data_.size(), i_++) {
+			parserJsonHash(*texture_, i_, data_[i]);
 		}
 
-		emit("SYS_ADD", {{}, {key}});
+		emit("add", key);
 	}
 
-	return texture;
+	return texture_;
 }
 
-Texture* TextureManager::addSpriteSheet (std::string key, std::string path, SpriteSheetConfig config)
+Texture* TextureManager::addSpriteSheet (std::string key_, std::string path_, SpriteSheetConfig config_)
 {
-	Texture *texture = nullptr;
+	Texture *texture_ = nullptr;
 
-	if (checkKey(key)) {
-		texture = create(key, source);
+	if (checkKey(key_)) {
+		texture_ = create(key_, path_);
 
-		int width = texture.source_[0].width_;
-		int height = texture.source_[0].height;
+		int width_ = texture_->source[0].width;
+		int height_ = texture_->source[0].height;
 
-		Parser.SpriteSheet(*texture, 0, 0, 0, width, height, config);
+		parserSpriteSheet(*texture_, 0, 0, 0, width_, height_, config_);
 
-		emit("SYS_ADD", {{}, {key}});
+		emit("add", key_);
 	}
 
-	return texture;
+	return texture_;
 }
 
-Texture* TextureManager::addSpriteSheetFromAtlas (std::string key, SpriteSheetConfig config)
+Texture* TextureManager::addSpriteSheetFromAtlas (std::string key_, SpriteSheetConfig config_)
 {
-	if (!checkKey(key))
+	if (!checkKey(key_))
 		return nullptr;
 
-	std::string atlasKey = config.atlas;
-	int atlasFrame = config.frame;
+	std::string atlasKey_ = config_.atlas;
+	int atlasFrame_ = config_.frame;
 
-	if (atlasKey == "" || atlasFrame < 0)
+	if (atlasKey_ == "" || atlasFrame_ < 0)
 		return nullptr;
 
-	auto atlas = get(atlasKey);
-	auto sheet = atlas.get(atlasFrame);
+	auto atlas_ = get(atlasKey_);
+	auto sheet_ = atlas_.get(atlasFrame_);
 
-	if (sheet) {
-		Texture *texture = create(key, sheet.source_.image_);
+	if (sheet_) {
+		Texture *texture_ = create(key_, sheet_.source.image);
 
-		if (sheet.trimmed) {
+		if (sheet_.trimmed) {
 			// If trimmed, we need to help the parser adjust
-			Parser.SpriteSheetFromAtlas(*texture, sheet, config);
+			parserSpriteSheetFromAtlas(*texture_, sheet_, config_);
 		} else {
-			Parser.SpriteSheet(*texture, 0, sheet.cutX, sheet.cutY, sheet.cutWidth, cut.cutHeight, config);
+			parserSpriteSheet(*texture_, 0, sheet_.cutX, sheet_.cutY, sheet_.cutWidth, cut_.cutHeight, config_);
 		}
 
-		emit ("SYS_ADD", {{}, {key}});
+		emit("add", key_);
 
-		return texture;
+		return texture_;
 	}
 
 	return nullptr;
 }
 
-Texture* TextureManager::create (std::string key, std::vector<std::string> sources)
+Texture* TextureManager::create (std::string key_, std::vector<std::string> sources_)
 {
-	Texture *texture = nullptr;
+	Texture *texture_ = nullptr;
 
-	if (checkKey(key)) {
-		Texture tex (*this, key, source);
+	if (checkKey(key_)) {
+		Texture tex_ (*this, key_, source_);
 
-		list_.emplace(key, tex);
+		list.emplace(key_, tex_);
 
-		texture = &list_.find(key)->second;
+		texture_ = &list.find(key_)->second;
 	}
 
-	return texture;
+	return texture_;
 }
 
-bool TextureManager::exists (std::string key)
+bool TextureManager::exists (std::string key_)
 {
-	return (list_.find(key) != list_.end());
+	return (list.find(key_) != list.end());
 }
 
-Texture* TextureManager::get (std::string key)
+Texture* TextureManager::get (std::string key_)
 {
-	if (list_.find(key) != list_.end())
-		return list_.find(key)->second;
+	if (list.find(key_) != list.end())
+		return list.find(key_)->second;
 	else
-		return &list_.find("__MISSING")->second;
+		return &list.find("__MISSING")->second;
 }
 
-Frame* TextureManager::getFrame (std::string key, std::string frame)
+Frame* TextureManager::getFrame (std::string key_, std::string frame_)
 {
-	if (list_.find(key) != list_.end())
-		return &list_.find(key)->second;
+	if (list.find(key_) != list.end())
+		return &list.find(key_)->second;
 }
 
-Frame* TextureManager::getFrame (std::string key, int frame)
+Frame* TextureManager::getFrame (std::string key_, int frame_)
 {
-	if (list_.find(key) != list_.end())
-		return &list_.at(frame)->second;
+	if (list.find(key_) != list.end())
+		return &list.at(frame_)->second;
 }
 
 std::vector<std::string> TextureManager::getTextureKeys ()
 {
-	std::vector<std::string> out;
+	std::vector<std::string> out_;
 
-	for (auto it = list_.begin(); it != list_.end(); it++) {
-		if (it->first != "__DEFAULT" && it->first != "__MISSING")
-			out.emplace_back(it->first);
+	for (auto it_ = list.begin(); it_ != list.end(); it_++)
+	{
+		if (it_->first != "__DEFAULT" && it_->first != "__MISSING")
+			out_.emplace_back(it_->first);
 	}
 
-	return out;
+	return out_;
 }
 
-Display::Color TextureManager::getPixel (int x, int y, std::string key, std::string frame)
+Display::Color TextureManager::getPixel (int x_, int y_, std::string key_, std::string frame_)
 {
+	auto textureFrame_ = getFrame(key_, frame_);
+
+	Display::Color out_;
+
+	if (textureFrame_) {
+		// Adjust for trim (if not trimmed x and y are just zero)
+		x_ -= textureFrame_.x;
+		y_ -= textureFrame_.y;
+
+		auto data_ = textureFrame_.data.cut;
+
+		x_ += data_.x;
+		y_ += data_.y;
+
+		if (x_ >= data_.x && x_ < data_.r && y_ >= data_.y && y_ < data_.b) {
+			void *pixels_ = nullptr;
+			int pitch_ = 0;
+
+			// Get the frame's source SDL texture
+			SDL_Texture *texture_ = textureFrame_->source.sdlTexture;
+
+			// Check if the texture exists
+			if (!texture_) {
+				messageError("The frame has no source texture: ", SDL_GetError());
+				return out_;
+			}
+
+			// Allocate format from window
+			Uint32 uformat_ = SDL_GetWindowPixelFormat(game.window.getSDLWindow());
+			SDL_PixelFormat *format_ = SDL_AllocFormat(uformat_);
+
+			// Lock texture for manipulation
+			if (SDL_LockTexture(texture_, nullptr, &pixels_, &pitch_) != 0) {
+				messageError("Unable to lock texture: ", SDL_GetError());
+
+				SDL_FreeFormat(format_);
+
+				return out_;
+			}
+
+			// Get pixels in unsigned int of 32 bits
+			Uint32 *upixels_ = static_cast<Uint32>(pixels_);
+
+			// Read the pixel in `x` and `y`
+			Uint32 pixel_ = upixels_[y_ * pitch_ + x_];
+
+			// Get the color components of the pixel
+			Uint8 r_ = 0, g_ = 0, b_ = 0, a_ = 0;
+			SDL_GetRGBA(pixel_, format_, &r_, &g_, &b_, &a_);
+
+			// Unlock texture
+			SDL_UnlockTexture(texture_);
+			pixels_ = nullptr;
+			upixels_ = nullptr;
+
+			// Free the allocated format
+			SDL_FreeFormat(format_);
+
+			// Save the color components to the output color object
+			out_.setTo(r_, g_, b_, a_);
+		}
+	}
+
+	return out_;
+}
+
+Display::Color TextureManager::getPixel (int x_, int y_, std::string key_, int frame_)
+{
+	// Get the frame's name
+	Frame *f_ = getFrame(frame_);
+	if (f_)
+		return getPixel(x_, y_ key_, f_.name);
+	else
+		return Display::Color ();
+
+	/*
 	auto textureFrame = getFrame(key, frame);
 
 	Display::Color out;
@@ -343,23 +420,6 @@ Display::Color TextureManager::getPixel (int x, int y, std::string key, std::str
 		if (x >= data.x && x < data.r && y >= data.y && y < data.b) {
 			void *pixels = nullptr;
 			int pitch = 0;
-
-			/*
-			// Create blank streamable texture
-			SDL_Texture *blank = SDL_CreateTexture(
-				game.renderer,
-				uformat,
-				SDL_GetWindowPixelFormat(game.window.getSDLWindow()),
-				SDL_TEXTUREACCESS_STREAMING,
-				textureFrame->width_,
-				textureFrame->height);
-
-			// Check if the texture was created
-			if (!blank) {
-				messageError("Unable to create a blank texture: ", SDL_GetError());
-				return out;
-			}
-			*/
 
 			// Get the frame's source SDL texture
 			SDL_Texture *texture = textureFrame->source_.sdlTexture_;
@@ -407,78 +467,87 @@ Display::Color TextureManager::getPixel (int x, int y, std::string key, std::str
 	}
 
 	return out;
+	*/
 }
 
-Display::Color TextureManager::getPixel (int x, int y, std::string key, int frame)
+int TextureManager::getPixelAlpha (int x_, int y_, std::string key_, std::string frame_)
 {
-	auto textureFrame = getFrame(key, frame);
+	auto textureFrame_ = getFrame(key_, frame_);
 
-	Display::Color out;
+	int out_ = -1;
 
-	if (textureFrame) {
+	if (textureFrame_) {
 		// Adjust for trim (if not trimmed x and y are just zero)
-		x -= textureFrame.x;
-		y -= textureFrame.y;
+		x_ -= textureFrame_.x;
+		y_ -= textureFrame_.y;
 
-		auto data = textureFrame.data.cut;
+		auto data_ = textureFrame_.data.cut;
 
-		x += data.x;
-		y += data.y;
+		x_ += data_.x;
+		y_ += data_.y;
 
-		if (x >= data.x && x < data.r && y >= data.y && y < data.b) {
-			void *pixels = nullptr;
-			int pitch = 0;
+		if (x_ >= data_.x && x_ < data_.r && y_ >= data_.y && y_ < data_.b) {
+			void *pixels_ = nullptr;
+			int pitch_ = 0;
 
 			// Get the frame's source SDL texture
-			SDL_Texture *texture = textureFrame->source_.sdlTexture_;
+			SDL_Texture *texture_ = textureFrame_->source.sdlTexture;
 
 			// Check if the texture exists
-			if (!texture) {
+			if (!texture_) {
 				messageError("The frame has no source texture: ", SDL_GetError());
-				return out;
+				return out_;
 			}
 
 			// Allocate format from window
-			Uint32 uformat = SDL_GetWindowPixelFormat(game.window.getSDLWindow());
-			SDL_PixelFormat *format = SDL_AllocFormat(uformat);
+			Uint32 uformat_ = SDL_GetWindowPixelFormat(game.window.getSDLWindow());
+			SDL_PixelFormat *format_ = SDL_AllocFormat(uformat_);
 
 			// Lock texture for manipulation
-			if (SDL_LockTexture(texture, nullptr, &pixels, &pitch) != 0) {
+			if (SDL_LockTexture(texture_, nullptr, &pixels_, &pitch_) != 0) {
 				messageError("Unable to lock texture: ", SDL_GetError());
 
-				SDL_FreeFormat(format);
+				SDL_FreeFormat(format_);
 
-				return out;
+				return out_;
 			}
 
 			// Get pixels in unsigned int of 32 bits
-			Uint32 *upixels = static_cast<Uint32>(pixels);
+			Uint32 *upixels_ = static_cast<Uint32>(pixels_);
 
 			// Read the pixel in `x` and `y`
-			Uint32 pixel = upixels[y * pitch + x];
+			Uint32 pixel_ = upixels_[y_ * pitch_ + x_];
 
 			// Get the color components of the pixel
-			Uint8 r = 0, g = 0, b = 0, a = 0;
-			SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
+			Uint8 a_ = 0;
+			SDL_GetRGBA(pixel_, format_, nullptr, nullptr, nullptr, &a_);
 
 			// Unlock texture
-			SDL_UnlockTexture(texture);
-			pixels = nullptr;
-			upixels = nullptr;
+			SDL_UnlockTexture(texture_);
+			pixels_ = nullptr;
+			upixels_ = nullptr;
 
 			// Free the allocated format
-			SDL_FreeFormat(format);
+			SDL_FreeFormat(format_);
 
-			// Save the color components to the output color object
-			out.setTo(r, g, b, a);
+			// Save the color components to the output variable
+			out_ = a_;
 		}
 	}
 
-	return out;
+	return out_;
 }
 
-int TextureManager::getPixelAlpha (int x, int y, std::string key, std::string frame)
+int TextureManager::getPixelAlpha (int x_, int y_, std::string key_, int frame_)
 {
+	// Get the frame's name
+	Frame *f_ = getFrame(frame_);
+	if (f_)
+		return getPixelAlpha(x_, y_ key_, f_.name);
+	else
+		return -1;
+
+	/*
 	auto textureFrame = getFrame(key, frame);
 
 	int out = -1;
@@ -543,87 +612,20 @@ int TextureManager::getPixelAlpha (int x, int y, std::string key, std::string fr
 	}
 
 	return out;
+	*/
 }
 
-int TextureManager::getPixelAlpha (int x, int y, std::string key, int frame)
+bool TextureManager::renameTexture (std::string currentKey_, std::string newKey_)
 {
-	auto textureFrame = getFrame(key, frame);
+	Texture *texture_ = get(currentKey_);
 
-	int out = -1;
-
-	if (textureFrame) {
-		// Adjust for trim (if not trimmed x and y are just zero)
-		x -= textureFrame.x;
-		y -= textureFrame.y;
-
-		auto data = textureFrame.data.cut;
-
-		x += data.x;
-		y += data.y;
-
-		if (x >= data.x && x < data.r && y >= data.y && y < data.b) {
-			void *pixels = nullptr;
-			int pitch = 0;
-
-			// Get the frame's source SDL texture
-			SDL_Texture *texture = textureFrame->source_.sdlTexture_;
-
-			// Check if the texture exists
-			if (!texture) {
-				messageError("The frame has no source texture: ", SDL_GetError());
-				return out;
-			}
-
-			// Allocate format from window
-			Uint32 uformat = SDL_GetWindowPixelFormat(game.window.getSDLWindow());
-			SDL_PixelFormat *format = SDL_AllocFormat(uformat);
-
-			// Lock texture for manipulation
-			if (SDL_LockTexture(texture, nullptr, &pixels, &pitch) != 0) {
-				messageError("Unable to lock texture: ", SDL_GetError());
-
-				SDL_FreeFormat(format);
-
-				return out;
-			}
-
-			// Get pixels in unsigned int of 32 bits
-			Uint32 *upixels = static_cast<Uint32>(pixels);
-
-			// Read the pixel in `x` and `y`
-			Uint32 pixel = upixels[y * pitch + x];
-
-			// Get the color components of the pixel
-			Uint8 a = 0;
-			SDL_GetRGBA(pixel, format, nullptr, nullptr, nullptr, &a);
-
-			// Unlock texture
-			SDL_UnlockTexture(texture);
-			pixels = nullptr;
-			upixels = nullptr;
-
-			// Free the allocated format
-			SDL_FreeFormat(format);
-
-			// Save the color components to the output variable
-			out = a;
-		}
-	}
-
-	return out;
-}
-
-bool TextureManager::renameTexture (std::string currentKey, std::string newKey)
-{
-	Texture *texture = get(currentKey);
-
-	if (texture && currentKey != newKey) {
-		texture.key_ = newKey;
+	if (texture_ && currentKey_ != newKey_) {
+		texture_.key_ = newKey_;
 
 		// Move the node containing the texture without copying
-		auto nodeHandler = list_.extract(currentKey);
-		nodeHandler.key() = newKey;
-		list_.insert(std::move(nodeHandler));
+		auto nodeHandler_ = list.extract(currentKey_);
+		nodeHandler_.key() = newKey_;
+		list.insert(std::move(nodeHandler_));
 
 		return true;
 	}
