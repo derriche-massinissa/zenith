@@ -69,7 +69,7 @@ public:
 	~Renderer ();
 
 	/**
-	 * The Phaser Game instance that owns this renderer.
+	 * The Game instance that owns this renderer.
 	 *
 	 * @since 0.0.0
 	 */

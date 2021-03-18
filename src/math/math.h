@@ -99,10 +99,10 @@ double snapCeil (double value, double gap, double start = 0, bool divide = false
 /**
  * Snap a value to nearest grid slice, using rounding.
  *
- * Example: if you have an interval gap of `5` and a position of `12`... you will snap to `10` whereas `14` will snap to `15`.
+ * Example: if you have an interval gap of `5` and a position of `12`... you will 
+ * snap to `10` whereas `14` will snap to `15`.
  *
- * @function Phaser.Math.Snap.To
- * @since 3.0.0
+ * @since 0.0.0
  *
  * @param value The value to snap.
  * @param gap The interval gap of the grid.
@@ -181,6 +181,17 @@ bool fuzzyGreaterThan (double a, double b, double epsilon = EPSILON);
  * @return `true` if `a` is fuzzily less than `b`, otherwise `false`.
  */
 bool fuzzyLessThan (double a, double b, double epsilon = EPSILON);
+
+/**
+ * Convert the given angle from degrees, to the equivalent angle in radians.
+ *
+ * @since 0.0.0
+ *
+ * @param degrees The angle (in degrees) to convert to radians.
+ *
+ * @return The given angle converted to radians.
+ */
+double DegToRad (double degrees);
 
 /**
  * @since 0.0.0

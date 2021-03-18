@@ -447,7 +447,7 @@ public:
 	 *
 	 * @return This Color object.
      */
-	Color& red (int value);
+	Color& red (int value_);
 
     /**
      * The green color value, normalized to the range 0 to 255.
@@ -458,7 +458,7 @@ public:
 	 *
 	 * @return This Color object.
      */
-	Color& green (int value);
+	Color& green (int value_);
 
     /**
      * The blue color value, normalized to the range 0 to 255.
@@ -469,7 +469,7 @@ public:
 	 *
 	 * @return This Color object.
      */
-	Color& blue (int value);
+	Color& blue (int value_);
 
     /**
      * The alpha color value, normalized to the range 0 to 255.
@@ -480,7 +480,7 @@ public:
 	 *
 	 * @return This Color object.
      */
-	Color& alpha (int value);
+	Color& alpha (int value_);
 
     /**
      * The hue color value. A number between 0 and 1.
@@ -490,7 +490,7 @@ public:
 	 *
 	 * @return The hue.
      */
-    double h ();
+    double hue ();
 
     /**
      * The saturation color value. A number between 0 and 1.
@@ -501,7 +501,7 @@ public:
 	 *
 	 * @return The saturation.
      */
-	double s ();
+	double saturation ();
 
     /**
      * The lightness color value. A number between 0 and 1.
@@ -512,7 +512,7 @@ public:
 	 *
 	 * @return The value.
      */
-	double v ();
+	double value ();
 
     /**
      * The hue color value. A number between 0 and 1.
@@ -524,7 +524,7 @@ public:
 	 *
 	 * @return This Color object.
      */
-	Color& h (double value);
+	Color& hue (double value_);
 
     /**
      * The saturation color value. A number between 0 and 1.
@@ -537,7 +537,7 @@ public:
 	 *
 	 * @return This Color object.
      */
-	Color& s (double value);
+	Color& saturation (double value_);
 
     /**
      * The lightness color value. A number between 0 and 1.
@@ -550,7 +550,7 @@ public:
 	 *
 	 * @return This Color object.
      */
-	Color& v (double value);
+	Color& value (double value_);
 
 	/**
 	 * Given 3 separate color values this will return an integer representation

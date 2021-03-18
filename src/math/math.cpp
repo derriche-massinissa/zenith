@@ -89,5 +89,10 @@ bool fuzzyLessThan (double a, double b, double epsilon)
 	return a < b + epsilon;
 }
 
+double DegToRad (double degrees)
+{
+    return degrees * DEG_TO_RAD;
+};
+
 }	// namespace Math
 }	// namespace Zen
