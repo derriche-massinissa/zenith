@@ -13,6 +13,12 @@ namespace Scene2D {
 
 Camera::Camera (int x_, int y_, int width_, int height_)
 	: BaseCamera(x_, y_, width_, height_)
+	, zoomEffect (*this)
+	, rotateToEffect (*this)
+	, panEffect (*this)
+	, shakeEffect (*this)
+	, flashEffect (*this)
+	, fadeEffect (*this)
 {}
 
 Camera::~Camera ()
@@ -56,6 +62,57 @@ Camera& Camera::setDeadzone (int width_ = -1, int height_ = -1)
 	return *this;
 }
 
+Camera& Camera::fadeIn (
+		int duration_, int red_, int green_, int blue_)
+{
+	return fadeEffect.start(false, duration_, red_, green_, blue_, true);
+}
+
+Camera& Camera::fadeOut (int duration_, int red_, int green_, int blue_)
+{
+	return fadeEffect.start(true, duration_, red_, green_, blue_, true);
+}
+
+Camera& Camera::fadeFrom (int duration_, int red_, int green_, int blue_, bool force_)
+{
+	return fadeEffect.start(false, duration_, red_, green_, blue_, force_);
+}
+
+Camera& Camera::fade (int duration_, int red_, int green_, int blue_, bool force_)
+{
+	return fadeEffect.start(true, duration_, red_, green_, blue_, force_);
+}
+
+Camera& Camera::flash (int duration_, int red_, int green_, int blue_, bool force_)
+{
+	return flashEffect.start(duration_, red_, green_, blue_, force_);
+}
+
+Camera& Camera::shake (int duration_, Math::Vector2 intensity_, bool force_)
+{
+	return shakeEffect.start(duration_, intensity_, force_);
+}
+
+Camera& Camera::pan (int x_, int y_, int duration_, std::string ease_, bool force_)
+{
+	return panEffect.start(x_, y_, duration_, ease_, force_);
+}
+
+Camera& Camera::rotateTo (
+		double radians_,
+		bool shortestPath_,
+		int duration_,
+		std::string ease_,
+		bool force_)
+{
+	return rotateToEffect.start(radians_, shortestPath_, duration_, ease_, force_);
+}
+
+Camera& Camera::zoomTo (double zoom_, int duration_, std::string ease_, bool force_)
+{
+	return zoomEffect.start(zoom_, duration_, ease_, force_);
+}
+
 void Camera::preRender ()
 {
 	int halfWidth_ = getWidth() * 0.5;
@@ -82,10 +139,10 @@ void Camera::preRender ()
 			else if (fx > deadzone_->getRight())
 				sx_ = Math::linear(sx_, sx_ + (fx_ - deadzone->getRight()), lerp.x)
 
-			if (fy_ < deadzone->getY())
-				sy_ = Math::linear(sy_, sy_ - (deadzone->getY() - fy_), lerp.y);
-			else if (fy > deadzone_->getBottom())
-				sy_ = Math::linear(sy_, sy_ + (fy_ - deadzone->getBottom()), lerp.y)
+					if (fy_ < deadzone->getY())
+						sy_ = Math::linear(sy_, sy_ - (deadzone->getY() - fy_), lerp.y);
+					else if (fy > deadzone_->getBottom())
+						sy_ = Math::linear(sy_, sy_ + (fy_ - deadzone->getBottom()), lerp.y)
 		} else {
 			sx_ = Math::linear(sx_, fx_ - originX_, lerp.x);
 			sy_ = Math::linear(sy_, fy_ - originY_, lerp.y);
@@ -127,7 +184,7 @@ void Camera::preRender ()
 		emit("follow-update");
 }
 
-Camera& Camera::setLerp (float x_, float y_)
+Camera& Camera::setLerp (double x_, double y_)
 {
 	lerp.set(x_, y_);
 
@@ -143,8 +200,8 @@ Camera& Camera::setFollowOffset (int x_, int y_)
 
 Camera& Camera::startFollow (
 		GameObjects::GameObject& target_,
-		float lerpX_,
-		float lerpY_,
+		double lerpX_,
+		double lerpY_,
 		int offsetX_,
 		int offsetY_)
 {

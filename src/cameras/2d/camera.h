@@ -98,7 +98,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Effects::Fade fadeEffect (*this);
+	Effects::Fade fadeEffect;
 
 	/**
 	 * The Camera Flash effect handler.
@@ -106,7 +106,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Effects::Flash flashEffect (*this);
+	Effects::Flash flashEffect;
 
 	/**
 	 * The Camera Shake effect handler.
@@ -114,7 +114,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Effect::Shake shakeEffect (*this);
+	Effect::Shake shakeEffect;
 
 	/**
 	 * The Camera Pan effect handler.
@@ -122,7 +122,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Effects::Pan panEffect (*this);
+	Effects::Pan panEffect;
 
 	/**
 	 * The Camera Rotate To effect handler.
@@ -130,7 +130,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Effects::RotateTo rotateToEffect (*this);
+	Effects::RotateTo rotateToEffect;
 
 	/**
 	 * The Camera Zoom effect handler.
@@ -138,7 +138,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Effects::Zoom zoomEffect (*this);
+	Effects::Zoom zoomEffect;
 
 	/**
 	 * The linear interpolation value to use when following a target.
@@ -154,7 +154,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Math::Vector2 lerp_ (1.0, 1.0);
+	Math::Vector2 lerp (1.0, 1.0);
 
 	/**
 	 * The values stored in this property are subtracted from the Camera targets position, allowing you to
@@ -224,10 +224,8 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& fadeIn (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0)
-	{
-		return fadeEffect.start(false, duration_, red_, green_, blue_, true);
-	}
+    Camera& fadeIn (
+			int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0);
 
 	/**
 	 * @overload
@@ -244,9 +242,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fadeIn (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera&, float), T* context_)
+    Camera& fadeIn (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera&, double), T* context_)
 	{
-		std::function<void(Camera&, float)> cb_ = std::bind(
+		std::function<void(Camera&, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -268,10 +266,7 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& fadeOut (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0)
-	{
-		return fadeEffect.start(true, duration_, red_, green_, blue_, true);
-	}
+    Camera& fadeOut (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0);
 
 	/**
 	 * @overload
@@ -288,9 +283,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fadeOut (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera&, float), T* context_)
+    Camera& fadeOut (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera&, double), T* context_)
 	{
-		std::function<void(Camera&, float)> cb_ = std::bind(
+		std::function<void(Camera&, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -312,10 +307,12 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& fadeFrom (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0, bool force_ = false)
-	{
-		return fadeEffect.start(false, duration_, red_, green_, blue_, force_);
-	}
+    Camera& fadeFrom (
+			int duration_ = 1000,
+			int red_ = 0,
+			int green_ = 0,
+			int blue_ = 0,
+			bool force_ = false);
 
 	/**
 	 * @overload
@@ -334,9 +331,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fadeFrom (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, float), T* context_)
+    Camera& fadeFrom (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, double), T* context_)
 	{
-		std::function<void(Camera&, float)> cb_ = std::bind(
+		std::function<void(Camera&, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -358,10 +355,7 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& fade (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0, bool force_ = false)
-	{
-		return fadeEffect.start(true, duration_, red_, green_, blue_, force_);
-	}
+    Camera& fade (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0, bool force_ = false);
 
 	/**
 	 * @overload
@@ -380,9 +374,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& fade (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, float), T* context_)
+    Camera& fade (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, double), T* context_)
 	{
-		std::function<void(Camera&, float)> cb_ = std::bind(
+		std::function<void(Camera&, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -404,10 +398,7 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& flash (int duration_ = 250, int red_ = 0, int green_ = 0, int blue_ = 0, bool force_ = false)
-	{
-		return flashEffect.start(duration_, red_, green_, blue_, force_);
-	}
+    Camera& flash (int duration_ = 250, int red_ = 0, int green_ = 0, int blue_ = 0, bool force_ = false);
 
 	/**
 	 * @overload
@@ -426,9 +417,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& flash (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, float), T* context_)
+    Camera& flash (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera&, double), T* context_)
 	{
-		std::function<void(Camera&, float)> cb_ = std::bind(
+		std::function<void(Camera&, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -448,10 +439,7 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& shake (int duration_ = 100, Math::Vector2 intensity_ = {0.05}, bool force_ = false)
-	{
-		return shakeEffect.start(duration_, intensity_, force_);
-	}
+    Camera& shake (int duration_ = 100, Math::Vector2 intensity_ = {0.05}, bool force_ = false);
 
 	/**
 	 * @overload
@@ -468,9 +456,9 @@ public:
      * @return This Camera instance.
 	 */
 	template <typename T>
-    Camera& shake (int duration_, Math::Vector2 intensity_, bool force_, void (T::* callback_)(Camera&, float), T* context_)
+    Camera& shake (int duration_, Math::Vector2 intensity_, bool force_, void (T::* callback_)(Camera&, double), T* context_)
 	{
-		std::function<void(Camera&, float)> cb_ = std::bind(
+		std::function<void(Camera&, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -493,10 +481,7 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& pan (int x_, int y_, int duration_ = 1000, std::string ease_ = "Linear", bool force_ = false)
-	{
-		return panEffect.start(x_, y_, duration_, ease_, force_);
-	}
+    Camera& pan (int x_, int y_, int duration_ = 1000, std::string ease_ = "Linear", bool force_ = false);
 
     /**
 	 * @overload
@@ -516,9 +501,9 @@ public:
      * @return This Camera instance.
      */
 	template <typename T>
-    Camera& pan (int x_, int y_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, float, int, int), T* context_)
+    Camera& pan (int x_, int y_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, double, int, int), T* context_)
 	{
-		std::function<void(Camera&, float, int, int)> cb_ = std::bind(
+		std::function<void(Camera&, double, int, int)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -543,10 +528,12 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& rotateTo (float radians_, bool shortestPath_ = false, int duration_ = 1000, std::string ease_ = "Linear", bool force_ = false)
-    {
-        return rotateToEffect.start(radians_, shortestPath_, duration_, ease_, force_);
-    }
+    Camera& rotateTo (
+			double radians_,
+			bool shortestPath_ = false,
+			int duration_ = 1000,
+			std::string ease_ = "Linear",
+			bool force_ = false);
 
     /**
 	 * @overload
@@ -566,9 +553,9 @@ public:
      * @return This Camera instance.
      */
 	template <typename T>
-    Camera& rotateTo (float radians_, bool shortestPath_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, float, float), T* context_)
+    Camera& rotateTo (double radians_, bool shortestPath_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, double, double), T* context_)
 	{
-		std::function<void(Camera&, float, float)> cb_ = std::bind(
+		std::function<void(Camera&, double, double)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -590,10 +577,7 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& zoomTo (float zoom_, int duration_, std::string ease_, bool force_)
-	{
-		return zoomEffect.start(zoom_, duration_, ease_, force_);
-	}
+    Camera& zoomTo (double zoom_, int duration_, std::string ease_, bool force_);
 
     /**
      * @overload
@@ -612,9 +596,9 @@ public:
      * @return This Camera instance.
      */
 	template <typename T>
-    Camera& zoomTo (float zoom_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, float, int, int), T* context_)
+    Camera& zoomTo (double zoom_, int duration_, std::string ease_, bool force_, void (T::* callback_)(Camera&, double, int, int), T* context_)
 	{
-		std::function<void(Camera&, float, int, int)> cb_ = std::bind(
+		std::function<void(Camera&, double, int, int)> cb_ = std::bind(
 				callback_,
 				context_,
 				std::placeholders::_1,
@@ -649,7 +633,7 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& setLerp (float x_ = 1.0, float y_ = 1.0);
+    Camera& setLerp (double x_ = 1.0, double y_ = 1.0);
 
     /**
      * Sets the horizontal and vertical offset of the camera from its follow target.
@@ -687,7 +671,7 @@ public:
      *
      * @return This Camera instance.
      */
-    Camera& startFollow (GameObjects::GameObject& target_, float lerpX_ = 1.0, float lerpY_ = 1.0, int offsetX_ = 0, int offsetY_ = 0);
+    Camera& startFollow (GameObjects::GameObject& target_, double lerpX_ = 1.0, double lerpY_ = 1.0, int offsetX_ = 0, int offsetY_ = 0);
 
     /**
      * Stops a Camera from following a Game Object, if previously set via `Camera.startFollow`.
