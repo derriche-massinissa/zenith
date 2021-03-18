@@ -21,7 +21,7 @@
 #include "../messages.h"
 #include "../const.h"
 #include "../data.h"
-#include "scene.h"
+#include "scene.fwd.h"
 #include "scene_config.h"
 #include "scene_settings_config.h"
 

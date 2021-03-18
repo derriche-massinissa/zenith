@@ -11,7 +11,7 @@
 namespace Zen {
 namespace Geom {
 
-Line::Line (int x1_ = 0, int y1_ = 0, int x2_ = 0, int y2_ = 0)
+Line::Line (int x1_, int y1_, int x2_, int y2_)
 	: x1(x1_), y1(y1_), x2(x2_), y2(y2_)
 {}
 
@@ -59,7 +59,7 @@ Point Line::getRandomPoint ()
 	};
 }
 
-Line& Line::setTo (int x1_ = 0, int y1_ = 0, int x2_ = 0, int y2_ = 0)
+Line& Line::setTo (int x1_, int y1_, int x2_, int y2_)
 {
 	x1 = x1_;
 	y1 = y1_;

@@ -32,15 +32,10 @@ struct SceneConfig
 	Data data;
 
 	SceneConfig (
-			std::string key_ = "",
-			std::unique_ptr<Scene> scene_ = nullptr,
+			std::string key_,
+			std::unique_ptr<Scene>& scene_,
 			bool autoStart_ = false,
-			Data data_ = {})
-		: key (key_)
-		, scene (std::move(scene_))
-		, autoStart (autoStart_)
-		, data (data_)
-		{}
+			Data data_ = {});
 };
 
 }	// namespace Scenes

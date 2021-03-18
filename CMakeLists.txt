@@ -37,9 +37,6 @@ set(zenith_SRCS
 
 	src/display/color.h
 	src/display/color.cpp
-	src/display/masks/mask.h
-	src/display/masks/bitmap_mask.h
-	src/display/masks/bitmap_mask.cpp
 
 	src/event/event_emitter.h
 	src/event/event_emitter.cpp
@@ -81,6 +78,7 @@ set(zenith_SRCS
 	src/scene/scene.h
 	src/scene/scene.cpp
 	src/scene/scene_config.h
+	src/scene/scene_config.cpp
 	src/scene/scene_manager.fwd.h
 	src/scene/scene_manager.h
 	src/scene/scene_manager.cpp

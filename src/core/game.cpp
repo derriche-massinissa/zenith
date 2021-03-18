@@ -9,9 +9,8 @@
 
 namespace Zen {
 
-Game::Game (GameConfig& config_)
-	: loop (*this)
-	, scale (*this)
+Game::Game (Core::GameConfig& config_)
+	: scale (*this)
 	, window (*this)
 	, scene (*this, config_.sceneFactory)
 	, textures (*this)
@@ -35,6 +34,9 @@ void Game::boot ()
 	scale.preBoot();
 
 	window.create(config);
+
+	window.on("minimize", &Game::onMinimize, this);
+	window.on("restore", &Game::onRestore, this);
 
 	events.emit("boot");
 
@@ -129,6 +131,16 @@ Uint32 Game::getFrame ()
 Uint32 Game::getTime ()
 {
 	return loop.now;
+}
+
+void Game::onMinimize ()
+{
+	isVisible = false;
+}
+
+void Game::onRestore ()
+{
+	isVisible = true;
 }
 
 void Game::shutdown (Data data)

@@ -86,7 +86,7 @@ void EventEmitter::removeAllListeners (std::vector<std::string> eventNames_)
 	}
 }
 
-void EventEmitte::removeAllListeners (std::string eventName_)
+void EventEmitter::removeAllListeners (std::string eventName_)
 {
 	std::vector<std::string> events_ {eventName_};
 

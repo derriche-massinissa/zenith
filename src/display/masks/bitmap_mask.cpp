@@ -5,13 +5,14 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
+#include <SDL2/SDL.h>
 #include "bitmap_mask.h"
 
 namespace Zen {
 namespace Display {
 namespace Masks {
 
-BitmapMask::BitmapMask (GameObjects:GameObject& renderable_)
+BitmapMask::BitmapMask (GameObjects::GameObject& renderable_)
 {
 	maskObject = &renderable_;
 }

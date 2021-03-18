@@ -149,7 +149,7 @@ void Renderer::render (
 	}
 
 	if (camera_.mask)
-		camera_.mask->preRender(this, nullptr, &camera_.maskCamera);
+		preRenderMask(nullptr);
 
 	// Camera's background color if not transparent
 	if (!camera_.transparent_) {
@@ -174,7 +174,7 @@ void Renderer::render (
 	camera_.dirty = false;
 
 	if (camera_.mask)
-		camera_.mask->postRender(this);
+		postRenderMask(camera_.mask, nullptr, camera_);
 
 	// Remove the viewport if previously set
 	if (game.scene.customViewports)
@@ -524,7 +524,7 @@ void Renderer::batchSprite (
 	//setGlobalCompositionOperation(sprite.blendMode);
 
 	if (sprite_.mask)
-		sprite_.mask->preRender(this, &sprite_, &camera_, dm_);
+		preRenderMask(&sprite_);
 
 	// Render the texture
 	SDL_Rect source_ {frameX_, frameY_, frameWidth_, frameHeight_};
@@ -558,7 +558,84 @@ void Renderer::batchSprite (
 			);
 
 	if (sprite_.mask)
-		sprite_.mask->postRender(this, &sprite_, &camera_);
+		postRenderMask(sprite_->mask, &sprite_, &camera_);
+}
+
+void Renderer::preRenderMask (
+		GameObjects::GameObject *maskedObject_ = nullptr)
+{
+	// Is this a camera mask?
+	if (!maskedObject_)
+	{
+		SDL_SetRenderTarget(window.renderer, cameraBuffer);
+	}
+	else
+	{
+		SDL_SetRenderTarget(window.renderer, maskBuffer);
+	}
+
+	// Clear _AFTER_ setting the target, to clear the buffer and not the screen
+	SDL_SetRenderDrawColor(window.renderer, 0x00, 0x00, 0x00, 0x00);
+	SDL_RenderClear(window.renderer);
+}
+
+void Renderer::postRenderMask (
+		GameObjects::GameObject *maskObject_,
+		GameObjects::GameObject *maskedObject_,
+		Cameras::Scene2D::Camera *camera_)
+{
+	// Save the target buffer
+	SDL_Texture *currentTarget_ = SDL_GetRenderTarget(window.renderer);
+
+	// Set the mask texture as the new render target
+	SDL_SetRenderTarget(window.renderer, maskTexture);
+
+	// Clear the mask texture
+	SDL_SetRenderDrawColor(window.renderer, 0x00, 0x00, 0x00, 0x00);
+	SDL_RenderClear(window.renderer);
+
+	// Draw the mask GameObject
+	maskObject_->render(*this, *maskObject_, *camera_);
+
+	// Reset the target to the buffer
+	SDL_SetRenderTarget(window.renderer, currentTarget_);
+
+	// Render the mask on the buffer
+	SDL_RenderCopy(
+			window.renderer,
+			maskTexture,
+			nullptr,	// Render the whole texture
+			nullptr		// Render to the entire target
+			);
+
+	// Is this a camera mask?
+	if (!maskedObject_)
+	{
+		// Reset the rendering target
+		SDL_SetRenderTarget(window.renderer, nullptr);
+
+		SDL_RenderCopy(
+				window.renderer,
+				cameraBuffer,
+				nullptr,	// Render the whole texture
+				nullptr		// Render to the entire target
+				);
+	}
+	else
+	{
+		// Is a camera mask active? If so, set it back to be the rendering target
+		if (camera_->mask)
+			SDL_SetRenderTarget(window.renderer, cameraBuffer);
+		else
+			SDL_SetRenderTarget(window.renderer, nullptr);
+
+		SDL_RenderCopy(
+				window.renderer,
+				maskBuffer,
+				nullptr,	// Render the whole texture
+				nullptr		// Render to the entire target
+				);
+	}
 }
 
 }	// namespace Zen

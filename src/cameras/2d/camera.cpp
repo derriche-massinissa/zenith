@@ -558,10 +558,9 @@ Camera& Camera::setZoom (double x_, double y_)
 	return *this;
 }
 
-Camera& Camera::setMask (Display::Masks::Mask mask_, bool fixedPosition_)
+Camera& Camera::setMask (GameObjects::GameObject& mask_, bool fixedPosition_)
 {
-	mask = std::make_unique<Display::Masks::Mask>();
-	*mask = mask_;
+	mask = &mask_;
 
 	maskCamera = (fixedPosition_) ? &cameraManager->def : this;
 

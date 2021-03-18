@@ -23,7 +23,7 @@ public:
 	/**
 	 * @since 0.0.0
 	 */
-	BitmapMask (GameObjects:GameObject& renderable_);
+	BitmapMask (GameObjects::GameObject& renderable_);
 
 	/**
 	 * @since 0.0.0

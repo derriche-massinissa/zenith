@@ -21,6 +21,7 @@
 #include "../../input/pointer.h"
 #include "../../gameobjects/gameobject.h"
 #include "../../gameobjects/display_list.h"
+#include "../../renderer/renderer.fwd.h"
 
 namespace Zen {
 namespace Cameras {
@@ -361,5 +362,6 @@ private:
 }	// namespace Zen
 
 #include "../../scene/scene_manager.h"
+#include "../../scene/scene.h"
 
 #endif

@@ -18,6 +18,9 @@
 #include "../math/vector2.h"
 #include "../display/color.h"
 #include "../texture/frame.h"
+#include "../gameobjects/components/transform_matrix.h"
+#include "../structs/size.h"
+#include "../gameobjects/gameobject.h"
 
 namespace Zen {
 
@@ -360,6 +363,14 @@ public:
 			Textures::Frame& frame_,
 			Cameras::Scene2D::Camera& camera_,
 			GameObjects::Components::TransformMatrix* parentTransformMatrix_ = nullptr);
+
+	void preRenderMask (
+			GameObjects::GameObject *maskedObject_ = nullptr);
+
+	void postRenderMask (
+			GameObjects::GameObject *maskObject_,
+			GameObjects::GameObject *maskedObject_,
+			Cameras::Scene2D::Camera *camera_);
 
 private:
 	/**

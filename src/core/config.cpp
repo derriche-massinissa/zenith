@@ -5,7 +5,7 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "game_config.h"
+#include "config.h"
 
 namespace Zen {
 namespace Core {
@@ -119,7 +119,7 @@ GameConfig& GameConfig::setBackgroundColor (unsigned int color)
 
 	return *this;
 }
-GameConfig& setClearBeforeRender (bool flag)
+GameConfig& GameConfig::setClearBeforeRender (bool flag)
 {
 	clearBeforeRender = flag;
 

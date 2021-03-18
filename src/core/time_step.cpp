@@ -10,23 +10,12 @@
 namespace Zen {
 namespace Core {
 
-TimeStep::TimeStep ()
-{}
-
-TimeStep::~TimeStep ()
-{}
-
 void TimeStep::start (std::function<void(Uint32, Uint32)> gameStep_)
 {
 	if (started)
 		return;
 
 	started = true;
-
-	for (int i_ = 0; i_ < fpsSmoothingMax; i_++)
-	{
-		fpsHistory.emplace_back(60.0);
-	}
 
 	callback = gameStep_;
 

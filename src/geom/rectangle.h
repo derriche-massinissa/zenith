@@ -32,6 +32,8 @@ public:
 
 	Point getRandomPoint ();
 
+	double getPerimeter();
+
 	Rectangle& setTo (int x_, int y_, int width_, int height_);
 
 	Rectangle& setEmpty ();

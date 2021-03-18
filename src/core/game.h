@@ -248,6 +248,20 @@ public:
 	Uint32 getTime ();
 
 	/**
+	 * Runs when the game window is minimized.
+	 *
+	 * @since 0.0.0
+	 */
+	void onMinimize ();
+
+	/**
+	 * Runs when the game window is restored from being minimized.
+	 *
+	 * @since 0.0.0
+	 */
+	void onRestore ();
+
+	/**
 	 * Marks the game for shutdown.
 	 *
 	 * Note that the Game will only stop in the next game step.
@@ -294,6 +308,11 @@ public:
 	 * @since 0.0.0
 	 */
 	bool isRunning = false;
+
+	/**
+	 * Is the game window visible (Not minimized)?
+	 */
+	bool isVisible = true;
 
 	/**
 	 * Shuts down the Game by stopping the main game loop.

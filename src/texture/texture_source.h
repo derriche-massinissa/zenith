@@ -9,6 +9,10 @@
 #define ZEN_TEXTURES_TEXTURE_SOURCE_H
 
 #include <string>
+#include <SDL2/SDL.h>
+
+#include "../renderer/renderer.fwd.h"
+#include "texture.fwd.h"
 
 namespace Zen {
 namespace Textures {

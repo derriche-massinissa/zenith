@@ -65,7 +65,7 @@ Color& Color::setFromHSV (double h_, double s_, double v_)
 	return *this;
 }
 
-Color& setFromHex (unsigned int hex_)
+Color& Color::setFromHex (unsigned int hex_)
 {
 	int red_ = (hex_ & 0xff0000) >> 16;
 	int green_ = (hex_ & 0x00ff00) >> 8;
@@ -151,9 +151,9 @@ Color& Color::darken (int amount_)
 
 Color& Color::brighten (int amount_)
 {
-	int red_ = Math::clamp(r - std::round(255.0 * -(amount_ / 100.0)), 0, 255);
-	int green_ = Math::clamp(g - std::round(255.0 * -(amount_ / 100.0)), 0, 255);
-	int blue_ = Math::clamp(b - std::round(255.0 * -(amount_ / 100.0)), 0, 255);
+	int red_ = Math::clamp(r - std::round(255.0 * -(amount_ / 100.0)), 0.0, 255.0);
+	int green_ = Math::clamp(g - std::round(255.0 * -(amount_ / 100.0)), 0.0, 255.0);
+	int blue_ = Math::clamp(b - std::round(255.0 * -(amount_ / 100.0)), 0.0, 255.0);
 
 	return setTo(red_, green_, blue_);
 }
@@ -180,7 +180,7 @@ double Color::alphaGL ()
 
 Color& Color::redGL (double value_)
 {
-	gl[0] = std::min(std::abs(value_), 1);
+	gl[0] = std::min(std::abs(value_), 1.0);
 
 	r = std::floor(gl[0] * 255);
 
@@ -191,7 +191,7 @@ Color& Color::redGL (double value_)
 
 Color& Color::greenGL (double value_)
 {
-	gl[1] = std::min(std::abs(value_), 1);
+	gl[1] = std::min(std::abs(value_), 1.0);
 
 	g = std::floor(gl[1] * 255);
 
@@ -202,7 +202,7 @@ Color& Color::greenGL (double value_)
 
 Color& Color::blueGL (double value_)
 {
-	gl[2] = std::min(std::abs(value_), 1);
+	gl[2] = std::min(std::abs(value_), 1.0);
 
 	b = std::floor(gl[2] * 255);
 
@@ -213,7 +213,7 @@ Color& Color::blueGL (double value_)
 
 Color& Color::alphaGL (double value_)
 {
-	gl[3] = std::min(std::abs(value_), 1);
+	gl[3] = std::min(std::abs(value_), 1.0);
 
 	a = std::floor(gl[3] * 255);
 
@@ -301,21 +301,21 @@ double Color::value ()
 	return v;
 }
 
-Color& Color::h (double value_)
+Color& Color::hue (double value_)
 {
 	h = value_;
 
 	hsvToRgb(value_, s, v, this);
 }
 
-Color& Color::s (double value_)
+Color& Color::saturation (double value_)
 {
 	s = value_;
 
 	hsvToRgb(h, value_, v, this);
 }
 
-Color& Color::v (double value_)
+Color& Color::value (double value_)
 {
 	v = value_;
 
@@ -335,11 +335,11 @@ int getColor32 (int red, int green, int blue, int alpha)
 
 int convertValue (int n, double h, double s, double v)
 {
-	double k = (n + h * 6.0) % 6.0;
+	int k = (n + int(h) * 6) % 6;
 
-	double min = std::min(k, 4 - k, 1);
+	double min = std::min(k, std::min(4 - k, 1));
 
-	return std::round(255 * (v - v * s * std::max(0, min)));
+	return std::round(255 * (v - v * s * std::max(0.0, min)));
 }
 
 void hsvToRgb (double h, double s, double v, Color *out)
@@ -377,9 +377,9 @@ void rgbToHsv (int r, int g, int b, Color *out)
         h /= 6.0;
 	}
 
-	out->h(h);
-	out->s(s);
-	out->v(v);
+	out->hue(h);
+	out->saturation(s);
+	out->value(v);
 }
 
 }	// namespace Display

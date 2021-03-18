@@ -18,6 +18,8 @@
 #include "../scene/scene.fwd.h"
 #include "../core/game.fwd.h"
 
+#include "../display/color.h"
+
 namespace Zen {
 namespace Core {
 

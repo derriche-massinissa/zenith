@@ -27,7 +27,6 @@
 #include "../../scene/scene_manager.fwd.h"
 
 #include "../../display/color.h"
-#include "../../display/masks/mask.h"
 #include "../../math/vector2.h"
 
 #include "../../gameobjects/components/transform_matrix.h"
@@ -586,13 +585,13 @@ public:
 	double originY = 0.5;
 
 	/**
-	 * The Mask this Camera is using during render.
+	 * The mask this Camera is using during render.
 	 * Set the mask using the `setMask` method. Remove the mask using the 
 	 * `clearMask` method.
 	 *
 	 * @since 0.0.0
 	 */
-	std::unique_ptr<Display::Masks::Mask> mask;
+	GameObjects::GameObject* mask = nullptr;
 
 	/**
 	 * This array is populated with all of the Game Objects that this Camera 
@@ -1096,30 +1095,27 @@ public:
 	/**
 	 * Sets the mask to be applied to this Camera during rendering.
 	 *
-	 * The mask must have been previously created and can be either a GeometryMask or a BitmapMask.
-	 *
-	 * Bitmap Masks only work on WebGL. Geometry Masks work on both WebGL and Canvas.
+	 * The mask is simply a GameObject.
 	 *
 	 * If a mask is already set on this Camera it will be immediately replaced.
 	 *
-	 * Masks have no impact on physics or input detection. They are purely a rendering component
-	 * that allows you to limit what is visible during the render pass.
+	 * Masks have no impact on physics or input detection. They are purely a 
+	 * rendering component that allows you to limit what is visible during the 
+	 * render pass.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param mask_ The mask this Camera will use when rendering.
+	 * @param mask_ The GameObject this Camera will use as a mask when rendering.
 	 * @param fixedPosition_ Should the mask translate along with the Camera, or be fixed in place and not impacted by the Cameras transform?
 	 *
 	 * @return This Camera instance.
 	 */
-	Camera& setMask (Display::Masks::Mask mask_, bool fixedPosition_ = true);
+	Camera& setMask (GameObjects::GameObject& mask_, bool fixedPosition_ = true);
 
 	/**
 	 * Clears the mask that this Camera was using.
 	 *
 	 * @since 0.0.0
-	 *
-	 * @param destroyMask_ Destroy the mask before clearing it?
 	 *
 	 * @return This Camera instance.
 	 */
@@ -1879,6 +1875,6 @@ public:
 
 // Declaration of forward declared elements
 #include "camera_manager.h"
-//#include "../../scene/scene.h"
+#include "../../renderer/renderer.h"
 
 #endif

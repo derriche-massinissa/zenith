@@ -12,7 +12,11 @@
 #include <cmath>
 #include <SDL2/SDL_types.h>
 
+#include "../math/random_data_generator.h"
+#include "../math/math.h"
+
 namespace Zen {
+namespace Math { extern RandomDataGenerator random; }
 namespace Display {
 
 /**

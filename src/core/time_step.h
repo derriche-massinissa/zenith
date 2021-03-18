@@ -27,9 +27,6 @@ namespace Core {
 class TimeStep
 {
 public:
-	TimeStep();
-	~TimeStep();
-
 	/**
 	 * The quit flag, the main game loop stops if this is set to true.
 	 *

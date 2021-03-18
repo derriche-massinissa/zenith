@@ -10,7 +10,7 @@
 namespace Zen {
 namespace Geom {
 
-Rectangle::Rectangle (int x_ = 0, int y_ = 0, int width_ = 0, int height_ = 0)
+Rectangle::Rectangle (int x_, int y_, int width_, int height_)
 	: x(x_), y(y_), width(width_), height (height_)
 {}
 
@@ -44,14 +44,14 @@ Point Rectangle::getPoint (double position_)
 		if (p_ <= width)
 		{
 			// Face 3
-			out_.x = right - p_;
-			out_.y = bottom;
+			out_.x = getRight() - p_;
+			out_.y = getBottom();
 		}
 		else
 		{
 			// Face 4
 			out_.x = x;
-			out_.y = bottom - (p_ - width);
+			out_.y = getBottom() - (p_ - width);
 		}
 	}
 	else if (p_ <= width)
@@ -63,7 +63,7 @@ Point Rectangle::getPoint (double position_)
 	else
 	{
 		// Face 2
-		out_.x = right;
+		out_.x = getRight();
 		out_.y = y + (p_ - width);
 	}
 

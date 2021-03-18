@@ -25,7 +25,7 @@ public:
 	 *
      * @param x_ The x and y coordinates of this Point.
 	 */
-	Point (int x_);
+	Point (int x_ = 0);
 
 	/**
 	 * @since 0.0.0

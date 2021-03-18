@@ -15,6 +15,8 @@ Window::Window (Game& game_)
 
 Window::~Window ()
 {
+	removeAllListeners();
+
 	close();
 }
 
