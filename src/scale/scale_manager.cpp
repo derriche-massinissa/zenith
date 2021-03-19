@@ -24,13 +24,13 @@ ScaleManager::~ScaleManager()
 
 void ScaleManager::preBoot ()
 {
-	parseConfig();
-
 	game.events.once("boot", &ScaleManager::boot, this);
 }
 
 void ScaleManager::boot ()
 {
+	parseConfig();
+
 	startListeners();
 }
 
@@ -56,15 +56,26 @@ void ScaleManager::setGameSize (int width_, int height_)
 	emit("resize", gameSize.getWidth(), gameSize.getHeight(), previousWidth_, previousHeight_);
 }
 
-void ScaleManager::resize (int width_ ,int height_)
+void ScaleManager::resizeGame (int width_ ,int height_)
 {
-	setGameSize(width_, height_);
+	int previousWidth_ = gameSize.getWidth();
+	int previousHeight_ = gameSize.getHeight();
+
+	gameSize.resize(width_, height_);
+
+	emit("resize", gameSize.getWidth(), gameSize.getHeight(), previousWidth_, previousHeight_);
 }
 
 void ScaleManager::refresh ()
 {
 	updateScale();
 	updateOffset();
+
+	// Change the game size to fit the window if using RESIZE mode
+	if (scaleMode == SCALE_MODE::RESIZE)
+	{
+		resizeGame(displaySize.getWidth(), displaySize.getHeight());
+	}
 }
 
 void ScaleManager::updateScale ()
@@ -72,12 +83,16 @@ void ScaleManager::updateScale ()
 	displaySize.setSize(window.width(), window.height());
 
 	if (scaleMode == SCALE_MODE::RESIZE)
+	{
 		displayScale.set(1, 1);
+	}
 	else
+	{
 		displayScale.set(
 				gameSize.getWidth() / displaySize.getWidth(),
 				gameSize.getHeight() / displaySize.getHeight()
 				);
+	}
 }
 
 void ScaleManager::updateOffset ()

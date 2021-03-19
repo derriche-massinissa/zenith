@@ -82,6 +82,7 @@ void Renderer::onResize (int width_, int height_, int previousWidth_, int previo
 void Renderer::resize (int width_, int height_)
 {
 	emit("resize", width_, height_);
+	std::cout << width_ << "x" << height_ << std::endl;
 
 	width = width_;
 	height = height_;
@@ -99,6 +100,9 @@ void Renderer::resize (int width_, int height_)
 			height
 			);
 
+	// Enable transparency
+	SDL_SetTextureBlendMode(maskBuffer, SDL_BLENDMODE_BLEND);
+
 	// Free the camera buffer
 	if (cameraBuffer)
 		SDL_DestroyTexture(cameraBuffer);
@@ -112,6 +116,9 @@ void Renderer::resize (int width_, int height_)
 			height
 			);
 
+	// Enable transparency
+	SDL_SetTextureBlendMode(maskBuffer, SDL_BLENDMODE_BLEND);
+
 	// Free the mask texture
 	if (maskTexture)
 		SDL_DestroyTexture(maskTexture);
@@ -124,8 +131,9 @@ void Renderer::resize (int width_, int height_)
 			width,
 			height
 			);
+
 	// Set the mask texture's blend mode
-	SDL_SetTextureBlendMode(maskTexture, maskBlendMode);
+	//SDL_SetTextureBlendMode(maskTexture, maskBlendMode);
 }
 
 void Renderer::preRender ()
@@ -550,9 +558,6 @@ void Renderer::batchSprite (
 	// that returns the appropriate transform matrix
 	GameObjects::Components::DecomposedMatrix dm_ = camMatrix_.decomposeMatrix();
 
-	// TODO
-	//setGlobalCompositionOperation(sprite.blendMode);
-
 	if (sprite_.getMask())
 		preRenderMask(&sprite_);
 
@@ -667,8 +672,7 @@ void Renderer::batchSprite (
 		postRenderMask(sprite_.getMask(), &sprite_, &camera_);
 }
 
-void Renderer::preRenderMask (
-		GameObjects::GameObject *maskedObject_)
+void Renderer::preRenderMask (GameObjects::GameObject *maskedObject_)
 {
 	// Is this a camera mask?
 	if (!maskedObject_)
@@ -681,7 +685,7 @@ void Renderer::preRenderMask (
 	}
 
 	// Clear _AFTER_ setting the target, to clear the buffer and not the screen
-	SDL_SetRenderDrawColor(window.renderer, 0x00, 0x00, 0x00, 0x00);
+	SDL_SetRenderDrawColor(window.renderer, 0xff, 0x00, 0x00, 0xff);
 	SDL_RenderClear(window.renderer);
 }
 
@@ -697,7 +701,7 @@ void Renderer::postRenderMask (
 	SDL_SetRenderTarget(window.renderer, maskTexture);
 
 	// Clear the mask texture
-	SDL_SetRenderDrawColor(window.renderer, 0x00, 0x00, 0x00, 0x00);
+	SDL_SetRenderDrawColor(window.renderer, 0x00, 0xff, 0x00, 0xff);
 	SDL_RenderClear(window.renderer);
 
 	// Draw the mask GameObject

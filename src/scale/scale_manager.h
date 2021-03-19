@@ -154,7 +154,13 @@ public:
 
 	void setGameSize (int width_, int height_);
 
-	void resize (int width_ ,int height_);
+	/**
+	 * Changes the GameSize without calling ScaleManage::refresh.
+	 * Used by the refresh method if the mode is SCALE_MODE::RESIZE.
+	 *
+	 * @since 0.0.0
+	 */
+	void resizeGame (int width_ ,int height_);
 
 	void refresh ();
 

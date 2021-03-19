@@ -35,10 +35,9 @@ void Game::boot ()
 {
 	isBooted = true;
 
-	scale.preBoot();
-
 	window.create();
 	renderer.start();
+	scale.boot();
 
 	window.on("minimize", &Game::onMinimize, this);
 	window.on("restore", &Game::onRestore, this);
