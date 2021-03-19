@@ -55,6 +55,7 @@ void Renderer::start ()
 	}
 
 	pixelFormat = *infoSurface_->format;
+	pixelFormat.format = SDL_PIXELFORMAT_RGBA8888,
 
 	SDL_FreeSurface(infoSurface_);
 
@@ -82,7 +83,6 @@ void Renderer::onResize (int width_, int height_, int previousWidth_, int previo
 void Renderer::resize (int width_, int height_)
 {
 	emit("resize", width_, height_);
-	std::cout << width_ << "x" << height_ << std::endl;
 
 	width = width_;
 	height = height_;
@@ -133,7 +133,7 @@ void Renderer::resize (int width_, int height_)
 			);
 
 	// Set the mask texture's blend mode
-	//SDL_SetTextureBlendMode(maskTexture, maskBlendMode);
+	SDL_SetTextureBlendMode(maskTexture, maskBlendMode);
 }
 
 void Renderer::preRender ()
@@ -145,7 +145,7 @@ void Renderer::preRender ()
 				backgroundColor.red(),
 				backgroundColor.green(),
 				backgroundColor.blue(),
-				0xFF);
+				0xff);
 		SDL_RenderClear(window.renderer);
 	}
 
@@ -168,8 +168,9 @@ void Renderer::render (
 	c_.h = camera_.getHeight();
 
 	// Set a viewport if the camera isn't the same size as the window
-	if (game.scene.customViewports) {
-		SDL_RenderSetViewport(window.renderer, &c_);
+	if (game.scene.customViewports)
+	{
+		//SDL_RenderSetViewport(window.renderer, &c_);
 	}
 
 	if (camera_.mask)
@@ -685,7 +686,7 @@ void Renderer::preRenderMask (GameObjects::GameObject *maskedObject_)
 	}
 
 	// Clear _AFTER_ setting the target, to clear the buffer and not the screen
-	SDL_SetRenderDrawColor(window.renderer, 0xff, 0x00, 0x00, 0xff);
+	SDL_SetRenderDrawColor(window.renderer, 0x00, 0x00, 0x00, 0x00);
 	SDL_RenderClear(window.renderer);
 }
 
@@ -701,7 +702,7 @@ void Renderer::postRenderMask (
 	SDL_SetRenderTarget(window.renderer, maskTexture);
 
 	// Clear the mask texture
-	SDL_SetRenderDrawColor(window.renderer, 0x00, 0xff, 0x00, 0xff);
+	SDL_SetRenderDrawColor(window.renderer, 0x00, 0x00, 0x00, 0x00);
 	SDL_RenderClear(window.renderer);
 
 	// Draw the mask GameObject

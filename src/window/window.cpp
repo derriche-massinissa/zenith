@@ -150,7 +150,8 @@ int Window::createRenderer ()
 			window,
 			-1,
 			SDL_RENDERER_ACCELERATED |
-			SDL_RENDERER_PRESENTVSYNC
+			SDL_RENDERER_PRESENTVSYNC |
+			SDL_RENDERER_TARGETTEXTURE
 			);
 	if (renderer == nullptr) {
 		messageError("Renderer could not be created: %s\n", SDL_GetError());
