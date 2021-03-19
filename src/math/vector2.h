@@ -21,6 +21,12 @@ public:
 
 	Vector2 (double x_, double y_);
 
+	Vector2 (const Vector2& other_);
+
+	Vector2& operator=(const Vector2& other_);
+
+	bool operator==(const Vector2& other_);
+
 	double x = 0;
 
 	double y = 0;
@@ -35,8 +41,6 @@ public:
 	Vector2& setTo (double x_, double y_);
 
 	Vector2& setToPolar (double azimuth_, double radius_ = 1.0);
-
-	bool operator == (const Vector2& other_);
 
 	bool equals (const Vector2& other_);
 

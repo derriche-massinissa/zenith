@@ -20,6 +20,12 @@ class Size
 public:
 	Size (unsigned int width_ = 0, unsigned int height_ = 0, SCALE_MODE aspectMode_ = SCALE_MODE::RESIZE);
 
+	Size (const Size& other_);
+
+	Size (const Size&& other_);
+
+	Size& operator=(const Size& other_);
+
 	Size& setAspectMode (SCALE_MODE value_ = SCALE_MODE::RESIZE);
 
 	Size& setSnap (unsigned int snapWidth_ = 0, unsigned int snapHeight_ = 0);

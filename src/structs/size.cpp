@@ -30,6 +30,48 @@ Size::Size (unsigned int width_, unsigned int height_, SCALE_MODE aspectMode_)
 	aspectRatio = (height == 0) ? 1 : (1.f*width / height);
 }
 
+Size::Size (const Size& other_)
+	: width			(other_.width)
+	, height		(other_.height)
+	, aspectMode	(other_.aspectMode)
+	, aspectRatio	(other_.aspectRatio)
+	, minWidth		(other_.minWidth)
+	, maxWidth		(other_.maxWidth)
+	, minHeight		(other_.minHeight)
+	, maxHeight		(other_.maxHeight)
+	, snapTo		(other_.snapTo)
+{}
+
+Size::Size (const Size&& other_)
+	: width			(other_.width)
+	, height		(other_.height)
+	, aspectMode	(other_.aspectMode)
+	, aspectRatio	(other_.aspectRatio)
+	, minWidth		(other_.minWidth)
+	, maxWidth		(other_.maxWidth)
+	, minHeight		(other_.minHeight)
+	, maxHeight		(other_.maxHeight)
+	, snapTo		(other_.snapTo)
+{}
+
+Size& Size::operator = (const Size& other_)
+{
+	if (this == &other_)
+		return *this;
+
+	width = other_.width;
+	height = other_.height;
+	aspectMode = other_.aspectMode;
+	aspectRatio = other_.aspectRatio;
+	minWidth = other_.minWidth;
+	maxWidth = other_.maxWidth;
+	minHeight = other_.minHeight;
+	maxHeight = other_.maxHeight;
+	snapTo = other_.snapTo;
+
+	return *this;
+}
+
 Size& Size::setAspectMode (SCALE_MODE value_)
 {
 	aspectMode = value_;

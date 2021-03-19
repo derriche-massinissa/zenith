@@ -292,8 +292,8 @@ void CameraManager::update (Uint32 time_, Uint32 delta_)
 }
 
 void CameraManager::onResize (
-		Structs::Size gameSize_,
-		Structs::Size displaySize_,
+		Structs::Size& gameSize_,
+		Structs::Size& displaySize_,
 		int previousWidth_,
 		int previousHeight_)
 {
@@ -303,7 +303,9 @@ void CameraManager::onResize (
 		// we can safely assume it should be updated to match the new game size too
 
 		if (camera_.getX() == 0 && camera_.getY() == 0 && camera_.getWidth() == previousWidth_ && camera_.getHeight() == previousHeight_)
+		{
 			camera_.setSize(gameSize_.getWidth(), gameSize_.getHeight());
+		}
 	}
 }
 

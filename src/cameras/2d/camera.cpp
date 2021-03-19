@@ -575,6 +575,11 @@ Camera& Camera::setZoom (double x_, double y_)
 	return *this;
 }
 
+Camera& Camera::setZoom (double value_ = 1.0)
+{
+	return setZoom(value_, value_);
+}
+
 Camera& Camera::setMask (GameObjects::GameObject& mask_, bool fixedPosition_)
 {
 	mask = &mask_;

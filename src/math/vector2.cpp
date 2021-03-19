@@ -20,6 +20,23 @@ Vector2::Vector2 (double x_, double y_)
 	: x (x_), y (y_)
 {}
 
+Vector2::Vector2 (const Vector2& other_)
+	: x (other_.x), y (other_.y)
+{}
+
+Vector2& Vector2::operator=(const Vector2& other_)
+{
+	x = other_.x;
+	y = other_.y;
+
+	return *this;
+}
+
+bool Vector2::operator == (const Vector2& other_)
+{
+	return equals(other_);
+}
+
 Vector2& Vector2::set (double x_)
 {
 	x = x_;
@@ -71,11 +88,6 @@ Vector2& Vector2::setToPolar (double azimuth_, double radius_)
 bool Vector2::equals (const Vector2& other_)
 {
 	return ((x == other_.x) && (y == other_.y));
-}
-
-bool Vector2::operator == (const Vector2& other_)
-{
-	return equals(other_);
 }
 
 bool Vector2::fuzzyEquals (const Vector2& other_, double epsilon_)

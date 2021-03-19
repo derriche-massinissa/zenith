@@ -46,6 +46,9 @@ void ScaleManager::parseConfig ()
 
 void ScaleManager::setGameSize (int width_, int height_)
 {
+	if (scaleMode == SCALE_MODE::RESIZE)
+		return;
+
 	int previousWidth_ = gameSize.getWidth();
 	int previousHeight_ = gameSize.getHeight();
 
@@ -53,7 +56,7 @@ void ScaleManager::setGameSize (int width_, int height_)
 
 	refresh();
 
-	emit("resize", gameSize.getWidth(), gameSize.getHeight(), previousWidth_, previousHeight_);
+	emit("resize", gameSize, displaySize, previousWidth_, previousHeight_);
 }
 
 void ScaleManager::resizeGame (int width_ ,int height_)
@@ -63,7 +66,7 @@ void ScaleManager::resizeGame (int width_ ,int height_)
 
 	gameSize.resize(width_, height_);
 
-	emit("resize", gameSize.getWidth(), gameSize.getHeight(), previousWidth_, previousHeight_);
+	emit("resize", gameSize, displaySize, previousWidth_, previousHeight_);
 }
 
 void ScaleManager::refresh ()
@@ -80,6 +83,7 @@ void ScaleManager::refresh ()
 
 void ScaleManager::updateScale ()
 {
+	// This will take the aspect mode into account
 	displaySize.setSize(window.width(), window.height());
 
 	if (scaleMode == SCALE_MODE::RESIZE)

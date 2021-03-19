@@ -323,7 +323,7 @@ public:
 	 * @param previousWidth_ The previous base width before resize.
 	 * @param previousHeight_ The previous base height before resize.
 	 */
-	void onResize (Structs::Size gameSize_, Structs::Size displaySize_, int previousWidth_, int previousHeight_);
+	void onResize (Structs::Size& gameSize_, Structs::Size& displaySize_, int previousWidth_, int previousHeight_);
 
 	/**
 	 * Resizes all cameras to the given dimensions.

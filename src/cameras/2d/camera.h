@@ -1092,7 +1092,18 @@ public:
 	 *
 	 * @return This Camera instance.
 	 */
-	Camera& setZoom (double x_ = 1.0, double y_ = 1.0);
+	Camera& setZoom (double x_, double y_);
+
+	/**
+	 * @overload
+	 * @since 0.0.0
+	 *
+	 * @param value_ The horizontal and vertical zoom value of the Camera. The
+	 * minimum it can be is 0.001.
+	 *
+	 * @return This Camera instance.
+	 */
+	Camera& setZoom (double value_ = 1.0);
 
 	/**
 	 * Sets the mask to be applied to this Camera during rendering.
