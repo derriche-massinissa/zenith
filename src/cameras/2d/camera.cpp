@@ -575,7 +575,7 @@ Camera& Camera::setZoom (double x_, double y_)
 	return *this;
 }
 
-Camera& Camera::setZoom (double value_ = 1.0)
+Camera& Camera::setZoom (double value_)
 {
 	return setZoom(value_, value_);
 }

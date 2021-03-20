@@ -16,7 +16,7 @@ namespace Angle {
 
 double wrap (double angle)
 {
-    return Math::wrap(angle, M_PI, M_PI);
+    return Math::wrap(angle, -M_PI, M_PI);
 }
 
 }	// namespace Angle

@@ -170,7 +170,7 @@ void Renderer::render (
 	// Set a viewport if the camera isn't the same size as the window
 	if (game.scene.customViewports)
 	{
-		//SDL_RenderSetViewport(window.renderer, &c_);
+		SDL_RenderSetViewport(window.renderer, &c_);
 	}
 
 	if (camera_.mask)
@@ -208,14 +208,16 @@ void Renderer::render (
 
 	// Remove the viewport if previously set
 	if (game.scene.customViewports)
+	{
 		SDL_RenderSetViewport(window.renderer, nullptr);
-
-	// Update the screen
-	SDL_RenderPresent(window.renderer);
+	}
 }
 
 void Renderer::postRender ()
 {
+	// Update the screen
+	SDL_RenderPresent(window.renderer);
+
 	emit("post-render");
 
 	if (snapshotState.active)
