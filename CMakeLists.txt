@@ -1,8 +1,8 @@
 # Set the minimum version required of CMake
 cmake_minimum_required(VERSION 3.19.4)
 
-# GCC warnings
-add_compile_options(-w -g) #Wall -Wextra -Wpedantic)
+# GCC warnings + debug mode
+add_compile_options(-g -Wall -Wextra -Wpedantic)
 
 # Set up the project
 project(
