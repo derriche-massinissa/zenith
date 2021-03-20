@@ -400,20 +400,20 @@ DecomposedMatrix TransformMatrix::decomposeMatrix () const
 
 TransformMatrix& TransformMatrix::applyITRS (double x_, double y_, double rotation_, double scaleX_, double scaleY_)
 {
-        double radianSin_ = std::sin(rotation_);
-        double radianCos_ = std::cos(rotation_);
+	double radianSin_ = std::sin(rotation_);
+	double radianCos_ = std::cos(rotation_);
 
-        // Translate
-        setTx( x_ );
-        setTy( y_ );
+	// Translate
+	setTx( x_ );
+	setTy( y_ );
 
-        // Rotate and Scale
-        setA( radianCos_ * scaleX_ );
-        setB( radianSin_ * scaleX_ );
-        setC( -radianSin_ * scaleY_ );
-        setD( radianCos_ * scaleY_ );
+	// Rotate and Scale
+	setA( radianCos_ * scaleX_ );
+	setB( radianSin_ * scaleX_ );
+	setC( -radianSin_ * scaleY_ );
+	setD( radianCos_ * scaleY_ );
 
-        return *this;
+	return *this;
 }
 
 Math::Vector2 TransformMatrix::applyInverse (double x_, double y_)

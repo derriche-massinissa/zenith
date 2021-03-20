@@ -378,7 +378,6 @@ void Camera::preRender ()
 
 	// No need to take the camera viewport into account as we're using SDL's
 	// viewport which will offset and clip everything for us.
-	//matrix.applyITRS(x + originX_, y + originY_, rotation, zoomX, zoomY);
 	matrix.applyITRS(originX_, originY_, rotation, zoomX, zoomY);
 	matrix.translate(-originX_, -originY_);
 

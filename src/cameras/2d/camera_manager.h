@@ -11,6 +11,7 @@
 #include <vector>
 #include <functional>
 #include <string>
+#include <memory>
 
 #include "camera_config.h"
 #include "camera.h"
@@ -98,7 +99,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::vector<Camera> cameras;
+	std::vector<std::unique_ptr<Camera>> cameras;
 
 	/**
 	 * A handy pointer to the 'main' camera. By default this is the first Camera the
@@ -287,7 +288,7 @@ public:
 	 */
 	std::vector<GameObjects::GameObject*> getVisibleChildren (
 			std::vector<GameObjects::GameObject*> children_,
-			Camera& camera_);
+			Camera* camera_);
 
 	/**
 	 * Resets this Camera Manager.

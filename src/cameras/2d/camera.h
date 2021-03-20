@@ -860,7 +860,7 @@ public:
 	 *
 	 * @return This Camera instance.
 	 */
-	Camera& setBackgroundColor (int color_);
+	Camera& setBackgroundColor (int color_ = 0);
 
 	/**
 	 * @overload
@@ -874,7 +874,7 @@ public:
 	 *
 	 * @return This Camera instance.
 	 */
-	Camera& setBackgroundColor (int r_ = 0, int g_ = 0, int b_ = 0, int a_ = 0);
+	Camera& setBackgroundColor (int r_, int g_, int b_, int a_ = 255);
 
 	/**
 	 * @overload

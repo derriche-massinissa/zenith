@@ -168,6 +168,27 @@ void Renderer::render (
 	c_.w = camera_.getWidth();
 	c_.h = camera_.getHeight();
 
+	if (camera_.mask)
+		preRenderMask(nullptr);
+
+	// Camera's background color if not transparent
+	if (!camera_.transparent) {
+		SDL_SetRenderDrawBlendMode(window.renderer, SDL_BLENDMODE_BLEND);
+
+		SDL_SetRenderDrawColor(
+			window.renderer,
+			camera_.backgroundColor.red(),
+			camera_.backgroundColor.green(),
+			camera_.backgroundColor.blue(),
+			camera_.backgroundColor.alpha()
+		);
+
+		SDL_RenderFillRect(window.renderer, &c_);
+
+		// Reset draw blend mode
+		SDL_SetRenderDrawBlendMode(window.renderer, SDL_BLENDMODE_NONE);
+	}
+
 	// Set a viewport if the camera isn't the same size as the window
 	if (game.scene.customViewports)
 	{
@@ -202,20 +223,6 @@ void Renderer::render (
 		}
 
 		SDL_RenderSetViewport(window.renderer, &c_);
-	}
-
-	if (camera_.mask)
-		preRenderMask(nullptr);
-
-	// Camera's background color if not transparent
-	if (!camera_.transparent) {
-		SDL_SetRenderDrawColor(
-				window.renderer,
-				camera_.backgroundColor.red(),
-				camera_.backgroundColor.green(),
-				camera_.backgroundColor.blue(),
-				camera_.backgroundColor.alpha());
-		SDL_RenderFillRect(window.renderer, &c_);
 	}
 
 	drawCount += children_.size();
@@ -586,11 +593,7 @@ void Renderer::batchSprite (
 	// Multiply by the Sprite matrix
 	camMatrix_.multiply(spriteMatrix_);
 
-	// Apply the transform matrix
-	// TODO FIXME Order of operations should be: translate, rotate, scale
-	// But here it is: translate, scale, rotate
-	// Should either rotate after rendering, or add a decomposition method
-	// that returns the appropriate transform matrix
+	// Decompose the transform matrix
 	GameObjects::Components::DecomposedMatrix dm_ = camMatrix_.decomposeMatrix();
 
 	if (sprite_.getMask())
@@ -605,8 +608,8 @@ void Renderer::batchSprite (
 
 	SDL_Rect destination_;
 	// Position
-	destination_.x = x_ + dm_.translateX + sOffset_.x;
-	destination_.y = y_ + dm_.translateY + sOffset_.y;
+	destination_.x = x_ * dm_.scaleX + dm_.translateX + sOffset_.x;
+	destination_.y = y_ * dm_.scaleY + dm_.translateY + sOffset_.y;
 	// Scale
 	destination_.w = (frameWidth_ / res_) * dm_.scaleX * sScale_.x;
 	destination_.h = (frameHeight_ / res_) * dm_.scaleY * sScale_.y;

@@ -31,7 +31,7 @@ public:
 
 	T& setDisplayWidth (int value_)
 	{
-		This()->setScaleX( value_ / This()->frame.getRealWidth() );
+		This()->setScaleX( (double)value_ / (double)This()->frame->getRealWidth() );
 
 		return *This();
 	}
@@ -43,7 +43,7 @@ public:
 
 	T& setDisplayHeight (int value_)
 	{
-		This()->setScaleY( value_ / This()->frame.getRealHeight() );
+		This()->setScaleY( (double)value_ / (double)This()->frame->getRealHeight() );
 
 		return *This();
 	}
