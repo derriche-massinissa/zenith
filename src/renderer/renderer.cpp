@@ -14,6 +14,7 @@
 #include "../window/window.h"
 #include "../scene/scene.h"
 
+#include "../structs/size.h"
 #include "../math/rad_to_deg.h"
 
 namespace Zen {
@@ -75,9 +76,9 @@ void Renderer::start ()
 	resize(window.width(), window.height());
 }
 
-void Renderer::onResize (int width_, int height_, int previousWidth_, int previousHeight_)
+void Renderer::onResize (Structs::Size gameSize_, Structs::Size displaySize_, int previousWidth_, int previousHeight_)
 {
-	resize(width_, height_);
+	resize(gameSize_.getWidth(), gameSize_.getHeight());
 }
 
 void Renderer::resize (int width_, int height_)
@@ -170,6 +171,36 @@ void Renderer::render (
 	// Set a viewport if the camera isn't the same size as the window
 	if (game.scene.customViewports)
 	{
+		// Skip rendering this camera if its viewport is outside the window
+		if (c_.x > width || c_.y > height || c_.x < -c_.w || c_.y < -c_.h)
+			return;
+
+		// Clip the viewport if it goes outside the left side of the window
+		if (c_.x < 0)
+		{
+			c_.w += c_.x;
+			c_.x = 0;
+		}
+
+		// Clip the viewport if it goes outside the right side of the window
+		if ((c_.x + c_.w) > width)
+		{
+			c_.w = width - c_.x;
+		}
+
+		// Clip the viewport if it goes outside the top side of the window
+		if (c_.y < 0)
+		{
+			c_.h += c_.y;
+			c_.y = 0;
+		}
+
+		// Clip the viewport if it goes outside the bottom side of the window
+		if ((c_.y + c_.h) > height)
+		{
+			c_.h = height - c_.y;
+		}
+
 		SDL_RenderSetViewport(window.renderer, &c_);
 	}
 
@@ -215,7 +246,8 @@ void Renderer::render (
 
 void Renderer::postRender ()
 {
-	// Update the screen
+	// Update the screen once every element has been rendered
+	// This will also trigger a delay as the renderer is Vsynced
 	SDL_RenderPresent(window.renderer);
 
 	emit("post-render");

@@ -48,10 +48,10 @@ namespace Zen {
  * @property active If set to `true`, a snapshot will be taken after the current
  * frame is fully rendered. It will then be set back to `false`;
  */
-struct SnapshotState 
+struct SnapshotState
 {
 	int x = 0;
-	 
+
 	int y = 0;
 
 	int width = 1;
@@ -123,9 +123,9 @@ public:
 	/**
 	 * An intermediary render target, used to render any masked GameObject to it.
 	 *
-	 * The masked GameObject is drawn first, then the Masking GameObject is drawn, 
+	 * The masked GameObject is drawn first, then the Masking GameObject is drawn,
 	 * with a blend operation that zeros out its RGB channels, so the color
-	 * of its pixels do not matter. The operation multiplies the mask's alpha to 
+	 * of its pixels do not matter. The operation multiplies the mask's alpha to
 	 * the destination's alpha, hiding anything not covered by the mask.
 	 *
 	 * The frame buffer is then itself rendered to the renderer of the window.
@@ -150,7 +150,7 @@ public:
 	 * This texture receives the mask texture before being rendered over the masked
 	 * GameObject.
 	 *
-	 * The reason the masking GameObject isn't directly used is because if it 
+	 * The reason the masking GameObject isn't directly used is because if it
 	 * doesn't cover the entirety of the masked GameObject, whatever isn't covered
 	 * won't be hidden.
 	 *
@@ -172,7 +172,7 @@ public:
 	 * * The pixel alpha (transparency):
 	 *   - Zero out the mask's alpha, so that it won't be rendered, hidding the
 	 *   target under it.
-	 *   - Multiply the target's alpha by the mask's alpha (Original, not zeroed 
+	 *   - Multiply the target's alpha by the mask's alpha (Original, not zeroed
 	 *   out). So the target will appear fully where the mask has an opacity of
 	 *   1, and be completely hidden where the mask is fully transparent (alpha
 	 *   of 0).
@@ -203,7 +203,7 @@ public:
 	 * @since 0.0.0
 	 */
 	int height = 0;
-	
+
 	/**
 	 * The pixel format of the SDL_Window.
 	 *
@@ -235,7 +235,7 @@ public:
 	/**
 	 * Details about the currently scheduled snapshot.
 	 *
-	 * If `active` is set to `true` this object, a snapshot of the canvas will be 
+	 * If `active` is set to `true` this object, a snapshot of the canvas will be
 	 * taken after the current frame is fully rendered.
 	 *
 	 * @since 0.0.0
@@ -266,7 +266,7 @@ public:
 	 * @param baseSize_ The base Size object. The game dimensions multiplied by
 	 * the resolution. The window width / height values match this.
 	 */
-	void onResize (int width_, int height_, int previousWidth_, int previousHeight_);
+	void onResize (Structs::Size gameSize_, Structs::Size displaySize_, int previousWidth_, int previousHeight_);
 
 	/**
 	 * Resize the main game canvas.
@@ -323,13 +323,13 @@ public:
 	 * To capture a specific area see the snapshotArea method. To capture a
 	 * specific pixel, see snapshotPixel.
 	 *
-	 * Only one snapshot can be active _per frame_. If you have already called 
+	 * Only one snapshot can be active _per frame_. If you have already called
 	 * snapshotPixel, for example, then calling this method will override it.
 	 *
 	 * @since 0.0.0
 	 *
 	 * @param callback_ The function to invoke once the snapshot is created.
-	 * @param path_ The file path to save the image to. Leave empty to not save any 
+	 * @param path_ The file path to save the image to. Leave empty to not save any
 	 * file, just an SDL_Surface.
 	 *
 	 * @return This Renderer instance.
@@ -337,13 +337,13 @@ public:
 	Renderer& snapshot (std::string path_ = "", std::function<void(SDL_Surface*)> callback_ = nullptr);
 
 	/**
-	 * Schedules a snapshot of the given area of the game viewport to be taken 
+	 * Schedules a snapshot of the given area of the game viewport to be taken
 	 * after the current frame is rendered.
 	 *
-	 * To capture the whole game viewport see the snapshot method. To capture a 
+	 * To capture the whole game viewport see the snapshot method. To capture a
 	 * specific pixel, see snapshotPixel.
 	 *
-	 * Only one snapshot can be active _per frame_. If you have already called 
+	 * Only one snapshot can be active _per frame_. If you have already called
 	 * snapshotPixel, for example, then calling this method will override it.
 	 *
 	 * @since 0.0.0
@@ -353,7 +353,7 @@ public:
 	 * @param width_ The width of the area to grab.
 	 * @param height_ The height of the area to grab.
 	 * @param callback_ The function to invoke once the snapshot is created.
-	 * @param path_ The file path to save the image to. Leave empty to not save any 
+	 * @param path_ The file path to save the image to. Leave empty to not save any
 	 * file, just an SDL_Surface.
 	 *
 	 * @return This Renderer instance.
@@ -361,7 +361,7 @@ public:
 	Renderer& snapshotArea (int x_, int y_, int width_, int height_, std::string path_ = "", std::function<void(SDL_Surface*)> callback_ = nullptr);
 
 	/**
-	 * Schedules a snapshot of the given pixel from the game viewport to be taken 
+	 * Schedules a snapshot of the given pixel from the game viewport to be taken
 	 * after the current frame is rendered.
 	 *
 	 * To capture the whole game viewport see the `snapshot` method. To capture a
@@ -385,16 +385,17 @@ public:
 	Renderer& snapshotPixel (int x_, int y_, std::function<void(Display::Color)> callback_);
 
 	/**
-	 * Takes a Sprite Game Object, or any object that extends it, and draws it to the window.
+	 * Takes a Sprite Game Object, or any object that extends it, and draws it
+	 * to the window.
 	 *
 	 * @since 0.0.0
 	 *
 	 * @param sprite_ The texture based Game Object to draw.
-	 * @param frame_ The frame to draw, doesn't have to be owned by the		
+	 * @param frame_ The frame to draw, doesn't have to be owned by the
 	 * GameObject.
 	 * @param camera_ The Camera to use for the rendering transform.
-	 * @param parentTransformMatrix_ The transform matrix of the parent container, 
-	 * if set.
+	 * @param parentTransformMatrix_ The transform matrix of the parent
+	 * container, if set.
 	 */
 	void batchSprite (
 			GameObjects::GameObject& sprite_,
