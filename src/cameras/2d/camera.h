@@ -50,23 +50,6 @@
 #include "effects/shake.h"
 #include "effects/zoom.h"
 
-/**
- * @todo Move all TODO to Doxygen documentation!
- *
- * @todo GameObjects::GameObject
- * @todo GameObjects::RenderTexture
- * @todo GameObjects::Group
- * @todo GameObjects::DisplayList
- * @todo GameObjects::Components::Flip
- * @todo GameObjects::Components::Tint
- * @todo Input::Pointer
- * @todo Cameras::Scene2D::Effects::Fade
- * @todo Cameras::Scene2D::Effects::Flash
- * @todo Cameras::Scene2D::Effects::Pan
- * @todo Cameras::Scene2D::Effects::Shake
- * @todo Cameras::Scene2D::Effects::RotateTo
- * @todo Cameras::Scene2D::Effects::Zoom
- */
 namespace Zen {
 namespace Cameras {
 namespace Scene2D {
@@ -74,24 +57,33 @@ namespace Scene2D {
 /**
  * A Camera.
  *
- * The Camera is the way in which all games are rendered in Zenith. They provide a view into your game world,
- * and can be positioned, rotated, zoomed and scrolled accordingly.
+ * The Camera is the way in which all games are rendered in Zenith. They provide a
+ * view into your game world, and can be positioned, rotated, zoomed and scrolled
+ * accordingly.
  *
  * A Camera consists of two elements: The viewport and the scroll values.
  *
- * The viewport is the physical position and size of the Camera within your game. Cameras, by default, are
- * created the same size as your game, but their position and size can be set to anything. This means if you
- * wanted to create a camera that was 320x200 in size, positioned in the bottom-right corner of your game,
- * you'd adjust the viewport to do that (using methods like `setViewport` and `setSize`).
+ * The viewport is the physical position and size of the Camera within your game.
+ * Cameras, by default, are
+ * created the same size as your game, but their position and size can be set to
+ * anything. This means if you
+ * wanted to create a camera that was 320x200 in size, positioned in the bottom-
+ * right corner of your game,
+ * you'd adjust the viewport to do that (using methods like `setViewport` and
+ * `setSize`).
  *
- * If you wish to change where the Camera is looking in your game, then you scroll it. You can do this
- * via the properties `scrollX` and `scrollY` or the method `setScroll`. Scrolling has no impact on the
+ * If you wish to change where the Camera is looking in your game, then you scroll
+ * it. You can do this
+ * via the properties `scrollX` and `scrollY` or the method `setScroll`. Scrolling
+ * has no impact on the
  * viewport, and changing the viewport has no impact on the scrolling.
  *
- * By default a Camera will render all Game Objects it can see. You can change this using the `ignore` method,
+ * By default a Camera will render all Game Objects it can see. You can change
+ * this using the `ignore` method,
  * allowing you to filter Game Objects out on a per-Camera basis.
  *
- * A Camera also has built-in special effects including Fade, Flash and Camera Shake, and can follow GameObjects.
+ * A Camera also has built-in special effects including Fade, Flash and Camera
+ * Shake, and can follow GameObjects.
  *
  * @class Camera
  * @since 0.0.0
@@ -787,6 +779,16 @@ public:
 	 * @overload
 	 * @since 0.0.0
 	 *
+	 * @param entries_ A vector of GameObjects, to be ignored by this Camera.
+	 *
+	 * @return This Camera instance.
+	 */
+	Camera& ignore (std::vector<GameObjects::GameObject*>&& entries_);
+
+	/**
+	 * @overload
+	 * @since 0.0.0
+	 *
 	 * @param entries_ A Group game object to be ignored by this Camera.
 	 *
 	 * @return This Camera instance.
@@ -849,7 +851,7 @@ public:
 	/**
 	 * Sets the background color for this Camera.
 	 *
-	 * By default a Camera has a transparent background but it can be given a 
+	 * By default a Camera has a transparent background but it can be given a
 	 * solid color, with any level of transparency, via this method.
 	 *
 	 * The color value can be specified using hex or numbers.

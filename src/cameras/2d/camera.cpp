@@ -274,13 +274,17 @@ Camera& Camera::ignore (GameObjects::GameObject* entry_)
 	return *this;
 }
 
-Camera& Camera::ignore (
-		std::vector<GameObjects::GameObject*>& entries_)
+Camera& Camera::ignore (std::vector<GameObjects::GameObject*>& entries_)
 {
 	for (auto it_ : entries_)
 		ignore(it_);
 
 	return *this;
+}
+
+Camera& Camera::ignore (std::vector<GameObjects::GameObject*>&& entries_)
+{
+	return ignore(entries_);
 }
 
 Camera& Camera::ignore (GameObjects::Group& entry_)
