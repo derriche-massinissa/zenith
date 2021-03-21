@@ -31,28 +31,28 @@ public:
 	{
 		flipX = !flipX;
 
-		return This();
+		return *This();
 	}
 
 	T& toggleFlipY ()
 	{
 		flipY = !flipY;
 
-		return This();
+		return *This();
 	}
 
 	T& setFlipX (bool value_)
 	{
 		flipX = value_;
 
-		return This();
+		return *This();
 	}
 
 	T& setFlipY (bool value_)
 	{
 		flipY = value_;
 
-		return This();
+		return *This();
 	}
 
 	T& setFlip (bool x_, bool y_)
@@ -60,7 +60,7 @@ public:
 		flipX = x_;
 		flipY = y_;
 
-		return This();
+		return *This();
 	}
 
 	T& resetFlip ()

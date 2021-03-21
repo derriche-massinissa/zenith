@@ -297,14 +297,15 @@ public:
 		return rotation_;
 	}
 
-private:
-	double scaleX = 1.0;
-	double scaleY = 1.0;
 	double rotation = 0.0;
 	int x = 0;
 	int y = 0;
 	int z = 0;
 	int w = 0;
+
+private:
+	double scaleX = 1.0;
+	double scaleY = 1.0;
 	static const int FLAG = 0b0100;
 };
 

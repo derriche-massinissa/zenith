@@ -552,15 +552,15 @@ void Renderer::batchSprite (
 	bool flipY_ = false;
 
 	if (sprite_.flipX) {
-		if (!customPivot_)
-			x_ += (-frame_.getRealWidth() + (displayOriginX_ * 2));
+		//if (!customPivot_)
+			//x_ += (-frame_.getRealWidth() + (displayOriginX_ * 2));
 
 		flipX_ = true;
 	}
 
 	if (sprite_.flipY) {
-		if (!customPivot_)
-			y_ += (-frame_.getRealHeight() + (displayOriginY_ * 2));
+		//if (!customPivot_)
+			//y_ += (-frame_.getRealHeight() + (displayOriginY_ * 2));
 
 		flipY_ = true;
 	}
