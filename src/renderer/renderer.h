@@ -382,7 +382,19 @@ public:
 	 *
 	 * @return This Renderer instance.
 	 */
-	Renderer& snapshotPixel (int x_, int y_, std::function<void(Display::Color)> callback_);
+	Renderer& snapshotPixel (int x_, int y_, std::function<void(Display::Color)>& callback_);
+
+	/**
+	 * @overload
+	 * @since 0.0.0
+	 *
+	 * @param x_ - The x coordinate of the pixel to get.
+	 * @param y_ - The y coordinate of the pixel to get.
+	 * @param callback_ The function to invoke once the snapshot is created.
+	 *
+	 * @return This Renderer instance.
+	 */
+	Renderer& snapshotPixel (int x_, int y_, std::function<void(Display::Color)>&& callback_);
 
 	/**
 	 * Takes a Sprite Game Object, or any object that extends it, and draws it

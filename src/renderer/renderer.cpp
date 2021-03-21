@@ -56,7 +56,6 @@ void Renderer::start ()
 	}
 
 	pixelFormat = *infoSurface_->format;
-	pixelFormat.format = SDL_PIXELFORMAT_RGBA8888,
 
 	SDL_FreeSurface(infoSurface_);
 
@@ -95,7 +94,7 @@ void Renderer::resize (int width_, int height_)
 	// Reset it to the same size as the renderer
 	maskBuffer = SDL_CreateTexture(
 			window.renderer,
-			pixelFormat.format,
+			SDL_PIXELFORMAT_RGBA8888,
 			SDL_TEXTUREACCESS_TARGET,
 			width,
 			height
@@ -111,7 +110,7 @@ void Renderer::resize (int width_, int height_)
 	// Reset it to the same size as the renderer
 	cameraBuffer = SDL_CreateTexture(
 			window.renderer,
-			pixelFormat.format,
+			SDL_PIXELFORMAT_RGBA8888,
 			SDL_TEXTUREACCESS_TARGET,
 			width,
 			height
@@ -127,7 +126,7 @@ void Renderer::resize (int width_, int height_)
 	// Reset it to the same size as the renderer
 	maskTexture = SDL_CreateTexture(
 			window.renderer,
-			pixelFormat.format,
+			SDL_PIXELFORMAT_RGBA8888,
 			SDL_TEXTUREACCESS_TARGET,
 			width,
 			height
@@ -307,14 +306,19 @@ Renderer& Renderer::snapshotArea (
 	return *this;
 }
 
-Renderer& Renderer::snapshotPixel (int x_, int y_, std::function<void(Display::Color)> callback_)
+Renderer& Renderer::snapshotPixel (int x_, int y_, std::function<void(Display::Color)>& callback_)
 {
-	snapshotArea(x_, y_, 1, 1, nullptr);
+	snapshotArea(x_, y_, 1, 1, "", nullptr);
 
 	snapshotState.getPixel = true;
 	snapshotState.callbackPixel = callback_;
 
 	return *this;
+}
+
+Renderer& Renderer::snapshotPixel (int x_, int y_, std::function<void(Display::Color)>&& callback_)
+{
+	return snapshotPixel(x_, y_, callback_);
 }
 
 void Renderer::takeSnapshot ()
@@ -410,6 +414,8 @@ void Renderer::takeSnapshot ()
 			rect_.y = snapshotState.y;
 			rect_.w = snapshotState.width;
 			rect_.h = snapshotState.height;
+
+			messageNote("area");
 
 			readFailed_ = SDL_RenderReadPixels(
 					window.renderer,
