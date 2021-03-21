@@ -36,7 +36,8 @@ void ScaleManager::boot ()
 
 void ScaleManager::parseConfig ()
 {
-	gameSize.setSize(game.config.width, game.config.height);
+	gameSize.resize(game.config.width, game.config.height);
+	displaySize.resize(game.config.width, game.config.height);
 
 	scaleMode = game.config.scaleMode;
 
@@ -59,26 +60,10 @@ void ScaleManager::setGameSize (int width_, int height_)
 	emit("resize", gameSize, displaySize, previousWidth_, previousHeight_);
 }
 
-void ScaleManager::resizeGame (int width_ ,int height_)
-{
-	int previousWidth_ = gameSize.getWidth();
-	int previousHeight_ = gameSize.getHeight();
-
-	gameSize.resize(width_, height_);
-
-	emit("resize", gameSize, displaySize, previousWidth_, previousHeight_);
-}
-
 void ScaleManager::refresh ()
 {
 	updateScale();
 	updateOffset();
-
-	// Change the game size to fit the window if using RESIZE mode
-	if (scaleMode == SCALE_MODE::RESIZE)
-	{
-		resizeGame(displaySize.getWidth(), displaySize.getHeight());
-	}
 }
 
 void ScaleManager::updateScale ()
@@ -93,21 +78,25 @@ void ScaleManager::updateScale ()
 	else
 	{
 		displayScale.set(
-				gameSize.getWidth() / displaySize.getWidth(),
-				gameSize.getHeight() / displaySize.getHeight()
-				);
+			(double)displaySize.getWidth() / (double)gameSize.getWidth(),
+			(double)displaySize.getHeight() / (double)gameSize.getHeight()
+			);
 	}
 }
 
 void ScaleManager::updateOffset ()
 {
 	if (scaleMode == SCALE_MODE::RESIZE)
+	{
 		displayOffset.set(0, 0);
+	}
 	else
+	{
 		displayOffset.set(
-				(window.width() - displaySize.getWidth()) / 2.0,
-				(window.height() - displaySize.getHeight()) / 2.0
-				);
+			(window.width() - displaySize.getWidth()) / 2.0,
+			(window.height() - displaySize.getHeight()) / 2.0
+			);
+	}
 }
 
 int ScaleManager::transformX (int windowX_)
@@ -130,9 +119,25 @@ void ScaleManager::stopListeners ()
 	window.off("resize", &ScaleManager::onResize, this);
 }
 
-void ScaleManager::onResize (int width, int height)
+void ScaleManager::onResize (int width_, int height_)
 {
 	refresh();
+
+	// Change the game size to fit the window if using RESIZE mode
+	if (scaleMode == SCALE_MODE::RESIZE)
+	{
+		int previousWidth_ = gameSize.getWidth();
+		int previousHeight_ = gameSize.getHeight();
+
+		gameSize.resize(width_, height_);
+
+		emit("resize", gameSize, displaySize, previousWidth_, previousHeight_);
+	}
+	else
+	{
+		emit("resize", gameSize, displaySize, gameSize.getWidth(), gameSize.getHeight());
+	}
+
 }
 
 void ScaleManager::setScaleMode (SCALE_MODE sm)

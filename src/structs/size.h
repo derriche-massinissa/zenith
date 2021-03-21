@@ -58,6 +58,8 @@ public:
 
 	int getHeight ();
 
+	SCALE_MODE getAspectMode ();
+
 private:
 	unsigned int width = 0;
 

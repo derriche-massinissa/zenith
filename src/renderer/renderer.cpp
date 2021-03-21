@@ -77,6 +77,22 @@ void Renderer::start ()
 
 void Renderer::onResize (Structs::Size gameSize_, Structs::Size displaySize_, int previousWidth_, int previousHeight_)
 {
+	// Update the renderer's clip rect
+	// No need to clear it as the scale mode cannot be changed
+	/*
+	if (displaySize_.getAspectMode() != SCALE_MODE::RESIZE)
+	{
+		SDL_Rect clip_ {
+			game.scale.displayOffset.x,
+			game.scale.displayOffset.y,
+			displaySize_.getWidth(),
+			displaySize_.getHeight()
+		};
+
+		SDL_RenderSetClipRect(window.renderer, &clip_);
+	}
+	*/
+
 	resize(gameSize_.getWidth(), gameSize_.getHeight());
 }
 
@@ -161,35 +177,19 @@ void Renderer::render (
 {
 	emit("render");
 
+	int offsetX_ = game.scale.displayOffset.x;
+	int offsetY_ = game.scale.displayOffset.y;
+	double scaleX_ = game.scale.displayScale.x;
+	double scaleY_ = game.scale.displayScale.y;
+
 	SDL_Rect c_;
 	c_.x = camera_.getX();
 	c_.y = camera_.getY();
 	c_.w = camera_.getWidth();
 	c_.h = camera_.getHeight();
 
-	if (camera_.mask)
-		preRenderMask(nullptr);
-
-	// Camera's background color if not transparent
-	if (!camera_.transparent) {
-		SDL_SetRenderDrawBlendMode(window.renderer, SDL_BLENDMODE_BLEND);
-
-		SDL_SetRenderDrawColor(
-			window.renderer,
-			camera_.backgroundColor.red(),
-			camera_.backgroundColor.green(),
-			camera_.backgroundColor.blue(),
-			camera_.backgroundColor.alpha()
-		);
-
-		SDL_RenderFillRect(window.renderer, &c_);
-
-		// Reset draw blend mode
-		SDL_SetRenderDrawBlendMode(window.renderer, SDL_BLENDMODE_NONE);
-	}
-
 	// Set a viewport if the camera isn't the same size as the window
-	if (game.scene.customViewports)
+	if (camera_.customViewport)//game.scene.customViewports)
 	{
 		// Skip rendering this camera if its viewport is outside the window
 		if (c_.x > width || c_.y > height || c_.x < -c_.w || c_.y < -c_.h)
@@ -221,7 +221,47 @@ void Renderer::render (
 			c_.h = height - c_.y;
 		}
 
+		c_.x *= scaleX_;
+		c_.y *= scaleY_;
+		c_.w *= scaleX_;
+		c_.h *= scaleY_;
+		c_.x += offsetX_;
+		c_.y += offsetY_;
+
 		SDL_RenderSetViewport(window.renderer, &c_);
+
+		c_.x /= scaleX_;
+		c_.y /= scaleY_;
+		c_.w /= scaleX_;
+		c_.h /= scaleY_;
+		c_.x -= offsetX_;
+		c_.y -= offsetY_;
+	}
+
+	if (camera_.mask)
+		preRenderMask(nullptr);
+
+	// Camera's background color if not transparent
+	if (!camera_.transparent) {
+		c_.x = 0;
+		c_.y = 0;
+		c_.w *= scaleX_;
+		c_.h *= scaleY_;
+
+		SDL_SetRenderDrawBlendMode(window.renderer, SDL_BLENDMODE_BLEND);
+
+		SDL_SetRenderDrawColor(
+			window.renderer,
+			camera_.backgroundColor.red(),
+			camera_.backgroundColor.green(),
+			camera_.backgroundColor.blue(),
+			camera_.backgroundColor.alpha() * camera_.getAlpha()
+		);
+
+		SDL_RenderFillRect(window.renderer, &c_);
+
+		// Reset draw blend mode
+		SDL_SetRenderDrawBlendMode(window.renderer, SDL_BLENDMODE_NONE);
 	}
 
 	drawCount += children_.size();
@@ -554,22 +594,8 @@ void Renderer::batchSprite (
 		}
 	}
 
-	bool flipX_ = false;
-	bool flipY_ = false;
-
-	if (sprite_.flipX) {
-		//if (!customPivot_)
-			//x_ += (-frame_.getRealWidth() + (displayOriginX_ * 2));
-
-		flipX_ = true;
-	}
-
-	if (sprite_.flipY) {
-		//if (!customPivot_)
-			//y_ += (-frame_.getRealHeight() + (displayOriginY_ * 2));
-
-		flipY_ = true;
-	}
+	bool flipX_ = sprite_.flipX;
+	bool flipY_ = sprite_.flipY;
 
 	spriteMatrix_.applyITRS(sprite_.getX(), sprite_.getY(), sprite_.getRotation(), sprite_.getScaleX(), sprite_.getScaleY());
 
@@ -613,12 +639,33 @@ void Renderer::batchSprite (
 	Math::Vector2 sOffset_ = game.scale.displayOffset;
 
 	SDL_Rect destination_;
+
 	// Position
-	destination_.x = x_ * dm_.scaleX + dm_.translateX + sOffset_.x;
-	destination_.y = y_ * dm_.scaleY + dm_.translateY + sOffset_.y;
+	destination_.x = x_ * dm_.scaleX + dm_.translateX * sScale_.x;
+	destination_.y = y_ * dm_.scaleY + dm_.translateY * sScale_.y;
 	// Scale
 	destination_.w = (frameWidth_ / res_) * dm_.scaleX * sScale_.x;
 	destination_.h = (frameHeight_ / res_) * dm_.scaleY * sScale_.y;
+
+	if (!camera_.customViewport)
+	{
+		// If there is a viewport, it will offset things for us
+		destination_.x += sOffset_.x;
+		destination_.y += sOffset_.y;
+
+		// Clip the renderer ourselves
+		if (game.scale.scaleMode != SCALE_MODE::RESIZE)
+		{
+			SDL_Rect clip_ {
+				sOffset_.x,
+				sOffset_.y,
+				width * sScale_.x,
+				height * sScale_.y
+			};
+
+			SDL_RenderSetClipRect(window.renderer, &clip_);
+		}
+	}
 
 	// Rotation
 	double angle_ = Math::radToDeg( dm_.rotation );
@@ -658,6 +705,10 @@ void Renderer::batchSprite (
 	// Alpha (Transparency)
 	if (alpha_ < 1.0)
 	{
+		SDL_SetTextureBlendMode(
+			frame_.source->sdlTexture,
+			SDL_BLENDMODE_BLEND
+			);
 		SDL_SetTextureAlphaMod(
 			frame_.source->sdlTexture,
 			alpha_ * 255

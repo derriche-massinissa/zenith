@@ -27,7 +27,7 @@ Size::Size (unsigned int width_, unsigned int height_, SCALE_MODE aspectMode_)
 
 	aspectMode = aspectMode_;
 
-	aspectRatio = (height == 0) ? 1 : (1.f*width / height);
+	aspectRatio = (height == 0) ? 1.0 : ((double)width / (double)height);
 }
 
 Size::Size (const Size& other_)
@@ -118,19 +118,23 @@ Size& Size::setSize (unsigned int width_, unsigned int height_)
 		case SCALE_MODE::RESIZE:
 			width = getNewWidth(Math::Snap::floor(width_, snapTo.x));
 			height = getNewHeight(Math::Snap::floor(height_, snapTo.y));
-			aspectRatio = (height == 0) ? 1.0 : (1.f*width / height);
+			aspectRatio = (height == 0) ? 1.0 : ((double)width / (double)height);
 			break;
 
 		case SCALE_MODE::WIDTH_CONTROLS_HEIGHT:
-			height = getNewHeight((width / width_) * height);
 			width = getNewWidth(Math::Snap::floor(width_, snapTo.x));
-			aspectRatio = (height == 0) ? 1.0 : (1.f*width / height);
+			height = getNewHeight((double)width * (1.0 / aspectRatio));
+			//width = getNewWidth(Math::Snap::floor(width_, snapTo.x));
+			//height = getNewHeight(((double)width_ / (double)width) * (double)height);
+			//aspectRatio = (height == 0) ? 1.0 : ((double)width / (double)height);
 			break;
 
 		case SCALE_MODE::HEIGHT_CONTROLS_WIDTH:
-			width = getNewHeight((height / height_) * width);
-			height = getNewWidth(Math::Snap::floor(height_, snapTo.y));
-			aspectRatio = (height == 0) ? 1.0 : (1.f*width / height);
+			height = getNewHeight(Math::Snap::floor(height_, snapTo.y));
+			width = getNewWidth((double)height * aspectRatio);
+			//height = getNewHeight(Math::Snap::floor(height_, snapTo.y));
+			//width = getNewWidth(((double)height_ / (double)height) * (double)width);
+			//aspectRatio = (height == 0) ? 1.0 : ((double)width / (double)height);
 			break;
 
 		case SCALE_MODE::FIT:
@@ -156,7 +160,7 @@ Size& Size::resize (unsigned int width_, unsigned int height_)
 {
 	width = getNewWidth(Math::Snap::floor(width_, snapTo.x));
 	height = getNewHeight(Math::Snap::floor(height_, snapTo.y));
-	aspectRatio = (height == 0) ? 1.0 : (1.f*width / height);
+	aspectRatio = (height == 0) ? 1.0 : ((double)width / (double)height);
 
 	return *this;
 }
@@ -179,7 +183,7 @@ Size& Size::constrain (unsigned int width_, unsigned int height_, bool fit_)
 	width_ = getNewWidth(width_);
 	height_ = getNewWidth(height_);
 
-	double newRatio_ = (height_ == 0) ? 1.0 : (1.f*width_ / height_);
+	double newRatio_ = (height_ == 0) ? 1.0 : ((double)width_ / (double)height_);
 
 	if ((fit_ && aspectRatio > newRatio_) || (!fit_ && aspectRatio < newRatio_))
 	{
@@ -210,7 +214,7 @@ Size& Size::constrain (unsigned int width_, unsigned int height_, bool fit_)
 			width_ = Math::Snap::floor(width_, snapTo.x);
 
 			// Reduce the height accordingly
-			height_ = width_ * (1.f / aspectRatio);
+			height_ = width_ * (1.0 / aspectRatio);
 		}
 	}
 
@@ -248,6 +252,11 @@ int Size::getWidth ()
 int Size::getHeight ()
 {
 	return height;
+}
+
+SCALE_MODE Size::getAspectMode ()
+{
+	return aspectMode;
 }
 
 }	// namespace Structs
