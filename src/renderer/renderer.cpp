@@ -77,22 +77,6 @@ void Renderer::start ()
 
 void Renderer::onResize (Structs::Size gameSize_, Structs::Size displaySize_, int previousWidth_, int previousHeight_)
 {
-	// Update the renderer's clip rect
-	// No need to clear it as the scale mode cannot be changed
-	/*
-	if (displaySize_.getAspectMode() != SCALE_MODE::RESIZE)
-	{
-		SDL_Rect clip_ {
-			game.scale.displayOffset.x,
-			game.scale.displayOffset.y,
-			displaySize_.getWidth(),
-			displaySize_.getHeight()
-		};
-
-		SDL_RenderSetClipRect(window.renderer, &clip_);
-	}
-	*/
-
 	resize(gameSize_.getWidth(), gameSize_.getHeight());
 }
 
@@ -188,8 +172,7 @@ void Renderer::render (
 	c_.w = camera_.getWidth();
 	c_.h = camera_.getHeight();
 
-	// Set a viewport if the camera isn't the same size as the window
-	if (camera_.customViewport)//game.scene.customViewports)
+	if (camera_.customViewport || game.scale.scaleMode != SCALE_MODE::RESIZE)
 	{
 		// Skip rendering this camera if its viewport is outside the window
 		if (c_.x > width || c_.y > height || c_.x < -c_.w || c_.y < -c_.h)
@@ -220,22 +203,19 @@ void Renderer::render (
 		{
 			c_.h = height - c_.y;
 		}
+	}
 
-		c_.x *= scaleX_;
-		c_.y *= scaleY_;
-		c_.w *= scaleX_;
-		c_.h *= scaleY_;
-		c_.x += offsetX_;
-		c_.y += offsetY_;
+	c_.x *= scaleX_;
+	c_.y *= scaleY_;
+	c_.w *= scaleX_;
+	c_.h *= scaleY_;
+	c_.x += offsetX_;
+	c_.y += offsetY_;
 
-		SDL_RenderSetViewport(window.renderer, &c_);
-
-		c_.x /= scaleX_;
-		c_.y /= scaleY_;
-		c_.w /= scaleX_;
-		c_.h /= scaleY_;
-		c_.x -= offsetX_;
-		c_.y -= offsetY_;
+	// Clip the renderer
+	if (camera_.customViewport || game.scale.scaleMode != SCALE_MODE::RESIZE)
+	{
+		SDL_RenderSetClipRect(window.renderer, &c_);
 	}
 
 	if (camera_.mask)
@@ -243,11 +223,6 @@ void Renderer::render (
 
 	// Camera's background color if not transparent
 	if (!camera_.transparent) {
-		c_.x = 0;
-		c_.y = 0;
-		c_.w *= scaleX_;
-		c_.h *= scaleY_;
-
 		SDL_SetRenderDrawBlendMode(window.renderer, SDL_BLENDMODE_BLEND);
 
 		SDL_SetRenderDrawColor(
@@ -284,9 +259,9 @@ void Renderer::render (
 		postRenderMask(camera_.mask, nullptr, &camera_);
 
 	// Remove the viewport if previously set
-	if (game.scene.customViewports)
+	if (camera_.customViewport)
 	{
-		SDL_RenderSetViewport(window.renderer, nullptr);
+		SDL_RenderSetClipRect(window.renderer, nullptr);
 	}
 }
 
@@ -641,31 +616,11 @@ void Renderer::batchSprite (
 	SDL_Rect destination_;
 
 	// Position
-	destination_.x = x_ * dm_.scaleX + dm_.translateX * sScale_.x;
-	destination_.y = y_ * dm_.scaleY + dm_.translateY * sScale_.y;
+	destination_.x = x_ * dm_.scaleX + dm_.translateX * sScale_.x + sOffset_.x;
+	destination_.y = y_ * dm_.scaleY + dm_.translateY * sScale_.y + sOffset_.y;
 	// Scale
 	destination_.w = (frameWidth_ / res_) * dm_.scaleX * sScale_.x;
 	destination_.h = (frameHeight_ / res_) * dm_.scaleY * sScale_.y;
-
-	if (!camera_.customViewport)
-	{
-		// If there is a viewport, it will offset things for us
-		destination_.x += sOffset_.x;
-		destination_.y += sOffset_.y;
-
-		// Clip the renderer ourselves
-		if (game.scale.scaleMode != SCALE_MODE::RESIZE)
-		{
-			SDL_Rect clip_ {
-				sOffset_.x,
-				sOffset_.y,
-				width * sScale_.x,
-				height * sScale_.y
-			};
-
-			SDL_RenderSetClipRect(window.renderer, &clip_);
-		}
-	}
 
 	// Rotation
 	double angle_ = Math::radToDeg( dm_.rotation );
