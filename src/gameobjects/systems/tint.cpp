@@ -1,0 +1,70 @@
+/**
+ * @file
+ * @author		__AUTHOR_NAME__ <mail@host.com>
+ * @copyright	2021 __COMPANY_LTD__
+ * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
+ */
+
+#include "tint.hpp"
+
+#include "entt/entt.hpp"
+#include "../components/tint.hpp"
+#include "../../utils/assert.hpp"
+
+namespace Zen {
+
+extern entt::registry registry;
+
+void ClearTint (Entity entity)
+{
+	SetTint(entity, 0xffffff);
+}
+
+void SetTint (Entity entity, int topLeft, int topRight, int bottomLeft, int bottomRight)
+{
+	auto tint = registry.try_get<TintComponent>(entity);
+
+	ZEN_ASSERT(tint, "The entity has no 'Tint' component.");
+
+	tint->tint = topLeft;
+
+	tint->tl= topLeft;
+
+	if (topRight < 0)
+	{
+		tint->tr = topLeft;
+		tint->bl = topLeft;
+		tint->br = topLeft;
+	}
+	else
+	{
+		tint->tr = topRight;
+		tint->bl = bottomLeft;
+		tint->br = bottomRight;
+	}
+
+	tint->fill = false;
+}
+
+void SetTintFill (Entity entity, int topLeft, int topRight, int bottomLeft, int bottomRight)
+{
+	SetTint(entity, topLeft, topRight, bottomLeft, bottomRight);
+
+	registry.get<TintComponent>(entity).fill = true;
+}
+
+bool IsTinted (Entity entity)
+{
+	auto tint = registry.try_get<TintComponent>(entity);
+
+	ZEN_ASSERT(tint, "The entity has no 'Tint' component.");
+
+	return (tint->fill ||
+			tint->tl != 0xffffff ||
+			tint->tr != 0xffffff ||
+			tint->bl != 0xffffff ||
+			tint->br != 0xffffff
+		   );
+}
+
+}	// namespace Zen

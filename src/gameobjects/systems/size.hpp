@@ -1,0 +1,31 @@
+/**
+ * @file
+ * @author		__AUTHOR_NAME__ <mail@host.com>
+ * @copyright	2021 __COMPANY_LTD__
+ * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
+ */
+
+#ifndef ZEN_GAMEOBJECTS_SYSTEMS_SIZE_HPP
+#define ZEN_GAMEOBJECTS_SYSTEMS_SIZE_HPP
+
+#include "../../texture/frame.h"
+
+namespace Zen {
+
+int GetDisplayWidth (Entity entity);
+
+int GetDisplayHeight (Entity entity);
+
+void SetDisplayWidth (Entity entity, double value);
+
+void SetDisplayHeight (Entity entity, double value);
+
+void SetSizeToFrame (Entity entity, Textures::Frame* frame = nullptr);
+
+void SetSize (Entity entity, double width, double height);
+
+void SetDisplaySize (Entity entity, double width, double height);
+
+}	// namespace Zen
+
+#endif
