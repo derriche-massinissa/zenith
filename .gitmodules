@@ -1,3 +1,0 @@
-[submodule "includes/json"]
-	path = includes/json
-	url = https://github.com/nlohmann/json.git
