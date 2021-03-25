@@ -5,18 +5,17 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "equal.h"
+#include "fuzzy_equal.h"
+
 #include <cmath>
 
 namespace Zen {
 namespace Math {
-namespace Fuzzy {
 
-bool equal (double a, double b, double epsilon)
+bool FuzzyEqual (double a, double b, double epsilon)
 {
 	return std::abs(a - b) < epsilon;
 }
 
-}	// namespace Fuzzy
 }	// namespace Math
 }	// namespace Zen

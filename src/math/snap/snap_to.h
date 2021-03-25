@@ -10,7 +10,6 @@
 
 namespace Zen {
 namespace Math {
-namespace Snap {
 
 /**
  * Snap a value to nearest grid slice, using rounding.
@@ -27,9 +26,8 @@ namespace Snap {
  *
  * @return  The snapped value.
  */
-double to (double value, double gap, double start = 0, bool divide = false);
+double SnapTo (double value, double gap, double start = 0, bool divide = false);
 
-}	// namespace Snap
 }	// namespace Math
 }	// namespace Zen
 

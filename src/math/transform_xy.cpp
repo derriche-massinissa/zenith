@@ -11,7 +11,7 @@
 namespace Zen {
 namespace Math {
 
-Math::Vector2 transformXY (int x, int y, int positionX, int positionY, double rotation, double scaleX, double scaleY)
+Math::Vector2 transformXY (double x, double y, double positionX, double positionY, double rotation, double scaleX, double scaleY)
 {
     double radianSin = std::sin(rotation);
     double radianCos = std::cos(rotation);

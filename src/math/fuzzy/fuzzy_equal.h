@@ -12,7 +12,6 @@
 
 namespace Zen {
 namespace Math {
-namespace Fuzzy {
 
 /**
  * Check whether the given values are fuzzily equal.
@@ -27,9 +26,8 @@ namespace Fuzzy {
  *
  * @return `true` if the values are fuzzily equal, otherwise `false`.
  */
-bool equal (double a, double b, double epsilon = EPSILON);
+bool FuzzyEqual (double a, double b, double epsilon = EPSILON);
 
-}	// namespace Fuzzy
 }	// namespace Math
 }	// namespace Zen
 

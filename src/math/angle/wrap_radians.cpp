@@ -5,18 +5,18 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "ceil.h"
+#include "wrap.h"
+
 #include <cmath>
+#include "wrap.h"
 
 namespace Zen {
 namespace Math {
-namespace Fuzzy {
 
-bool ceil (double value, double epsilon)
+double WrapRadians (double radians)
 {
-	return std::ceil(value - epsilon);
+    return Math::Wrap(angle, -M_PI, M_PI);
 }
 
-}	// namespace Fuzzy
 }	// namespace Math
 }	// namespace Zen

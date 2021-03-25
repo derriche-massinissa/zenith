@@ -85,9 +85,9 @@ unsigned int RandomDataGenerator::getSeed ()
 }
 
 // Instantiate a Random object in the Zen::Math namespace
-RandomDataGenerator random;
+RandomDataGenerator Random;
 // Add an alias
-RandomDataGenerator& RND = random;
+RandomDataGenerator& RND = Random;
 
 }	// namespace Math
 }	// namespace Zen

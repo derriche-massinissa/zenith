@@ -22,7 +22,7 @@ namespace Math {
  *
  * @return The step t% of the way between p0 and p1.
  */
-double linear (double p0, double p1, double t);
+double Linear (double p0, double p1, double t);
 
 }	// namespace Math
 }	// namespace Zen

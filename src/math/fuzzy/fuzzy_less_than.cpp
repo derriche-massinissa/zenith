@@ -11,7 +11,7 @@ namespace Zen {
 namespace Math {
 namespace Fuzzy {
 
-bool lessThan (double a, double b, double epsilon)
+bool FuzzyLessThan (double a, double b, double epsilon)
 {
 	return a < b + epsilon;
 }

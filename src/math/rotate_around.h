@@ -28,7 +28,7 @@ namespace Math {
  *
  * @return The given point.
  */
-Math::Vector2 rotateAround (Math::Vector2 point, int x, int y, double angle);
+Math::Vector2 RotateAround (Math::Vector2 point, double x, double y, double angle);
 
 }	// namespace Math
 }	// namespace Zen

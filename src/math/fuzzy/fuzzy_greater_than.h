@@ -5,19 +5,18 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_MATH_FUZZY_LESS_THAN_H
-#define ZEN_MATH_FUZZY_LESS_THAN_H
+#ifndef ZEN_MATH_FUZZY_GREATER_THAN_H
+#define ZEN_MATH_FUZZY_GREATER_THAN_H
 
 #include "../const.h"
 
 namespace Zen {
 namespace Math {
-namespace Fuzzy {
 
 /**
- * Check whether `a` is fuzzily less than `b`.
+ * Check whether `a` is fuzzily greater than `b`.
  *
- * `a` is fuzzily less than `b` if it is less than `b + epsilon`.
+ * `a` is fuzzily greater than `b` if it is more than `b - epsilon`.
  *
  * @since 0.0.0
  *
@@ -25,11 +24,10 @@ namespace Fuzzy {
  * @param b The second value.
  * @param epsilon The epsilon.
  *
- * @return `true` if `a` is fuzzily less than `b`, otherwise `false`.
+ * @return `true` if `a` is fuzzily greater than than `b`, otherwise `false`.
  */
-bool lessThan (double a, double b, double epsilon = EPSILON);
+bool FuzzyGreaterThan (double a, double b, double epsilon = EPSILON);
 
-}	// namespace Fuzzy
 }	// namespace Math
 }	// namespace Zen
 

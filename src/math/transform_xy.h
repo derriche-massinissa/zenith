@@ -29,7 +29,7 @@ namespace Math {
  *
  * @return The translated point.
  */
-Math::Vector2 transformXY (int x, int y, int positionX, int positionY, double rotation, double scaleX, double scaleY);
+Math::Vector2 TransformXY (double x, double y, double positionX, double positionY, double rotation, double scaleX, double scaleY);
 
 }	// namespace Math
 }	// namespace Zen

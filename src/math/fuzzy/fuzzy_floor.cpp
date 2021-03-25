@@ -5,20 +5,16 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "wrap.h"
-
+#include "floor.h"
 #include <cmath>
-#include "../wrap.h"
 
 namespace Zen {
 namespace Math {
-namespace Angle {
 
-double wrap (double angle)
+bool FuzzyFloor (double value, double epsilon)
 {
-    return Math::wrap(angle, -M_PI, M_PI);
+	return std::floor(value + epsilon);
 }
 
-}	// namespace Angle
 }	// namespace Math
 }	// namespace Zen

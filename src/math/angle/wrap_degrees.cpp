@@ -11,13 +11,11 @@
 
 namespace Zen {
 namespace Math {
-namespace Angle {
 
-double wrapDegrees (double angle)
+double WrapDegrees (double angle)
 {
-    return Math::wrap(angle, -180, 180);
+    return Math::Wrap(angle, -180, 180);
 }
 
-}	// namespace Angle
 }	// namespace Math
 }	// namespace Zen

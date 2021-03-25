@@ -11,7 +11,7 @@
 namespace Zen {
 namespace Math {
 
-double linear (double p0, double p1, double t)
+double Linear (double p0, double p1, double t)
 {
 	return (p1 - p0) * t + p0;
 }

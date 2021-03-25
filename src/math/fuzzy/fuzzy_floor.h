@@ -12,7 +12,6 @@
 
 namespace Zen {
 namespace Math {
-namespace Fuzzy {
 
 /**
  * Calculate the fuzzy floor of the given value.
@@ -24,9 +23,8 @@ namespace Fuzzy {
  *
  * @return The fuzzy floor of the value.
  */
-bool floor (double value, double epsilon = EPSILON);
+bool FuzzyFloor (double value, double epsilon = EPSILON);
 
-}	// namespace Fuzzy
 }	// namespace Math
 }	// namespace Zen
 

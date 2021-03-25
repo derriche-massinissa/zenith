@@ -21,7 +21,7 @@ namespace Math {
  * @param max The maximum bound.
  * @return The clamped value.
  */
-double clamp (double value, double min, double max);
+double Clamp (double value, double min, double max);
 
 }	// namespace Math
 }	// namespace Zen

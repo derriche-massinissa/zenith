@@ -12,7 +12,6 @@
 
 namespace Zen {
 namespace Math {
-namespace Fuzzy {
 
 /**
  * Calculate the fuzzy ceiling of the given value.
@@ -24,9 +23,8 @@ namespace Fuzzy {
  *
  * @return The fuzzy ceiling of the value.
  */
-bool ceil (double value, double epsilon = EPSILON);
+bool FuzzyCeil (double value, double epsilon = EPSILON);
 
-}	// namespace Fuzzy
 }	// namespace Math
 }	// namespace Zen
 

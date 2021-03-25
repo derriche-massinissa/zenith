@@ -22,7 +22,7 @@ namespace Math {
  *
  * @return {number} The wrapped value.
  */
-double wrap (double value, double min, double max);
+double Wrap (double value, double min, double max);
 
 }	// namespace Math
 }	// namespace Zen

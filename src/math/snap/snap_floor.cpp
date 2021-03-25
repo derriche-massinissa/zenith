@@ -10,9 +10,8 @@
 
 namespace Zen {
 namespace Math {
-namespace Snap {
 
-double floor (double value, double gap, double start, bool divide)
+double SnapFloor (double value, double gap, double start, bool divide)
 {
 	if (!gap)
 		return value;
@@ -23,6 +22,5 @@ double floor (double value, double gap, double start, bool divide)
 	return (divide) ? (start + value) / gap : start + value;
 }
 
-}	// namespace Snap
 }	// namespace Math
 }	// namespace Zen

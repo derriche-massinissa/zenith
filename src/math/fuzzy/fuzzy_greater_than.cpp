@@ -5,16 +5,15 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "floor.h"
-#include <cmath>
+#include "greater_than.h"
 
 namespace Zen {
 namespace Math {
 namespace Fuzzy {
 
-bool floor (double value, double epsilon)
+bool FuzzyGreaterThan (double a, double b, double epsilon)
 {
-	return std::floor(value + epsilon);
+	return a > b - epsilon;
 }
 
 }	// namespace Fuzzy

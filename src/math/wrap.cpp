@@ -12,14 +12,11 @@
 namespace Zen {
 namespace Math {
 
-double wrap (double value, double min, double max)
+double Wrap (double value, double min, double max)
 {
     double range = max - min;
 
-    return min + std::fmod(
-		std::fmod(value - min, range) + range,
-		range
-		);
+    return min + std::fmod(std::fmod(value - min, range) + range, range);
 }
 
 }	// namespace Math

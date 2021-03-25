@@ -5,287 +5,196 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "vector2.h"
+#include "vector2.hpp"
+
 #include <cmath>
-#include "fuzzy/equal.h"
+#include "fuzzy/fuzzy_equal.h"
 
 namespace Zen {
 namespace Math {
 
-Vector2::Vector2 (double v_)
-	: x (v_), y (v_)
-{}
-
-Vector2::Vector2 (double x_, double y_)
-	: x (x_), y (y_)
-{}
-
-Vector2::Vector2 (const Vector2& other_)
-	: x (other_.x), y (other_.y)
-{}
-
-Vector2& Vector2::operator=(const Vector2& other_)
+void SetToPolar (Vector2 *vector, double azimuth, double radius)
 {
-	x = other_.x;
-	y = other_.y;
-
-	return *this;
+	vector->x = std::cos(azimuth) * radius;
+	vector->y = std::sin(azimuth) * radius;
 }
 
-bool Vector2::operator == (const Vector2& other_)
+bool Equals (Vector2 lhs, Vector2 rhs)
 {
-	return equals(other_);
+	return ((lhs.x == rhs.x) && (rhs.y == rhs.y));
 }
 
-Vector2& Vector2::set (double x_)
+bool FuzzyEquals (Vector2 lhs, Vector2 rhs, double epsilon)
 {
-	x = x_;
-	y = x_;
-
-	return *this;
+	return (Math::FuzzyEqual(lhs.x, rhs.x, epsilon) &&
+			Math::FuzzyEqual(lhs.y, rhs.y, epsilon));
 }
 
-Vector2& Vector2::setX (double x_)
+double Angle (Vector2 vector)
 {
-	x = x_;
+	// Computes the angle in radians with respect to the positive x-axis
 
-	return *this;
+	double angle = std::atan2(vector.y, vector.x);
+
+	if (angle < 0)
+		angle += 2 * M_PI;
+
+	return angle;
 }
 
-Vector2& Vector2::setY (double y_)
+void SetAngle (Vector2 *vector, double angle)
 {
-	y = y_;
-
-	return *this;
+	SetToPolar(vector, angle, Length(*vector));
 }
 
-Vector2& Vector2::set (double x_, double y_)
+void Add (Vector2 *vector, Vector2 source)
 {
-	x = x_;
-	y = y_;
-
-	return *this;
+	vector->x += source.x;
+	vector->y += source.y;
 }
 
-Vector2& Vector2::setTo (double x_)
+void Subtract (Vector2 *vector, Vector2 source)
 {
-	return set(x_);
+	vector->x -= source.x;
+	vector->y -= source.y;
 }
 
-Vector2& Vector2::setTo (double x_, double y_)
+void Multiply (Vector2 *vector, Vector2 source)
 {
-	return set(x_, y_);
+	vector->x *= source.x;
+	vector->y *= source.y;
 }
 
-Vector2& Vector2::setToPolar (double azimuth_, double radius_)
+void Scale (Vector2 *vector, double value)
 {
-	x = std::cos(azimuth_) * radius_;
-	y = std::sin(azimuth_) * radius_;
-
-	return *this;
+	vector->x *= value;
+	vector->y *= value;
 }
 
-bool Vector2::equals (const Vector2& other_)
+void Divide (Vector2 *vector, Vector2 source)
 {
-	return ((x == other_.x) && (y == other_.y));
+	vector->x /= source.x;
+	vector->y /= source.y;
 }
 
-bool Vector2::fuzzyEquals (const Vector2& other_, double epsilon_)
+void Negate (Vector2 *vector)
 {
-	return (Math::Fuzzy::equal(x, other_.x, epsilon_) &&
-			Math::Fuzzy::equal(y, other_.y, epsilon_));
+	vector->x = -vector->x;
+	vector->y = -vector->y;
 }
 
-double Vector2::angle ()
+double Distance (Vector2 vector, Vector2 source)
 {
-	// computes the angle in radians with respect to the positive x-axis
+	double dx = source.x - vector.x;
+	double dy = source.y - vector.y;
 
-	double angle_ = std::atan2(y, x);
-
-	if (angle_ < 0)
-		angle_ += 2 * M_PI;
-
-	return angle_;
+	return std::sqrt(dx * dx + dy * dy);
 }
 
-Vector2& Vector2::setAngle (double angle_)
+double DistanceSq (Vector2 vector, Vector2 source)
 {
-	return setToPolar(angle_, length());
+	double dx = source.x - vector.x;
+	double dy = source.y - vector.y;
+
+	return dx * dx + dy * dy;
 }
 
-Vector2& Vector2::add (const Vector2& source_)
+double Length (Vector2 vector)
 {
-	x += source_.x;
-	y += source_.y;
-
-	return *this;
+	return std::sqrt(vector.x * vector.x + vector.y * vector.y);
 }
 
-Vector2& Vector2::subtract (const Vector2& source_)
+void SetLength (Vector2 *vector, double length)
 {
-	x -= source_.x;
-	y -= source_.y;
+	Normalize(vector);
 
-	return *this;
+	Scale(vector, length);
 }
 
-Vector2& Vector2::multiply (const Vector2& source_)
+double LengthSq (Vector2 vector)
 {
-	x *= source_.x;
-	y *= source_.y;
-
-	return *this;
+	return vector.x * vector.x + vector.y * vector.y;
 }
 
-Vector2& Vector2::scale (double value_)
+void Normalize (Vector2 *vector)
 {
-	x *= value_;
-	y *= value_;
+	double len = vector->x * vector->x + vector->y * vector->y;
 
-	return *this;
-}
-
-Vector2& Vector2::divide (const Vector2& source_)
-{
-	x /= source_.x;
-	y /= source_.y;
-
-	return *this;
-}
-
-Vector2& Vector2::negate ()
-{
-	x = -x;
-	y = -y;
-
-	return *this;
-}
-
-double Vector2::distance (const Vector2& source_)
-{
-	double dx_ = source_.x - x;
-	double dy_ = source_.y - y;
-
-	return std::sqrt(dx_ * dx_ + dy_ * dy_);
-}
-
-double Vector2::distanceSq (const Vector2& source_)
-{
-	double dx_ = source_.x - x;
-	double dy_ = source_.y - y;
-
-	return dx_ * dx_ + dy_ * dy_;
-}
-
-double Vector2::length ()
-{
-	return std::sqrt(x * x + y * y);
-}
-
-Vector2& Vector2::setLength (double length_)
-{
-	return normalize().scale(length_);
-}
-
-double Vector2::lengthSq ()
-{
-	return x * x + y * y;
-}
-
-Vector2& Vector2::normalize ()
-{
-	double len_ = x * x + y * y;
-
-	if (len_ > 0)
+	if (len > 0)
 	{
-		len_ = 1 / std::sqrt(len_);
+		len = 1. / std::sqrt(len);
 
-		x = x * len_;
-		y = y * len_;
+		vector->x = vector->x * len;
+		vector->y = vector->y * len;
 	}
-
-	return *this;
 }
 
-Vector2& Vector2::normalizeRightHand ()
+void NormalizeRightHand (Vector2 *vector)
 {
-	double x_ = x;
+	double x = vector->x;
 
-	x = -y;
-	y = x_;
-
-	return *this;
+	vector->x = -vector->y;
+	vector->y = x;
 }
 
-Vector2& Vector2::normalizeLeftHand ()
+void NormalizeLeftHand (Vector2 *vector)
 {
-	double x_ = x;
+	double x = vector->x;
 
-	x = y;
-	y = -x_;
-
-	return *this;
+	vector->x = vector->y;
+	vector->y = -x;
 }
 
-double Vector2::dot (const Vector2& source_)
+double Dot (Vector2 vector, Vector2 source)
 {
-	return x * source_.x + y * source_.y;
+	return vector.x * source.x + vector.y * source.y;
 }
 
-double Vector2::cross (const Vector2& source_)
+double Cross (Vector2 vector, Vector2 source)
 {
-	return x * source_.x + y * source_.y;
+	return vector.x * source.x + vector.y * source.y;
 }
 
-Vector2& Vector2::lerp (const Vector2& source_, double t_)
+void Lerp (Vector2 *vector, Vector2 source, double t)
 {
-	double ax_ = x;
-	double ay_ = y;
+	double ax = vector->x;
+	double ay = vector->y;
 
-	x = ax_ + t_ * (source_.x - ax_);
-	y = ay_ + t_ * (source_.y - ay_);
-
-	return *this;
+	vector->x = ax + t * (source.x - ax);
+	vector->y = ay + t * (source.y - ay);
 }
 
-Vector2& Vector2::reset ()
+void Limit (Vector2 *vector, double max)
 {
-	x = 0.0;
-	y = 0.0;
+	double len = Length(*vector);
 
-	return *this;
+	if (len && len > max)
+		Scale(vector, max / len);
 }
 
-Vector2& Vector2::limit (double max_)
+void Reflect (Vector2 *vector, Vector2 normal)
 {
-	double len_ = length();
+	Normalize(&normal);
 
-	if (len_ && len_ > max_)
-		scale(max_ / len_);
+	Scale(&normal, 2. * Dot(*vector, normal));
 
-	return *this;
+	Subtract(vector, normal);
 }
 
-Vector2& Vector2::reflect (const Vector2& normal_)
+void Mirror (Vector2 *vector, Vector2 axis)
 {
-	Vector2 vec_ = normal_;
+	Reflect(vector, axis);
 
-	vec_.normalize();
-
-	return subtract(vec_.scale(2.0 * dot(vec_)));
+	Negate(vector);
 }
 
-Vector2& Vector2::mirror (const Vector2& axis_)
+void Rotate (Vector2 *vector, double delta)
 {
-	return reflect(axis_).negate();
-}
+	double cos = std::cos(delta);
+	double sin = std::sin(delta);
 
-Vector2& Vector2::rotate (double delta_)
-{
-	double cos_ = std::cos(delta_);
-	double sin_ = std::sin(delta_);
-
-	return set(cos_ * x - sin_ * y, sin_ * x + cos_ * y);
+	vector->x = cos * vector->x - sin * vector->y;
+	vector->y = sin * vector->x + cos * vector->y;
 }
 
 }	// namespace Math

@@ -10,7 +10,6 @@
 
 namespace Zen {
 namespace Math {
-namespace Angle {
 
 /**
  * Wrap an angle in degrees.
@@ -23,9 +22,8 @@ namespace Angle {
  *
  * @return The wrapped angle, in degrees.
  */
-double wrapDegrees (double angle);
+double WrapDegrees (double angle);
 
-}	// namespace Angle
 }	// namespace Math
 }	// namespace Zen
 

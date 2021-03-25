@@ -20,7 +20,7 @@ namespace Math {
  *
  * @return The given angle converted to radians.
  */
-double degToRad (double degrees);
+double DegToRad (double degrees);
 
 }	// namespace Math
 }	// namespace Zen

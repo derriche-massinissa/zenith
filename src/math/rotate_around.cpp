@@ -11,13 +11,13 @@
 namespace Zen {
 namespace Math {
 
-Math::Vector2 rotateAround (Math::Vector2 point, int x, int y, double angle)
+Math::Vector2 RotateAround (Math::Vector2 point, double x, double y, double angle)
 {
 	double c = std::cos(angle);
 	double s = std::sin(angle);
 
-	int tx = point.x - x;
-	int ty = point.y - y;
+	double tx = point.x - x;
+	double ty = point.y - y;
 
 	point.x = tx * c - ty * s + x;
 	point.y = tx * s - ty * c + y;

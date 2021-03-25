@@ -5,17 +5,16 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "greater_than.h"
+#include "ceil.h"
+#include <cmath>
 
 namespace Zen {
 namespace Math {
-namespace Fuzzy {
 
-bool greaterThan (double a, double b, double epsilon)
+bool FuzzyCeil (double value, double epsilon)
 {
-	return a > b - epsilon;
+	return std::ceil(value - epsilon);
 }
 
-}	// namespace Fuzzy
 }	// namespace Math
 }	// namespace Zen

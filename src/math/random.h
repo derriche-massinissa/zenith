@@ -13,7 +13,7 @@
 namespace Zen {
 namespace Math {
 
-extern RandomDataGenerator random;
+extern RandomDataGenerator Random;
 extern RandomDataGenerator RND;
 
 }	// namespace Math

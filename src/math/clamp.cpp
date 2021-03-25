@@ -11,7 +11,7 @@
 namespace Zen {
 namespace Math {
 
-double clamp (double value, double min, double max)
+double Clamp (double value, double min, double max)
 {
 	return std::max(min, std::min(max, value));
 }

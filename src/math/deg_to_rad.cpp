@@ -11,7 +11,7 @@
 namespace Zen {
 namespace Math {
 
-double degToRad (double degrees)
+double DegToRad (double degrees)
 {
     return degrees * DEG_TO_RAD;
 }
