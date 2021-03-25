@@ -8,7 +8,7 @@
 #ifndef ZEN_GAMEOBJECTS_SYSTEMS_SIZE_HPP
 #define ZEN_GAMEOBJECTS_SYSTEMS_SIZE_HPP
 
-#include "../../texture/frame.h"
+#include "../../ecs/entity.hpp"
 
 namespace Zen {
 
@@ -20,7 +20,7 @@ void SetDisplayWidth (Entity entity, double value);
 
 void SetDisplayHeight (Entity entity, double value);
 
-void SetSizeToFrame (Entity entity, Textures::Frame* frame = nullptr);
+void SetSizeToFrame (Entity entity, Entity frame = entt::null);
 
 void SetSize (Entity entity, double width, double height);
 

@@ -13,33 +13,11 @@
 #include "../../geom/rectangle.h"
 #include "../../math/vector2.h"
 #include "../../math/rotate_around.h"
-
 #include "size.hpp"
 
 namespace Zen {
 
-static Math::Vector2 PrepareBoundsOutput (Math::Vector2 vector, bool includeParent)
-{
-	auto transform = registry.try_get<TransformComponent>(entity);
-	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
-
-	if (transform->rotation != 0)
-		vector = Math::RotateAround(vector, transform->x, transform->y, transform->rotation);
-
-	auto container = registry.try_get<ContainerItemComponent>(entity);
-
-	if (includeParent && container)
-	{
-		/*
-		 * TODO
-		auto parentMatrix = container->parent->getBoundsTransformMatrix();
-
-		parentMatrix.transformPoint(vector.x, vector.y, vector);
-		*/
-	}
-
-	return input;
-}
+static Math::Vector2 PrepareBoundsOutput (Math::Vector2 vector, bool includeParent);
 
 /**
  * Gets the center coordinate of this Game Object, regardless of origin.
@@ -49,22 +27,7 @@ static Math::Vector2 PrepareBoundsOutput (Math::Vector2 vector, bool includePare
  *
  * @return The values stored in the output object.
  */
-Math::Vector2 GetCenter (Entity entity)
-{
-	auto transform = registry.try_get<TransformComponent>(entity);
-	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
-
-	Math::Vector2 output;
-
-	output.x = transform->x -
-		GetDisplayWidth(entity) * GetOriginX(entity) +
-		GetDisplayWidth(entity) / 2.0;
-	output.y = transform->y -
-		GetDisplayHeight(entity) * GetOriginY(entity) +
-		GetDisplayHeight(entity) / 2.0;
-
-	return output;
-}
+Math::Vector2 GetCenter (Entity entity);
 
 /**
  * Gets the top-left corner coordinate of this Game Object, regardless of
@@ -81,225 +44,23 @@ Math::Vector2 GetCenter (Entity entity)
  *
  * @return The values stored in the output object.
  */
-Math::Vector2 GetTopLeft (Entity entity, bool includeParent)
-{
-	auto transform = registry.try_get<TransformComponent>(entity);
-	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
+Math::Vector2 GetTopLeft (Entity entity, bool includeParent);
 
-	Math::Vector2 output;
+Math::Vector2 GetTopCenter (Entity entity, bool includeParent);
 
-	output.x = transform->x - GetDisplayWidth(entity) * GetOriginX(entity);
-	output.y = transform->y - GetDisplayHeight(entity) * GetOriginY(entity);
+Math::Vector2 GetTopRight (Entity entity, bool includeParent);
 
-	return PrepareBoundsOutput(output, includeParent);
-}
+Math::Vector2 GetLeftCenter (Entity entity, bool includeParent);
 
-Math::Vector2 GetTopCenter (Entity entity, bool includeParent)
-{
-	auto transform = registry.try_get<TransformComponent>(entity);
-	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
+Math::Vector2 GetRightCenter (Entity entity, bool includeParent);
 
-	Math::Vector2 output;
+Math::Vector2 GetBottomLeft (Entity entity, bool includeParent);
 
-	output.x = transform->x -
-		(GetDisplayWidth(entity) * GetOriginX(entity)) +
-		(GetDisplayWidth(entity) / 2.0);
+Math::Vector2 GetBottomCenter (Entity entity, bool includeParent);
 
-	output.y = transform->y -
-		(GetDisplayHeight(entity) * GetOriginY(entity));
+Math::Vector2 GetBottomRight (Entity entity, bool includeParent);
 
-	return PrepareBoundsOutput(output, includeParent);
-}
-
-Math::Vector2 GetTopRight (Entity entity, bool includeParent)
-{
-	auto transform = registry.try_get<TransformComponent>(entity);
-	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
-
-	Math::Vector2 output;
-
-	output.x =
-		transform->x -
-		(GetDisplayWidth(entity) * GetOriginX(entity)) +
-		GetDisplayWidth(entity);
-
-	output.y =
-		transform->y -
-		(GetDisplayHeight(entity) * GetOriginY(entity));
-
-	return PrepareBoundsOutput(output, includeParent);
-}
-
-Math::Vector2 GetLeftCenter (Entity entity, bool includeParent)
-{
-	auto transform = registry.try_get<TransformComponent>(entity);
-	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
-
-	Math::Vector2 output;
-
-	output.x =
-		transform->x -
-		(GetDisplayWidth(entity) * GetOriginX(entity));
-
-	output.y =
-		transform->y -
-		(GetDisplayHeight(entity) * GetOriginY(entity)) +
-		(GetDisplayHeight(entity) / 2.0);
-
-	return PrepareBoundsOutput(output, includeParent);
-}
-
-Math::Vector2 GetRightCenter (Entity entity, bool includeParent)
-{
-	auto transform = registry.try_get<TransformComponent>(entity);
-	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
-
-	Math::Vector2 output;
-
-	output.x =
-		transform->x -
-		(GetDisplayWidth(entity) * GetOriginX(entity)) +
-		GetDisplayWidth(entity);
-
-	output.y =
-		transform->y -
-		(GetDisplayHeight(entity) * GetOriginY(entity)) +
-		(GetDisplayHeight(entity) / 2.0);
-
-	return PrepareBoundsOutput(output, includeParent);
-}
-
-Math::Vector2 GetBottomLeft (Entity entity, bool includeParent)
-{
-	auto transform = registry.try_get<TransformComponent>(entity);
-	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
-
-	Math::Vector2 output;
-
-	output.x =
-		transform->x -
-		(GetDisplayWidth(entity) * GetOriginX(entity));
-
-	output.y =
-		transform->y -
-		(GetDisplayHeight(entity) * GetOriginY(entity)) +
-		GetDisplayHeight(entity);
-
-	return PrepareBoundsOutput(output, includeParent);
-}
-
-Math::Vector2 GetBottomCenter (Entity entity, bool includeParent)
-{
-	auto transform = registry.try_get<TransformComponent>(entity);
-	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
-
-	Math::Vector2 output;
-
-	output.x =
-		transform->x -
-		(GetDisplayWidth(entity) * GetOriginX(entity)) +
-		(GetDisplayWidth(entity) / 2.0);
-
-	output.y =
-		transform->y -
-		(GetDisplayHeight(entity) * GetOriginY(entity)) +
-		GetDisplayHeight(entity);
-
-	return PrepareBoundsOutput(output, includeParent);
-}
-
-Math::Vector2 GetBottomRight (Entity entity, bool includeParent)
-{
-	auto transform = registry.try_get<TransformComponent>(entity);
-	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
-
-	Math::Vector2 output;
-
-	output.x =
-		transform->x -
-		(GetDisplayWidth(entity) * GetOriginX(entity)) +
-		GetDisplayWidth(entity);
-
-	output.y =
-		transform->y -
-		(GetDisplayHeight(entity) * GetOriginY(entity)) +
-		GetDisplayHeight(entity);
-
-	return PrepareBoundsOutput(output, includeParent);
-}
-
-Geom::Rectangle GetBounds (Entity entity)
-{
-	auto transform = registry.try_get<TransformComponent>(entity);
-	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
-
-	Geom::Rectangle output;
-
-	int TLx, TLy, TRx, TRy, BLx, BLy, BRx, BRy;
-
-	// Is this entity an item of a container
-	auto item = registry.try_get<ContainerItemComponent>(entity);
-	if (item)
-	{
-		auto parent = item->parent;
-		auto parentTransform = registry.try_get<TransformComponent>(parent);
-
-		auto& parentMatrix = item->parent->getBoundsTransformMatrix();
-
-		output = GetTopLeft(entity);
-		output = parentMatrix.transformPoint(output.x, output.y, output);
-
-		TLx = output.x;
-		TLy = output.y;
-
-		output = GetTopRight(entity);
-		output = parentMatrix.transformPoint(output.x, output.y, output);
-
-		TRx = output.x;
-		TRy = output.y;
-
-		output = GetBottomLeft(entity);
-		output = parentMatrix.transformPoint(output.x, output.y, output);
-
-		BLx = output.x;
-		BLy = output.y;
-
-		output = GetBottomRight(entity);
-		output = parentMatrix.transformPoint(output.x, output.y, output);
-
-		BRx = output.x;
-		BRy = output.y;
-	}
-	else
-	{
-		output = GetTopLeft(entity);
-
-		TLx = output.x;
-		TLy = output.y;
-
-		output = GetTopRight(entity);
-
-		TRx = output.x;
-		TRy = output.y;
-
-		output = GetBottomLeft(entity);
-
-		BLx = output.x;
-		BLy = output.y;
-
-		output = GetBottomRight(entity);
-
-		BRx = output.x;
-		BRy = output.y;
-	}
-
-	output.x = std::min(TLx, std::min(TRx, std::min(BLx, BRx)));
-	output.y = std::min(TLy, std::min(TRy, std::min(BLy, BRy)));
-	output.width = std::max(TLx, std::min(TRx, std::min(BLx, BRx))) - output.x;
-	output.height = std::max(TLy, std::min(TRy, std::min(BLy, BRy))) - output.y;
-
-	return output;
-}
+Geom::Rectangle GetBounds (Entity entity);
 
 }	// namespace Zen
 
