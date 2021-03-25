@@ -1,470 +1,377 @@
 /**
  * @file
- * @author		__AUTHOR_NAME__ <mail@host.com>
- * @copyright	2021 __COMPANY_LTD__
+ * @author		__AUTHOR_NAME_ <mail@host.com>
+ * @copyright	2021 __COMPANY_LTD_
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "transform_matrix.h"
+#include "transform_matrix.hpp"
+
+#include <cmath>
+#include "../../math/const.h"
 
 namespace Zen {
-namespace GameObjects {
-namespace Components {
 
-TransformMatrix::TransformMatrix (double a_, double b_, double c_, double d_, double tx_, double ty_)
+TransformMatrix (TransformMatrix matrix, double a, double b, double c, double d, double tx, double ty)
 {
-	for (int i = 0; i < 6; i ++)
-		matrix.emplace_back(0);
-
-	setTransform (a_, b_, c_, d_, tx_, ty_);
+	SetTransform (a, b, c, d, tx, ty);
 }
 
-double TransformMatrix::getA () const
+double GetTx (TransformMatrix matrix)
 {
-	return matrix[0];
+	return matrix.e;
 }
 
-TransformMatrix& TransformMatrix::setA (double value_)
+void SetTx (TransformMatrix *matrix, double value)
 {
-	matrix[0] = value_;
-
-	return *this;
+	matrix->e = value;
 }
 
-double TransformMatrix::getB () const
+double GetTy (TransformMatrix matrix)
 {
-	return matrix[1];
+	return matrix.f;
 }
 
-TransformMatrix& TransformMatrix::setB (double value_)
+void SetTy (TransformMatrix *matrix, double value)
 {
-	matrix[1] = value_;
-
-	return *this;
+	matrix->f = value;
 }
 
-double TransformMatrix::getC () const
+double GetRotation (TransformMatrix matrix)
 {
-	return matrix[2];
+	int direction = 0;
+
+	if (std::atan(-matrix.c / matrix.a) < 0)
+		direction = -1;
+	else
+		direction = 1;
+
+	return std::acos(matrix.a / GetScaleX(matrix)) * direction;
 }
 
-TransformMatrix& TransformMatrix::setC (double value_)
+double GetRotationNormalized (TransformMatrix matrix)
 {
-	matrix[2] = value_;
+	double a = matrix.a;
+	double b = matrix.b;
+	double c = matrix.c;
+	double d = matrix.d;
 
-	return *this;
-}
-
-double TransformMatrix::getD () const
-{
-	return matrix[3];
-}
-
-TransformMatrix& TransformMatrix::setD (double value_)
-{
-	matrix[3] = value_;
-
-	return *this;
-}
-
-double TransformMatrix::getE () const
-{
-	return matrix[4];
-}
-
-TransformMatrix& TransformMatrix::setE (double value_)
-{
-	matrix[4] = value_;
-
-	return *this;
-}
-
-double TransformMatrix::getF () const
-{
-	return matrix[5];
-}
-
-TransformMatrix& TransformMatrix::setF (double value_)
-{
-	matrix[5] = value_;
-
-	return *this;
-}
-
-double TransformMatrix::getTx () const
-{
-	return matrix[4];
-}
-
-TransformMatrix& TransformMatrix::setTx (double value_)
-{
-	matrix[4] = value_;
-
-	return *this;
-}
-
-double TransformMatrix::getTy () const
-{
-	return matrix[5];
-}
-
-TransformMatrix& TransformMatrix::setTy (double value_)
-{
-	matrix[5] = value_;
-
-	return *this;
-}
-
-double TransformMatrix::getRotation () const
-{
-	return std::acos(getA() / getScaleX()) * ((std::atan(-getC() / getA()) < 0) ? -1 : 1);
-}
-
-double TransformMatrix::getRotationNormalized () const
-{
-	double a_ = matrix[0];
-	double b_ = matrix[1];
-	double c_ = matrix[2];
-	double d_ = matrix[3];
-
-	if (a_ || b_) {
-		return (b_ > 0) ? std::acos(a_ / getScaleX()) : -std::acos(a_ / getScaleX());
-	} else if (c_ || d_) {
-		return Math::TAU - ((d_ > 0) ? std::acos(-c_ / getScaleY()) : -std::acos(c_ / getScaleY()));
-	} else {
+	if (a || b)
+	{
+		return (b > 0) ? std::acos(a / GetScaleX(matrix)) : -std::acos(a / GetScaleX(matrix));
+	}
+	else if (c || d)
+	{
+		return Math::TAU - ((d > 0) ? std::acos(-c / GetScaleY(matrix)) : -std::acos(c / GetScaleY(matrix)));
+	}
+	else
+	{
 		return 0;
 	}
 }
 
-double TransformMatrix::getScaleX () const
+double GetScaleX (TransformMatrix matrix)
 {
-	return std::sqrt((getA() * getA()) + (getB() * getB()));
+	return std::sqrt((matrix.a * matrix.a) + (matrix.b * matrix.b));
 }
 
-double TransformMatrix::getScaleY () const
+double GetScaleY (TransformMatrix matrix)
 {
-	return std::sqrt((getC() * getC()) + (getD() * getD()));
+	return std::sqrt((matrix.c * matrix.c) + (matrix.d * matrix.d));
 }
 
-TransformMatrix& TransformMatrix::loadIdentity ()
+void LoadIdentity (TransformMatrix *matrix)
 {
-	matrix[0] = 1;
-	matrix[1] = 0;
-	matrix[2] = 0;
-	matrix[3] = 1;
-	matrix[4] = 0;
-	matrix[5] = 0;
+	matrix->a = 1;
+	matrix->b = 0;
+	matrix->c = 0;
+	matrix->d = 1;
+	matrix->e = 0;
+	matrix->f = 0;
+}
+
+void Translate (TransformMatrix *matrix, double x, double y)
+{
+	matrix->e = matrix->a * x + matrix->c * y + matrix->e;
+	matrix->f = matrix->b * x + matrix->d * y + matrix->f;
+}
+
+void Scale (TransformMatrix *matrix, double x, double y)
+{
+	matrix->a *= x;
+	matrix->b *= x;
+	matrix->c *= y;
+	matrix->d *= y;
+}
+
+void Rotate (TransformMatrix *matrix, double angle)
+{
+	double sin = std::sin(angle);
+	double cos = std::cos(angle);
+
+	double a = matrix->a;
+	double b = matrix->b;
+	double c = matrix->c;
+	double d = matrix->d;
+
+	matrix->a = a * cos + c * sin;
+	matrix->b = b * cos + d * sin;
+	matrix->c = a * -sin + c * cos;
+	matrix->d = b * -sin + d * cos;
+}
+
+void Multiply (TransformMatrix *matrix, TransformMatrix source)
+{
+	double localA = matrix->a;
+	double localB = matrix->b;
+	double localC = matrix->c;
+	double localD = matrix->d;
+	double localE = matrix->e;
+	double localF = matrix->f;
+
+	matrix->a = (source.a * localA) + (source.b * localC);
+	matrix->b = (source.a * localB) + (source.b * localD);
+	matrix->c = (source.c * localA) + (source.d * localC);
+	matrix->d = (source.c * localB) + (source.d * localD);
+	matrix->e = (source.e * localA) + (source.f * localC) + localE;
+	matrix->f = (source.e * localB) + (source.f * localD) + localF;
+}
+
+void MultiplyWithOffset (TransformMatrix *matrix, TransformMatrix source, double offsetX, double offsetY)
+{
+	double a0 = matrix.a;
+	double b0 = matrix.b;
+	double c0 = matrix.c;
+	double d0 = matrix.d;
+	double tx0 = matrix.e;
+	double ty0 = matrix.f;
+
+	double pse = offsetX * a0 + offsetY * c0 + tx0;
+	double psf = offsetX * b0 + offsetY * d0 + ty0;
+
+	double a1 = source.a;
+	double b1 = source.b;
+	double c1 = source.c;
+	double d1 = source.d;
+	double tx1 = source.e;
+	double ty1 = source.f;
+
+	matrix->a = a1 * a0 + b1 * c0;
+	matrix->b = a1 * b0 + b1 * d0;
+	matrix->c = c1 * a0 + d1 * c0;
+	matrix->d = c1 * b0 + d1 * d0;
+	matrix->e = tx1 * a0 + ty1 * c0 + pse;
+	matrix->f = tx1 * b0 + ty1 * d0 + psf;
+}
+
+void Transform (TransformMatrix *matrix, double a, double b, double c, double d, double tx, double ty)
+{
+	double a0 = matrix.a;
+	double b0 = matrix.b;
+	double c0 = matrix.c;
+	double d0 = matrix.d;
+	double tx0 = matrix.e;
+	double ty0 = matrix.f;
+
+	matrix->a = a * a0 + b * c0;
+	matrix->b = a * b0 + b * d0;
+	matrix->c = c * a0 + d * c0;
+	matrix->d = c * b0 + d * d0;
+	matrix->e = tx * a0 + ty * c0 + tx0;
+	matrix->f = tx * b0 + ty * d0 + ty0;
+}
+
+Math::Vector2 TransformPoint (TransformMatrix matrix, double x, double y)
+{
+	Math::Vector2 point (x, y);
+
+	double a = matrix.a;
+	double b = matrix.b;
+	double c = matrix.c;
+	double d = matrix.d;
+	double tx = matrix.e;
+	double ty = matrix.f;
+
+	point.x = x * a + y * c + tx;
+	point.y = x * b + y * d + ty;
+
+	return point;
+}
+
+void Invert (TransformMatrix matrix)
+{
+	double a = matrix.a;
+	double b = matrix.b;
+	double c = matrix.c;
+	double d = matrix.d;
+	double tx = matrix.e;
+	double ty = matrix.f;
+
+	double n = a * d - b * c;
+
+	setA( d / n);
+	setB( -b / n);
+	setC( -c / n);
+	setD( a / n);
+	setE( (c * ty - d * tx) / n);
+	setF( -(a * ty - b * tx) / n);
 
 	return *this;
 }
 
-TransformMatrix& TransformMatrix::translate (double x_, double y_)
+void CopyFrom (TransformMatrix matrix, const TransformMatrix& src)
 {
-	matrix[4] = matrix[0] * x_ + matrix[2] * y_ + matrix[4];
-	matrix[5] = matrix[1] * x_ + matrix[3] * y_ + matrix[5];
+	setA( src.getA() );
+	setB( src.getB() );
+	setC( src.getC() );
+	setD( src.getD() );
+	setE( src.getE() );
+	setF( src.getF() );
 
 	return *this;
 }
 
-TransformMatrix& TransformMatrix::scale (double x_, double y_)
+void CopyFromArray (TransformMatrix matrix, double src[])
 {
-	matrix[0] *= x_;
-	matrix[1] *= x_;
-	matrix[2] *= y_;
-	matrix[3] *= y_;
+	setA( src[0] );
+	setB( src[1] );
+	setC( src[2] );
+	setD( src[3] );
+	setE( src[4] );
+	setF( src[5] );
 
 	return *this;
 }
 
-TransformMatrix& TransformMatrix::rotate (double angle_)
+void CopyFromVector (TransformMatrix matrix, std::vector<double> src)
 {
-	double sin_ = std::sin(angle_);
-	double cos_ = std::cos(angle_);
-
-	double a_ = matrix[0];
-	double b_ = matrix[1];
-	double c_ = matrix[2];
-	double d_ = matrix[3];
-
-	matrix[0] = a_ * cos_ + c_ * sin_;
-	matrix[1] = b_ * cos_ + d_ * sin_;
-	matrix[2] = a_ * -sin_ + c_ * cos_;
-	matrix[3] = b_ * -sin_ + d_ * cos_;
+	setA( src.at(0) );
+	setB( src.at(1) );
+	setC( src.at(2) );
+	setD( src.at(3) );
+	setE( src.at(4) );
+	setF( src.at(5) );
 
 	return *this;
 }
 
-TransformMatrix& TransformMatrix::multiply (const TransformMatrix& rhs_)
-{
-	std::vector<double> source_ = rhs_.getVector();
-
-	double localA_ = matrix.at(0);
-	double localB_ = matrix.at(1);
-	double localC_ = matrix.at(2);
-	double localD_ = matrix.at(3);
-	double localE_ = matrix.at(4);
-	double localF_ = matrix.at(5);
-
-	double sourceA_ = source_.at(0);
-	double sourceB_ = source_.at(1);
-	double sourceC_ = source_.at(2);
-	double sourceD_ = source_.at(3);
-	double sourceE_ = source_.at(4);
-	double sourceF_ = source_.at(5);
-
-	setA( (sourceA_ * localA_) + (sourceB_ * localC_) );
-	setB( (sourceA_ * localB_) + (sourceB_ * localD_) );
-	setC( (sourceC_ * localA_) + (sourceD_ * localC_) );
-	setD( (sourceC_ * localB_) + (sourceD_ * localD_) );
-	setE( (sourceE_ * localA_) + (sourceF_ * localC_) + localE_ );
-	setF( (sourceE_ * localB_) + (sourceF_ * localD_) + localF_ );
-
-	return *this;
-}
-
-TransformMatrix& TransformMatrix::multiplyWithOffset (const TransformMatrix& src_, double offsetX_, double offsetY_)
-{
-	auto otherMatrix_ = src_.getVector();
-
-	double a0_ = matrix[0];
-	double b0_ = matrix[1];
-	double c0_ = matrix[2];
-	double d0_ = matrix[3];
-	double tx0_ = matrix[4];
-	double ty0_ = matrix[5];
-
-	double pse_ = offsetX_ * a0_ + offsetY_ * c0_ + tx0_;
-	double psf_ = offsetX_ * b0_ + offsetY_ * d0_ + ty0_;
-
-	double a1_ = otherMatrix_[0];
-	double b1_ = otherMatrix_[1];
-	double c1_ = otherMatrix_[2];
-	double d1_ = otherMatrix_[3];
-	double tx1_ = otherMatrix_[4];
-	double ty1_ = otherMatrix_[5];
-
-	setA( a1_ * a0_ + b1_ * c0_);
-	setB( a1_ * b0_ + b1_ * d0_);
-	setC( c1_ * a0_ + d1_ * c0_);
-	setD( c1_ * b0_ + d1_ * d0_);
-	setE( tx1_ * a0_ + ty1_ * c0_ + pse_);
-	setF( tx1_ * b0_ + ty1_ * d0_ + psf_);
-
-	return *this;
-}
-
-TransformMatrix& TransformMatrix::transform (double a_, double b_, double c_, double d_, double tx_, double ty_)
-{
-	double a0_ = matrix[0];
-	double b0_ = matrix[1];
-	double c0_ = matrix[2];
-	double d0_ = matrix[3];
-	double tx0_ = matrix[4];
-	double ty0_ = matrix[5];
-
-	setA( a_ * a0_ + b_ * c0_);
-	setB( a_ * b0_ + b_ * d0_);
-	setC( c_ * a0_ + d_ * c0_);
-	setD( c_ * b0_ + d_ * d0_);
-	setE( tx_ * a0_ + ty_ * c0_ + tx0_);
-	setF( tx_ * b0_ + ty_ * d0_ + ty0_);
-
-	return *this;
-}
-
-Math::Vector2 TransformMatrix::transformPoint (double x_, double y_) const
-{
-	Math::Vector2 point_ (x_, y_);
-
-	double a_ = matrix[0];
-	double b_ = matrix[1];
-	double c_ = matrix[2];
-	double d_ = matrix[3];
-	double tx_ = matrix[4];
-	double ty_ = matrix[5];
-
-	point_.x = x_ * a_ + y_ * c_ + tx_;
-	point_.y = x_ * b_ + y_ * d_ + ty_;
-
-	return point_;
-}
-
-TransformMatrix& TransformMatrix::invert ()
-{
-	double a_ = matrix[0];
-	double b_ = matrix[1];
-	double c_ = matrix[2];
-	double d_ = matrix[3];
-	double tx_ = matrix[4];
-	double ty_ = matrix[5];
-
-	double n_ = a_ * d_ - b_ * c_;
-
-	setA( d_ / n_);
-	setB( -b_ / n_);
-	setC( -c_ / n_);
-	setD( a_ / n_);
-	setE( (c_ * ty_ - d_ * tx_) / n_);
-	setF( -(a_ * ty_ - b_ * tx_) / n_);
-
-	return *this;
-}
-
-TransformMatrix& TransformMatrix::copyFrom (const TransformMatrix& src_)
-{
-	setA( src_.getA() );
-	setB( src_.getB() );
-	setC( src_.getC() );
-	setD( src_.getD() );
-	setE( src_.getE() );
-	setF( src_.getF() );
-
-	return *this;
-}
-
-TransformMatrix& TransformMatrix::copyFromArray (double src_[])
-{
-	setA( src_[0] );
-	setB( src_[1] );
-	setC( src_[2] );
-	setD( src_[3] );
-	setE( src_[4] );
-	setF( src_[5] );
-
-	return *this;
-}
-
-TransformMatrix& TransformMatrix::copyFromVector (std::vector<double> src_)
-{
-	setA( src_.at(0) );
-	setB( src_.at(1) );
-	setC( src_.at(2) );
-	setD( src_.at(3) );
-	setE( src_.at(4) );
-	setF( src_.at(5) );
-
-	return *this;
-}
-
-std::vector<double> TransformMatrix::getVector () const
+std::vector<double> GetVector (TransformMatrix matrix)
 {
 	return matrix;
 }
 
-TransformMatrix& TransformMatrix::setTransform (double a_, double b_, double c_, double d_, double tx_, double ty_)
+void SetTransform (TransformMatrix matrix, double a, double b, double c, double d, double tx, double ty)
 {
-	setA( a_ );
-	setB( b_ );
-	setC( c_ );
-	setD( d_ );
-	setTx( tx_ );
-	setTy( ty_ );
+	setA( a );
+	setB( b );
+	setC( c );
+	setD( d );
+	setTx( tx );
+	setTy( ty );
 
 	return *this;
 }
 
-DecomposedMatrix TransformMatrix::decomposeMatrix () const
+DecomposedMatrix DecomposeMatrix (TransformMatrix matrix)
 {
-	DecomposedMatrix decomposedMatrix_;
+	DecomposedMatrix decomposedMatrix;
 
-	double a_ = getA();
-	double b_ = getB();
-	double c_ = getC();
-	double d_ = getD();
+	double a = getA();
+	double b = getB();
+	double c = getC();
+	double d = getD();
 
-	double determinant_ = a_ * d_ - b_ * c_;
+	double determinant = a * d - b * c;
 
-	decomposedMatrix_.translateX = getE();
-	decomposedMatrix_.translateY = getF();
+	decomposedMatrix.translateX = getE();
+	decomposedMatrix.translateY = getF();
 
-	if (a_ || b_) {
-		double r_ = std::sqrt(a_ * a_ + b_ * b_);
+	if (a || b) {
+		double r = std::sqrt(a * a + b * b);
 
-		decomposedMatrix_.rotation = (b_ > 0) ? std::acos(a_ / r_) : -std::acos(a_ / r_);
-		decomposedMatrix_.scaleX = r_;
-		decomposedMatrix_.scaleY = determinant_ / r_;
-	} else if (c_ || d_) {
-		double s_ = std::sqrt(c_ * c_ + d_ * d_);
+		decomposedMatrix.rotation = (b > 0) ? std::acos(a / r) : -std::acos(a / r);
+		decomposedMatrix.scaleX = r;
+		decomposedMatrix.scaleY = determinant / r;
+	} else if (c || d) {
+		double s = std::sqrt(c * c + d * d);
 
-		decomposedMatrix_.rotation = M_PI * 0.5 - (d_ > 0 ? std::acos(-c_ / s_) : -std::acos(c_ / s_));
-		decomposedMatrix_.scaleX = determinant_ / s_;
-		decomposedMatrix_.scaleY = s_;
+		decomposedMatrix.rotation = M_PI * 0.5 - (d > 0 ? std::acos(-c / s) : -std::acos(c / s));
+		decomposedMatrix.scaleX = determinant / s;
+		decomposedMatrix.scaleY = s;
 	} else {
-		decomposedMatrix_.rotation = 0;
-		decomposedMatrix_.scaleX = 0;
-		decomposedMatrix_.scaleY = 0;
+		decomposedMatrix.rotation = 0;
+		decomposedMatrix.scaleX = 0;
+		decomposedMatrix.scaleY = 0;
 	}
 
-	return decomposedMatrix_;
+	return decomposedMatrix;
 }
 
-TransformMatrix& TransformMatrix::applyITRS (double x_, double y_, double rotation_, double scaleX_, double scaleY_)
+void ApplyITRS (TransformMatrix matrix, double x, double y, double rotation, double scaleX, double scaleY)
 {
-	double radianSin_ = std::sin(rotation_);
-	double radianCos_ = std::cos(rotation_);
+	double radianSin = std::sin(rotation);
+	double radianCos = std::cos(rotation);
 
 	// Translate
-	setTx( x_ );
-	setTy( y_ );
+	setTx( x );
+	setTy( y );
 
 	// Rotate and Scale
-	setA( radianCos_ * scaleX_ );
-	setB( radianSin_ * scaleX_ );
-	setC( -radianSin_ * scaleY_ );
-	setD( radianCos_ * scaleY_ );
+	setA( radianCos * scaleX );
+	setB( radianSin * scaleX );
+	setC( -radianSin * scaleY );
+	setD( radianCos * scaleY );
 
 	return *this;
 }
 
-Math::Vector2 TransformMatrix::applyInverse (double x_, double y_)
+Math::Vector2 ApplyInverse (TransformMatrix matrix, double x, double y)
 {
-	Math::Vector2 output_;
+	Math::Vector2 output;
 
-	double a_ = matrix[0];
-	double b_ = matrix[1];
-	double c_ = matrix[2];
-	double d_ = matrix[3];
-	double tx_ = matrix[4];
-	double ty_ = matrix[5];
+	double a = matrix.a;
+	double b = matrix.b;
+	double c = matrix.c;
+	double d = matrix.d;
+	double tx = matrix.e;
+	double ty = matrix.f;
 
-	double id_ = 1 / ((a_ * d_) + (c_ * -b_));
+	double id = 1 / ((a * d) + (c * -b));
 
-	output_.x = (d_ * id_ * x_) + (-c_ * id_ * y_) + (((ty_ * c_) - (tx_ * d_)) * id_);
-	output_.y = (a_ * id_ * y_) + (-b_ * id_ * x_) + (((-ty_ * a_) + (tx_ * b_)) * id_);
+	output.x = (d * id * x) + (-c * id * y) + (((ty * c) - (tx * d)) * id);
+	output.y = (a * id * y) + (-b * id * x) + (((-ty * a) + (tx * b)) * id);
 
-	return output_;
+	return output;
 }
 
-double TransformMatrix::getX (double x_, double y_) const
+double GetX (TransformMatrix matrix, double x, double y)
 {
-	return x_ * getA() + y_ * getC() + getE();
+	return x * getA() + y * getC() + getE();
 }
 
-double TransformMatrix::getY (double x_, double y_) const
+double GetY (TransformMatrix matrix, double x, double y)
 {
-	return x_ * getB() + y_ * getD() + getF();
+	return x * getB() + y * getD() + getF();
 }
 
-int TransformMatrix::getXRound (double x_, double y_, bool round_) const
+int GetXRound (TransformMatrix matrix, double x, double y, bool round)
 {
-	double v_ = getX(x_, y_);
+	double v = getX(x, y);
 
-	if (round_)
-		v_ = std::round(v_);
+	if (round)
+		v = std::round(v);
 
-	return v_;
+	return v;
 }
 
-int TransformMatrix::getYRound (double x_, double y_, bool round_) const
+int GetYRound (TransformMatrix matrix, double x, double y, bool round)
 {
-	double v_ = getY(x_, y_);
+	double v = getY(x, y);
 
-	if (round_)
-		v_ = std::round(v_);
+	if (round)
+		v = std::round(v);
 
-	return v_;
+	return v;
 }
 
-}	// namespace Components
-}	// namespace GameObjects
 }	// namespace Zen

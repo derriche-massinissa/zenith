@@ -219,7 +219,7 @@ Frame& Frame::setUVs (int width_, int height_, double u0_, double v0_, double u1
 	cd_.height = height_;
 
 	//  WebGL data
-      
+
 	u0 = u0_;
 	v0 = v0_;
 

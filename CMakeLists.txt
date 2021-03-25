@@ -229,6 +229,7 @@ set_target_properties(${PROJECT_NAME}
 	PROPERTIES LINKER_LANGUAGE CXX
 	)
 
+# JSON C++
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 add_subdirectory(includes/json)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
