@@ -3,3 +3,5 @@ dist
 docs
 **/Session.vim
 **/tags
+compile_commands.json
+.cache
