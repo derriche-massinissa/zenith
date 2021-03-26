@@ -5,15 +5,16 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "window.h"
+#include "window.hpp"
 
-#include "../core/game.h"
-#include "../core/config.h"
+#include "../core/config.hpp"
+#include "../utils/messages.hpp"
+#include <utility>
 
 namespace Zen {
 
-Window::Window (Game& game_)
-	: game(game_)
+Window::Window (GameConfig& cfg)
+	: config (cfg)
 {}
 
 Window::~Window ()
@@ -46,30 +47,30 @@ int Window::create ()
 	if (initSdl()) {
 		return 1;
 	} else if (initSdlImg()) {
-		cleanup(CLEANUP::SDL);
+		cleanup(WINDOW_CLEANUP::SDL);
 		return 1;
 	} else if (initSdlMixer()) {
-		cleanup(CLEANUP::IMG, CLEANUP::SDL);
+		cleanup(WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
 	} else if (initSdlTtf()) {
-		cleanup(CLEANUP::MIX, CLEANUP::IMG, CLEANUP::SDL);
+		cleanup(WINDOW_CLEANUP::MIX, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
 	} else if (createWindow()) {
-		cleanup(CLEANUP::TTF, CLEANUP::MIX, CLEANUP::IMG, CLEANUP::SDL);
+		cleanup(WINDOW_CLEANUP::TTF, WINDOW_CLEANUP::MIX, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
 	} else if (createRenderer()) {
-		cleanup(window, CLEANUP::TTF, CLEANUP::MIX, CLEANUP::IMG, CLEANUP::SDL);
+		cleanup(window, WINDOW_CLEANUP::TTF, WINDOW_CLEANUP::MIX, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
 	} else {
 		// Everything has gone well
 
-		setPixelArt(game.config.pixelArt);
+		setPixelArt(config.pixelArt);
 
-		if (game.config.minWidth || game.config.minHeight)
-			setMinSize(game.config.minWidth, game.config.minHeight);
+		if (config.minWidth || config.minHeight)
+			setMinSize(config.minWidth, config.minHeight);
 
-		if (game.config.maxWidth || game.config.maxHeight)
-			setMaxSize(game.config.maxWidth, game.config.maxHeight);
+		if (config.maxWidth || config.maxHeight)
+			setMaxSize(config.maxWidth, config.maxHeight);
 	}
 
 	return 0;
@@ -78,7 +79,7 @@ int Window::create ()
 int Window::initSdl ()
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-		messageError("Could not initialize SDL: %s\n", SDL_GetError());
+		MessageError("Could not initialize SDL: %s\n", SDL_GetError());
 		return 1;
 	}
 
@@ -90,7 +91,7 @@ int Window::initSdlImg ()
 	// Initialize SDL_image
 	int imgFlags_ = IMG_INIT_PNG;
 	if (!(IMG_Init(imgFlags_) & imgFlags_)) {
-		messageError("Could not initialize SDL_image: %s\n", IMG_GetError());
+		MessageError("Could not initialize SDL_image: %s\n", IMG_GetError());
 		return 1;
 	}
 
@@ -106,7 +107,7 @@ int Window::initSdlMixer ()
 	int channels_ = 2;
 	int chunksize_ = 2048;
 	if (Mix_OpenAudio(frequency_, format_, channels_, chunksize_) < 0) {
-		messageError("Could not initialize SDL_mixer: %s\n", Mix_GetError());
+		MessageError("Could not initialize SDL_mixer: %s\n", Mix_GetError());
 		return 1;
 	}
 
@@ -117,7 +118,7 @@ int Window::initSdlTtf ()
 {
 	// Initialize SDL_ttf
 	if (TTF_Init() != 0) {
-		messageError("Could not initialize SDL_ttf: %s\n", TTF_GetError());
+		MessageError("Could not initialize SDL_ttf: %s\n", TTF_GetError());
 		return 1;
 	}
 
@@ -128,15 +129,15 @@ int Window::createWindow ()
 {
 	// Create a window
 	window = SDL_CreateWindow(
-			game.config.title.c_str(),
+			config.title.c_str(),
 			SDL_WINDOWPOS_UNDEFINED,
 			SDL_WINDOWPOS_UNDEFINED,
-			game.config.width,
-			game.config.height,
+			config.width,
+			config.height,
 			SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 			);
 	if (window == nullptr) {
-		messageError("Window could not be created: %s\n", SDL_GetError());
+		MessageError("Window could not be created: %s\n", SDL_GetError());
 		return 1;
 	}
 
@@ -154,7 +155,7 @@ int Window::createRenderer ()
 			SDL_RENDERER_TARGETTEXTURE
 			);
 	if (renderer == nullptr) {
-		messageError("Renderer could not be created: %s\n", SDL_GetError());
+		MessageError("Renderer could not be created: %s\n", SDL_GetError());
 		return 1;
 	}
 
@@ -169,11 +170,11 @@ void Window::setPixelArt (bool pixelArt_)
 	// Texture filtering
 	if (pixelArt_) {
 		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0")) {
-			messageWarning("Nearest pixel sampling not enabled!");
+			MessageWarning("Nearest pixel sampling not enabled!");
 		}
 	} else {
 		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
-			messageWarning("Linear texture filtering not enabled!");
+			MessageWarning("Linear texture filtering not enabled!");
 		}
 	}
 }
@@ -185,10 +186,10 @@ int Window::close ()
 	cleanup(
 			renderer,
 			window,
-			CLEANUP::TTF,
-			CLEANUP::MIX,
-			CLEANUP::IMG,
-			CLEANUP::SDL
+			WINDOW_CLEANUP::TTF,
+			WINDOW_CLEANUP::MIX,
+			WINDOW_CLEANUP::IMG,
+			WINDOW_CLEANUP::SDL
 		   );
 	renderer = nullptr;
 	window = nullptr;
@@ -212,23 +213,23 @@ void Window::cleanup (T t_, Args&&... args_)
 
 // Specializations
 template<>
-void Window::cleanup<CLEANUP> (CLEANUP c_)
+void Window::cleanup<WINDOW_CLEANUP> (WINDOW_CLEANUP c_)
 {
 	switch (c_)
 	{
-		case CLEANUP::SDL:
+		case WINDOW_CLEANUP::SDL:
 			SDL_Quit();
 			break;
 
-		case CLEANUP::IMG:
+		case WINDOW_CLEANUP::IMG:
 			IMG_Quit();
 			break;
 
-		case CLEANUP::MIX:
+		case WINDOW_CLEANUP::MIX:
 			Mix_Quit();
 			break;
 
-		case CLEANUP::TTF:
+		case WINDOW_CLEANUP::TTF:
 			TTF_Quit();
 			break;
 	}
@@ -313,9 +314,9 @@ void Window::handleSDLEvents ()
 	}
 }
 
-Window& Window::setTitle (std::string title_)
+Window& Window::setTitle (const char* title_)
 {
-	SDL_SetWindowTitle(window, title_.c_str());
+	SDL_SetWindowTitle(window, title_);
 
 	return *this;
 }

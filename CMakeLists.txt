@@ -25,7 +25,7 @@ project(
 
 # Source files
 set(zenith_SRCS
-	src/structs/size.cpp
+	src/core/config.cpp
 	)
 	#src/math/angle/wrap_degrees.cpp
 	#src/math/angle/wrap_radians.cpp

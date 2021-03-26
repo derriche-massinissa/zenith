@@ -5,22 +5,19 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_WINDOW_H
-#define ZEN_WINDOW_H
+#ifndef ZEN_WINDOW_HPP
+#define ZEN_WINDOW_HPP
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
-#include <utility>
-#include <string>
 
-#include "../messages.h"
-#include "../const.h"
+#include "const.hpp"
 #include "../event/event_emitter.h"
 
-#include "../core/game.fwd.h"
-#include "../core/config.fwd.h"
+#include "../core/game.fwd.hpp"
+#include "../core/config.fwd.hpp"
 
 /**
  * @todo "What I learned" list!
@@ -45,7 +42,7 @@ public:
 	 *
 	 * @param game_ The Game instance.
 	 */
-	Window (Game& game_);
+	Window (GameConfig& config);
 
 	/**
 	 * @since 0.0.0
@@ -57,7 +54,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Game& game;
+	GameConfig& config;
 
 	/** 
 	 * A reference to the SDL window.
@@ -192,7 +189,7 @@ public:
 	 *
 	 * It is a veriadic template, so it can take in any number of parameter of
 	 * any of the following types:
-	 * - CLEANUP (Enum Class)
+	 * - WINDOW_CLEANUP (Enum Class)
 	 * - SDL_Window
 	 * - SDL_Renderer
 	 *
@@ -215,7 +212,7 @@ public:
 	 *
 	 * @return This window instance.
 	 */
-	Window& setTitle (std::string title_);
+	Window& setTitle (const char* title_);
 
 	/**
 	 * Make the window go fullscreen or into windowed mode.
@@ -310,7 +307,7 @@ public:
 };
 
 /**
- * The "CLEANUP" specialized cleanup method.
+ * The "WINDOW_CLEANUP" specialized cleanup method.
  *
  * The method declaration is outside the class because template
  * specialization cannot happen inside a class scope.
@@ -319,7 +316,7 @@ public:
  * @sa void cleanup (T t, Args&&... args)
  */
 template<>
-void Window::cleanup<CLEANUP> (CLEANUP c_);
+void Window::cleanup<WINDOW_CLEANUP> (WINDOW_CLEANUP c_);
 
 /**
  * The "SDL_Window" specialized cleanup method.

@@ -7,8 +7,9 @@
 
 #include "config.hpp"
 
+#include "../display/color.hpp"
+
 namespace Zen {
-namespace Core {
 
 GameConfig& GameConfig::setWidth (int w)
 {
@@ -129,7 +130,7 @@ GameConfig& GameConfig::setClearBeforeRender (bool flag)
 
 GameConfig& GameConfig::setBackgroundColor (unsigned int color)
 {
-	backgroundColor.setFromHex(color);
+	SetHex(&backgroundColor, color);
 
 	return *this;
 }
@@ -137,7 +138,7 @@ GameConfig& GameConfig::setBackgroundColor (unsigned int color)
 GameConfig& GameConfig::setBackgroundColor (
 			unsigned int red, unsigned int green, unsigned int blue)
 {
-	backgroundColor.setTo(red, green, blue);
+	SetTo(&backgroundColor, red, green, blue);
 
 	return *this;
 }
@@ -156,5 +157,4 @@ GameConfig& GameConfig::setLoaderPrefix (std::string prefix)
 	return *this;
 }
 
-}	// namespace Core
 }	// namespace Zen

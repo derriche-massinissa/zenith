@@ -28,25 +28,6 @@ enum class SCENE {
 	DESTROYED
 };
 
-enum class WINDOW {
-	HIDDEN,
-	VISIBLE,
-	BLURRED,
-	FOCUSED
-};
-
-/**
- * The elements to cleanup once the window closed.
- *
- * @since 0.0.0
- */
-enum class CLEANUP {
-	SDL,
-	IMG,
-	MIX,
-	TTF
-};
-
 }	// namespace Zen
 
 #endif

@@ -14,14 +14,12 @@
 #include <functional>
 
 #include "../scale/scale_modes.hpp"
-#include "../utils/messages.hpp"
-#include "../display/color.h"
+#include "../display/types/color.hpp"
 
-#include "../core/game.fwd.h"
-#include "../scene/scene.fwd.h"
+#include "../core/game.fwd.hpp"
+#include "../scene/scene.fwd.hpp"
 
 namespace Zen {
-namespace Core {
 
 class GameConfig {
 
@@ -365,7 +363,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Display::Color backgroundColor;
+	Color backgroundColor;
 
 	/**
 	 * A path used to resolve relative paths given to the loader.
@@ -408,7 +406,6 @@ public:
 	std::string whiteImage = "iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABdJREFUeNpi/P//PwMMMDEgAdwcgAADAJZuAwXJYZOzAAAAAElFTkSuQmCC";
 };
 
-}	// namespace Core
 }	// namespace GameConfig
 
 #endif

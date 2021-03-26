@@ -12,7 +12,7 @@
 
 #include "../event/event_emitter.h"
 
-#include "config.h"
+#include "config.hpp"
 #include "../window/window.h"
 #include "time_step.h"
 //#include "visibility_handler.h"
@@ -54,7 +54,7 @@ public:
 	 *
 	 * @param config_ A reference to the game configuration object.
 	 */
-	Game (Core::GameConfig& config_);
+	Game (GameConfig& config_);
 
 	/**
 	 * Destroys this Game instance, all systems, all sub-systems, all
@@ -80,7 +80,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Core::GameConfig& config;
+	GameConfig& config;
 
 	/**
 	 * A reference to the window object.
