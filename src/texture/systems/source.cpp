@@ -12,8 +12,9 @@
 #include "entt/entt.hpp"
 #include "../../utils/assert.hpp"
 #include "../../utils/base64_decode.hpp"
-#include "../../utils/message.hpp"
+#include "../../utils/messages.hpp"
 #include "../components/source.hpp"
+#include "../../window/window.hpp"
 
 namespace Zen {
 
@@ -29,12 +30,12 @@ Entity CreateTextureSource (Entity texture, std::string src, int index)
 	if (src.size() > 10 && src.substr(0, 10) == "iVBORw0KGg")
 	{
 		// Source is a Base64 Image data
-		std::string base64 = DecodeBase64(src);
+		std::string base64 = Base64Decode(src);
 
 		SDL_RWops *rw_ = SDL_RWFromConstMem(base64.c_str(), base64.size());
 
 		sdlTexture = IMG_LoadTextureTyped_RW(
-				g_window->renderer,
+				g_window.renderer,
 				rw_,
 				1,		// The SDL_RWops will be closed automatically
 				"PNG"
@@ -44,8 +45,8 @@ Entity CreateTextureSource (Entity texture, std::string src, int index)
 	{
 		// Source is an image file path
 		sdlTexture = IMG_LoadTexture(
-				g_window->renderer,
-				source.c_str()
+				g_window.renderer,
+				src.c_str()
 				);
 	}
 
@@ -79,13 +80,12 @@ Entity CreateTextureSource (Entity texture, std::string src, int index)
 void DestroyTextureSource (Entity source)
 {
 	auto src = g_registry.try_get<TextureSourceComponent>(source);
-
 	ZEN_ASSERT(src, "The entity has no 'TextureSource' component.");
 
-	if (src.sdlTexture)
-		SDL_DestroyTexture(src.sdlTexture);
+	if (src->sdlTexture)
+		SDL_DestroyTexture(src->sdlTexture);
 
-	registry.destroy(source);
+	g_registry.destroy(source);
 }
 
 }	// namespace Zen

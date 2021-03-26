@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_TEXTURES_TEXTURE_MANAGER_H
-#define ZEN_TEXTURES_TEXTURE_MANAGER_H
+#ifndef ZEN_TEXTURES_TEXTURE_MANAGER_HPP
+#define ZEN_TEXTURES_TEXTURE_MANAGER_HPP
 
 #include <SDL2/SDL.h>
 #include <map>
@@ -15,10 +15,10 @@
 #include <vector>
 #include <fstream>
 
-#include "nlohmann/json.hpp"
+#include "json/json.hpp"
 
 #include "../data.h"
-#include "../event/event_emitter.h"
+#include "../event/event_emitter.hpp"
 #include "sprite_sheet_config.h"
 #include "texture.h"
 
