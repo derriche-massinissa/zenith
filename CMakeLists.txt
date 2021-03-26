@@ -25,7 +25,10 @@ project(
 
 # Source files
 set(zenith_SRCS
-	src/core/config.cpp
+	src/texture/parsers/json_hash.cpp
+	src/texture/parsers/json_array.cpp
+	src/texture/parsers/sprite_sheet.cpp
+	src/texture/parsers/sprite_sheet_atlas.cpp
 	)
 	#src/math/angle/wrap_degrees.cpp
 	#src/math/angle/wrap_radians.cpp

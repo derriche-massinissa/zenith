@@ -5,14 +5,13 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_TEXTURES_FRAME_DATA_H
-#define ZEN_TEXTURES_FRAME_DATA_H
+#ifndef ZEN_TEXTURES_FRAME_DATA_HPP
+#define ZEN_TEXTURES_FRAME_DATA_HPP
 
-#include "../geom/rectangle.h"
-#include "../structs/size.h"
+#include "../geom/types/rectangle.hpp"
+#include "../structs/types/size.hpp"
 
 namespace Zen {
-namespace Textures {
 
 /*
 	FrameData data = {
@@ -47,20 +46,19 @@ namespace Textures {
 		*/
 struct FrameData
 {
-	Geom::Rectangle cut;
+	Rectangle cut;
 
 	bool trim = false;
 
-	Structs::Size sourceSize;
+	Size sourceSize;
 
-	Geom::Rectangle spriteSourceSize;
+	Rectangle spriteSourceSize;
 
 	double radius = 0.0;
 
-	Geom::Rectangle drawImage;
+	Rectangle drawImage;
 };
 
-}	// namespace Textures
 }	// namespace Zen
 
 #endif

@@ -5,15 +5,16 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_TEXTURES_FRAME_FWD_H
-#define ZEN_TEXTURES_FRAME_FWD_H
+#ifndef ZEN_TEXTURES_PARSERS_JSONHASH_HPP
+#define ZEN_TEXTURES_PARSERS_JSONHASH_HPP
+
+#include "json/json.hpp"
+#include "../../ecs/entity.hpp"
 
 namespace Zen {
-namespace Textures {
 
-class Frame;
+void ParseJsonHash (Entity texture, int sourceIndex, nlohmann::json json);
 
-}	// namespace Textures
 }	// namespace Zen
 
 #endif

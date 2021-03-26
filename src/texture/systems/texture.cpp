@@ -7,11 +7,15 @@
 
 #include "texture.hpp"
 
-#include <array>
+#include <vector>
 #include <string>
-#include "entt/entt.hpp"
-#include "frame.hpp"
+#include "../../ecs/entity.hpp"
 #include "../../utils/assert.hpp"
+#include "frame.hpp"
+#include "source.hpp"
+#include "../components/texture.hpp"
+#include "../components/source.hpp"
+#include "../components/frame.hpp"
 
 namespace Zen {
 
@@ -19,7 +23,7 @@ extern entt::registry g_registry;
 
 Entity CreateTexture (const char* key, std::vector<const char*> sources)
 {
-	std::array<Entity> sourceEntities(sources.size());
+	std::vector<Entity> sourceEntities;
 
 	// Create the texture entity
 	auto texture = g_registry.create();
@@ -65,7 +69,7 @@ Entity AddFrame (Entity texture, const char* name, int sourceIndex, int x, int y
 
 		if (source.texture == texture && source.index == sourceIndex)
 		{
-			frame = CreateFrame(texture, name, source, x, y, width, height);
+			frame = CreateFrame(entity, name, x, y, width, height);
 
 			auto& tx = g_registry.get<TextureComponent>(texture);
 
@@ -167,14 +171,15 @@ Entity GetFrame (Entity texture, std::string name)
 
 	if (name.empty())
 	{
-		frame = tx.firstFrame;
+		frame = tx->firstFrame;
 	}
 	else
 	{
 		for (auto entity : g_registry.view<FrameComponent>())
 		{
 			auto& fr = g_registry.get<FrameComponent>(entity);
-			if (fr.texture == texture && name == fr.name)
+			auto& src = g_registry.get<TextureSourceComponent>(fr.source);
+			if (src.texture == texture && name == fr.name)
 			{
 				frame = entity;
 				break;
@@ -221,22 +226,18 @@ std::vector<std::string> GetFrameNames (Entity texture, bool includeBase)
 	auto tx = g_registry.try_get<TextureSourceComponent>(texture);
 	ZEN_ASSERT(tx, "The entity has no 'Texture' component.");
 
-	std::vector<Entity> output;
+	std::vector<std::string> output;
 
-	auto frames = g_registry.view<FrameComponent>()
-
-	for (auto source : g_registry.view<TextureSourceComponent>())
+	for (auto frame : g_registry.view<FrameComponent>())
 	{
-		for (auto frame : frames)
-		{
-			auto& frame = g_registry.get<FrameComponent>(entity);
+		auto& fr = g_registry.get<FrameComponent>(frame);
+		auto& src = g_registry.get<TextureSourceComponent>(fr.source);
 
-			if (std::string("__BASE") == frame.name && !includeBase)
-				continue;
+		if (std::string("__BASE") == fr.name && !includeBase)
+			continue;
 
-			if (frame.source == source)
-				output.emplace_back(frame.name);
-		}
+		if (src.texture == texture)
+			output.emplace_back(fr.name);
 	}
 
 	return output;

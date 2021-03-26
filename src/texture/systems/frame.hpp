@@ -9,13 +9,13 @@
 #define ZEN_TEXTURES_SYSTEMS_FRAME_HPP
 
 #include "../../ecs/entity.hpp"
-#include "../../geom/rectangle.h"
-#include "../frame_data.h"
-#include "../crop_data.h"
+#include "../../geom/types/rectangle.hpp"
+#include "../frame_data.hpp"
+#include "../crop_data.hpp"
 
 namespace Zen {
 
-CreateFrame (Entity texture, const char* name, Entity source, int x, int y, int width, int height);
+Entity CreateFrame (Entity source, const char* name, int x, int y, int width, int height);
 
 /**
  * Sets the width, height, x and y of this Frame.
@@ -162,7 +162,7 @@ bool IsFrameTrimmed (Entity frame);
  *
  * @since 0.0.0
  */
-Geom::Rectangle GetFrameDrawImageData (Entity frame);
+Rectangle GetFrameDrawImageData (Entity frame);
 
 }	// namespace Zen
 

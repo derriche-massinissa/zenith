@@ -9,6 +9,7 @@
 #define ZEN_TEXTURES_COMPONENTS_FRAME_HPP
 
 #include "../../ecs/entity.hpp"
+#include "../frame_data.hpp"
 
 namespace Zen {
 

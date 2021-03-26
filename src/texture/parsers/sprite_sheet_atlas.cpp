@@ -5,54 +5,70 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "sprite_sheet_atlas.h"
+#include "sprite_sheet_atlas.hpp"
 
-#include "../../messages.h"
-#include "../texture.h"
-#include "../texture_source.h"
-#include "../frame.h"
+#include "../../utils/messages.hpp"
+#include "../../utils/assert.hpp"
+#include "../systems/texture.hpp"
+#include "../systems/frame.hpp"
+#include "../components/source.hpp"
+#include "../components/frame.hpp"
 
 namespace Zen {
-namespace Textures {
 
-void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfig config)
+extern entt::registry g_registry;
+
+void ParseSpriteSheetFromAtlas (Entity texture, Entity frame, SpriteSheetConfig config)
 {
 	if (config.frameWidth <= 0)
 	{
-		messageError("SpriteSheet: Invalid frameWidth given!");
+		MessageError("SpriteSheet: Invalid frameWidth given!");
 		return;
 	}
 
-	// Add in a __BASE entry (for the entire frame)
-	TextureSource& source = texture->source[0];
+	// Get the source component
+	TextureSourceComponent *source = nullptr;
+	for (auto& entity : g_registry.view<TextureSourceComponent>())
+	{
+		auto& src = g_registry.get<TextureSourceComponent>(entity);
+		if (src.texture == texture && src.index == 0)
+		{
+			source = &src;
+			break;
+		}
+	}
+	ZEN_ASSERT(source, "The requested texture source does not exist.");
 
-	texture->add("__BASE", 0, 0, 0, source.width, source.height);
+	// Add in a __BASE entry (for the entire frame)
+	AddFrame(texture, "__BASE", 0, 0, 0, source->width, source->height);
+
+	auto& fr = g_registry.get<FrameComponent>(frame);
 
 	int startFrame = config.startFrame;
 	int endFrame = config.endFrame;
 	int margin = config.margin;
 	int spacing = config.spacing;
 
-	int x = frame->cutX;
-	int y = frame->cutY;
+	int x = fr.cutX;
+	int y = fr.cutY;
 
-	int cutWidth = frame->cutWidth;
-	int cutHeight = frame->cutHeight;
-	int sheetWidth = frame->getRealWidth();
-	int sheetHeight = frame->getRealHeight();
+	int cutWidth = fr.cutWidth;
+	int cutHeight = fr.cutHeight;
+	int sheetWidth = GetFrameRealHeight(frame);
+	int sheetHeight = GetFrameRealHeight(frame);
 
 	int row = std::floor((sheetWidth - margin + spacing) / (config.frameWidth + spacing));
 	int column = std::floor((sheetHeight - margin + spacing) / (config.frameHeight + spacing));
 	int total = row * column;
 
 	// Trim offsets
-	
-	int leftPad = frame->x;
+
+	int leftPad = fr.x;
 	int leftWidth = config.frameWidth - leftPad;
 
 	int rightWidth = config.frameWidth - ((sheetWidth - cutWidth) - leftPad);
 
-	int topPad = frame->y;
+	int topPad = fr.y;
 	int topHeight = config.frameHeight - topPad;
 
 	int bottomHeight = config.frameHeight - ((sheetHeight - cutHeight) - topPad);
@@ -69,11 +85,11 @@ void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfi
 	if (endFrame != -1)
 		total = startFrame + (endFrame + 1);
 
-	Frame* sheetFrame = nullptr;
+	Entity sheetFrame = entt::null;
 	int frameX = margin;
 	int frameY = margin;
 	int frameIndex = 0;
-	int sourceIndex = frame->sourceIndex;
+	int sourceIndex = source->index;
 
 	for (int sheetY = 0; sheetY < column; sheetY++)
 	{
@@ -85,7 +101,8 @@ void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfi
 			bool leftRow = (sheetX == 0);
 			bool rightRow = (sheetX == row - 1);
 
-			sheetFrame = texture->add(frameIndex, sourceIndex, x + frameX, y + frameY, config.frameWidth, config.frameHeight);
+			sheetFrame = AddFrame(texture, frameIndex, sourceIndex, x + frameX, y + frameY, config.frameWidth, config.frameHeight);
+			auto& sfr = g_registry.get<FrameComponent>(sheetFrame);
 
 			if (leftRow || topRow || rightRow || bottomRow)
 			{
@@ -110,10 +127,10 @@ void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfi
 				int destWidth = config.frameWidth - trimWidth;
 				int destHeight = config.frameHeight - trimHeight;
 
-				sheetFrame->cutWidth = destWidth;
-				sheetFrame->cutHeight = destHeight;
+				sfr.cutWidth = destWidth;
+				sfr.cutHeight = destHeight;
 
-				sheetFrame->setTrim(config.frameWidth, config.frameHeight, destX, destY, destWidth, destHeight);
+				SetFrameTrim(sheetFrame, config.frameWidth, config.frameHeight, destX, destY, destWidth, destHeight);
 			}
 
 			frameX += spacing;
@@ -140,5 +157,4 @@ void parseSpriteSheetFromAtlas (Texture *texture, Frame *frame, SpriteSheetConfi
 	}
 }
 
-}	// namespace Textures
 }	// namespace Zen

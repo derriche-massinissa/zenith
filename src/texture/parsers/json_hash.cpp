@@ -5,40 +5,55 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "json_hash.h"
+#include "json_hash.hpp"
 
-#include "../../messages.h"
-#include "../texture.h"
-#include "../texture_source.h"
-#include "../frame.h"
+#include "../../utils/messages.hpp"
+#include "../../utils/assert.hpp"
+#include "../systems/texture.hpp"
+#include "../systems/frame.hpp"
+#include "../components/source.hpp"
+#include "../components/frame.hpp"
 
 namespace Zen {
-namespace Textures {
 
-void parseJsonHash (Texture *texture, int sourceIndex, nlohmann::json json)
+extern entt::registry g_registry;
+
+void ParseJsonHash (Entity texture, int sourceIndex, nlohmann::json json)
 {
 	// Malformed?
 	if (json.find("frames") == json.end())
 	{
-		messageError("Invalid Texture Atlas JSON Hash. Missing 'frames' object");
+		MessageError("Invalid Texture Atlas JSON Hash. Missing 'frames' object");
 		return;
 	}
 
-	// Add in a __BASE entry (for the entire atlas)
-	TextureSource *source = &texture->source[sourceIndex];
+	// Get the source component
+	TextureSourceComponent *source = nullptr;
+	for (auto& entity : g_registry.view<TextureSourceComponent>())
+	{
+		auto& src = g_registry.get<TextureSourceComponent>(entity);
+		if (src.texture == texture && src.index == sourceIndex)
+		{
+			source = &src;
+			break;
+		}
+	}
+	ZEN_ASSERT(source, "The requested texture source does not exist.");
 
-	texture->add("__BASE", sourceIndex, 0, 0, source->width, source->height);
+	// Add in a __BASE entry (for the entire atlas)
+	AddFrame(texture, "__BASE", sourceIndex, 0, 0, source->width, source->height);
 
 	// By this stage frames is a fully parsed object
 	auto frames = json["frames"].items();
-	Frame *newFrame = nullptr;
+	Entity newFrame = entt::null;
 
 	for (auto& [key, src] : frames)
 	{
-        //  The frame values are the exact coordinates to cut the frame out of the 
+        //  The frame values are the exact coordinates to cut the frame out of the
 		//  atlas from
-		newFrame = texture->add(
-				key,
+		newFrame = AddFrame(
+				texture,
+				key.c_str(),
 				sourceIndex,
 				src["frame"]["x"],
 				src["frame"]["y"],
@@ -49,7 +64,8 @@ void parseJsonHash (Texture *texture, int sourceIndex, nlohmann::json json)
 		// These are the original (non-trimmed) sprite values
 		if (src["trimmed"] != nullptr && src["trimmed"])
 		{
-			newFrame->setTrim(
+			SetFrameTrim(
+					newFrame,
 					src["sourceSize"]["w"],
 					src["sourceSize"]["h"],
 					src["spriteSourceSize"]["x"],
@@ -59,22 +75,23 @@ void parseJsonHash (Texture *texture, int sourceIndex, nlohmann::json json)
 					);
 		}
 
+		auto& frame = g_registry.get<FrameComponent>(newFrame);
+
 		if (src["rotated"] != nullptr && src["rotated"])
 		{
-			newFrame->rotated = true;
-			newFrame->updateUVsInverted();
+			frame.rotated = true;
+			UpdateFrameUVsInverted(newFrame);
 		}
 
 		auto& pivot = (src["anchor"] != nullptr) ? src["anchor"] : src["pivot"];
 
 		if (pivot != nullptr)
 		{
-			newFrame->customPivot = true;
-			newFrame->pivotX = pivot["x"];
-			newFrame->pivotY = pivot["y"];
+			frame.customPivot = true;
+			frame.pivotX = pivot["x"];
+			frame.pivotY = pivot["y"];
 		}
 	}
 }
 
-}	// namespace Textures
 }	// namespace Zen

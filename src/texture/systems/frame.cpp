@@ -8,19 +8,22 @@
 #include "frame.hpp"
 
 #include <cmath>
+#include <algorithm>
 #include "entt/entt.hpp"
 #include "../components/frame.hpp"
 #include "../components/source.hpp"
 #include "../../utils/assert.hpp"
+#include "../../structs/size.hpp"
+#include "../../math/clamp.hpp"
 
 namespace Zen {
 
 extern entt::registry g_registry;
 
-CreateFrame (Entity texture, const char* name, Entity source, int x, int y, int width, int height)
+Entity CreateFrame (Entity source, const char* name, int x, int y, int width, int height)
 {
 	auto frame = g_registry.create();
-	auto& fc = g_registry.emplace<FrameComponent>(
+	g_registry.emplace<FrameComponent>(
 			frame,
 			FrameComponent{
 				.name = name,
@@ -33,10 +36,12 @@ CreateFrame (Entity texture, const char* name, Entity source, int x, int y, int 
 				.halfHeight = height/2,
 				.centerX = width/2,
 				.centerY = height/2
-			);
+			});
+
+	return frame;
 }
 
-void SetFrameSize (Entity entity, int width, int height, int x = 0, int y = 0)
+void SetFrameSize (Entity entity, int width, int height, int x, int y)
 {
 	auto frame = g_registry.try_get<FrameComponent>(entity);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
@@ -60,7 +65,7 @@ void SetFrameSize (Entity entity, int width, int height, int x = 0, int y = 0)
 	frame->data.cut.width = width;
 	frame->data.cut.height = height;
 
-	SetSize(frame->data.sourceSize, width, height);
+	SetSize(&frame->data.sourceSize, width, height);
 
 	frame->data.radius = 0.5 * std::sqrt(width * width + height * height);
 
@@ -70,7 +75,7 @@ void SetFrameSize (Entity entity, int width, int height, int x = 0, int y = 0)
 	frame->data.drawImage.height = height;
 }
 
-void SetFrameTrim (Entity frame, int actualWidth, int actualHeight, int destX, int destY, int destWidth, int destHeight)
+void SetFrameTrim (Entity entity, int actualWidth, int actualHeight, int destX, int destY, int destWidth, int destHeight)
 {
 	auto frame = g_registry.try_get<FrameComponent>(entity);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
@@ -101,7 +106,7 @@ void SetFrameTrim (Entity frame, int actualWidth, int actualHeight, int destX, i
 	frame->centerY = destHeight / 2.0;
 }
 
-CropData SetFrameCropUVs (Entity frame, CropData crop, int x, int y, int width, int height, bool flipX, bool flipY)
+CropData SetFrameCropUVs (Entity entity, CropData crop, int x, int y, int width, int height, bool flipX, bool flipY)
 {
 	auto frame = g_registry.try_get<FrameComponent>(entity);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
@@ -145,10 +150,10 @@ CropData SetFrameCropUVs (Entity frame, CropData crop, int x, int y, int width, 
 
 		if (intersects)
 		{
-			int ix = std::max(ss.x, x);
-			int iy = std::max(ss.y, y);
-			int iw = std::min((ss.x + ss.width), cropRight) - ix;
-			int ih = std::min((ss.y + ss.height), cropBottom) - iy;
+			int ix = std::max(static_cast<int>(ss.x), x);
+			int iy = std::max(static_cast<int>(ss.y), y);
+			int iw = std::min(static_cast<int>(ss.x + ss.width), cropRight) - ix;
+			int ih = std::min(static_cast<int>(ss.y + ss.height), cropBottom) - iy;
 
 			ow = iw;
 			oh = ih;
@@ -194,9 +199,10 @@ CropData SetFrameCropUVs (Entity frame, CropData crop, int x, int y, int width, 
 			oy = cy + (ch - y - height);
 		}
 	}
+	auto& source = g_registry.get<TextureSourceComponent>(frame->source);
 
-	int tw = source->width;
-	int th = source->height;
+	int tw = source.width;
+	int th = source.height;
 
 	//  Map the given coordinates into UV space, clamping to the 0-1 range.
 
@@ -224,7 +230,7 @@ CropData SetFrameCropUVs (Entity frame, CropData crop, int x, int y, int width, 
 
 CropData UpdateFrameCropUVs (Entity frame, CropData crop, bool flipX, bool flipY)
 {
-	return SetCropUVs(frame, crop, crop.x, crop.y, crop.width, crop.height, flipX, flipY);
+	return SetFrameCropUVs(frame, crop, crop.x, crop.y, crop.width, crop.height, flipX, flipY);
 }
 
 void SetFrameUVs (Entity entity, int width, int height, double u0, double v0, double u1, double v1)
@@ -241,11 +247,11 @@ void SetFrameUVs (Entity entity, int width, int height, double u0, double v0, do
 
 	//  WebGL data
 
-	frame->u0 = u0_;
-	frame->v0 = v0_;
+	frame->u0 = u0;
+	frame->v0 = v0;
 
-	frame->u1 = u1_;
-	frame->v1 = v1_;
+	frame->u1 = u1;
+	frame->v1 = v1;
 }
 
 void UpdateFrameUVs (Entity entity)
@@ -260,7 +266,7 @@ void UpdateFrameUVs (Entity entity)
 
 	//  Canvas data
 
-	auto& cd = data.drawImage;
+	auto& cd = frame->data.drawImage;
 
 	cd.width = cw;
 	cd.height = ch;
@@ -273,14 +279,14 @@ void UpdateFrameUVs (Entity entity)
 	int tw = source->width;
 	int th = source->height;
 
-	u0 = cx / tw;
-	v0 = cy / th;
+	frame->u0 = static_cast<double>(cx) / tw;
+	frame->v0 = static_cast<double>(cy) / th;
 
-	u1 = (cx + cw) / tw;
-	v1 = (cy + ch) / th;
+	frame->u1 = static_cast<double>(cx + cw) / tw;
+	frame->v1 = static_cast<double>(cy + ch) / th;
 }
 
-void UpdateFrameUVsInverted (Entity frame)
+void UpdateFrameUVsInverted (Entity entity)
 {
 	auto frame = g_registry.try_get<FrameComponent>(entity);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
@@ -291,14 +297,14 @@ void UpdateFrameUVsInverted (Entity frame)
 	int tw = source->width;
 	int th = source->height;
 
-	frame->u0 = (frame->cutX + frame->cutHeight) / tw;
-	frame->v0 = frame->cutY / th;
+	frame->u0 = static_cast<double>(frame->cutX + frame->cutHeight) / tw;
+	frame->v0 = static_cast<double>(frame->cutY) / th;
 
-	frame->u1 = frame->cutX / tw;
-	frame->v1 = (frame->cutY + frame->cutWidth) / th;
+	frame->u1 = static_cast<double>(frame->cutX) / tw;
+	frame->v1 = static_cast<double>(frame->cutY + frame->cutWidth) / th;
 }
 
-int GetFrameRealWidth (Entity frame)
+int GetFrameRealWidth (Entity entity)
 {
 	auto frame = g_registry.try_get<FrameComponent>(entity);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
@@ -306,7 +312,7 @@ int GetFrameRealWidth (Entity frame)
 	return frame->data.sourceSize.width;
 }
 
-int GetFrameRealHeight (Entity frame)
+int GetFrameRealHeight (Entity entity)
 {
 	auto frame = g_registry.try_get<FrameComponent>(entity);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
@@ -314,7 +320,7 @@ int GetFrameRealHeight (Entity frame)
 	return frame->data.sourceSize.height;
 }
 
-double GetFrameRadius (Entity frame)
+double GetFrameRadius (Entity entity)
 {
 	auto frame = g_registry.try_get<FrameComponent>(entity);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
@@ -322,7 +328,7 @@ double GetFrameRadius (Entity frame)
 	return frame->data.radius;
 }
 
-bool IsFrameTrimmed (Entity frame)
+bool IsFrameTrimmed (Entity entity)
 {
 	auto frame = g_registry.try_get<FrameComponent>(entity);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
@@ -330,7 +336,7 @@ bool IsFrameTrimmed (Entity frame)
 	return frame->data.trim;
 }
 
-Geom::Rectangle GetFrameDrawImageData (Entity frame)
+Rectangle GetFrameDrawImageData (Entity entity)
 {
 	auto frame = g_registry.try_get<FrameComponent>(entity);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");

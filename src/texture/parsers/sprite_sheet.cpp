@@ -5,17 +5,22 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "sprite_sheet.h"
+#include "sprite_sheet.hpp"
 
-#include "../../messages.h"
-#include "../texture.h"
-#include "../texture_source.h"
+#include "../../utils/messages.hpp"
+#include "../../utils/assert.hpp"
+#include "../systems/texture.hpp"
+#include "../systems/frame.hpp"
+#include "../components/source.hpp"
+#include "../components/frame.hpp"
+#include "../components/texture.hpp"
 
 namespace Zen {
-namespace Textures {
 
-void parseSpriteSheet (
-		Texture *texture,
+extern entt::registry g_registry;
+
+void ParseSpriteSheet (
+		Entity texture,
 		int sourceIndex,
 		int x,
 		int y,
@@ -25,14 +30,25 @@ void parseSpriteSheet (
 {
 	if (config.frameWidth <= 0)
 	{
-		messageError("SpriteSheet: Invalid frameWidth given!");
+		MessageError("SpriteSheet: Invalid frameWidth given!");
 		return;
 	}
 
-	// Add in a __BASE entry (for the entire atlas)
-	TextureSource& source = texture->source[sourceIndex];
+	// Get the source component
+	TextureSourceComponent *source = nullptr;
+	for (auto& entity : g_registry.view<TextureSourceComponent>())
+	{
+		auto& src = g_registry.get<TextureSourceComponent>(entity);
+		if (src.texture == texture && src.index == sourceIndex)
+		{
+			source = &src;
+			break;
+		}
+	}
+	ZEN_ASSERT(source, "The requested texture source does not exist.");
 
-	texture->add("__BASE", sourceIndex, 0, 0, source.width, source.height);
+	// Add in a __BASE entry (for the entire atlas)
+	AddFrame(texture, "__BASE", source->index, 0, 0, source->width, source->height);
 
 	int startFrame = config.startFrame;
 	int endFrame = config.endFrame;
@@ -44,7 +60,10 @@ void parseSpriteSheet (
 	int total = row * column;
 
 	if (total == 0)
-		messageWarning("SpriteSheet frame dimensions will result in zero frame for texture: ", texture->key);
+	{
+		auto& tx = g_registry.get<TextureComponent>(texture);
+		MessageWarning("SpriteSheet frame dimensions will result in zero frame for texture: ", tx.key);
+	}
 
 	if (startFrame > total || startFrame < -total)
 		startFrame = 0;
@@ -77,7 +96,7 @@ void parseSpriteSheet (
 		if (h > height)
 			ay = h - height;
 
-		texture->add(i, sourceIndex, x + fx, y + fy, config.frameWidth - ax , config.frameHeight - ay);
+		AddFrame(texture, i, sourceIndex, x + fx, y + fy, config.frameWidth - ax , config.frameHeight - ay);
 
 		fx += config.frameWidth + spacing;
 
@@ -89,5 +108,4 @@ void parseSpriteSheet (
 	}
 }
 
-}	// namespace Textures
 }	// namespace Zen

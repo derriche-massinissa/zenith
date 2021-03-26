@@ -5,13 +5,10 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_TEXTURES_SPRITE_SHEET_CONFIG_H
-#define ZEN_TEXTURES_SPRITE_SHEET_CONFIG_H
-
-#include <string>
+#ifndef ZEN_TEXTURES_SPRITE_SHEET_CONFIG_HPP
+#define ZEN_TEXTURES_SPRITE_SHEET_CONFIG_HPP
 
 namespace Zen {
-namespace Textures {
 
 /**
  * @struct SpriteSheetConfig
@@ -35,18 +32,23 @@ namespace Textures {
  */
 struct SpriteSheetConfig
 {
-	std::string atlas = "";
-	std::string frame = "";
+	const char* atlas = "";
+
+	const char* frame = "";
 
 	int frameWidth = 0;
+
 	int frameHeight = 0;
+
 	int startFrame = 0;
+
 	int endFrame = -1;
+
 	int margin = 0;
+
 	int spacing = 0;
 };
 
-}	//namespace Textures
 }	//namespace Zen
 
 #endif

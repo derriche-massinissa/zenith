@@ -14,16 +14,16 @@
 
 #include "config.hpp"
 #include "../window/window.hpp"
-#include "time_step.h"
+#include "time_step.hpp"
 //#include "visibility_handler.h"
 //#include "../device.h"
 //#include "../animations/animation_manager.h"
 //#include "../data/data_manager.h"
 //#include "../input/input_manager.h"
-#include "../renderer/renderer.h"
-#include "../scale/scale_manager.h"
+#include "../scale/scale_manager.hpp"
 #include "../scene/scene_manager.h"
 #include "../texture/texture_manager.h"
+#include "../renderer/renderer.h"
 //#include "../audio/audio_manager.h"
 
 /**
