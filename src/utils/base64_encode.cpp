@@ -8,13 +8,11 @@
 // https://stackoverflow.com/questions/180947/base64-decode-snippet-in-c
 // Manuel Martinez
 
-#include "base64_encode.h"
+#include "base64_encode.hpp"
 
 namespace Zen {
-namespace Utils {
-namespace Base64 {
 
-std::string encode (const std::string& in)
+std::string Base64Encode (const std::string& in)
 {
 	std::string out;
 
@@ -46,6 +44,9 @@ std::string encode (const std::string& in)
 	return out;
 }
 
-}	// namespace Base64
-}	// namespace Utils
+std::string Base64Encode (const std::string&& in)
+{
+	return Base64Encode(in);
+}
+
 }	// namespace Zen

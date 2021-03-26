@@ -7,8 +7,6 @@
 
 #include "config.h"
 
-#include "../core/game.h"
-
 namespace Zen {
 namespace Core {
 

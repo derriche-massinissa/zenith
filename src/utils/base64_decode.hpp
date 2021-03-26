@@ -5,19 +5,17 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_UTILS_BASE64_ENCODE
-#define ZEN_UTILS_BASE64_ENCODE
+#ifndef ZEN_UTILS_BASE64_DECODE_HPP
+#define ZEN_UTILS_BASE64_DECODE_HPP
 
 #include <string>
 
 namespace Zen {
-namespace Utils {
-namespace Base64 {
 
-std::string encode (const std::string& in);
+std::string Base64Decode (const std::string& in);
 
-}	// namespace Base64
-}	// namespace Utils
+std::string Base64Decode (const std::string&& in);
+
 }	// namespace Zen
 
 #endif
