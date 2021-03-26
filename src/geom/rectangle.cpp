@@ -5,307 +5,249 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "rectangle.h"
+#include "rectangle.hpp"
+
+#include "../math/random.hpp"
 
 namespace Zen {
-namespace Geom {
 
-Rectangle::Rectangle (int x_, int y_, int width_, int height_)
-	: x(x_), y(y_), width(width_), height (height_)
-{}
-
-bool Rectangle::contains (int x_, int y_)
+bool Contains (Rectangle rectangle, double x, double y)
 {
-    if (width <= 0 || height <= 0)
+    if (rectangle.width <= 0 || rectangle.height <= 0)
         return false;
 
-    return (x <= x_ && x + width >= x_ &&
-			y <= y_ && y + height >= y_);
+    return (rectangle.x <= x && rectangle.x + rectangle.width >= x &&
+			rectangle.y <= y && rectangle.y + rectangle.height >= y);
 }
 
-Point Rectangle::getPoint (double position_)
+Math::Vector2 GetPoint (Rectangle rectangle, double position)
 {
-	Point out_;
+	Math::Vector2 out;
 
-	if (position_ <= 0 || position_ >= 1)
+	if (position <= 0 || position >= 1)
 	{
-		out_.x = x;
-		out_.y = y;
+		out.x = rectangle.x;
+		out.y = rectangle.y;
 
-		return out_;
+		return out;
 	}
 
-	double p_ = getPerimeter() * position_;
+	double p = GetPerimeter(rectangle) * position;
 
-	if (position_ > 0.5)
+	if (position > 0.5)
 	{
-		p_ -= (width + height);
+		p -= (rectangle.width + rectangle.height);
 
-		if (p_ <= width)
+		if (p <= rectangle.width)
 		{
 			// Face 3
-			out_.x = getRight() - p_;
-			out_.y = getBottom();
+			out.x = GetRight(rectangle) - p;
+			out.y = GetBottom(rectangle);
 		}
 		else
 		{
 			// Face 4
-			out_.x = x;
-			out_.y = getBottom() - (p_ - width);
+			out.x = rectangle.x;
+			out.y = GetBottom(rectangle) - (p - rectangle.width);
 		}
 	}
-	else if (p_ <= width)
+	else if (p <= rectangle.width)
 	{
 		// Face 1
-		out_.x = x + p_;
-		out_.y = y;
+		out.x = rectangle.x + p;
+		out.y = rectangle.y;
 	}
 	else
 	{
 		// Face 2
-		out_.x = getRight();
-		out_.y = y + (p_ - width);
+		out.x = GetRight(rectangle);
+		out.y = rectangle.y + (p - rectangle.width);
 	}
 
-	return out_;
+	return out;
 }
 
-std::vector<Point> Rectangle::getPoints (int quantity_, double stepRate_)
+std::vector<Math::Vector2> GetPoints (Rectangle rectangle, int quantity, double stepRate)
 {
-	std::vector<Point> out_;
+	std::vector<Math::Vector2> out;
 
-	// If quantity_ is 0, we calculate it based on stepRate_
-	if (!quantity_)
-		quantity_ = getPerimeter() / stepRate_;
+	// If quantity is 0, we calculate it based on stepRate
+	if (!quantity)
+		quantity = GetPerimeter(rectangle) / stepRate;
 
-	for (int i_ = 0; i_ < quantity_; i_++)
+	for (int i = 0; i < quantity; i++)
 	{
-		double pos_ = i_ / quantity_;
+		double pos = static_cast<double>(i) / static_cast<double>(quantity);
 
-		out_.emplace_back(getPoint(pos_));
+		out.emplace_back(GetPoint(rectangle, pos));
 	}
 
-	return out_;
+	return out;
 }
 
-Point Rectangle::getRandomPoint ()
+Math::Vector2 GetRandomPoint (Rectangle rectangle)
 {
-	Point out_;
+	Math::Vector2 out;
 
-	out_.x = x + Math::random.between(0, width);
-	out_.y = y + Math::random.between(0, height);
+	out.x = rectangle.x + Math::Random.between(0., rectangle.width);
+	out.y = rectangle.y + Math::Random.between(0., rectangle.height);
 
-	return out_;
+	return out;
 }
 
-double Rectangle::getPerimeter ()
+double GetPerimeter (Rectangle rectangle)
 {
-	return 2 * (width + height);
+	return 2 * (rectangle.width + rectangle.height);
 }
 
-Rectangle& Rectangle::setTo (int x_, int y_, int width_, int height_)
+void SetTo (Rectangle *rectangle, double x, double y, double width, double height)
 {
-	x = x_;
-	y = y_;
-	width = width_;
-	height = height_;
-
-	return *this;
+	rectangle->x = x;
+	rectangle->y = y;
+	rectangle->width = width;
+	rectangle->height = height;
 }
 
-Rectangle& Rectangle::setEmpty ()
+void SetEmpty (Rectangle *rectangle)
 {
-	return setTo(0, 0, 0 ,0);
+	SetTo(rectangle, 0, 0, 0, 0);
 }
 
-Rectangle& Rectangle::setPosition (int x_, int y_)
+void SetPosition (Rectangle *rectangle, double x, double y)
 {
-	x = x_;
-	y = y_;
-
-	return *this;
+	rectangle->x = x;
+	rectangle->y = y;
 }
 
-Rectangle& Rectangle::setPosition (int x_)
+void SetPosition (Rectangle *rectangle, double x)
 {
-	return setPosition(x_);
+	SetPosition(rectangle, x, x);
 }
 
-Rectangle& Rectangle::setSize (int width_, int height_)
+void SetSize (Rectangle *rectangle, double width, double height)
 {
-	width = width_;
-	height = height_;
-
-	return *this;
+	rectangle->width = width;
+	rectangle->height = height;
 }
 
-Rectangle& Rectangle::setSize (int width_)
+void SetSize (Rectangle *rectangle, double value)
 {
-	return setSize(width_);
+	return SetSize(rectangle, value, value);
 }
 
-Rectangle& Rectangle::centerOn (int x_, int y_)
+void CenterOn (Rectangle *rectangle, double x, double y)
 {
-	centerX(x_);
-	centerY(y_);
-
-	return *this;
+	CenterX(rectangle, x);
+	CenterY(rectangle, y);
 }
 
-bool Rectangle::isEmpty ()
+void CenterX (Rectangle *rectangle, double x)
 {
-	return (width <= 0 || height <= 0);
+	rectangle->x = x - (rectangle->width / 2.);
 }
 
-Line Rectangle::getLineA ()
+void CenterY (Rectangle *rectangle, double y)
 {
-	return {x, y, right(), y};
+	rectangle->y = y - (rectangle->height / 2.);
 }
 
-Line Rectangle::getLineB ()
+bool IsEmpty (Rectangle *rectangle)
 {
-	return {right(), y, right(), bottom()};
+	return (rectangle->width <= 0 || rectangle->height <= 0);
 }
 
-Line Rectangle::getLineC ()
+Line GetLineA (Rectangle rectangle)
 {
-	return {right(), bottom(), x, bottom()};
+	return {rectangle.x, rectangle.y, GetRight(rectangle), rectangle.y};
 }
 
-Line Rectangle::getLineD ()
+Line GetLineB (Rectangle rectangle)
 {
-	return {x, bottom(), x, y};
+	return {GetRight(rectangle), rectangle.y, GetRight(rectangle), GetBottom(rectangle)};
 }
 
-int Rectangle::getLeft ()
+Line GetLineC (Rectangle rectangle)
 {
-	return x;
+	return {GetRight(rectangle), GetBottom(rectangle), rectangle.x, GetBottom(rectangle)};
 }
-int Rectangle::left ()
+
+Line GetLineD (Rectangle rectangle)
 {
-	return x;
+	return {rectangle.x, GetBottom(rectangle), rectangle.x, rectangle.y};
 }
-Rectangle& Rectangle::setLeft (int value_)
+
+double GetLeft (Rectangle rectangle)
 {
-	if (value_ >= right())
-		width = 0;
+	return rectangle.x;
+}
+
+void SetLeft (Rectangle *rectangle, double value)
+{
+	if (value >= GetRight(*rectangle))
+		rectangle->width = 0;
 	else
-		width = right() - value_;
+		rectangle->width = GetRight(*rectangle) - value;
 
-	x = value_;
-
-	return *this;
-}
-Rectangle& Rectangle::left (int value_)
-{
-	return setLeft(value_);
+	rectangle->x = value;
 }
 
-int Rectangle::getRight ()
+double GetRight (Rectangle rectangle)
 {
-	return x + width;
+	return rectangle.x + rectangle.width;
 }
-int Rectangle::right ()
+void SetRight (Rectangle *rectangle, double value)
 {
-	return x + width;
-}
-Rectangle& Rectangle::setRight (int value_)
-{
-	if (value_ <= x)
-		width = 0;
+	if (value <= rectangle->x)
+		rectangle->width = 0;
 	else
-		width = value_ - x;
-
-	return *this;
-}
-Rectangle& Rectangle::right (int value_)
-{
-	return setRight(value_);
+		rectangle->width = value - rectangle->x;
 }
 
-int Rectangle::getTop ()
+double GetTop (Rectangle rectangle)
 {
-	return y;
+	return rectangle.y;
 }
-int Rectangle::top ()
+
+void SetTop (Rectangle *rectangle, double value)
 {
-	return y;
-}
-Rectangle& Rectangle::setTop (int value_)
-{
-	if (value_ >= bottom())
-		height = 0;
+	if (value >= GetBottom(*rectangle))
+		rectangle->height = 0;
 	else
-		height = bottom() - value_;
+		rectangle->height = GetBottom(*rectangle) - value;
 
-	y = value_;
-
-	return *this;
-}
-Rectangle& Rectangle::top (int value_)
-{
-	return setTop(value_);
+	rectangle->y = value;
 }
 
-int Rectangle::getBottom ()
+double GetBottom (Rectangle rectangle)
 {
-	return y + height;
+	return rectangle.y + rectangle.height;
 }
-int Rectangle::bottom ()
+
+void SetBottom (Rectangle *rectangle, double value)
 {
-	return y + height;
-}
-Rectangle& Rectangle::setBottom (int value_)
-{
-	if (value_ <= y)
-		height = 0;
+	if (value <= rectangle->y)
+		rectangle->height = 0;
 	else
-		height = value_ - y;
-
-	return *this;
-}
-Rectangle& Rectangle::bottom (int value_)
-{
-	return setBottom(value_);
+		rectangle->height = value - rectangle->y;
 }
 
-int Rectangle::getCenterX ()
+double GetCenterX (Rectangle rectangle)
 {
-	return x + (width / 2);
-}
-int Rectangle::centerX ()
-{
-	return x + (width / 2);
-}
-Rectangle& Rectangle::setCenterX (int value_)
-{
-	x = value_ - (width / 2);
-
-	return *this;
-}
-Rectangle& Rectangle::centerX (int value_)
-{
-	return setCenterX(value_);
+	return rectangle.x + (rectangle.width / 2);
 }
 
-int Rectangle::getCenterY ()
+void SetCenterX (Rectangle *rectangle, double value)
 {
-	return y + (height / 2);
-}
-int Rectangle::centerY ()
-{
-	return y + (height / 2);
-}
-Rectangle& Rectangle::setCenterY (int value_)
-{
-	y = value_ - (height / 2);
-
-	return *this;
-}
-Rectangle& Rectangle::centerY (int value_)
-{
-	return setCenterY(value_);
+	rectangle->x = value - (rectangle->width / 2);
 }
 
-}	// namespace Geom
+double GetCenterY (Rectangle rectangle)
+{
+	return rectangle.y + (rectangle.height / 2);
+}
+void SetCenterY (Rectangle *rectangle, double value)
+{
+	rectangle->y = value - (rectangle->height / 2);
+}
+
 }	// namespace Zen

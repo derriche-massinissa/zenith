@@ -5,180 +5,116 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "line.h"
+#include "line.hpp"
+
 #include <cmath>
+#include "../math/random.hpp"
 
 namespace Zen {
-namespace Geom {
 
-Line::Line (int x1_, int y1_, int x2_, int y2_)
-	: x1(x1_), y1(y1_), x2(x2_), y2(y2_)
-{}
-
-Point Line::getPoint (double position_)
+Math::Vector2 GetPoint (Line line, double position)
 {
 	return {
-		x1 + (x2 - x1) * position_,
-		y1 + (y2 - y1) * position_
+		line.x1 + (line.x2 - line.x1) * position,
+		line.y1 + (line.y2 - line.y1) * position
 	};
 }
 
-std::vector<Point> Line::getPoints (int quantity_, double stepRate_)
+std::vector<Math::Vector2> GetPoints (Line line, int quantity, double stepRate)
 {
-	std::vector<Point> out_;
+	std::vector<Math::Vector2> out;
 
-	// If quantity_ is 0, we calculate it based on the stepRate_ instead
-	if (!quantity_)
-		quantity_ = getLength() / stepRate_;
+	// If quantity is 0, we calculate it based on the stepRate_ instead
+	if (!quantity)
+		quantity = GetLength(line) / stepRate;
 
-	for (int i_ = 0; i_ < quantity_; i_++)
+	for (int i = 0; i < quantity; i++)
 	{
-		out_.emplace_back(
-				getPoint(i_ / quantity_)
+		out.emplace_back(
+				GetPoint(line, static_cast<double>(i) / static_cast<double>(quantity))
 				);
 	}
 
-	return out_;
+	return out;
 }
 
-double Line::getLength ()
+double GetLength (Line line)
 {
 	return std::sqrt(
-			std::pow(x2 - x1, 2) +
-			std::pow(y2 - y1, 2)
+			std::pow(line.x2 - line.x1, 2) +
+			std::pow(line.y2 - line.y1, 2)
 			);
 }
 
-Point Line::getRandomPoint ()
+Math::Vector2 GetRandomPoint (Line line)
 {
-	double t_ = Math::random.frac();
+	double t = Math::Random.frac();
 
 	return {
-		x1 + t_ * (x2 - x1),
-		y1 + t_ * (y2 - y1)
+		line.x1 + t * (line.x2 - line.x1),
+		line.y1 + t * (line.y2 - line.y1)
 	};
 }
 
-Line& Line::setTo (int x1_, int y1_, int x2_, int y2_)
+void SetTo (Line *line, double x1, double y1, double x2, double y2)
 {
-	x1 = x1_;
-	y1 = y1_;
+	line->x1 = x1;
+	line->y1 = y1;
 
-	x2 = x2_;
-	y2 = y2_;
-
-	return *this;
+	line->x2 = x2;
+	line->y2 = y2;
 }
 
-Math::Vector2 Line::getPointA ()
+int GetLeft (Line line)
 {
-	return {x1, y1};
+	return std::min(line.x1, line.x2);
 }
 
-Math::Vector2 Line::getPointB ()
+int GetRight (Line line)
 {
-	return {x2, y2};
+	return std::max(line.x1, line.x2);
 }
 
-int Line::left ()
+int GetTop (Line line)
 {
-	return getLeft();
+	return std::min(line.y1, line.y2);
 }
 
-int Line::getLeft ()
+int GetBottom (Line line)
 {
-	return std::min(x1, x2);
+	return std::max(line.y1, line.y2);
 }
 
-int Line::right ()
+void SetLeft (Line *line, int value)
 {
-	return getRight();
-}
-
-int Line::getRight ()
-{
-	return std::max(x1, x2);
-}
-
-int Line::top ()
-{
-	return getTop();
-}
-
-int Line::getTop ()
-{
-	return std::min(y1, y2);
-}
-
-int Line::bottom ()
-{
-	return getBottom();
-}
-
-int Line::getBottom ()
-{
-	return std::max(y1, y2);
-}
-
-Line& Line::left (int value_)
-{
-	return setLeft(value_);
-}
-
-Line& Line::setLeft (int value_)
-{
-	if (x1 <= x2)
-		x1 = value_;
+	if (line->x1 <= line->x2)
+		line->x1 = value;
 	else
-		x2 = value_;
-
-	return *this;
+		line->x2 = value;
 }
 
-Line& Line::right (int value_)
+void SetRight (Line *line, int value)
 {
-	return setRight(value_);
-}
-
-Line& Line::setRight (int value_)
-{
-	if (x1 > x2)
-		x1 = value_;
+	if (line->x1 > line->x2)
+		line->x1 = value;
 	else
-		x2 = value_;
-
-	return *this;
+		line->x2 = value;
 }
 
-Line& Line::top (int value_)
+void SetTop (Line *line, int value)
 {
-	return setTop(value_);
-}
-
-Line& Line::setTop (int value_)
-{
-	if (y1 <= y2)
-		y1 = value_;
+	if (line->y1 <= line->y2)
+		line->y1 = value;
 	else
-		y2 = value_;
-
-	return *this;
+		line->y2 = value;
 }
 
-Line& Line::bottom (int value_)
+void SetBottom (Line *line, int value)
 {
-	return setBottom(value_);
-}
-
-Line& Line::setBottom (int value_)
-{
-	if (y1 > y2)
-		y1 = value_;
+	if (line->y1 > line->y2)
+		line->y1 = value;
 	else
-		y2 = value_;
-
-	return *this;
+		line->y2 = value;
 }
 
-}	// namespace Geom
 }	// namespace Zen
