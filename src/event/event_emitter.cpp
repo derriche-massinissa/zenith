@@ -5,7 +5,7 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "event_emitter.h"
+#include "event_emitter.hpp"
 
 namespace Zen {
 namespace Events {

@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_EVENTS_EVENT_EMITTER_H
-#define ZEN_EVENTS_EVENT_EMITTER_H
+#ifndef ZEN_EVENTS_EVENT_EMITTER_HPP
+#define ZEN_EVENTS_EVENT_EMITTER_HPP
 
 #include <functional>
 #include <string>
@@ -16,7 +16,7 @@
 #include <map>
 #include <memory>
 
-#include "event_listener.h"
+#include "event_listener.hpp"
 
 namespace Zen {
 namespace Events {

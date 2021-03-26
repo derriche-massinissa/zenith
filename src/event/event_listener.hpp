@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_EVENTS_EVENT_LISTENER_H
-#define ZEN_EVENTS_EVENT_LISTENER_H
+#ifndef ZEN_EVENTS_EVENT_LISTENER_HPP
+#define ZEN_EVENTS_EVENT_LISTENER_HPP
 
 #include <string>
 #include <functional>

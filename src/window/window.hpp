@@ -14,7 +14,7 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "const.hpp"
-#include "../event/event_emitter.h"
+#include "../event/event_emitter.hpp"
 
 #include "../core/game.fwd.hpp"
 #include "../core/config.fwd.hpp"
