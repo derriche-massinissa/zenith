@@ -5,10 +5,9 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "time_step.h"
+#include "time_step.hpp"
 
 namespace Zen {
-namespace Core {
 
 void TimeStep::start (std::function<void(Uint32, Uint32)> gameStep_)
 {
@@ -77,5 +76,4 @@ void TimeStep::shutdown ()
 	quit = true;
 }
 
-}	// namespace Core
 }	// namespace Zen

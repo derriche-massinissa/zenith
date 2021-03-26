@@ -8,8 +8,7 @@
 #ifndef ZEN_GAME_FWD_HPP
 #define ZEN_GAME_FWD_HPP
 
-namespace Zen
-{
+namespace Zen {
 
 class Game;
 

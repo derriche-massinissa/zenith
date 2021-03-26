@@ -5,19 +5,18 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SCALE_SCALE_MANAGER_H
-#define ZEN_SCALE_SCALE_MANAGER_H
+#ifndef ZEN_SCALE_SCALE_MANAGER_HPP
+#define ZEN_SCALE_SCALE_MANAGER_HPP
 
 #include "../const.h"
-#include "../structs/size.h"
-#include "../event/event_emitter.h"
-#include "../math/vector2.h"
+#include "../structs/types/size.hpp"
+#include "../event/event_emitter.hpp"
+#include "../math/types/vector2.hpp"
 
-#include "../window/window.fwd.h"
-#include "../core/game.fwd.h"
+#include "../window/window.fwd.hpp"
+#include "../core/game.fwd.hpp"
 
 namespace Zen {
-namespace Scale {
 
 /**
  * The Scale Manager handles the scaling, resizing and alignment of the
@@ -75,7 +74,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Structs::Size gameSize;
+	Size gameSize;
 
 	/**
 	 * The Display Size component.
@@ -85,7 +84,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Structs::Size displaySize;
+	Size displaySize;
 
 	/**
 	 * The game scale mode.
@@ -178,7 +177,6 @@ public:
 
 };	// class ScaleManager
 
-}	// namespace Scale
 }	// namespace Zen
 
 #endif

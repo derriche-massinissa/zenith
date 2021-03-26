@@ -5,10 +5,10 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "scale_manager.h"
+#include "scale_manager.hpp"
 
-#include "../window/window.h"
-#include "../core/game.h"
+#include "../window/window.hpp"
+#include "../core/game.hpp"
 
 namespace Zen {
 namespace Scale {

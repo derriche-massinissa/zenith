@@ -10,10 +10,10 @@
 
 #include <SDL2/SDL.h>
 
-#include "../event/event_emitter.h"
+#include "../event/event_emitter.hpp"
 
 #include "config.hpp"
-#include "../window/window.h"
+#include "../window/window.hpp"
 #include "time_step.h"
 //#include "visibility_handler.h"
 //#include "../device.h"
@@ -165,7 +165,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scale::ScaleManager scale;
+	ScaleManager scale;
 
 	/**
 	 * An instance of the base Audio Manager.
@@ -186,7 +186,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Core::TimeStep loop;
+	TimeStep loop;
 
 	/**
 	 * This method starts the game.

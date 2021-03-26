@@ -5,16 +5,15 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_CORE_TIME_STEP_H
-#define ZEN_CORE_TIME_STEP_H
+#ifndef ZEN_CORE_TIME_STEP_HPP
+#define ZEN_CORE_TIME_STEP_HPP
 
 #include <SDL2/SDL.h>
 #include <functional>
 
-#include "../messages.h"
+#include "../utils/messages.hpp"
 
 namespace Zen {
-namespace Core {
 
 /**
  * Responsible for the core game loop.
@@ -178,7 +177,6 @@ public:
 	void shutdown ();
 };
 
-}	// namespace Core
 }	// namespace Zen
 
 #endif

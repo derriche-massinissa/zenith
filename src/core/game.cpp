@@ -5,9 +5,9 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "game.h"
+#include "game.hpp"
 
-#include "../messages.h"
+#include "../utils/messages.hpp"
 
 namespace Zen {
 
