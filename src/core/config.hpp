@@ -5,16 +5,16 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_CORE_CONFIG_H
-#define ZEN_CORE_CONFIG_H
+#ifndef ZEN_CORE_CONFIG_HPP
+#define ZEN_CORE_CONFIG_HPP
 
 #include <string>
 #include <queue>
 #include <memory>
 #include <functional>
 
-#include "../const.h"
-#include "../messages.h"
+#include "../scale/scale_modes.hpp"
+#include "../utils/messages.hpp"
 #include "../display/color.h"
 
 #include "../core/game.fwd.h"

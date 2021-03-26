@@ -5,343 +5,263 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "color.h"
+#include "color.hpp"
 
-#include "../math/clamp.h"
-#include "../math/random.h"
+#include "../math/clamp.hpp"
+#include "../math/random.hpp"
+
+#include <algorithm>
 
 namespace Zen {
-namespace Display {
 
-Color::Color (int red_, int green_, int blue_, int alpha_, bool validity_)
+void Transparent (Color *color)
 {
-	setTo(red_, green_, blue_, alpha_);
-	valid = validity_;
+	SetTo(color, 0, 0, 0, 0);
 }
 
-Color& Color::operator=(const Color& other_)
+void SetTo (Color *color, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
 {
-	return setTo(other_.red(), other_.green(), other_.blue(), other_.alpha());
+	SetRed(color, red, false);
+	SetGreen(color, green, false);
+	SetBlue(color, blue, false);
+	SetAlpha(color, alpha, false);
+
+	UpdateOnRgb(color);
 }
 
-Color& Color::transparent ()
+void SetGLTo (Color *color, double red, double green, double blue, double alpha)
 {
-	locked = true;
+	SetRedGL(color, red, false);
+	SetGreenGL(color, green, false);
+	SetBlueGL(color, blue, false);
+	SetAlphaGL(color, alpha, false);
 
-	red(0);
-	green(0);
-	blue(0);
-	alpha(0);
-
-	locked = false;
-
-	return update(true);
+	UpdateOnGL(color);
 }
 
-Color& Color::setTo (int red_, int green_, int blue_, int alpha_, bool updateHSV_)
+void SetHSV (Color *color, double h, double s, double l)
 {
-	locked = true;
+	SetHue(color, h, false);
+	SetSaturation(color, s, false);
+	SetLightness(color, l, false);
 
-	red(red_);
-	green(green_);
-	blue(blue_);
-	alpha(alpha_);
-
-	locked = false;
-
-	return update(updateHSV_);
+	UpdateOnHsv(color);
 }
 
-Color& Color::setGLTo (double red_, double green_, double blue_, double alpha_)
+void SetHex (Color *color, uint8_t hex)
 {
-	locked = true;
+	uint8_t red = (hex & 0xff0000) >> 16;
+	uint8_t green = (hex & 0x00ff00) >> 8;
+	uint8_t blue = (hex & 0x0000ff);
 
-	redGL(red_);
-	greenGL(green_);
-	blueGL(blue_);
-	alphaGL(alpha_);
-
-	locked = false;
-
-	return update(true);
+	SetTo(color, red, green, blue);
 }
 
-Color& Color::setFromHSV (double h_, double s_, double v_)
+void UpdateOnRgb (Color *color)
 {
-	hsvToRgb(h_, s_, v_, this);
+	// OpenGL Colors
+	color->gl[0] = color->red / 255.;
+	color->gl[1] = color->green / 255.;
+	color->gl[2] = color->blue / 255.;
+	color->gl[3] = color->alpha / 255.;
 
-	return *this;
+	// Hex
+	color->hex = GetHex(color->red, color->green, color->blue);
+	color->hex32 = GetHex32(color->red, color->green, color->blue, color->alpha);
+
+	// HSV
+	RgbToHsv(color, color->red, color->green, color->blue);
 }
 
-Color& Color::setFromHex (unsigned int hex_)
+void UpdateOnGL (Color *color)
 {
-	int red_ = (hex_ & 0xff0000) >> 16;
-	int green_ = (hex_ & 0x00ff00) >> 8;
-	int blue_ = (hex_ & 0x0000ff);
+	// RGB
+	color->red = color->gl[0] * 255;
+	color->green = color->gl[1] * 255;
+	color->blue = color->gl[2] * 255;
+	color->alpha = color->gl[3] * 255;
 
-	return setTo(red_, green_, blue_);
+	// Hex
+	color->hex = GetHex(color->red, color->green, color->blue);
+	color->hex32 = GetHex32(color->red, color->green, color->blue, color->alpha);
+
+	// HSV
+	RgbToHsv(color, color->red, color->green, color->blue);
 }
 
-Color& Color::update (bool updateHSV_)
+void UpdateOnHsv (Color *color)
 {
-	if (locked)
-		return *this;
+	// RGB
+	HsvToRgb(color, color->hue, color->saturation, color->lightness);
 
-	color = getColor(red(), green(), blue());
-	color32 = getColor32(red(), green(), blue(), alpha());
+	// OpenGL Colors
+	color->gl[0] = color->red / 255.;
+	color->gl[1] = color->green / 255.;
+	color->gl[2] = color->blue / 255.;
 
-	if (updateHSV_)
-		rgbToHsv(red(), green(), blue(), this);
-
-	return *this;
+	// Hex
+	color->hex = GetHex(color->red, color->green, color->blue);
+	color->hex32 = GetHex32(color->red, color->green, color->blue, color->alpha);
 }
 
-Color& Color::updateHSV ()
+void Gray (Color *color, uint8_t shade)
 {
-	rgbToHsv(red(), green(), blue(), this);
-
-	return *this;
+	SetTo(color, shade, shade, shade);
 }
 
-Color Color::clone ()
+void Random (Color *color, uint8_t min, uint8_t max)
 {
-	return *this;
+	uint8_t red = Math::Random.integer(min, max);
+	uint8_t green = Math::Random.integer(min, max);
+	uint8_t blue = Math::Random.integer(min, max);
+
+	SetTo(color, red, green, blue);
 }
 
-Color& Color::gray (int shade_)
+void RandomGray (Color *color, uint8_t min, uint8_t max)
 {
-	return setTo(shade_, shade_, shade_);
+	int shade = Math::Random.integer(min, max);
+
+	SetTo(color, shade, shade, shade);
 }
 
-Color& Color::random (int min_, int max_)
+void Saturate (Color *color, uint8_t amount)
 {
-	int red_ = Math::random.integer(min_, max_);
-	int green_ = Math::random.integer(min_, max_);
-	int blue_ = Math::random.integer(min_, max_);
-
-	return setTo(red_, green_, blue_);
+	amount = std::min(amount, static_cast<uint8_t>(100));
+	color->saturation += amount / 100.;
 }
 
-Color& Color::randomGray (int min_, int max_)
+void Desaturate (Color *color, uint8_t amount)
 {
-	int shade_ = Math::random.integer(min_, max_);
-
-	return setTo(shade_, shade_, shade_);
+	amount = std::min(amount, static_cast<uint8_t>(100));
+	color->saturation -= amount / 100.;
 }
 
-Color& Color::saturate (int amount_)
+void Lighten (Color *color, uint8_t amount)
 {
-	s += amount_ / 100.0;
-
-	return *this;
+	amount = std::min(amount, static_cast<uint8_t>(100));
+	color->lightness += amount / 100.;
 }
 
-Color& Color::desaturate (int amount_)
+void Darken (Color *color, uint8_t amount)
 {
-	s -= amount_ / 100.0;
-
-	return *this;
+	amount = std::min(amount, static_cast<uint8_t>(100));
+	color->lightness -= amount / 100.;
 }
 
-Color& Color::lighten (int amount_)
+void Brighten (Color *color, uint8_t amount)
 {
-	v += amount_ / 100.0;
+	amount = std::min(amount, static_cast<uint8_t>(100));
 
-	return *this;
+	double n = amount / 100.;
+	n *= 255.;
+
+	uint8_t red = Math::Clamp(color->red + n, 0, 255);
+	uint8_t green = Math::Clamp(color->green + n, 0, 255);
+	uint8_t blue = Math::Clamp(color->blue + n, 0, 255);
+
+	SetTo(color, red, green, blue);
 }
 
-Color& Color::darken (int amount_)
+void SetRedGL (Color *color, double value, bool update)
 {
-	v -= amount_ / 100.0;
+	color->gl[0] = std::min(std::abs(value), 1.);
 
-	return *this;
+	if (update)
+		UpdateOnGL(color);
 }
 
-Color& Color::brighten (int amount_)
+void SetGreenGL (Color *color, double value, bool update)
 {
-	int red_ = Math::clamp(r - std::round(255.0 * -(amount_ / 100.0)), 0.0, 255.0);
-	int green_ = Math::clamp(g - std::round(255.0 * -(amount_ / 100.0)), 0.0, 255.0);
-	int blue_ = Math::clamp(b - std::round(255.0 * -(amount_ / 100.0)), 0.0, 255.0);
+	color->gl[1] = std::min(std::abs(value), 1.);
 
-	return setTo(red_, green_, blue_);
+	if (update)
+		UpdateOnGL(color);
 }
 
-double Color::redGL ()
+void SetBlueGL (Color *color, double value, bool update)
 {
-	return gl[0];
+	color->gl[2] = std::min(std::abs(value), 1.);
+
+	if (update)
+		UpdateOnGL(color);
 }
 
-double Color::greenGL ()
+void SetAlphaGL (Color *color, double value, bool update)
 {
-	return gl[1];
+	color->gl[3] = std::min(std::abs(value), 1.);
+
+	if (update)
+		UpdateOnGL(color);
 }
 
-double Color::blueGL ()
+void SetRed (Color *color, uint8_t value, bool update)
 {
-	return gl[2];
+	color->red = value;
+
+	if (update)
+		UpdateOnRgb(color);
 }
 
-double Color::alphaGL ()
+void SetGreen (Color *color, uint8_t value, bool update)
 {
-	return gl[3];
+	color->green = value;
+
+	if (update)
+		UpdateOnRgb(color);
 }
 
-Color& Color::redGL (double value_)
+void SetBlue (Color *color, uint8_t value, bool update)
 {
-	gl[0] = std::min(std::abs(value_), 1.0);
+	color->blue = value;
 
-	r = std::floor(gl[0] * 255);
-
-	update(true);
-
-	return *this;
+	if (update)
+		UpdateOnRgb(color);
 }
 
-Color& Color::greenGL (double value_)
+void SetAlpha (Color *color, uint8_t value, bool update)
 {
-	gl[1] = std::min(std::abs(value_), 1.0);
+	color->alpha = value;
 
-	g = std::floor(gl[1] * 255);
-
-	update(true);
-
-	return *this;
+	if (update)
+		UpdateOnRgb(color);
 }
 
-Color& Color::blueGL (double value_)
+void SetHue (Color *color, double value, bool update)
 {
-	gl[2] = std::min(std::abs(value_), 1.0);
+	color->hue = value;
 
-	b = std::floor(gl[2] * 255);
-
-	update(true);
-
-	return *this;
+	if (update)
+		UpdateOnHsv(color);
 }
 
-Color& Color::alphaGL (double value_)
+void SetSaturation (Color *color, double value, bool update)
 {
-	gl[3] = std::min(std::abs(value_), 1.0);
+	color->saturation = value;
 
-	a = std::floor(gl[3] * 255);
-
-	update(true);
-
-	return *this;
+	if (update)
+		UpdateOnHsv(color);
 }
 
-int Color::red () const
+void SetLightness (Color *color, double value, bool update)
 {
-	return r;
+	color->lightness = value;
+
+	if (update)
+		UpdateOnHsv(color);
 }
 
-int Color::green () const
-{
-	return g;
-}
-
-int Color::blue () const
-{
-	return b;
-}
-
-int Color::alpha () const
-{
-	return a;
-}
-
-Color& Color::red (int value_)
-{
-	value_ = std::abs(value_);
-
-	r = std::min(value_, 255);
-
-	gl[0] = value_ / 255.0;
-
-	update(true);
-}
-
-Color& Color::green (int value_)
-{
-	value_ = std::abs(value_);
-
-	g = std::min(value_, 255);
-
-	gl[1] = value_ / 255.0;
-
-	update(true);
-}
-
-Color& Color::blue (int value_)
-{
-	value_ = std::abs(value_);
-
-	b = std::min(value_, 255);
-
-	gl[2] = value_ / 255.0;
-
-	update(true);
-}
-
-Color& Color::alpha (int value_)
-{
-	value_ = std::abs(value_);
-
-	a = std::min(value_, 255);
-
-	gl[3] = value_ / 255.0;
-
-	update(true);
-}
-
-double Color::hue ()
-{
-	return h;
-}
-
-double Color::saturation ()
-{
-	return s;
-}
-
-double Color::value ()
-{
-	return v;
-}
-
-Color& Color::hue (double value_)
-{
-	h = value_;
-
-	hsvToRgb(value_, s, v, this);
-}
-
-Color& Color::saturation (double value_)
-{
-	s = value_;
-
-	hsvToRgb(h, value_, v, this);
-}
-
-Color& Color::value (double value_)
-{
-	v = value_;
-
-	hsvToRgb(h, s, value_, this);
-}
-
-// Static methods
-int Color::getColor (int red, int green, int blue)
+uint32_t GetHex (uint8_t red, uint8_t green, uint8_t blue)
 {
 	return red << 16 | green << 8 | blue;
 }
 
-int Color::getColor32 (int red, int green, int blue, int alpha)
+uint32_t GetHex32 (uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
 {
 	return alpha << 24 | red << 16 | green << 8 | blue;
 }
 
-int Color::convertValue (int n, double h, double s, double v)
+int8_t ConvertValue (int n, double h, double s, double v)
 {
 	int k = (n + int(h) * 6) % 6;
 
@@ -350,48 +270,46 @@ int Color::convertValue (int n, double h, double s, double v)
 	return std::round(255 * (v - v * s * std::max(0.0, min)));
 }
 
-void Color::hsvToRgb (double h, double s, double v, Color *out)
+void HsvToRgb (Color *color, double h, double s, double v)
 {
-	int red = convertValue(5, h, s, v);
-	int green = convertValue(3, h, s, v);
-	int blue = convertValue(1, h, s, v);
+	uint8_t red = ConvertValue(5, h, s, v);
+	uint8_t green = ConvertValue(3, h, s, v);
+	uint8_t blue = ConvertValue(1, h, s, v);
 
-	//out->setTo(red, green, blue, out->alpha(), false);
-	out->r = red;
-	out->g = green;
-	out->b = blue;
+	color->red = red;
+	color->green = green;
+	color->blue = blue;
 }
 
-void Color::rgbToHsv (int r, int g, int b, Color *out)
+void RgbToHsv (Color *color, uint8_t r, uint8_t g, uint8_t b)
 {
-	double red = r / 255;
-	double green = g / 255;
-	double blue = b / 255;
+	double red = r / 255.;
+	double green = g / 255.;
+	double blue = b / 255.;
 
 	double min = std::min(red, std::min(green, blue));
 	double max = std::max(red, std::max(green, blue));
 	double d = max - min;
 
 	// Achromatic by default
-	double h = 0.0;
-	double s = (max == 0.0) ? 0.0 : d / max;
-	double v = max;
+	double hue = 0.0;
+	double saturation = (max == 0.0) ? 0.0 : d / max;
+	double lightness = max;
 
 	if (max != min) {
 		if (max == red)
-            h = (green - blue) / d + ((green < blue) ? 6.0 : 0.0);
-        else if (max == green)
-            h = (blue - red) / d + 2.0;
-        else if (max == blue)
-            h = (red - green) / d + 4.0;
+			hue = (green - blue) / d + ((green < blue) ? 6.0 : 0.0);
+		else if (max == green)
+			hue = (blue - red) / d + 2.0;
+		else if (max == blue)
+			hue = (red - green) / d + 4.0;
 
-        h /= 6.0;
+		hue /= 6.0;
 	}
 
-	out->h = h;
-	out->s = s;
-	out->v = v;
+	color->hue = hue;
+	color->saturation = saturation;
+	color->lightness = lightness;
 }
 
-}	// namespace Display
 } 	// namespace Zen

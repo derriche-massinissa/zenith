@@ -47,19 +47,6 @@ enum class CLEANUP {
 	TTF
 };
 
-/**
- * The scale modes.
- *
- * @since 0.0.0
- */
-enum class SCALE_MODE {
-	RESIZE,
-	WIDTH_CONTROLS_HEIGHT,
-	HEIGHT_CONTROLS_WIDTH,
-	FIT,
-	ENVELOP
-};
-
 }	// namespace Zen
 
 #endif

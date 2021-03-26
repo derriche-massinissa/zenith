@@ -5,7 +5,7 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "config.h"
+#include "config.hpp"
 
 namespace Zen {
 namespace Core {

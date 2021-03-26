@@ -1,6 +1,21 @@
 # Set the minimum version required of CMake
 cmake_minimum_required(VERSION 3.20.0)
 
+# Export compile commands for clangd (Code Completion)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "" FORCE)
+
+# Build type
+set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
+
+# Debug mode (GDB) + Disable optimization (for debugging) + Warnings
+set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -Og -Wall -Wpedantic -Wextra" CACHE STRING "" FORCE)
+
+# Releas mode
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
+
+# Install directory
+set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist" CACHE FILEPATH "" FORCE)
+
 # Set up the project
 project(
 	"Zenith"
@@ -10,6 +25,7 @@ project(
 
 # Source files
 set(zenith_SRCS
+	src/display/color.cpp
 	)
 	#src/math/angle/wrap_degrees.cpp
 	#src/math/angle/wrap_radians.cpp
@@ -272,21 +288,6 @@ target_compile_features(${PROJECT_NAME}
 set_target_properties(${PROJECT_NAME}
 	PROPERTIES LINKER_LANGUAGE CXX
 	)
-
-# Export compile commands for clangd (Code Completion)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "" FORCE)
-
-# Build type
-set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
-
-# Debug mode (GDB) + Disable optimization (for debugging) + Warnings
-set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -Og -Wall -Wpedantic -Wextra" CACHE STRING "" FORCE)
-
-# Releas mode
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
-
-# Install directory
-set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist" CACHE FILEPATH "" FORCE)
 
 # External includes
 target_include_directories(${PROJECT_NAME} PRIVATE
