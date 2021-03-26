@@ -1,8 +1,5 @@
 # Set the minimum version required of CMake
-cmake_minimum_required(VERSION 3.19.4)
-
-# GCC warnings + debug mode
-add_compile_options(-g -Wall -Wextra -Wpedantic)
+cmake_minimum_required(VERSION 3.20.0)
 
 # Set up the project
 project(
@@ -231,12 +228,19 @@ set_target_properties(${PROJECT_NAME}
 	)
 
 # Export compile commands for clangd (Code Completion)
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "" FORCE)
 
-# JSON C++
-#set(JSON_BuildTests OFF CACHE INTERNAL "")
-#add_subdirectory(includes/json)
-#target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+# Build type
+set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
+
+# Debug mode (GDB) + Disable optimization (for debugging) + Warnings
+set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -Og -Wall -Wpedantic -Wextra" CACHE STRING "" FORCE)
+
+# Releas mode
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
+
+# Install directory
+set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist" CACHE FILEPATH "" FORCE)
 
 # External includes
 target_include_directories(${PROJECT_NAME} PRIVATE
