@@ -5,17 +5,15 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "greater_than.h"
+#include "fuzzy_greater_than.hpp"
 
 namespace Zen {
 namespace Math {
-namespace Fuzzy {
 
 bool FuzzyGreaterThan (double a, double b, double epsilon)
 {
 	return a > b - epsilon;
 }
 
-}	// namespace Fuzzy
 }	// namespace Math
 }	// namespace Zen

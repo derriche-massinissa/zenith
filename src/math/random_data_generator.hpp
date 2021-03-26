@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_MATH_RANDOM_DATA_GENERATOR_H
-#define ZEN_MATH_RANDOM_DATA_GENERATOR_H
+#ifndef ZEN_MATH_RANDOM_DATA_GENERATOR_HPP
+#define ZEN_MATH_RANDOM_DATA_GENERATOR_HPP
 
 #include <algorithm>
 #include <cmath>
@@ -178,7 +178,7 @@ public:
 	template <typename T>
 	void shuffle (std::vector<T> *vector_)
 	{
-		std::shuffle(vector_.begin(), vector_.end(), engine);
+		std::shuffle(vector_->begin(), vector_->end(), engine);
 	}
 
 	/**

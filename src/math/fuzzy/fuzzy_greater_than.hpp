@@ -5,18 +5,18 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_MATH_FUZZY_EQUAL_H
-#define ZEN_MATH_FUZZY_EQUAL_H
+#ifndef ZEN_MATH_FUZZY_GREATER_THAN_HPP
+#define ZEN_MATH_FUZZY_GREATER_THAN_HPP
 
-#include "../const.h"
+#include "../const.hpp"
 
 namespace Zen {
 namespace Math {
 
 /**
- * Check whether the given values are fuzzily equal.
+ * Check whether `a` is fuzzily greater than `b`.
  *
- * Two numbers are fuzzily equal if their difference is less than `epsilon`.
+ * `a` is fuzzily greater than `b` if it is more than `b - epsilon`.
  *
  * @since 0.0.0
  *
@@ -24,9 +24,9 @@ namespace Math {
  * @param b The second value.
  * @param epsilon The epsilon.
  *
- * @return `true` if the values are fuzzily equal, otherwise `false`.
+ * @return `true` if `a` is fuzzily greater than than `b`, otherwise `false`.
  */
-bool FuzzyEqual (double a, double b, double epsilon = EPSILON);
+bool FuzzyGreaterThan (double a, double b, double epsilon = EPSILON);
 
 }	// namespace Math
 }	// namespace Zen

@@ -5,7 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "transform_xy.h"
+#include "transform_xy.hpp"
+
 #include <cmath>
 
 namespace Zen {

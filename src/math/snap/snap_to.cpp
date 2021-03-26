@@ -5,7 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "snap_to.h"
+#include "snap_to.hpp"
+
 #include <cmath>
 
 namespace Zen {

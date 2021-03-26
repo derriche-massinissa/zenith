@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_MATH_CLAMP_H
-#define ZEN_MATH_CLAMP_H
+#ifndef ZEN_MATH_CLAMP_HPP
+#define ZEN_MATH_CLAMP_HPP
 
 namespace Zen {
 namespace Math {

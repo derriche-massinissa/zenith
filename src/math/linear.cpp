@@ -5,8 +5,7 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "linear.h"
-#include <cmath>
+#include "linear.hpp"
 
 namespace Zen {
 namespace Math {

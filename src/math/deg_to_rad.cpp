@@ -5,8 +5,9 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "deg_to_rad.h"
-#include "const.h"
+#include "deg_to_rad.hpp"
+
+#include "const.hpp"
 
 namespace Zen {
 namespace Math {

@@ -5,10 +5,10 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_MATH_ROTATEAROUND_H
-#define ZEN_MATH_ROTATEAROUND_H
+#ifndef ZEN_MATH_ROTATEAROUND_HPP
+#define ZEN_MATH_ROTATEAROUND_HPP
 
-#include "vector2.h"
+#include "types/vector2.hpp"
 
 namespace Zen {
 namespace Math {

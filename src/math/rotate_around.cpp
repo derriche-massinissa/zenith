@@ -5,7 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "rotate_around.h"
+#include "rotate_around.hpp"
+
 #include <cmath>
 
 namespace Zen {

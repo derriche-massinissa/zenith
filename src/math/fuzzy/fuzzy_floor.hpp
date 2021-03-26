@@ -5,10 +5,10 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_MATH_FUZZY_FLOOR_H
-#define ZEN_MATH_FUZZY_FLOOR_H
+#ifndef ZEN_MATH_FUZZY_FLOOR_HPP
+#define ZEN_MATH_FUZZY_FLOOR_HPP
 
-#include "../const.h"
+#include "../const.hpp"
 
 namespace Zen {
 namespace Math {

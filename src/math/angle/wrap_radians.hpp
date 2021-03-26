@@ -5,22 +5,24 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_MATH_DEGTORAD_H
-#define ZEN_MATH_DEGTORAD_H
+#ifndef ZEN_MATH_ANGLE_WRAPRADIANS_HPP
+#define ZEN_MATH_ANGLE_WRAPRADIANS_HPP
 
 namespace Zen {
 namespace Math {
 
 /**
- * Convert the given angle from degrees, to the equivalent angle in radians.
+ * Wrap an angle.
+ *
+ * Wraps the angle to a value in the range of -PI to PI.
  *
  * @since 0.0.0
  *
- * @param degrees The angle (in degrees) to convert to radians.
+ * @param angle The angle to wrap, in radians.
  *
- * @return The given angle converted to radians.
+ * @return The wrapped angle, in radians.
  */
-double DegToRad (double degrees);
+double WrapRadians (double radians);
 
 }	// namespace Math
 }	// namespace Zen

@@ -5,18 +5,18 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "wrap_radians.hpp"
-
-#include <cmath>
-#include "../wrap.hpp"
+#ifndef ZEN_MATH_TYPES_VECTOR_2_HPP
+#define ZEN_MATH_TYPES_VECTOR_2_HPP
 
 namespace Zen {
 namespace Math {
 
-double WrapRadians (double radians)
+struct Vector2
 {
-    return Math::Wrap(radians, -M_PI, M_PI);
-}
+	double x = 0, y = 0;
+};
 
 }	// namespace Math
 }	// namespace Zen
+
+#endif

@@ -8,7 +8,7 @@
 #include "vector2.hpp"
 
 #include <cmath>
-#include "fuzzy/fuzzy_equal.h"
+#include "fuzzy/fuzzy_equal.hpp"
 
 namespace Zen {
 namespace Math {

@@ -10,14 +10,60 @@ project(
 
 # Source files
 set(zenith_SRCS
-	src/zenith.h
-
-	src/const.h
-	src/data.h
-	src/defs.h
-	src/messages.h
-	src/messages.cpp
 	)
+	#src/math/angle/wrap_degrees.cpp
+	#src/math/angle/wrap_radians.cpp
+	#src/math/angle/wrap_degrees.hpp
+	#src/math/angle/wrap_radians.hpp
+	#src/math/fuzzy/fuzzy_ceil.cpp
+	#src/math/fuzzy/fuzzy_equal.cpp
+	#src/math/fuzzy/fuzzy_floor.cpp
+	#src/math/fuzzy/fuzzy_greater_than.cpp
+	#src/math/fuzzy/fuzzy_less_than.cpp
+	#src/math/fuzzy/fuzzy_ceil.hpp
+	#src/math/fuzzy/fuzzy_equal.hpp
+	#src/math/fuzzy/fuzzy_floor.hpp
+	#src/math/fuzzy/fuzzy_greater_than.hpp
+	#src/math/fuzzy/fuzzy_less_than.hpp
+	#src/math/snap/snap_ceil.cpp
+	#src/math/snap/snap_floor.cpp
+	#src/math/snap/snap_to.cpp
+	#src/math/snap/snap_ceil.hpp
+	#src/math/snap/snap_floor.hpp
+	#src/math/snap/snap_to.hpp
+	#src/math/types/vector2.hpp
+	#src/math/clamp.cpp
+	#src/math/deg_to_rad.cpp
+	#src/math/linear.cpp
+	#src/math/rad_to_deg.cpp
+	#src/math/random_data_generator.cpp
+	#src/math/rotate_around.cpp
+	#src/math/transform_xy.cpp
+	#src/math/vector2.cpp
+	#src/math/wrap.cpp
+	#src/math/clamp.hpp
+	#src/math/const.hpp
+	#src/math/deg_to_rad.hpp
+	#src/math/linear.hpp
+	#src/math/rad_to_deg.hpp
+	#src/math/random.hpp
+	#src/math/random_data_generator.hpp
+	#src/math/rotate_around.hpp
+	#src/math/transform_xy.hpp
+	#src/math/vector2.hpp
+	#src/math/wrap.hpp
+	#)
+
+
+
+
+	#src/zenith.h
+
+	#src/const.h
+	#src/data.h
+	#src/defs.h
+	#src/messages.h
+	#src/messages.cpp
 	#
 	#	src/cameras/2d/camera.cpp
 	#	src/cameras/2d/camera.fwd.h

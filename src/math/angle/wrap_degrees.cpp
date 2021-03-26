@@ -5,9 +5,9 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "wrap_degrees.h"
+#include "wrap_degrees.hpp"
 
-#include "../wrap.h"
+#include "../wrap.hpp"
 
 namespace Zen {
 namespace Math {

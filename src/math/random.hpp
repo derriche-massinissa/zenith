@@ -5,10 +5,10 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_MATH_RANDOM_H
-#define ZEN_MATH_RANDOM_H
+#ifndef ZEN_MATH_RANDOM_HPP
+#define ZEN_MATH_RANDOM_HPP
 
-#include "random_data_generator.h"
+#include "random_data_generator.hpp"
 
 namespace Zen {
 namespace Math {

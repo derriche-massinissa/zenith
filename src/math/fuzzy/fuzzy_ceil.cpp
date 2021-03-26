@@ -5,7 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "ceil.h"
+#include "fuzzy_ceil.hpp"
+
 #include <cmath>
 
 namespace Zen {

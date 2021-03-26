@@ -8,15 +8,11 @@
 #ifndef ZEN_MATH_VECTOR_2_HPP
 #define ZEN_MATH_VECTOR_2_HPP
 
-#include "const.h"
+#include "const.hpp"
+#include "types/vector2.hpp"
 
 namespace Zen {
 namespace Math {
-
-struct Vector2
-{
-	double x = 0, y = 0;
-};
 
 void SetToPolar (Vector2 *vector, double azimuth, double radius = 1.0);
 

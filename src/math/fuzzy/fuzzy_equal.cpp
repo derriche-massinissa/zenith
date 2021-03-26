@@ -5,7 +5,7 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "fuzzy_equal.h"
+#include "fuzzy_equal.hpp"
 
 #include <cmath>
 

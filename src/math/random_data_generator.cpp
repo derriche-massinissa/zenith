@@ -5,7 +5,7 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "random_data_generator.h"
+#include "random_data_generator.hpp"
 
 namespace Zen {
 namespace Math {

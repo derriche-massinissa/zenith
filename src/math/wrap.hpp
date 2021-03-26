@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_MATH_WRAP_H
-#define ZEN_MATH_WRAP_H
+#ifndef ZEN_MATH_WRAP_HPP
+#define ZEN_MATH_WRAP_HPP
 
 namespace Zen {
 namespace Math {
