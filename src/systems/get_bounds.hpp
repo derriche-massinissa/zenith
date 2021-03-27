@@ -44,21 +44,21 @@ Math::Vector2 GetCenter (Entity entity);
  *
  * @return The values stored in the output object.
  */
-Math::Vector2 GetTopLeft (Entity entity, bool includeParent);
+Math::Vector2 GetTopLeft (Entity entity, bool includeParent = false);
 
-Math::Vector2 GetTopCenter (Entity entity, bool includeParent);
+Math::Vector2 GetTopCenter (Entity entity, bool includeParent = false);
 
-Math::Vector2 GetTopRight (Entity entity, bool includeParent);
+Math::Vector2 GetTopRight (Entity entity, bool includeParent = false);
 
-Math::Vector2 GetLeftCenter (Entity entity, bool includeParent);
+Math::Vector2 GetLeftCenter (Entity entity, bool includeParent = false);
 
-Math::Vector2 GetRightCenter (Entity entity, bool includeParent);
+Math::Vector2 GetRightCenter (Entity entity, bool includeParent = false);
 
-Math::Vector2 GetBottomLeft (Entity entity, bool includeParent);
+Math::Vector2 GetBottomLeft (Entity entity, bool includeParent = false);
 
-Math::Vector2 GetBottomCenter (Entity entity, bool includeParent);
+Math::Vector2 GetBottomCenter (Entity entity, bool includeParent = false);
 
-Math::Vector2 GetBottomRight (Entity entity, bool includeParent);
+Math::Vector2 GetBottomRight (Entity entity, bool includeParent = false);
 
 Rectangle GetBounds (Entity entity);
 
