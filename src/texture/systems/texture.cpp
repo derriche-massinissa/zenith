@@ -50,6 +50,19 @@ Entity CreateTexture (const char* key, std::vector<const char*> sources)
 	return texture;
 }
 
+Entity CreateTexture (std::string key, std::vector<std::string> sources)
+{
+	std::vector<const char*> cSources;
+	cSources.reserve(sources.size());
+
+	for (auto& source : sources)
+	{
+		cSources.emplace_back(source.c_str());
+	}
+
+	return CreateTexture(key.c_str(), cSources);
+}
+
 void DestroyTexture (Entity texture)
 {
 	g_registry.destroy(texture);

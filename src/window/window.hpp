@@ -34,7 +34,7 @@ namespace Zen {
  * @class Window
  * @since 0.0.0
  */
-class Window : public Events::EventEmitter
+class Window : public EventEmitter
 {
 public:
 	/**

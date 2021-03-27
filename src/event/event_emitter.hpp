@@ -19,7 +19,6 @@
 #include "event_listener.hpp"
 
 namespace Zen {
-namespace Events {
 
 /**
  * The event emitter is responsible for emitting, listening to and managing events in the whole game. Every event activity goes through it.
@@ -305,7 +304,6 @@ public:
 	void shutdown ();
 };
 
-}	// namespace Events
 }	// namespace Zen
 
 #endif

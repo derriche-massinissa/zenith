@@ -21,6 +21,9 @@ namespace Zen {
  * the texture.
  */
 Entity CreateTexture (const char* key, std::vector<const char*> sources);
+Entity CreateTexture (std::string key, std::vector<std::string> sources);
+
+void DestroyTexture (Entity texture);
 
 /**
  * Adds a new Frame to this Texture.

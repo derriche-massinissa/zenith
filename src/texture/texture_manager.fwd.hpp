@@ -5,15 +5,13 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_TEXTURES_TEXTURE_MANAGER_FWD_H
-#define ZEN_TEXTURES_TEXTURE_MANAGER_FWD_H
+#ifndef ZEN_TEXTURES_TEXTURE_MANAGER_FWD_HPP
+#define ZEN_TEXTURES_TEXTURE_MANAGER_FWD_HPP
 
 namespace Zen {
-namespace Textures {
 
 class TextureManager;
 
-}	// namespace Textures
 }	// namespace Zen
 
 #endif

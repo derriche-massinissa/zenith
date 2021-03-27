@@ -8,7 +8,6 @@
 #include "event_emitter.hpp"
 
 namespace Zen {
-namespace Events {
 
 std::vector<std::string> EventEmitter::getEventNames ()
 {
@@ -97,5 +96,4 @@ void EventEmitter::shutdown ()
 	removeAllListeners();
 }
 
-}	// namespace Events
 }	// namespace Zen

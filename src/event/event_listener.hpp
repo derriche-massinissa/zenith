@@ -12,7 +12,6 @@
 #include <functional>
 
 namespace Zen {
-namespace Events {
 
 /**
  * The interface used for containers to access stored Listener elements.
@@ -102,7 +101,6 @@ public:
 	}
 };
 
-}	// namespace Events
 }	// namespace Zen
 
 #endif

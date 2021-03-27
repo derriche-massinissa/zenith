@@ -8,6 +8,8 @@
 #ifndef ZEN_TEXTURES_COMPONENTS_TEXTURE_HPP
 #define ZEN_TEXTURES_COMPONENTS_TEXTURE_HPP
 
+#include "../../ecs/entity.hpp"
+
 namespace Zen {
 
 struct TextureComponent

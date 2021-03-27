@@ -13,20 +13,18 @@
 #include <string>
 #include <functional>
 #include <vector>
-#include <fstream>
 
 #include "json/json.hpp"
 
 #include "../data.h"
 #include "../event/event_emitter.hpp"
-#include "sprite_sheet_config.h"
-#include "texture.h"
+#include "../display/types/color.hpp"
+#include "sprite_sheet_config.hpp"
+#include "components/texture.hpp"
 
-#include "../core/game.fwd.h"
-#include "../gameobjects/rendertexture/render_texture.fwd.h"
+#include "../core/config.fwd.hpp"
 
 namespace Zen {
-namespace Textures {
 
 /**
  * Textures are managed by the game level TextureManager.
@@ -36,7 +34,7 @@ namespace Textures {
  *
  * @since 0.0.0
  */
-class TextureManager : public Events::EventEmitter
+class TextureManager : public EventEmitter
 {
 public:
 	/**
@@ -44,7 +42,7 @@ public:
 	 *
 	 * @param game_ A reference to the Game owning this TextureManager.
 	 */
-	TextureManager (Game* game_);
+	TextureManager (GameConfig& config_);
 
 	/**
 	 * The boot handler called by the Game instance when it first starts up.
@@ -86,11 +84,11 @@ public:
      *
      * @return This TextureManager instance.
      */
-    Texture* addBase64 (std::string key_, std::string data_);
+    Entity addBase64 (std::string key_, std::string data_);
 
 	/**
 	 * Adds a new Texture to the TextureManager created from the given image.
-	 * 
+	 *
 	 * @since 0.0.0
 	 *
 	 * @param key_ The unique key of the Texture.
@@ -99,7 +97,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addImage (std::string key_, std::string path_);
+	Entity addImage (std::string key_, std::string path_);
 
 	/**
 	 * Adds a Render Texture to the TextureManager using the given key.
@@ -115,7 +113,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addRenderTexture (std::string key_, GameObjects::RenderTexture& renderTexture_);
+	Entity addRenderTexture (std::string key_, Entity renderTexture_);
 
 	/**
 	 * Adds a new Texture Atlas to this TextureManager.
@@ -131,7 +129,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlas (std::string key_, std::vector<std::string> sources_, std::string dataPath_);
+	Entity addAtlas (std::string key_, std::vector<std::string> sources_, std::string dataPath_);
 	/**
 	 * @overload
 	 *
@@ -144,7 +142,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlas (std::string key_, std::string source_, std::string dataPath_);
+	Entity addAtlas (std::string key_, std::string source_, std::string dataPath_);
 
 	/**
 	 * Adds a Texture Atlas to this TextureManager.
@@ -160,7 +158,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlasJSONArray (std::string key_, std::vector<std::string> sources_, nlohmann::json data_);
+	Entity addAtlasJSONArray (std::string key_, std::vector<std::string> sources_, nlohmann::json data_);
 	/**
 	 * @overload
 	 * @since 0.0.0
@@ -172,7 +170,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlasJSONArray (std::string key_, std::vector<std::string> sources_, std::vector<nlohmann::json> data_);
+	Entity addAtlasJSONArray (std::string key_, std::vector<std::string> sources_, std::vector<nlohmann::json> data_);
 
 	/**
 	 * Adds a Texture Atlas to this TextureManager.
@@ -188,7 +186,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlasJSONHash (std::string key_, std::vector<std::string> sources_, nlohmann::json data_);
+	Entity addAtlasJSONHash (std::string key_, std::vector<std::string> sources_, nlohmann::json data_);
 
 	/**
 	 * Adds a Texture Atlas to this TextureManager.
@@ -204,7 +202,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addAtlasJSONHash (std::string key_, std::vector<std::string> sources_, std::vector<nlohmann::json> data_);
+	Entity addAtlasJSONHash (std::string key_, std::vector<std::string> sources_, std::vector<nlohmann::json> data_);
 
 	/**
 	 * Adds a Sprite Sheet to this TextureManager.
@@ -221,7 +219,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addSpriteSheet (std::string key_, std::string path_, SpriteSheetConfig config_);
+	Entity addSpriteSheet (std::string key_, std::string path_, SpriteSheetConfig config_);
 
 	/**
 	 * Adds a Sprite Sheet to this TextureManager, where the Sprite Sheet exists
@@ -238,7 +236,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* addSpriteSheetFromAtlas (std::string key_, SpriteSheetConfig config_);
+	Entity addSpriteSheetFromAtlas (std::string key_, SpriteSheetConfig config_);
 
 	/**
 	 * Creates a new Texture using the given source and dimensions.
@@ -251,7 +249,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* create (std::string key_, std::vector<std::string> sources_);
+	Entity create (std::string key_, std::vector<std::string> sources_);
 
 	/**
 	 * @overload
@@ -263,7 +261,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* create (std::string key_, std::string source_);
+	Entity create (std::string key_, std::string source_);
 
 	/**
 	 * @todo Create texture from renderTexture game object.
@@ -277,7 +275,7 @@ public:
 	 * @return A pointer to the newly created Texture, or `nullptr` if the key
 	 * is already in use.
 	 */
-	Texture* create (std::string key_, GameObjects::RenderTexture& renderTexture_);
+	Entity create (std::string key_, Entity renderTexture_);
 
 	/**
 	 * Checks the given key to see if a Texture using it exists within
@@ -306,7 +304,7 @@ public:
 	 *
 	 * @return A pointer to the Texture.
 	 */
-	Texture* get (std::string key_ = "");
+	Entity get (std::string key_ = "");
 
 	/**
 	 * Takes a Texture key and Frame name and returns a pointer to that
@@ -319,7 +317,7 @@ public:
 	 *
 	 * @return A pointer to the Frame, or `nullptr` if no Frame was found.
 	 */
-	Frame* getFrame (std::string key_, std::string frame_);
+	Entity getFrame (std::string key_, std::string frame_);
 	/**
 	 * @overload
 	 * @since 0.0.0
@@ -329,7 +327,7 @@ public:
 	 *
 	 * @return A pointer to the Frame, or `nullptr` if no Frame was found.
 	 */
-	Frame* getFrame (std::string key_, int frame_);
+	Entity getFrame (std::string key_, int frame_);
 
 	/**
 	 * Returns a vector with all the keys of all the Textures in this
@@ -361,7 +359,7 @@ public:
 	 *
 	 * @return Color object populated with the color value of the requested pixel.
 	 */
-	Display::Color getPixel (int x_, int y_, std::string key_, std::string frame_);
+	Color getPixel (int x_, int y_, std::string key_, std::string frameName_);
 	/**
 	 * @overload
 	 * @since 0.0.0
@@ -373,7 +371,7 @@ public:
 	 *
 	 * @return Color object populated with the color value of the requested pixel.
 	 */
-	Display::Color getPixel (int x_, int y_, std::string key_, int frame_);
+	Color getPixel (int x_, int y_, std::string key_, int frameIndex_);
 
 	/**
 	 * Given a Texture and an `x` and `y` coordinates, this method will
@@ -391,7 +389,7 @@ public:
 	 *
 	 * @return Alpha value (0-255) of the given pixel, or `-1` if the coordinates were out of bounds.
 	 */
-	int getPixelAlpha (int x_, int y_, std::string key_, std::string frame_);
+	int getPixelAlpha (int x_, int y_, std::string key_, std::string frameName_);
 	/**
 	 * @overload
 	 * @since 0.0.0
@@ -403,9 +401,9 @@ public:
 	 *
 	 * @return Alpha value (0-255) of the given pixel, or `-1` if the coordinates were out of bounds.
 	 */
-	int getPixelAlpha (int x_, int y_, std::string key_, int frame_);
+	int getPixelAlpha (int x_, int y_, std::string key_, int frameIndex_);
 
-	/**
+	/*
 	 * Changes the key being used by a Texture to the new key provided.
 	 *
 	 * The old key is removed, allowing it to be re-used.
@@ -419,8 +417,8 @@ public:
 	 * @param newKey_ The new unique key to use for the Texture.
 	 *
 	 * @return `true` if the Texture key was successfully renamed, otherwise `false`.
+	//bool renameTexture (std::string currentKey_, std::string newKey_);
 	 */
-	bool renameTexture (std::string currentKey_, std::string newKey_);
 
 	/**
 	 * Passes all Textures to the given callback.
@@ -436,29 +434,29 @@ public:
 	 * @param data_ Additional data that will be passed to the callback.
 	 */
 	template <typename T>
-		void each (void (T::* callback_)(std::vector<Texture*>, Data), T* scope_, Data data_ = {})
-		{
-			std::function<void(std::vector<Texture*>, Data)> cb_ = std::bind(
-					callback_,
-					scope_,
-					std::placeholders::_1,
-					std::placeholders::_2);
+	void each (void (T::* callback_)(std::vector<Entity>, Data), T* scope_, Data data_ = {})
+	{
+		std::function<void(std::vector<Entity>, Data)> cb_ = std::bind(
+				callback_,
+				scope_,
+				std::placeholders::_1,
+				std::placeholders::_2);
 
-			std::vector<Texture*> tex_;
+		std::vector<Entity> tex_;
 
-			for (auto it_ = list.begin(); it_ != list.end(); it_++) {
-				tex_.emplace_back(&it_->second);
-			}
-
-			cb_(tex_, data_);
+		for (auto it_ = list.begin(); it_ != list.end(); it_++) {
+			tex_.emplace_back(&it_->second);
 		}
+
+		cb_(tex_, data_);
+	}
 
 	/**
 	 * The Game that this TextureManager belongs to.
 	 *
 	 * @since 0.0.0
 	 */
-	Game* game;
+	GameConfig& config;
 
 	/**
 	 * Avector that has all the textures that the TextureManager creates.
@@ -466,10 +464,9 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::map<std::string, Texture> list;
+	std::map<std::string, Entity> list;
 };
 
-}	// namespace Textures
 }	// namespace Zen
 
 #endif
