@@ -5,12 +5,11 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "visible.hpp"
+#include "../visible.hpp"
 
-#include "entt/entt.hpp"
-#include "../components/visible.hpp"
-#include "../components/renderable.hpp"
 #include "../../utils/assert.hpp"
+#include "../../components/visible.hpp"
+#include "../../components/renderable.hpp"
 
 #define FLAG 0b0001
 
@@ -20,7 +19,7 @@ extern entt::registry registry;
 
 bool GetVisible (Entity entity)
 {
-	auto visible = registry.try_get<VisibleComponent>(entity);
+	auto visible = registry.try_get<Components::Visible>(entity);
 
 	ZEN_ASSERT(visible, "The entity has no 'Visible' component.");
 
@@ -29,13 +28,13 @@ bool GetVisible (Entity entity)
 
 void SetVisible (Entity entity, bool value)
 {
-	auto visible = registry.try_get<VisibleComponent>(entity);
+	auto visible = registry.try_get<Components::Visible>(entity);
 
 	ZEN_ASSERT(visible, "The entity has no 'Visible' component.");
 
 	visible->value = value;
 
-	if(auto renderable = registry.try_get<RenderableComponent>(entity))
+	if(auto renderable = registry.try_get<Components::Renderable>(entity))
 	{
 		if (value)
 			// Turn the visibility bit to 1

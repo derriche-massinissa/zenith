@@ -5,12 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SYSTEMS_TEXTURED_H
-#define ZEN_SYSTEMS_TEXTURED_H
+#include "../textured.hpp"
 
-#include <string>
-#include "../../geom/types/rectangle.hpp"
-#include "../../ecs/entity.hpp"
 #include "../../utils/assert.hpp"
 #include "../../texture/texture_manager.hpp"
 
@@ -21,6 +17,8 @@
 #include "../../components/renderable.hpp"
 #include "../../components/size.hpp"
 #include "../../components/origin.hpp"
+#include "../../systems/size.hpp"
+#include "../../systems/origin.hpp"
 
 // Textures
 #include "../../texture/components/frame.hpp"
@@ -34,7 +32,7 @@ namespace Zen {
 extern entt::registry g_registry;
 extern TextureManager g_textures;
 
-void SetCrop (Entity entity, int x = -1, int y = -1, int width = -1, int height = -1)
+void SetCrop (Entity entity, int x, int y, int width, int height)
 {
 	auto [textured, flip, crop] = g_registry.try_get<Components::Textured, Components::Flip, Components::Crop>(entity);
 	ZEN_ASSERT(textured, "Entity has no 'Textured' component.");
@@ -66,15 +64,15 @@ void SetTexture (Entity entity, std::string key, std::string frame)
 	auto textured = g_registry.try_get<Components::Textured>(entity);
 	ZEN_ASSERT(textured, "The entity has no 'Textured' component.");
 
-	textured.texture = g_textures.get(key);
+	textured->texture = g_textures.get(key);
 
 	SetFrame(entity, frame);
 }
 
-void SetFrame (Entity entity, std::string frameName, bool updateSize = true, bool updateOrigin = true)
+void SetFrame (Entity entity, std::string frameName, bool updateSize, bool updateOrigin)
 {
-	auto [textured, renderable, size, origin] = g_registry.try_get<Components::Textured, Components::Renderable, Components::Size, Components::Origin>(entity);
-	ZEN_ASSERT(textured & renderable, "The entity has no 'Textured' or 'Renderable' component.");
+	auto [textured, renderable, size, origin, crop, flip] = g_registry.try_get<Components::Textured, Components::Renderable, Components::Size, Components::Origin, Components::Crop, Components::Flip>(entity);
+	ZEN_ASSERT(textured && renderable, "The entity has no 'Textured' or 'Renderable' component.");
 
 	textured->frame = GetFrame(textured->texture, frameName);
 
@@ -82,9 +80,9 @@ void SetFrame (Entity entity, std::string frameName, bool updateSize = true, boo
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
 
 	if (!frame->cutWidth || !frame->cutHeight)
-		renderable->renderFlags &= ~FLAG;
+		renderable->flags &= ~FLAG;
 	else
-		renderable->renderFlags |= FLAG;
+		renderable->flags |= FLAG;
 
 	if (size)
 	{
@@ -107,8 +105,8 @@ void SetFrame (Entity entity, std::string frameName, bool updateSize = true, boo
 		}
 	}
 
-	if (isCropped)
-		frame->updateCropUVs(This()->crop, This()->flipX, This()->flipY);
+	if (textured->isCropped)
+		UpdateFrameCropUVs(textured->frame, crop->data, flip->x, flip->y);
 }
 
 void ResetCropObject (Entity entity)
@@ -139,5 +137,3 @@ void ResetCropObject (Entity entity)
 }	// namespace Zen
 
 #undef FLAG
-
-#endif

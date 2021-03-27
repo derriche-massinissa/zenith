@@ -15,7 +15,7 @@ struct Tint
 {
 	int tint = 0xffffff,
 		tl = 0xffffff,
-		rt = 0xffffff,
+		tr = 0xffffff,
 		bl = 0xffffff,
 		br = 0xffffff;
 

@@ -5,11 +5,13 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "alpha.hpp"
+#include "../alpha.hpp"
 
 #include "../../math/clamp.hpp"
 #include "../../utils/assert.hpp"
-#include "../components/alpha.hpp"
+
+#include "../../components/alpha.hpp"
+#include "../../components/renderable.hpp"
 
 #define FLAG 0b0010
 
@@ -24,8 +26,7 @@ void ClearAlpha (Entity entity)
 
 void SetAlpha (Entity entity, double topLeft, double topRight, double bottomLeft, double bottomRight)
 {
-	auto alpha = registry.try_get<AlphaComponent>(entity);
-
+	auto alpha = registry.try_get<Components::Alpha>(entity);
 	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
 
 	alpha->value = topLeft;
@@ -34,7 +35,7 @@ void SetAlpha (Entity entity, double topLeft, double topRight, double bottomLeft
 	alpha->bl = Math::Clamp(bottomLeft, 0.0, 1.0);
 	alpha->br = Math::Clamp(bottomRight, 0.0, 1.0);
 
-	if(auto renderable = registry.try_get<RenderableComponent>(entity))
+	if(auto renderable = registry.try_get<Components::Renderable>(entity))
 	{
 		if (!topLeft && !topRight && !bottomLeft && !bottomRight)
 			// Turn the alpha bit to 0
@@ -47,8 +48,7 @@ void SetAlpha (Entity entity, double topLeft, double topRight, double bottomLeft
 
 double GetAlpha (Entity entity)
 {
-	const auto alpha = registry.try_get<AlphaComponent>(entity);
-
+	const auto alpha = registry.try_get<Components::Alpha>(entity);
 	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
 
 	return alpha->value;
@@ -56,8 +56,7 @@ double GetAlpha (Entity entity)
 
 double GetAlphaTopLeft (Entity entity)
 {
-	const auto alpha = registry.try_get<AlphaComponent>(entity);
-
+	const auto alpha = registry.try_get<Components::Alpha>(entity);
 	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
 
 	return alpha->tl;
@@ -65,8 +64,7 @@ double GetAlphaTopLeft (Entity entity)
 
 double GetAlphaTopRight (Entity entity)
 {
-	const auto alpha = registry.try_get<AlphaComponent>(entity);
-
+	const auto alpha = registry.try_get<Components::Alpha>(entity);
 	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
 
 	return alpha->tr;
@@ -74,8 +72,7 @@ double GetAlphaTopRight (Entity entity)
 
 double GetAlphaBottomLeft (Entity entity)
 {
-	const auto alpha = registry.try_get<AlphaComponent>(entity);
-
+	const auto alpha = registry.try_get<Components::Alpha>(entity);
 	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
 
 	return alpha->bl;
@@ -83,17 +80,15 @@ double GetAlphaBottomLeft (Entity entity)
 
 double GetAlphaBottomRight (Entity entity)
 {
-	const auto alpha = registry.try_get<AlphaComponent>(entity);
-
+	const auto alpha = registry.try_get<Components::Alpha>(entity);
 	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
 
 	return alpha->br;
 }
 
-void SetAlpha (Entity entity, double value = 1.0)
+void SetAlpha (Entity entity, double value)
 {
-	auto alpha = registry.try_get<AlphaComponent>(entity);
-
+	auto alpha = registry.try_get<Components::Alpha>(entity);
 	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
 
 	double v = Math::Clamp(value, 0.0, 1.0);
@@ -104,7 +99,7 @@ void SetAlpha (Entity entity, double value = 1.0)
 	alpha->bl = v;
 	alpha->br = v;
 
-	if(auto renderable = registry.try_get<RenderableComponent>(entity))
+	if(auto renderable = registry.try_get<Components::Renderable>(entity))
 	{
 		if (!v)
 			// Turn the alpha bit to 0
@@ -117,15 +112,14 @@ void SetAlpha (Entity entity, double value = 1.0)
 
 void SetAlphaTopLeft (Entity entity, double value)
 {
-	auto alpha = registry.try_get<AlphaComponent>(entity);
-
+	auto alpha = registry.try_get<Components::Alpha>(entity);
 	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
 
 	double v = Math::Clamp(value, 0.0, 1.0);
 
 	alpha->tl = v;
 
-	if(auto renderable = registry.try_get<RenderableComponent>(entity))
+	if(auto renderable = registry.try_get<Components::Renderable>(entity))
 	{
 		if (!v)
 			// Turn the alpha bit to 0
@@ -135,15 +129,14 @@ void SetAlphaTopLeft (Entity entity, double value)
 
 void SetAlphaTopRight (Entity entity, double value)
 {
-	auto alpha = registry.try_get<AlphaComponent>(entity);
-
+	auto alpha = registry.try_get<Components::Alpha>(entity);
 	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
 
 	double v = Math::Clamp(value, 0.0, 1.0);
 
 	alpha->tr = v;
 
-	if(auto* renderable = registry.try_get<RenderableComponent>(entity))
+	if(auto* renderable = registry.try_get<Components::Renderable>(entity))
 	{
 		if (!v)
 			// Turn the alpha bit to 0
@@ -153,15 +146,14 @@ void SetAlphaTopRight (Entity entity, double value)
 
 void SetAlphaBottomLeft (Entity entity, double value)
 {
-	auto alpha = registry.try_get<AlphaComponent>(entity);
-
+	auto alpha = registry.try_get<Components::Alpha>(entity);
 	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
 
 	double v = Math::Clamp(value, 0.0, 1.0);
 
 	alpha->bl = v;
 
-	if(auto* renderable = registry.try_get<RenderableComponent>(entity))
+	if(auto* renderable = registry.try_get<Components::Renderable>(entity))
 	{
 		if (!v)
 			// Turn the alpha bit to 0
@@ -171,15 +163,14 @@ void SetAlphaBottomLeft (Entity entity, double value)
 
 void SetAlphaBottomRight (Entity entity, double value)
 {
-	auto alpha = registry.try_get<AlphaComponent>(entity);
-
+	auto alpha = registry.try_get<Components::Alpha>(entity);
 	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
 
 	double v = Math::Clamp(value, 0.0, 1.0);
 
 	alpha->br = v;
 
-	if(auto* renderable = registry.try_get<RenderableComponent>(entity))
+	if(auto* renderable = registry.try_get<Components::Renderable>(entity))
 	{
 		if (!v)
 			// Turn the alpha bit to 0

@@ -5,16 +5,16 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GAMEOBJECTS_SYSTEMS_SIZE_HPP
-#define ZEN_GAMEOBJECTS_SYSTEMS_SIZE_HPP
+#ifndef ZEN_SYSTEMS_SIZE_HPP
+#define ZEN_SYSTEMS_SIZE_HPP
 
-#include "../../ecs/entity.hpp"
+#include "../ecs/entity.hpp"
 
 namespace Zen {
 
-int GetDisplayWidth (Entity entity);
+double GetDisplayWidth (Entity entity);
 
-int GetDisplayHeight (Entity entity);
+double GetDisplayHeight (Entity entity);
 
 void SetDisplayWidth (Entity entity, double value);
 

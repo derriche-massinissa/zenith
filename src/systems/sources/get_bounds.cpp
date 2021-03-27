@@ -5,13 +5,15 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "get_bounds.hpp"
+#include "../get_bounds.hpp"
+
+#include "../../components/tr""
 
 namespace Zen {
 
 static Math::Vector2 PrepareBoundsOutput (Math::Vector2 vector, bool includeParent)
 {
-	auto transform = registry.try_get<TransformComponent>(entity);
+	auto transform = registry.try_get<Components::Transform>(entity);
 	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
 
 	// Take rotation into account
@@ -19,12 +21,12 @@ static Math::Vector2 PrepareBoundsOutput (Math::Vector2 vector, bool includePare
 		vector = Math::RotateAround(vector, transform->x, transform->y, transform->rotation);
 
 	// Take parent's transforms into account
-	auto item = registry.try_get<ContainerItemComponent>(entity);
+	auto item = registry.try_get<Components::ContainerItem>(entity);
 	if (includeParent && item)
 	{
 		auto parent = item->parent;
 
-		auto [transform, matrix] = registry.try_get<TransformComponent, TransformMatrix>(parent);
+		auto [transform, matrix] = registry.try_get<Components::Transform, TransformMatrix>(parent);
 
 		if (transform & matrix)
 		{
@@ -47,7 +49,7 @@ static Math::Vector2 PrepareBoundsOutput (Math::Vector2 vector, bool includePare
  */
 Math::Vector2 GetCenter (Entity entity)
 {
-	auto transform = registry.try_get<TransformComponent>(entity);
+	auto transform = registry.try_get<Components::Transform>(entity);
 	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
 
 	Math::Vector2 output;
@@ -79,7 +81,7 @@ Math::Vector2 GetCenter (Entity entity)
  */
 Math::Vector2 GetTopLeft (Entity entity, bool includeParent)
 {
-	auto transform = registry.try_get<TransformComponent>(entity);
+	auto transform = registry.try_get<Components::Transform>(entity);
 	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
 
 	Math::Vector2 output;
@@ -92,7 +94,7 @@ Math::Vector2 GetTopLeft (Entity entity, bool includeParent)
 
 Math::Vector2 GetTopCenter (Entity entity, bool includeParent)
 {
-	auto transform = registry.try_get<TransformComponent>(entity);
+	auto transform = registry.try_get<Components::Transform>(entity);
 	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
 
 	Math::Vector2 output;
@@ -109,7 +111,7 @@ Math::Vector2 GetTopCenter (Entity entity, bool includeParent)
 
 Math::Vector2 GetTopRight (Entity entity, bool includeParent)
 {
-	auto transform = registry.try_get<TransformComponent>(entity);
+	auto transform = registry.try_get<Components::Transform>(entity);
 	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
 
 	Math::Vector2 output;
@@ -128,7 +130,7 @@ Math::Vector2 GetTopRight (Entity entity, bool includeParent)
 
 Math::Vector2 GetLeftCenter (Entity entity, bool includeParent)
 {
-	auto transform = registry.try_get<TransformComponent>(entity);
+	auto transform = registry.try_get<Components::Transform>(entity);
 	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
 
 	Math::Vector2 output;
@@ -147,7 +149,7 @@ Math::Vector2 GetLeftCenter (Entity entity, bool includeParent)
 
 Math::Vector2 GetRightCenter (Entity entity, bool includeParent)
 {
-	auto transform = registry.try_get<TransformComponent>(entity);
+	auto transform = registry.try_get<Components::Transform>(entity);
 	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
 
 	Math::Vector2 output;
@@ -167,7 +169,7 @@ Math::Vector2 GetRightCenter (Entity entity, bool includeParent)
 
 Math::Vector2 GetBottomLeft (Entity entity, bool includeParent)
 {
-	auto transform = registry.try_get<TransformComponent>(entity);
+	auto transform = registry.try_get<Components::Transform>(entity);
 	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
 
 	Math::Vector2 output;
@@ -186,7 +188,7 @@ Math::Vector2 GetBottomLeft (Entity entity, bool includeParent)
 
 Math::Vector2 GetBottomCenter (Entity entity, bool includeParent)
 {
-	auto transform = registry.try_get<TransformComponent>(entity);
+	auto transform = registry.try_get<Components::Transform>(entity);
 	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
 
 	Math::Vector2 output;
@@ -206,7 +208,7 @@ Math::Vector2 GetBottomCenter (Entity entity, bool includeParent)
 
 Math::Vector2 GetBottomRight (Entity entity, bool includeParent)
 {
-	auto transform = registry.try_get<TransformComponent>(entity);
+	auto transform = registry.try_get<Components::Transform>(entity);
 	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
 
 	Math::Vector2 output;
@@ -226,7 +228,7 @@ Math::Vector2 GetBottomRight (Entity entity, bool includeParent)
 
 Geom::Rectangle GetBounds (Entity entity)
 {
-	auto transform = registry.try_get<TransformComponent>(entity);
+	auto transform = registry.try_get<Components::Transform>(entity);
 	ZEN_ASSERT(transform, "The entity has no 'Transform' component.");
 
 	Geom::Rectangle output;
@@ -234,7 +236,7 @@ Geom::Rectangle GetBounds (Entity entity)
 	int TLx, TLy, TRx, TRy, BLx, BLy, BRx, BRy;
 
 	// Is this entity an item of a container
-	auto item = registry.try_get<ContainerItemComponent>(entity);
+	auto item = registry.try_get<Components::ContainerItem>(entity);
 	if (item)
 	{
 		auto parent = item->parent;

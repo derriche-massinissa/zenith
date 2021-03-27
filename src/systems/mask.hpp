@@ -5,10 +5,10 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GAMEOBJECTS_SYSTEMS_MASK_HPP
-#define ZEN_GAMEOBJECTS_SYSTEMS_MASK_HPP
+#ifndef ZEN_SYSTEMS_MASK_HPP
+#define ZEN_SYSTEMS_MASK_HPP
 
-#include "../../ecs/entity.hpp"
+#include "../ecs/entity.hpp"
 
 namespace Zen {
 

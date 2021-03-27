@@ -5,19 +5,19 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GAMEOBJECTS_SYSTEMS_GETBOUNDS_HPP
-#define ZEN_GAMEOBJECTS_SYSTEMS_GETBOUNDS_HPP
+#ifndef ZEN_SYSTEMS_GETBOUNDS_HPP
+#define ZEN_SYSTEMS_GETBOUNDS_HPP
 
-#include "../../ecs/entity.hpp"
+#include "../ecs/entity.hpp"
 
-#include "../../geom/rectangle.h"
-#include "../../math/vector2.h"
-#include "../../math/rotate_around.h"
+#include "../geom/types/rectangle.hpp"
+#include "../math/vector2.hpp"
+#include "../math/rotate_around.hpp"
 #include "size.hpp"
 
 namespace Zen {
 
-static Math::Vector2 PrepareBoundsOutput (Math::Vector2 vector, bool includeParent);
+Math::Vector2 PrepareBoundsOutput (Math::Vector2 vector, bool includeParent);
 
 /**
  * Gets the center coordinate of this Game Object, regardless of origin.
@@ -60,7 +60,7 @@ Math::Vector2 GetBottomCenter (Entity entity, bool includeParent);
 
 Math::Vector2 GetBottomRight (Entity entity, bool includeParent);
 
-Geom::Rectangle GetBounds (Entity entity);
+Rectangle GetBounds (Entity entity);
 
 }	// namespace Zen
 

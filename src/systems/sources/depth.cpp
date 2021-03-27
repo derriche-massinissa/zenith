@@ -5,11 +5,12 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "depth.hpp"
+#include "../depth.hpp"
 
 #include "entt/entt.hpp"
-#include "../components/depth.hpp"
 #include "../../utils/assert.hpp"
+
+#include "../../components/depth.hpp"
 
 namespace Zen {
 
@@ -17,17 +18,15 @@ extern entt::registry registry;
 
 int GetDepth (Entity entity)
 {
-	auto depth = registry.try_get<DepthComponent>(entity);
-
+	auto depth = registry.try_get<Components::Depth>(entity);
 	ZEN_ASSERT(depth, "The entity has no 'Depth' component.");
 
 	return depth->value;
 }
 
-void SetDepth (Entity entity, int value = 0)
+void SetDepth (Entity entity, int value)
 {
-	auto depth = registry.try_get<DepthComponent>(entity);
-
+	auto depth = registry.try_get<Components::Depth>(entity);
 	ZEN_ASSERT(depth, "The entity has no 'Depth' component.");
 
 	depth->value = value;

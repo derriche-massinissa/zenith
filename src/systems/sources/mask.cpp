@@ -5,10 +5,9 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "mask.hpp"
+#include "../mask.hpp"
 
-#include "entt/entt.hpp"
-#include "../components/mask.hpp"
+#include "../../components/mask.hpp"
 #include "../../utils/assert.hpp"
 
 namespace Zen {
@@ -17,8 +16,7 @@ extern entt::registry registry;
 
 Entity GetMask (Entity entity)
 {
-	auto mask = registry.try_get<MaskComponent>(entity);
-
+	auto mask = registry.try_get<Components::Mask>(entity);
 	ZEN_ASSERT(mask, "The entity has no 'Mask' component.");
 
 	return mask->mask;
@@ -26,8 +24,7 @@ Entity GetMask (Entity entity)
 
 void SetMask (Entity entity, Entity maskEntity)
 {
-	auto mask = registry.try_get<MaskComponent>(entity);
-
+	auto mask = registry.try_get<Components::Mask>(entity);
 	ZEN_ASSERT(mask, "The entity has no 'Mask' component.");
 
 	mask->mask = maskEntity;
@@ -35,8 +32,7 @@ void SetMask (Entity entity, Entity maskEntity)
 
 void ClearMask (Entity entity)
 {
-	auto mask = registry.try_get<MaskComponent>(entity);
-
+	auto mask = registry.try_get<Components::Mask>(entity);
 	ZEN_ASSERT(mask, "The entity has no 'Mask' component.");
 
 	mask->mask = entt::null;

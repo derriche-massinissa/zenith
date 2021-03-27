@@ -37,7 +37,7 @@ namespace Zen {
  * @class ScaleManager
  * @since 0.0.0
  */
-class ScaleManager : public Events::EventEmitter
+class ScaleManager : public EventEmitter
 {
 public:
 	/**

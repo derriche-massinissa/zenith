@@ -5,11 +5,11 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GAMEOBJECTS_SYSTEMS_BLENDMODE_HPP
-#define ZEN_GAMEOBJECTS_SYSTEMS_BLENDMODE_HPP
+#ifndef ZEN_SYSTEMS_BLENDMODE_HPP
+#define ZEN_SYSTEMS_BLENDMODE_HPP
 
-#include "../../ecs/entity.hpp"
-#include "../../enums/blend_modes.hpp"
+#include "../ecs/entity.hpp"
+#include "../enums/blend_modes.hpp"
 
 namespace Zen {
 

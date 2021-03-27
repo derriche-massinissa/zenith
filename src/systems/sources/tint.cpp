@@ -5,10 +5,9 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "tint.hpp"
+#include "../tint.hpp"
 
-#include "entt/entt.hpp"
-#include "../components/tint.hpp"
+#include "../../components/tint.hpp"
 #include "../../utils/assert.hpp"
 
 namespace Zen {
@@ -22,13 +21,13 @@ void ClearTint (Entity entity)
 
 void SetTint (Entity entity, int topLeft, int topRight, int bottomLeft, int bottomRight)
 {
-	auto tint = registry.try_get<TintComponent>(entity);
+	auto tint = registry.try_get<Components::Tint>(entity);
 
 	ZEN_ASSERT(tint, "The entity has no 'Tint' component.");
 
 	tint->tint = topLeft;
 
-	tint->tl= topLeft;
+	tint->tl = topLeft;
 
 	if (topRight < 0)
 	{
@@ -50,12 +49,12 @@ void SetTintFill (Entity entity, int topLeft, int topRight, int bottomLeft, int 
 {
 	SetTint(entity, topLeft, topRight, bottomLeft, bottomRight);
 
-	registry.get<TintComponent>(entity).fill = true;
+	registry.get<Components::Tint>(entity).fill = true;
 }
 
 bool IsTinted (Entity entity)
 {
-	auto tint = registry.try_get<TintComponent>(entity);
+	auto tint = registry.try_get<Components::Tint>(entity);
 
 	ZEN_ASSERT(tint, "The entity has no 'Tint' component.");
 

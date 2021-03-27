@@ -5,13 +5,13 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GAMEOBJECTS_COMPONENTS_TRANSFORMMATRIX_HPP
-#define ZEN_GAMEOBJECTS_COMPONENTS_TRANSFORMMATRIX_HPP
+#ifndef ZEN_SYSTEMS_TRANSFORMMATRIX_HPP
+#define ZEN_SYSTEMS_TRANSFORMMATRIX_HPP
 
-#include "../../ecs/entity.hpp"
-#include "../../math/vector2.hpp"
+#include "../ecs/entity.hpp"
+#include "../math/vector2.hpp"
 #include "../components/transform_matrix.hpp"
-#include "../components/decomposed_matrix.hpp"
+#include "../structs/types/decomposed_matrix.hpp"
 
 namespace Zen {
 
@@ -22,7 +22,7 @@ namespace Zen {
  *
  * @return Translate X.
  */
-double GetTx (TransformMatrix matrix);
+double GetTx (Components::TransformMatrix matrix);
 
 /**
  * Setter for the Translate X value.
@@ -31,7 +31,7 @@ double GetTx (TransformMatrix matrix);
  *
  * @param value Translate X.
  */
-void SetTx (TransformMatrix *matrix, double value);
+void SetTx (Components::TransformMatrix *matrix, double value);
 
 /**
  * Getter for the Translate Y value.
@@ -40,7 +40,7 @@ void SetTx (TransformMatrix *matrix, double value);
  *
  * @return Translate Y.
  */
-double GetTy (TransformMatrix matrix);
+double GetTy (Components::TransformMatrix matrix);
 
 /**
  * Setter for the Translate Y value.
@@ -49,7 +49,7 @@ double GetTy (TransformMatrix matrix);
  *
  * @param value Translate Y.
  */
-void SetTy (TransformMatrix *matrix, double value);
+void SetTy (Components::TransformMatrix *matrix, double value);
 
 /**
  * Returns the rotation of the Matrix. Value is in radians.
@@ -58,7 +58,7 @@ void SetTy (TransformMatrix *matrix, double value);
  *
  * @return The rotation of the Matrix.
  */
-double GetRotation (TransformMatrix matrix);
+double GetRotation (Components::TransformMatrix matrix);
 
 /**
  * The rotation of the Matrix, normalized to be within the Zenith right-handed
@@ -68,7 +68,7 @@ double GetRotation (TransformMatrix matrix);
  *
  * @return The normalized rotation of the Matrix.
  */
-double GetRotationNormalized (TransformMatrix matrix);
+double GetRotationNormalized (Components::TransformMatrix matrix);
 
 /**
  * The decomposed horizontal scale of the Matrix. This value is always positive.
@@ -77,7 +77,7 @@ double GetRotationNormalized (TransformMatrix matrix);
  *
  * @return The Scale X of the Matrix.
  */
-double GetScaleX (TransformMatrix matrix);
+double GetScaleX (Components::TransformMatrix matrix);
 
 /**
  * The decomposed vertical scale of the Matrix. This value is always positive.
@@ -86,16 +86,16 @@ double GetScaleX (TransformMatrix matrix);
  *
  * @return The Scale Y of the Matrix.
  */
-double GetScaleY (TransformMatrix matrix);
+double GetScaleY (Components::TransformMatrix matrix);
 
 /**
  * Reset the Matrix to an identity matrix.
  *
  * @since 0.0.0
  *
- * @return This TransformMatrix.
+ * @return This Components::TransformMatrix.
  */
-void LoadIdentity (TransformMatrix *matrix);
+void LoadIdentity (Components::TransformMatrix *matrix);
 
 /**
  * Translate the Matrix.
@@ -105,9 +105,9 @@ void LoadIdentity (TransformMatrix *matrix);
  * @param x The horizontal translation value.
  * @param y The vertical translation value.
  *
- * @return This TransformMatrix.
+ * @return This Components::TransformMatrix.
  */
-void Translate (TransformMatrix *matrix, double x, double y);
+void Translate (Components::TransformMatrix *matrix, double x, double y);
 
 /**
  * Scale the Matrix.
@@ -117,9 +117,9 @@ void Translate (TransformMatrix *matrix, double x, double y);
  * @param x The horizontal scale value.
  * @param y The vertical scale value.
  *
- * @return This TransformMatrix.
+ * @return This Components::TransformMatrix.
  */
-void Scale (TransformMatrix *matrix, double x, double y);
+void Scale (Components::TransformMatrix *matrix, double x, double y);
 
 /**
  * Rotate the Matrix.
@@ -128,9 +128,9 @@ void Scale (TransformMatrix *matrix, double x, double y);
  *
  * @param angle The angle of rotation in radians.
  *
- * @return This TransformMatrix.
+ * @return This Components::TransformMatrix.
  */
-void Rotate (TransformMatrix *matrix, double angle);
+void Rotate (Components::TransformMatrix *matrix, double angle);
 
 /**
  * Multiply this Matrix by the given Matrix.
@@ -139,9 +139,9 @@ void Rotate (TransformMatrix *matrix, double angle);
  *
  * @param rhs The Matrix to multiply by.
  *
- * @return This TransformMatrix.
+ * @return This Components::TransformMatrix.
  */
-void Multiply (TransformMatrix *matrix, const TransformMatrix& rhs);
+void Multiply (Components::TransformMatrix *matrix, const Components::TransformMatrix& rhs);
 
 /**
  * Multiply this Matrix by the matrix given, including the offset.
@@ -155,9 +155,9 @@ void Multiply (TransformMatrix *matrix, const TransformMatrix& rhs);
  * @param offsetX Horizontal offset to factor in to the multiplication.
  * @param offsetY Vertical offset to factor in to the multiplication.
  *
- * @return This TransformMatrix.
+ * @return This Components::TransformMatrix.
  */
-void MultiplyWithOffset (TransformMatrix *matrix, const TransformMatrix& src, double offsetX, double offsetY);
+void MultiplyWithOffset (Components::TransformMatrix *matrix, const Components::TransformMatrix& src, double offsetX, double offsetY);
 
 /**
  * Transform the Matrix.
@@ -171,9 +171,9 @@ void MultiplyWithOffset (TransformMatrix *matrix, const TransformMatrix& src, do
  * @param tx The Translate X value.
  * @param ty The Translate Y value.
  *
- * @return This TransformMatrix.
+ * @return This Components::TransformMatrix.
  */
-void Transform (TransformMatrix *matrix, double a, double b, double c, double d, double tx, double ty);
+void Transform (Components::TransformMatrix *matrix, double a, double b, double c, double d, double tx, double ty);
 
 /**
  * Transform a point using this Matrix.
@@ -185,16 +185,16 @@ void Transform (TransformMatrix *matrix, double a, double b, double c, double d,
  *
  * @return The Point containing the transformed coordinates.
  */
-Math::Vector2 TransformPoint (TransformMatrix matrix, double x, double y);
+Math::Vector2 TransformPoint (Components::TransformMatrix matrix, double x, double y);
 
 /**
  * Invert the Matrix.
  *
  * @since 0.0.0
  *
- * @return This TransformMatrix.
+ * @return This Components::TransformMatrix.
  */
-void Invert (TransformMatrix *matrix);
+void Invert (Components::TransformMatrix *matrix);
 
 /**
  * Decompose this Matrix into its translation, scale and rotation values using QR decomposition.
@@ -207,7 +207,7 @@ void Invert (TransformMatrix *matrix);
  *
  * @return The decomposed Matrix.
  */
-DecomposedMatrix DecomposeMatrix (TransformMatrix matrix);
+DecomposedMatrix DecomposeMatrix (Components::TransformMatrix matrix);
 
 /**
  * Apply the identity, translate, rotate and scale operations on the Matrix.
@@ -220,9 +220,9 @@ DecomposedMatrix DecomposeMatrix (TransformMatrix matrix);
  * @param scaleX The horizontal scale.
  * @param scaleY The vertical scale.
  *
- * @return This TransformMatrix.
+ * @return This Components::TransformMatrix.
  */
-void ApplyITRS (TransformMatrix *matrix, double x, double y, double rotation, double scaleX, double scaleY);
+void ApplyITRS (Components::TransformMatrix *matrix, double x, double y, double rotation, double scaleX, double scaleY);
 
 /**
  * Takes the `x` and `y` values and returns a new position in the `output` vector that is the inverse of
@@ -237,7 +237,7 @@ void ApplyITRS (TransformMatrix *matrix, double x, double y, double rotation, do
  *
  * @return The coordinates, inverse-transformed through this matrix.
  */
-Math::Vector2 ApplyInverse (TransformMatrix matrix, double x, double y);
+Math::Vector2 ApplyInverse (Components::TransformMatrix matrix, double x, double y);
 
 /**
  * Returns the X component of this matrix multiplied by the given values.
@@ -250,7 +250,7 @@ Math::Vector2 ApplyInverse (TransformMatrix matrix, double x, double y);
  *
  * @return The calculated x value.
  */
-double GetX (TransformMatrix matrix, double x, double y);
+double GetX (Components::TransformMatrix matrix, double x, double y);
 
 /**
  * Returns the Y component of this matrix multiplied by the given values.
@@ -263,7 +263,7 @@ double GetX (TransformMatrix matrix, double x, double y);
  *
  * @return The calculated y value.
  */
-double GetY (TransformMatrix matrix, double x, double y);
+double GetY (Components::TransformMatrix matrix, double x, double y);
 
 /**
  * Returns the X component of this matrix multiplied by the given values.
@@ -278,7 +278,7 @@ double GetY (TransformMatrix matrix, double x, double y);
  *
  * @return The calculated x value.
  */
-int GetXRound (TransformMatrix matrix, double x, double y, bool round = false);
+int GetXRound (Components::TransformMatrix matrix, double x, double y, bool round = false);
 
 /**
  * Returns the Y component of this matrix multiplied by the given values.
@@ -293,7 +293,7 @@ int GetXRound (TransformMatrix matrix, double x, double y, bool round = false);
  *
  * @return The calculated y value.
  */
-int GetYRound (TransformMatrix matrix, double x, double y, bool round = false);
+int GetYRound (Components::TransformMatrix matrix, double x, double y, bool round = false);
 
 }	// namespace Zen
 

@@ -5,18 +5,20 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GAMEOBJECTS_SYSTEMS_ORIGIN_HPP
-#define ZEN_GAMEOBJECTS_SYSTEMS_ORIGIN_HPP
+#ifndef ZEN_SYSTEMS_ORIGIN_HPP
+#define ZEN_SYSTEMS_ORIGIN_HPP
+
+#include "../ecs/entity.hpp"
 
 namespace Zen {
 
-void SetDisplayOriginX (Entity entity, int value);
+void SetDisplayOriginX (Entity entity, double value);
 
-void SetDisplayOriginY (Entity entity, int value);
+void SetDisplayOriginY (Entity entity, double value);
 
-void SetDisplayOrigin (Entity entity, int x, int y);
+void SetDisplayOrigin (Entity entity, double x, double y);
 
-void SetDisplayOrigin (Entity entity, int value = 0);
+void SetDisplayOrigin (Entity entity, double value = 0);
 
 void SetOrigin (Entity entity, double x, double y);
 
@@ -31,6 +33,8 @@ double GetOriginY (Entity entity);
 double GetDisplayOriginX (Entity entity);
 
 double GetDisplayOriginY (Entity entity);
+
+void UpdateDisplayOrigin (Entity entity);
 
 }	// namespace Zen
 

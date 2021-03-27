@@ -5,34 +5,34 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "transform_matrix.hpp"
+#include "../transform_matrix.hpp"
 
 #include <cmath>
-#include "../../math/const.h"
+#include "../../math/const.hpp"
 
 namespace Zen {
 
-double GetTx (TransformMatrix matrix)
+double GetTx (Components::TransformMatrix matrix)
 {
 	return matrix.e;
 }
 
-void SetTx (TransformMatrix *matrix, double value)
+void SetTx (Components::TransformMatrix *matrix, double value)
 {
 	matrix->e = value;
 }
 
-double GetTy (TransformMatrix matrix)
+double GetTy (Components::TransformMatrix matrix)
 {
 	return matrix.f;
 }
 
-void SetTy (TransformMatrix *matrix, double value)
+void SetTy (Components::TransformMatrix *matrix, double value)
 {
 	matrix->f = value;
 }
 
-double GetRotation (TransformMatrix matrix)
+double GetRotation (Components::TransformMatrix matrix)
 {
 	int direction = 0;
 
@@ -44,7 +44,7 @@ double GetRotation (TransformMatrix matrix)
 	return std::acos(matrix.a / GetScaleX(matrix)) * direction;
 }
 
-double GetRotationNormalized (TransformMatrix matrix)
+double GetRotationNormalized (Components::TransformMatrix matrix)
 {
 	double a = matrix.a;
 	double b = matrix.b;
@@ -65,17 +65,17 @@ double GetRotationNormalized (TransformMatrix matrix)
 	}
 }
 
-double GetScaleX (TransformMatrix matrix)
+double GetScaleX (Components::TransformMatrix matrix)
 {
 	return std::sqrt((matrix.a * matrix.a) + (matrix.b * matrix.b));
 }
 
-double GetScaleY (TransformMatrix matrix)
+double GetScaleY (Components::TransformMatrix matrix)
 {
 	return std::sqrt((matrix.c * matrix.c) + (matrix.d * matrix.d));
 }
 
-void LoadIdentity (TransformMatrix *matrix)
+void LoadIdentity (Components::TransformMatrix *matrix)
 {
 	matrix->a = 1;
 	matrix->b = 0;
@@ -85,13 +85,13 @@ void LoadIdentity (TransformMatrix *matrix)
 	matrix->f = 0;
 }
 
-void Translate (TransformMatrix *matrix, double x, double y)
+void Translate (Components::TransformMatrix *matrix, double x, double y)
 {
 	matrix->e = matrix->a * x + matrix->c * y + matrix->e;
 	matrix->f = matrix->b * x + matrix->d * y + matrix->f;
 }
 
-void Scale (TransformMatrix *matrix, double x, double y)
+void Scale (Components::TransformMatrix *matrix, double x, double y)
 {
 	matrix->a *= x;
 	matrix->b *= x;
@@ -99,7 +99,7 @@ void Scale (TransformMatrix *matrix, double x, double y)
 	matrix->d *= y;
 }
 
-void Rotate (TransformMatrix *matrix, double angle)
+void Rotate (Components::TransformMatrix *matrix, double angle)
 {
 	double sin = std::sin(angle);
 	double cos = std::cos(angle);
@@ -115,7 +115,7 @@ void Rotate (TransformMatrix *matrix, double angle)
 	matrix->d = b * -sin + d * cos;
 }
 
-void Multiply (TransformMatrix *matrix, TransformMatrix source)
+void Multiply (Components::TransformMatrix *matrix, Components::TransformMatrix source)
 {
 	double localA = matrix->a;
 	double localB = matrix->b;
@@ -132,7 +132,7 @@ void Multiply (TransformMatrix *matrix, TransformMatrix source)
 	matrix->f = (source.e * localB) + (source.f * localD) + localF;
 }
 
-void MultiplyWithOffset (TransformMatrix *matrix, TransformMatrix source, double offsetX, double offsetY)
+void MultiplyWithOffset (Components::TransformMatrix *matrix, Components::TransformMatrix source, double offsetX, double offsetY)
 {
 	double a0 = matrix->a;
 	double b0 = matrix->b;
@@ -159,7 +159,7 @@ void MultiplyWithOffset (TransformMatrix *matrix, TransformMatrix source, double
 	matrix->f = tx1 * b0 + ty1 * d0 + psf;
 }
 
-void Transform (TransformMatrix *matrix, double a, double b, double c, double d, double tx, double ty)
+void Transform (Components::TransformMatrix *matrix, double a, double b, double c, double d, double tx, double ty)
 {
 	double a0 = matrix->a;
 	double b0 = matrix->b;
@@ -176,7 +176,7 @@ void Transform (TransformMatrix *matrix, double a, double b, double c, double d,
 	matrix->f = tx * b0 + ty * d0 + ty0;
 }
 
-Math::Vector2 TransformPoint (TransformMatrix matrix, double x, double y)
+Math::Vector2 TransformPoint (Components::TransformMatrix matrix, double x, double y)
 {
 	Math::Vector2 point {x, y};
 
@@ -193,7 +193,7 @@ Math::Vector2 TransformPoint (TransformMatrix matrix, double x, double y)
 	return point;
 }
 
-void Invert (TransformMatrix *matrix)
+void Invert (Components::TransformMatrix *matrix)
 {
 	double a = matrix->a;
 	double b = matrix->b;
@@ -212,7 +212,7 @@ void Invert (TransformMatrix *matrix)
 	matrix->f = -(a * ty - b * tx) / n;
 }
 
-DecomposedMatrix DecomposeMatrix (TransformMatrix matrix)
+DecomposedMatrix DecomposeMatrix (Components::TransformMatrix matrix)
 {
 	DecomposedMatrix decomposedMatrix;
 
@@ -252,7 +252,7 @@ DecomposedMatrix DecomposeMatrix (TransformMatrix matrix)
 	return decomposedMatrix;
 }
 
-void ApplyITRS (TransformMatrix *matrix, double x, double y, double rotation, double scaleX, double scaleY)
+void ApplyITRS (Components::TransformMatrix *matrix, double x, double y, double rotation, double scaleX, double scaleY)
 {
 	double radianSin = std::sin(rotation);
 	double radianCos = std::cos(rotation);
@@ -268,7 +268,7 @@ void ApplyITRS (TransformMatrix *matrix, double x, double y, double rotation, do
 	matrix->d = radianCos * scaleY;
 }
 
-Math::Vector2 ApplyInverse (TransformMatrix matrix, double x, double y)
+Math::Vector2 ApplyInverse (Components::TransformMatrix matrix, double x, double y)
 {
 	Math::Vector2 output;
 
@@ -287,17 +287,17 @@ Math::Vector2 ApplyInverse (TransformMatrix matrix, double x, double y)
 	return output;
 }
 
-double GetX (TransformMatrix matrix, double x, double y)
+double GetX (Components::TransformMatrix matrix, double x, double y)
 {
 	return x * matrix.a + y * matrix.c + matrix.e;
 }
 
-double GetY (TransformMatrix matrix, double x, double y)
+double GetY (Components::TransformMatrix matrix, double x, double y)
 {
 	return x * matrix.b + y * matrix.d + matrix.f;
 }
 
-int GetXRound (TransformMatrix matrix, double x, double y, bool round)
+int GetXRound (Components::TransformMatrix matrix, double x, double y, bool round)
 {
 	double v = GetX(matrix, x, y);
 
@@ -307,7 +307,7 @@ int GetXRound (TransformMatrix matrix, double x, double y, bool round)
 	return v;
 }
 
-int GetYRound (TransformMatrix matrix, double x, double y, bool round)
+int GetYRound (Components::TransformMatrix matrix, double x, double y, bool round)
 {
 	double v = GetY(matrix, x, y);
 

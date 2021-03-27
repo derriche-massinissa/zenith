@@ -8,7 +8,7 @@
 #ifndef ZEN_COMPONENTS_BLENDMODE_HPP
 #define ZEN_COMPONENTS_BLENDMODE_HPP
 
-#include "../../enums/blend_modes.hpp"
+#include "../enums/blend_modes.hpp"
 
 namespace Zen {
 namespace Components {

@@ -5,11 +5,10 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "scroll_factor.hpp"
+#include "../scroll_factor.hpp"
 
-#include "entt/entt.hpp"
-#include "../components/scroll_factor.hpp"
 #include "../../utils/assert.hpp"
+#include "../../components/scroll_factor.hpp"
 
 namespace Zen {
 
@@ -17,8 +16,7 @@ extern entt::registry registry;
 
 void SetScrollFactor (Entity entity, double x, double y)
 {
-	auto scrollFactor = registry.try_get<ScrollFactorComponent>(entity);
-
+	auto scrollFactor = registry.try_get<Components::ScrollFactor>(entity);
 	ZEN_ASSERT(scrollFactor, "The entity has no 'ScrollFactor' component.");
 
 	scrollFactor->x = x;
@@ -27,13 +25,12 @@ void SetScrollFactor (Entity entity, double x, double y)
 
 void SetScrollFactor (Entity entity, double value)
 {
-	SetScrollFactor(value, value);
+	SetScrollFactor(entity, value, value);
 }
 
 double GetScrollFactorX (Entity entity)
 {
-	auto scrollFactor = registry.try_get<ScrollFactorComponent>(entity);
-
+	auto scrollFactor = registry.try_get<Components::ScrollFactor>(entity);
 	ZEN_ASSERT(scrollFactor, "The entity has no 'ScrollFactor' component.");
 
 	return scrollFactor->x;
@@ -41,8 +38,7 @@ double GetScrollFactorX (Entity entity)
 
 double GetScrollFactorY (Entity entity)
 {
-	auto scrollFactor = registry.try_get<ScrollFactorComponent>(entity);
-
+	auto scrollFactor = registry.try_get<Components::ScrollFactor>(entity);
 	ZEN_ASSERT(scrollFactor, "The entity has no 'ScrollFactor' component.");
 
 	return scrollFactor->y;
