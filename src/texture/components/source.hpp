@@ -12,8 +12,9 @@
 #include "../../ecs/entity.hpp"
 
 namespace Zen {
+namespace Components {
 
-struct TextureSourceComponent
+struct TextureSource
 {
 	/**
 	 * The texture to which this Source belongs to.
@@ -66,6 +67,7 @@ struct TextureSourceComponent
 	int width, height;
 };
 
-}
+} // namespace Components
+} // namespace Zen
 
 #endif

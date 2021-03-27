@@ -5,13 +5,20 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_CAMERAS_SCENE2D_CAMERA_FWD_HPP
-#define ZEN_CAMERAS_SCENE2D_CAMERA_FWD_HPP
+#ifndef ZEN_COMPONENTS_CROP_HPP
+#define ZEN_COMPONENTS_CROP_HPP
+
+#include "../texture/crop_data.hpp"
 
 namespace Zen {
+namespace Components {
 
-class Camera;
+struct Crop
+{
+	CropData data;
+};
 
+}	// namespace Components
 }	// namespace Zen
 
 #endif

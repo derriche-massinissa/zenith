@@ -11,8 +11,9 @@
 #include "../../ecs/entity.hpp"
 
 namespace Zen {
+namespace Components {
 
-struct TextureComponent
+struct Texture
 {
 	/**
 	 * The unique key of this Texture.
@@ -37,6 +38,7 @@ struct TextureComponent
 	Entity firstFrame;
 };
 
+}	// namespace Components
 }	// namespace Zen
 
 #endif

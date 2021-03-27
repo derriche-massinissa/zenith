@@ -5,13 +5,21 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_CAMERAS_SCENE2D_CAMERA_FWD_HPP
-#define ZEN_CAMERAS_SCENE2D_CAMERA_FWD_HPP
+#ifndef ZEN_COMPONENTS_ORIGIN_HPP
+#define ZEN_COMPONENTS_ORIGIN_HPP
 
 namespace Zen {
+namespace Components {
 
-class Camera;
+struct Origin
+{
+	double x = 0.,
+		   y = 0.,
+		   displayX = 0.,
+		   displayY = 0.;
+};
 
+}	// namespace Components
 }	// namespace Zen
 
 #endif

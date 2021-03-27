@@ -12,8 +12,9 @@
 #include "../frame_data.hpp"
 
 namespace Zen {
+namespace Components {
 
-struct FrameComponent
+struct Frame
 {
 	/**
 	 * The name of this Frame.
@@ -184,6 +185,7 @@ struct FrameComponent
 	FrameData data;
 };
 
+}	// namespace Components
 }	// namespace Zen
 
 #endif
