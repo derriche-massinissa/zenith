@@ -59,6 +59,14 @@ void SetCrop (Entity entity, Rectangle rect)
 	SetCrop(entity, rect.x, rect.y, rect.width, rect.height);
 }
 
+CropData GetCrop (Entity entity)
+{
+	auto crop = g_registry.try_get<Components::Crop>(entity);
+	ZEN_ASSERT(crop, "The entity has no 'Crop' component.");
+
+	return crop->data;
+}
+
 void SetTexture (Entity entity, std::string key, std::string frame)
 {
 	auto textured = g_registry.try_get<Components::Textured>(entity);
@@ -132,6 +140,14 @@ void ResetCropObject (Entity entity)
 
 	crop->data.flipX = false;
 	crop->data.flipY = false;
+}
+
+bool IsCropped (Entity entity)
+{
+	auto textured = g_registry.try_get<Components::Textured>(entity);
+	ZEN_ASSERT(textured, "Entity has no 'Textured' component.");
+
+	return textured->isCropped;
 }
 
 }	// namespace Zen

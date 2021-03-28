@@ -5,19 +5,44 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "renderer.h"
+#include "renderer.hpp"
 
-#include "../gameobjects/gameobject.h"
-#include "../texture/frame.h"
-#include "../cameras/2d/camera.h"
-#include "../core/game.h"
-#include "../window/window.h"
+#include "../core/game.hpp"
+#include "../window/window.hpp"
 #include "../scene/scene.h"
 
-#include "../structs/size.h"
-#include "../math/rad_to_deg.h"
+#include "../structs/types/size.hpp"
+#include "../math/rad_to_deg.hpp"
+#include "../math/clamp.hpp"
+#include "../utils/messages.hpp"
+
+#include "../systems/position.hpp"
+#include "../systems/size.hpp"
+#include "../systems/viewport.hpp"
+#include "../systems/mask.hpp"
+#include "../systems/transparent.hpp"
+#include "../systems/background_color.hpp"
+#include "../systems/alpha.hpp"
+#include "../systems/dirty.hpp"
+#include "../systems/origin.hpp"
+#include "../systems/textured.hpp"
+#include "../systems/flip.hpp"
+#include "../systems/transform_matrix.hpp"
+#include "../systems/scale.hpp"
+#include "../systems/rotation.hpp"
+#include "../systems/scroll_factor.hpp"
+#include "../systems/scroll.hpp"
+#include "../systems/tint.hpp"
+#include "../systems/blend_mode.hpp"
+#include "../display/color.hpp"
+#include "../texture/systems/frame.hpp"
+#include "../texture/components/frame.hpp"
+#include "../texture/components/source.hpp"
+#include "../cameras/2d/systems/camera.hpp"
 
 namespace Zen {
+
+extern entt::registry g_registry;
 
 Renderer::Renderer (Game& game_)
 	: game (game_)
@@ -51,7 +76,7 @@ void Renderer::start ()
 
 	if (!infoSurface_)
 	{
-		messageError("Failed to create info surface from window: ", SDL_GetError());
+		MessageError("Failed to create info surface from window: ", SDL_GetError());
 		return;
 	}
 
@@ -75,9 +100,9 @@ void Renderer::start ()
 	resize(window.width(), window.height());
 }
 
-void Renderer::onResize (Structs::Size gameSize_, Structs::Size displaySize_, int previousWidth_, int previousHeight_)
+void Renderer::onResize (Size gameSize_, Size displaySize_, int previousWidth_, int previousHeight_)
 {
-	resize(gameSize_.getWidth(), gameSize_.getHeight());
+	resize(gameSize_.width, gameSize_.height);
 }
 
 void Renderer::resize (int width_, int height_)
@@ -142,9 +167,9 @@ void Renderer::preRender ()
 	{
 		SDL_SetRenderDrawColor(
 				window.renderer,
-				backgroundColor.red(),
-				backgroundColor.green(),
-				backgroundColor.blue(),
+				backgroundColor.red,
+				backgroundColor.green,
+				backgroundColor.blue,
 				0xff);
 		SDL_RenderClear(window.renderer);
 	}
@@ -156,8 +181,8 @@ void Renderer::preRender ()
 
 void Renderer::render (
 		Scene& scene_,
-		std::vector<GameObjects::GameObject*> children_,
-		Cameras::Scene2D::Camera& camera_)
+		std::vector<Entity> children_,
+		Entity camera_)
 {
 	emit("render");
 
@@ -167,12 +192,12 @@ void Renderer::render (
 	double scaleY_ = game.scale.displayScale.y;
 
 	SDL_Rect c_;
-	c_.x = camera_.getX();
-	c_.y = camera_.getY();
-	c_.w = camera_.getWidth();
-	c_.h = camera_.getHeight();
+	c_.x = GetX(camera_);
+	c_.y = GetY(camera_);
+	c_.w = GetWidth(camera_);
+	c_.h = GetHeight(camera_);
 
-	if (camera_.customViewport || game.scale.scaleMode != SCALE_MODE::RESIZE)
+	if (GetViewport(camera_) || game.scale.scaleMode != SCALE_MODE::RESIZE)
 	{
 		// Skip rendering this camera if its viewport is outside the window
 		if (c_.x > width || c_.y > height || c_.x < -c_.w || c_.y < -c_.h)
@@ -213,24 +238,26 @@ void Renderer::render (
 	c_.y += offsetY_;
 
 	// Clip the renderer
-	if (camera_.customViewport || game.scale.scaleMode != SCALE_MODE::RESIZE)
+	if (GetViewport(camera_) || game.scale.scaleMode != SCALE_MODE::RESIZE)
 	{
 		SDL_RenderSetClipRect(window.renderer, &c_);
 	}
 
-	if (camera_.mask)
-		preRenderMask(nullptr);
+	if (GetMask(camera_) != entt::null)
+		preRenderMask(entt::null);
 
 	// Camera's background color if not transparent
-	if (!camera_.transparent) {
+	if (!IsTransparent(camera_)) {
 		SDL_SetRenderDrawBlendMode(window.renderer, SDL_BLENDMODE_BLEND);
+
+		auto bgc = GetBackgroundColor(camera_);
 
 		SDL_SetRenderDrawColor(
 			window.renderer,
-			camera_.backgroundColor.red(),
-			camera_.backgroundColor.green(),
-			camera_.backgroundColor.blue(),
-			camera_.backgroundColor.alpha() * camera_.getAlpha()
+			bgc.red,
+			bgc.green,
+			bgc.blue,
+			bgc.alpha * GetAlpha(camera_)
 		);
 
 		SDL_RenderFillRect(window.renderer, &c_);
@@ -250,16 +277,16 @@ void Renderer::render (
 			batchSprite(*child_, *child_->frame, camera_, child_->parentMatrix);
 	}
 
-	camera_.flashEffect.postRender();
-	camera_.fadeEffect.postRender();
+	//camera_.flashEffect.postRender();
+	//camera_.fadeEffect.postRender();
 
-	camera_.dirty = false;
+	SetDirty(camera_, false);
 
-	if (camera_.mask)
-		postRenderMask(camera_.mask, nullptr, &camera_);
+	if (GetMask(camera_) != entt::null)
+		postRenderMask(camera_.mask, nullptr, camera_);
 
 	// Remove the viewport if previously set
-	if (camera_.customViewport)
+	if (GetViewport(camera_))
 	{
 		SDL_RenderSetClipRect(window.renderer, nullptr);
 	}
@@ -302,16 +329,16 @@ Renderer& Renderer::snapshotArea (
 
 	snapshotState.getPixel = false;
 
-	snapshotState.x = Math::clamp(x_, 0, window.width());
+	snapshotState.x = Math::Clamp(x_, 0, window.width());
 
-	snapshotState.y = Math::clamp(y_, 0, window.height());
+	snapshotState.y = Math::Clamp(y_, 0, window.height());
 
-	snapshotState.width = Math::clamp(
+	snapshotState.width = Math::Clamp(
 			width_,
 			0,
 			window.width() - snapshotState.x);
 
-	snapshotState.height = Math::clamp(
+	snapshotState.height = Math::Clamp(
 			height_,
 			0,
 			window.height() - snapshotState.y);
@@ -321,7 +348,7 @@ Renderer& Renderer::snapshotArea (
 	return *this;
 }
 
-Renderer& Renderer::snapshotPixel (int x_, int y_, std::function<void(Display::Color)>& callback_)
+Renderer& Renderer::snapshotPixel (int x_, int y_, std::function<void(Color)>& callback_)
 {
 	snapshotArea(x_, y_, 1, 1, "", nullptr);
 
@@ -331,7 +358,7 @@ Renderer& Renderer::snapshotPixel (int x_, int y_, std::function<void(Display::C
 	return *this;
 }
 
-Renderer& Renderer::snapshotPixel (int x_, int y_, std::function<void(Display::Color)>&& callback_)
+Renderer& Renderer::snapshotPixel (int x_, int y_, std::function<void(Color)>&& callback_)
 {
 	return snapshotPixel(x_, y_, callback_);
 }
@@ -364,7 +391,7 @@ void Renderer::takeSnapshot ()
 					pitch_
 					))
 		{
-			messageError("Failed to read the window pixel data: ", SDL_GetError());
+			MessageError("Failed to read the window pixel data: ", SDL_GetError());
 			return;
 		}
 
@@ -373,8 +400,8 @@ void Renderer::takeSnapshot ()
 		SDL_GetRGBA(pixel_, &pixelFormat, &r_, &g_, &b_, &a_);
 
 		// Save the color components to the output color object
-		Display::Color out_;
-		out_.setTo(r_, g_, b_, a_);
+		Color out_;
+		SetTo(&out_, r_, g_, b_, a_);
 
 		// Call the callback if one was given
 		if (snapshotState.callbackPixel)
@@ -415,7 +442,7 @@ void Renderer::takeSnapshot ()
 					);
 		}
 		if (!snapshotState.surface) {
-			messageError("Failed to create an RGB surface: ", SDL_GetError());
+			MessageError("Failed to create an RGB surface: ", SDL_GetError());
 			return;
 		}
 
@@ -430,7 +457,7 @@ void Renderer::takeSnapshot ()
 			rect_.w = snapshotState.width;
 			rect_.h = snapshotState.height;
 
-			messageNote("area");
+			MessageNote("area");
 
 			readFailed_ = SDL_RenderReadPixels(
 					window.renderer,
@@ -450,7 +477,7 @@ void Renderer::takeSnapshot ()
 
 		// Check if the renderer was read normally
 		if (readFailed_) {
-			messageError("Failed to read the window pixel data: ", SDL_GetError());
+			MessageError("Failed to read the window pixel data: ", SDL_GetError());
 			SDL_FreeSurface(snapshotState.surface);
 			return;
 		}
@@ -485,36 +512,36 @@ void Renderer::saveSnapshot ()
 	if (extension_ == "bmp")
 	{
 		if (SDL_SaveBMP(snapshotState.surface, path_.c_str()))
-			messageError("Failed to save snapshot in a 'BMP' file: ", SDL_GetError());
+			MessageError("Failed to save snapshot in a 'BMP' file: ", SDL_GetError());
 	}
 	else if (extension_ == "png")
 	{
 		if (IMG_SavePNG(snapshotState.surface, path_.c_str()))
-			messageError("Failed to save snapshot in a 'PNG' file: ", IMG_GetError());
+			MessageError("Failed to save snapshot in a 'PNG' file: ", IMG_GetError());
 	}
 	else if (extension_ == "jpg")
 	{
 		if (IMG_SaveJPG(snapshotState.surface, path_.c_str(), 100))
-			messageError("Failed to save snapshot in a 'JPG' file: ", IMG_GetError());
+			MessageError("Failed to save snapshot in a 'JPG' file: ", IMG_GetError());
 	}
 	else if (extension_ == "jpeg")
 	{
 		if (IMG_SaveJPG(snapshotState.surface, path_.c_str(), 100))
-			messageError("Failed to save snapshot in a 'JPEG' file: ", IMG_GetError());
+			MessageError("Failed to save snapshot in a 'JPEG' file: ", IMG_GetError());
 	}
 	else
 	{
-		messageError("File type unsupported! Try something else like 'png' or 'jpg'.");
+		MessageError("File type unsupported! Try something else like 'png' or 'jpg'.");
 	}
 }
 
 void Renderer::batchSprite (
-		GameObjects::GameObject& sprite_,
-		Textures::Frame& frame_,
-		Cameras::Scene2D::Camera& camera_,
-		GameObjects::Components::TransformMatrix *parentTransformMatrix_)
+		Entity sprite_,
+		Entity frame_,
+		Entity camera_,
+		Components::TransformMatrix *parentTransformMatrix_)
 {
-	double alpha_ = camera_.getAlpha() * sprite_.getAlpha();
+	double alpha_ = GetAlpha(camera_) * GetAlpha(sprite_);
 
 	if (!alpha_)
 		// Nothing to see, so abort early
@@ -523,27 +550,34 @@ void Renderer::batchSprite (
 	auto& camMatrix_ = tempMatrix1;
 	auto& spriteMatrix_ = tempMatrix2;
 
-	Geom::Rectangle dd_ = frame_.getDrawImageData();
+	Rectangle dd_ = GetFrameDrawImageData(frame_);
+
+	auto cut = GetFrameCut(frame_);
+
+	// FIXME Stop cheating and implement correct components to frames
+	auto frameCheat___ = g_registry.get<Components::Frame>(frame_);
 
 	int frameX_ = dd_.x;
 	int frameY_ = dd_.y;
-	int frameWidth_ = frame_.cutWidth;
-	int frameHeight_ = frame_.cutHeight;
-	bool customPivot_ = frame_.customPivot;
+	int frameWidth_ = cut.width;
+	int frameHeight_ = cut.height;
+	bool customPivot_ = frameCheat___.customPivot;
 
-	double res_ = frame_.source->resolution;
+	// FIXME AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	double res_ = 1.0; // frame___.source->resolution;
 
-	int displayOriginX_ = sprite_.getDisplayOriginX();
-	int displayOriginY_ = sprite_.getDisplayOriginY();
+	int displayOriginX_ = GetDisplayOriginX(sprite_);
+	int displayOriginY_ = GetDisplayOriginY(sprite_);
 
-	int x_ = -displayOriginX_ + frame_.x;
-	int y_ = -displayOriginY_ + frame_.y;
+	int x_ = -displayOriginX_ + frameCheat___.x;
+	int y_ = -displayOriginY_ + frameCheat___.y;
 
-	if (sprite_.isCropped) {
-		auto& crop_ = sprite_.crop;
+	if (IsCropped(sprite_))
+	{
+		auto crop_ = GetCrop(sprite_);
 
-		if (crop_.flipX != sprite_.flipX || crop_.flipY != sprite_.flipY)
-			frame_.updateCropUVs(crop_, sprite_.flipX, sprite_.flipY);
+		if (crop_.flipX != GetFlipX(sprite_) || crop_.flipY != GetFlipY(sprite_))
+			UpdateFrameCropUVs(frame_, crop_, GetFlipX(sprite_), GetFlipY(sprite_));
 
 		frameWidth_ = crop_.cw;
 		frameHeight_ = crop_.ch;
@@ -554,14 +588,14 @@ void Renderer::batchSprite (
 		x_ = -displayOriginX_ + crop_.x;
 		y_ = -displayOriginY_ + crop_.y;
 
-		if (sprite_.flipX) {
+		if (GetFlipX(sprite_)) {
 			if (x_ >= 0)
 				x_ = -(x_ + frameWidth_);
 			else
 				x_ = (std::abs(x_) - frameWidth_);
 		}
 
-		if (sprite_.flipY) {
+		if (GetFlipY(sprite_)) {
 			if (y_ >= 0)
 				y_ = -(y_ + frameHeight_);
 			else
@@ -569,42 +603,41 @@ void Renderer::batchSprite (
 		}
 	}
 
-	bool flipX_ = sprite_.flipX;
-	bool flipY_ = sprite_.flipY;
+	bool flipX_ = GetFlipX(sprite_);
+	bool flipY_ = GetFlipY(sprite_);
 
-	spriteMatrix_.applyITRS(sprite_.getX(), sprite_.getY(), sprite_.getRotation(), sprite_.getScaleX(), sprite_.getScaleY());
+	ApplyITRS(&spriteMatrix_, GetX(sprite_), GetY(sprite_), GetRotation(sprite_), GetScaleX(sprite_), GetScaleY(sprite_));
 
-	camMatrix_.copyFrom(camera_.matrix);
+	camMatrix_ = GetTransformMatrix(camera_);
 
 	if (parentTransformMatrix_)
 	{
 		// Multiply the camera by the parent matrix
-		camMatrix_.multiplyWithOffset(
+		MultiplyWithOffset(
+				&camMatrix_,
 				*parentTransformMatrix_,
-				-camera_.scrollX * sprite_.getScrollFactorX(),
-				-camera_.scrollY * sprite_.getScrollFactorY()
+				-GetScrollX(camera_) * GetScrollFactorX(sprite_),
+				-GetScrollY(camera_) * GetScrollFactorY(sprite_)
 				);
 
 		// Undo the camera scroll
-		spriteMatrix_.setE(sprite_.getX());
-		spriteMatrix_.setF(sprite_.getY());
+		spriteMatrix_.e = GetX(sprite_);
+		spriteMatrix_.f = GetY(sprite_);
 	}
 	else
 	{
-		spriteMatrix_.setE(
-				spriteMatrix_.getE() - (camera_.scrollX * sprite_.getScrollFactorX()));
-		spriteMatrix_.setF(
-				spriteMatrix_.getF() - (camera_.scrollY * sprite_.getScrollFactorY()));
+		spriteMatrix_.e -= GetScrollX(camera_) * GetScrollFactorX(sprite_);
+		spriteMatrix_.f -= GetScrollY(camera_) * GetScrollFactorY(sprite_);
 	}
 
 	// Multiply by the Sprite matrix
-	camMatrix_.multiply(spriteMatrix_);
+	Multiply(&camMatrix_, spriteMatrix_);
 
 	// Decompose the transform matrix
-	GameObjects::Components::DecomposedMatrix dm_ = camMatrix_.decomposeMatrix();
+	DecomposedMatrix dm_ = DecomposeMatrix(camMatrix_);
 
-	if (sprite_.getMask())
-		preRenderMask(&sprite_);
+	if (GetMask(sprite_) != entt::null)
+		preRenderMask(sprite_);
 
 	// Render the texture
 	SDL_Rect source_ {frameX_, frameY_, frameWidth_, frameHeight_};
@@ -623,12 +656,12 @@ void Renderer::batchSprite (
 	destination_.h = (frameHeight_ / res_) * dm_.scaleY * sScale_.y;
 
 	// Rotation
-	double angle_ = Math::radToDeg( dm_.rotation );
+	double angle_ = Math::RadToDeg(dm_.rotation);
 
 	// Origin
 	SDL_Point origin_ {
-		displayOriginX_ * dm_.scaleX,
-		displayOriginY_ * dm_.scaleY
+		static_cast<int>(displayOriginX_ * dm_.scaleX),
+		static_cast<int>(displayOriginY_ * dm_.scaleY)
 	};
 
 	// Flip
@@ -646,14 +679,19 @@ void Renderer::batchSprite (
 		flip_ = (SDL_RendererFlip)SDL_FLIP_VERTICAL;
 	}
 
+	// FIXME AAAAAAAAAAAAAAAAAAAAAa
+	auto source___ = g_registry.get<Components::TextureSource>(frameCheat___.source);
+
 	// Tint (Color Modulation)
-	if (sprite_.isTinted())
+	if (IsTinted(sprite_))
 	{
+		Color tint_ =  GetTint(sprite_);
+
 		SDL_SetTextureColorMod(
-			frame_.source->sdlTexture,
-			sprite_.tint.red(),
-			sprite_.tint.green(),
-			sprite_.tint.blue()
+			source___.sdlTexture,
+			tint_.red,
+			tint_.green,
+			tint_.blue
 			);
 	}
 
@@ -661,27 +699,27 @@ void Renderer::batchSprite (
 	if (alpha_ < 1.0)
 	{
 		SDL_SetTextureBlendMode(
-			frame_.source->sdlTexture,
+			source___.sdlTexture,
 			SDL_BLENDMODE_BLEND
 			);
 		SDL_SetTextureAlphaMod(
-			frame_.source->sdlTexture,
+			source___.sdlTexture,
 			alpha_ * 255
 			);
 	}
 
 	// Blending
-	if (sprite_.getBlendMode() != BLEND_MODE::NORMAL)
+	if (GetBlendMode(sprite_) != BLEND_MODE::NORMAL)
 	{
 		SDL_SetTextureBlendMode(
-			frame_.source->sdlTexture,
-			blendModes[sprite_.getBlendMode()]
+			source___.sdlTexture,
+			blendModes[GetBlendMode(sprite_)]
 			);
 	}
 
 	SDL_RenderCopyEx(
 			window.renderer,
-			frame_.source->sdlTexture,
+			source___.sdlTexture,
 			&source_,
 			&destination_,
 			angle_,
@@ -690,10 +728,10 @@ void Renderer::batchSprite (
 			);
 
 	// Clear blending
-	if (sprite_.getBlendMode() != BLEND_MODE::NORMAL)
+	if (GetBlendMode(sprite_) != BLEND_MODE::NORMAL)
 	{
 		SDL_SetTextureBlendMode(
-			frame_.source->sdlTexture,
+			source___.sdlTexture,
 			blendModes[BLEND_MODE::NORMAL]
 			);
 	}
@@ -702,30 +740,30 @@ void Renderer::batchSprite (
 	if (alpha_ < 1.0)
 	{
 		SDL_SetTextureAlphaMod(
-			frame_.source->sdlTexture,
+			source___.sdlTexture,
 			255
 			);
 	}
 
 	// Clear tint from texture
-	if (sprite_.isTinted())
+	if (IsTinted(sprite_))
 	{
 		SDL_SetTextureColorMod(
-			frame_.source->sdlTexture,
+			source___.sdlTexture,
 			0xff,
 			0xff,
 			0xff
 			);
 	}
 
-	if (sprite_.getMask())
-		postRenderMask(sprite_.getMask(), &sprite_, &camera_);
+	if (GetMask(sprite_) != entt::null)
+		postRenderMask(GetMask(sprite_), sprite_, camera_);
 }
 
-void Renderer::preRenderMask (GameObjects::GameObject *maskedObject_)
+void Renderer::preRenderMask (Entity maskedObject_)
 {
 	// Is this a camera mask?
-	if (!maskedObject_)
+	if (maskedObject_ != entt::null)
 	{
 		SDL_SetRenderTarget(window.renderer, cameraBuffer);
 	}
@@ -740,9 +778,9 @@ void Renderer::preRenderMask (GameObjects::GameObject *maskedObject_)
 }
 
 void Renderer::postRenderMask (
-		GameObjects::GameObject *maskObject_,
-		GameObjects::GameObject *maskedObject_,
-		Cameras::Scene2D::Camera *camera_)
+		Entity maskObject_,
+		Entity maskedObject_,
+		Entity camera_)
 {
 	// Save the target buffer
 	SDL_Texture *currentTarget_ = SDL_GetRenderTarget(window.renderer);
@@ -755,8 +793,8 @@ void Renderer::postRenderMask (
 	SDL_RenderClear(window.renderer);
 
 	// Draw the mask GameObject
-	camera_->addToRenderList(*maskObject_);
-	batchSprite(*maskObject_, *maskObject_->frame, *camera_, maskObject_->parentMatrix);
+	AddToRenderList(camera_, maskObject_);
+	batchSprite(maskObject_, maskObject_->frame, camera_, maskObject_->parentMatrix);
 
 	// Reset the target to the buffer
 	SDL_SetRenderTarget(window.renderer, currentTarget_);
@@ -770,7 +808,7 @@ void Renderer::postRenderMask (
 			);
 
 	// Is this a camera mask?
-	if (!maskedObject_)
+	if (maskedObject_ != entt::null)
 	{
 		// Reset the rendering target
 		SDL_SetRenderTarget(window.renderer, nullptr);
@@ -785,7 +823,7 @@ void Renderer::postRenderMask (
 	else
 	{
 		// Is a camera mask active? If so, set it back to be the rendering target
-		if (camera_->mask)
+		if (GetMask(camera_) != entt::null)
 			SDL_SetRenderTarget(window.renderer, cameraBuffer);
 		else
 			SDL_SetRenderTarget(window.renderer, nullptr);

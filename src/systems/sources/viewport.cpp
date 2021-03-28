@@ -27,4 +27,12 @@ void SetViewport (Entity entity, double x, double y, double width, double height
 	SetSize(entity, width, height);
 }
 
+bool GetViewport (Entity entity)
+{
+	auto viewport = g_registry.try_get<Components::Viewport>(entity);
+	ZEN_ASSERT(viewport, "The entity has no 'Viewport' component.");
+
+	return viewport->value;
+}
+
 }	// namespace Zen

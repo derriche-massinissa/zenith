@@ -15,19 +15,17 @@
 #include <cmath>
 #include <algorithm>
 
-#include "../const.h"
+#include "../enums/blend_modes.hpp"
 
-#include "../event/event_emitter.h"
-#include "../math/vector2.h"
-#include "../display/color.h"
-#include "../structs/size.h"
-#include "../gameobjects/components/transform_matrix.h"
+#include "../ecs/entity.hpp"
+#include "../event/event_emitter.hpp"
+#include "../math/types/vector2.hpp"
+#include "../display/types/color.hpp"
+#include "../structs/types/size.hpp"
+#include "../components/transform_matrix.hpp"
 
-#include "../gameobjects/gameobject.fwd.h"
-#include "../texture/frame.fwd.h"
-#include "../cameras/2d/camera.fwd.h"
-#include "../core/game.fwd.h"
-#include "../window/window.fwd.h"
+#include "../core/game.fwd.hpp"
+#include "../window/window.fwd.hpp"
 #include "../scene/scene.fwd.h"
 
 namespace Zen {
@@ -64,7 +62,7 @@ struct SnapshotState
 
 	std::function<void(SDL_Surface*)> callback = nullptr;
 
-	std::function<void(Display::Color)> callbackPixel = nullptr;
+	std::function<void(Color)> callbackPixel = nullptr;
 
 	/**
 	 * An internal surface pointer that keeps that last snapshot taken, or has
@@ -77,7 +75,7 @@ struct SnapshotState
 	bool active = false;
 };
 
-class Renderer : public Events::EventEmitter
+class Renderer : public EventEmitter
 {
 public:
 	/**
@@ -111,7 +109,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Display::Color backgroundColor;
+	Color backgroundColor;
 
 	/**
 	 * The total number of Game Objects which were rendered in a frame.
@@ -216,21 +214,21 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	GameObjects::Components::TransformMatrix tempMatrix1;
+	Components::TransformMatrix tempMatrix1;
 
 	/**
 	 * A temporary Transform Matrix, re-used internally during batching.
 	 *
 	 * @since 0.0.0
 	 */
-	GameObjects::Components::TransformMatrix tempMatrix2;
+	Components::TransformMatrix tempMatrix2;
 
 	/**
 	 * A temporary Transform Matrix, re-used internally during batching.
 	 *
 	 * @since 0.0.0
 	 */
-	GameObjects::Components::TransformMatrix tempMatrix3;
+	Components::TransformMatrix tempMatrix3;
 
 	/**
 	 * Details about the currently scheduled snapshot.
@@ -266,7 +264,7 @@ public:
 	 * @param baseSize_ The base Size object. The game dimensions multiplied by
 	 * the resolution. The window width / height values match this.
 	 */
-	void onResize (Structs::Size gameSize_, Structs::Size displaySize_, int previousWidth_, int previousHeight_);
+	void onResize (Size gameSize_, Size displaySize_, int previousWidth_, int previousHeight_);
 
 	/**
 	 * Resize the main game canvas.
@@ -304,7 +302,7 @@ public:
 	 * @param children_ An array of filtered Game Objects that can be rendered by the given Camera.
 	 * @param camera_ The Scene Camera to render with.
 	 */
-	void render (Scene& scene_, std::vector<GameObjects::GameObject*> children_, Cameras::Scene2D::Camera& camera_);
+	void render (Scene& scene_, std::vector<Entity> children_, Entity camera_);
 
 	/**
 	 * Takes a snapshot if one is scheduled.
@@ -382,7 +380,7 @@ public:
 	 *
 	 * @return This Renderer instance.
 	 */
-	Renderer& snapshotPixel (int x_, int y_, std::function<void(Display::Color)>& callback_);
+	Renderer& snapshotPixel (int x_, int y_, std::function<void(Color)>& callback_);
 
 	/**
 	 * @overload
@@ -394,7 +392,7 @@ public:
 	 *
 	 * @return This Renderer instance.
 	 */
-	Renderer& snapshotPixel (int x_, int y_, std::function<void(Display::Color)>&& callback_);
+	Renderer& snapshotPixel (int x_, int y_, std::function<void(Color)>&& callback_);
 
 	/**
 	 * Takes a Sprite Game Object, or any object that extends it, and draws it
@@ -410,18 +408,18 @@ public:
 	 * container, if set.
 	 */
 	void batchSprite (
-			GameObjects::GameObject& sprite_,
-			Textures::Frame& frame_,
-			Cameras::Scene2D::Camera& camera_,
-			GameObjects::Components::TransformMatrix* parentTransformMatrix_ = nullptr);
+			Entity sprite_,
+			Entity frame_,
+			Entity camera_,
+			Components::TransformMatrix* parentTransformMatrix_ = nullptr);
 
 	void preRenderMask (
-			GameObjects::GameObject *maskedObject_ = nullptr);
+			Entity maskedObject_ = entt::null);
 
 	void postRenderMask (
-			GameObjects::GameObject *maskObject_,
-			GameObjects::GameObject *maskedObject_,
-			Cameras::Scene2D::Camera *camera_);
+			Entity maskObject_,
+			Entity maskedObject_,
+			Entity camera_);
 
 private:
 	/**

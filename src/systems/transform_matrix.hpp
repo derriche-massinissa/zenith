@@ -295,6 +295,8 @@ int GetXRound (Components::TransformMatrix matrix, double x, double y, bool roun
  */
 int GetYRound (Components::TransformMatrix matrix, double x, double y, bool round = false);
 
+Components::TransformMatrix GetTransformMatrix (Entity entity);
+
 }	// namespace Zen
 
 #endif

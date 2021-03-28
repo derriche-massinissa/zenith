@@ -23,8 +23,7 @@
 #include "../scale/scale_manager.hpp"
 #include "../scene/scene_manager.h"
 #include "../texture/texture_manager.hpp"
-// FIXME
-//#include "../renderer/renderer.h"
+#include "../renderer/renderer.hpp"
 //#include "../audio/audio_manager.h"
 
 /**

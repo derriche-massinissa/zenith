@@ -5,16 +5,16 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SYSTEMS_VIEWPORT_HPP
-#define ZEN_SYSTEMS_VIEWPORT_HPP
+#ifndef ZEN_SYSTEMS_TRANSPARENT_HPP
+#define ZEN_SYSTEMS_TRANSPARENT_HPP
 
 #include "../ecs/entity.hpp"
 
 namespace Zen {
 
-void SetViewport (Entity entity, double x, double y, double width, double height = 0.);
+void SetTransparency (Entity entity, bool value);
 
-bool GetViewport (Entity entity);
+bool IsTransparent (Entity entity);
 
 }	// namespace Zen
 

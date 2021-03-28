@@ -21,9 +21,9 @@ void SetScroll (Entity entity, double x, double y);
 
 void SetScroll (Entity entity, double value = 0.);
 
-double GetScrollX (Entity entity, double value);
+double GetScrollX (Entity entity);
 
-double GetScrollY (Entity entity, double value);
+double GetScrollY (Entity entity);
 
 void CenterOnX (Entity entity, double x);
 

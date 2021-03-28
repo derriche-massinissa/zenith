@@ -164,6 +164,10 @@ bool IsFrameTrimmed (Entity frame);
  */
 Rectangle GetFrameDrawImageData (Entity frame);
 
+Entity GetFrameSource (Entity frame);
+
+Rectangle GetFrameCut (Entity frame);
+
 }	// namespace Zen
 
 #endif

@@ -49,4 +49,12 @@ void SetBackgroundColor (Entity entity, Color color)
 		transparent->value = true;
 }
 
+Color GetBackgroundColor (Entity entity)
+{
+	auto bgc = g_registry.try_get<Components::BackgroundColor>(entity);
+	ZEN_ASSERT(bgc, "The entity has no 'BackgroundColor' component.");
+
+	return bgc->color;
+}
+
 }	// namespace Zen

@@ -9,6 +9,7 @@
 #define ZEN_SYSTEMS_TINT_HPP
 
 #include "../ecs/entity.hpp"
+#include "../display/types/color.hpp"
 
 namespace Zen {
 
@@ -27,6 +28,8 @@ void SetTintFill (
 		int topRight = -1,
 		int bottomLeft = -1,
 		int bottomRight = -1);
+
+Color GetTint (Entity);
 
 bool IsTinted (Entity entity);
 

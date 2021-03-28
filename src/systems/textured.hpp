@@ -9,8 +9,9 @@
 #define ZEN_SYSTEMS_TEXTURED_HPP
 
 #include <string>
-#include "../geom/types/rectangle.hpp"
 #include "../ecs/entity.hpp"
+#include "../geom/types/rectangle.hpp"
+#include "../texture/crop_data.hpp"
 
 namespace Zen {
 
@@ -18,11 +19,15 @@ void SetCrop (Entity entity, int x = -1, int y = -1, int width = -1, int height 
 
 void SetCrop (Entity entity, Rectangle rect);
 
+CropData GetCrop (Entity entity);
+
 void SetTexture (Entity entity, std::string key, std::string frame);
 
 void SetFrame (Entity entity, std::string frameName, bool updateSize = true, bool updateOrigin = true);
 
 void ResetCropObject (Entity entity);
+
+bool IsCropped (Entity entity);
 
 }	// namespace Zen
 

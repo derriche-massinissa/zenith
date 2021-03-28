@@ -20,7 +20,7 @@
 #include "../../structs/types/size.hpp"
 #include "../../input/pointer.h"
 #include "../../gameobjects/display_list.h"
-#include "../../renderer/renderer.fwd.h"
+#include "../../renderer/renderer.fwd.hpp"
 
 namespace Zen {
 

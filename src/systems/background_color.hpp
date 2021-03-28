@@ -19,6 +19,8 @@ void SetBackgroundColor (Entity entity, uint32_t color);
 
 void SetBackgroundColor (Entity entity, Color color);
 
+Color GetBackgroundColor (Entity entity);
+
 }	// namespace Zen
 
 #endif

@@ -9,6 +9,7 @@
 
 #include "../../components/tint.hpp"
 #include "../../utils/assert.hpp"
+#include "../../display/color.hpp"
 
 namespace Zen {
 
@@ -52,10 +53,20 @@ void SetTintFill (Entity entity, int topLeft, int topRight, int bottomLeft, int 
 	registry.get<Components::Tint>(entity).fill = true;
 }
 
+Color GetTint (Entity entity)
+{
+	auto tint = registry.try_get<Components::Tint>(entity);
+	ZEN_ASSERT(tint, "The entity has no 'Tint' component.");
+
+	Color output;
+	SetHex(&output, tint->tint);
+
+	return output;
+}
+
 bool IsTinted (Entity entity)
 {
 	auto tint = registry.try_get<Components::Tint>(entity);
-
 	ZEN_ASSERT(tint, "The entity has no 'Tint' component.");
 
 	return (tint->fill ||

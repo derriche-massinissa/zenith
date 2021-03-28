@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "renderer.h"
-#include "../const.h"
+#include "renderer.hpp"
+#include "../enums/blend_modes.hpp"
 
 namespace Zen {
 

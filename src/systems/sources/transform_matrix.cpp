@@ -9,8 +9,11 @@
 
 #include <cmath>
 #include "../../math/const.hpp"
+#include "../../utils/assert.hpp"
 
 namespace Zen {
+
+extern entt::registry g_registry;
 
 double GetTx (Components::TransformMatrix matrix)
 {
@@ -315,6 +318,14 @@ int GetYRound (Components::TransformMatrix matrix, double x, double y, bool roun
 		v = std::round(v);
 
 	return v;
+}
+
+Components::TransformMatrix GetTransformMatrix (Entity entity)
+{
+	auto matrix = g_registry.try_get<Components::TransformMatrix>(entity);
+	ZEN_ASSERT(matrix, "The entity has no 'TransformMatrix' component.");
+
+	return *matrix;
 }
 
 }	// namespace Zen
