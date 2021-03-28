@@ -13,6 +13,8 @@
 #include "../../components/size.hpp"
 #include "../../components/scale.hpp"
 #include "../../components/textured.hpp"
+#include "../../components/update.hpp"
+#include "../../components/zoom.hpp"
 
 #include "../../texture/components/frame.hpp"
 
@@ -22,24 +24,42 @@ extern entt::registry registry;
 
 double GetDisplayWidth (Entity entity)
 {
-	auto [scale, textured] = registry.try_get<Components::Scale, Components::Textured>(entity);
-	ZEN_ASSERT(scale && textured, "The entity has no 'Scale' or 'Textured' component.");
+	auto [scale, textured, size, zoom] = registry.try_get<Components::Scale, Components::Textured, Components::Size, Components::Zoom>(entity);
+	ZEN_ASSERT((scale && textured) || (size && zoom), "The entity has no 'Scale', 'Textured', 'Size' or 'Zoom' component.");
 
-	// Get frame
-	auto frame = registry.get<Components::Frame>(textured->frame);
-
-	return std::abs( scale->x * frame.data.sourceSize.width );
+	if (scale && textured)
+	{
+		auto frame = registry.get<Components::Frame>(textured->frame);
+		return std::abs( scale->x * frame.data.sourceSize.width );
+	}
+	else if (size && zoom)
+	{
+		return size->width / zoom->x;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 double GetDisplayHeight (Entity entity)
 {
-	auto [scale, textured] = registry.try_get<Components::Scale, Components::Textured>(entity);
-	ZEN_ASSERT(scale && textured, "The entity has no 'Scale' or 'Textured' component.");
+	auto [scale, textured, size, zoom] = registry.try_get<Components::Scale, Components::Textured, Components::Size, Components::Zoom>(entity);
+	ZEN_ASSERT((scale && textured) || (size && zoom), "The entity has no 'Scale', 'Textured', 'Size' or 'Zoom' component.");
 
-	// Get frame
-	auto frame = registry.get<Components::Frame>(textured->frame);
-
-	return std::abs( scale->y * frame.data.sourceSize.height );
+	if (scale && textured)
+	{
+		auto frame = registry.get<Components::Frame>(textured->frame);
+		return std::abs( scale->y * frame.data.sourceSize.height );
+	}
+	else if (size && zoom)
+	{
+		return size->height / zoom->y;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void SetDisplayWidth (Entity entity, double value)
@@ -87,11 +107,19 @@ void SetSizeToFrame (Entity entity, Entity frame)
 
 void SetSize (Entity entity, double width, double height)
 {
-	auto size = registry.try_get<Components::Size>(entity);
+	auto [size, update] = registry.try_get<Components::Size, Components::Update<Components::Size>>(entity);
 	ZEN_ASSERT(size, "The entity has no 'Size' component.");
 
 	size->width = width;
 	size->height = height;
+
+	if (update)
+		update->update(entity);
+}
+
+void SetSize (Entity entity, double value)
+{
+	SetSize(entity, value, value);
 }
 
 void SetDisplaySize (Entity entity, double width, double height)
@@ -104,6 +132,44 @@ void SetDisplaySize (Entity entity, double width, double height)
 
 	scale->x = width / frame.data.sourceSize.width;
 	scale->y = height / frame.data.sourceSize.height;
+}
+
+void SetWidth (Entity entity, double value)
+{
+	auto [size, update] = registry.try_get<Components::Size, Components::Update<Components::Size>>(entity);
+	ZEN_ASSERT(size, "The entity has no 'Size' component.");
+
+	size->width = value;
+
+	if (update)
+		update->update(entity);
+}
+
+void SetHeight (Entity entity, double value)
+{
+	auto [size, update] = registry.try_get<Components::Size, Components::Update<Components::Size>>(entity);
+	ZEN_ASSERT(size, "The entity has no 'Size' component.");
+
+	size->height = value;
+
+	if (update)
+		update->update(entity);
+}
+
+double GetWidth (Entity entity)
+{
+	auto size = registry.try_get<Components::Size>(entity);
+	ZEN_ASSERT(size, "The entity has no 'Size' component.");
+
+	return size->width;
+}
+
+double GetHeight (Entity entity)
+{
+	auto size = registry.try_get<Components::Size>(entity);
+	ZEN_ASSERT(size, "The entity has no 'Size' component.");
+
+	return size->height;
 }
 
 }	// namespace Zen

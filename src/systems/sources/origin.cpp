@@ -56,14 +56,17 @@ void SetDisplayOrigin (Entity entity, int value = 0)
 void SetOrigin (Entity entity, double x, double y)
 {
 	auto [origin, size] = registry.try_get<Components::Origin, Components::Size>(entity);
-	ZEN_ASSERT(origin && size, "The entity has no 'Origin' or 'Size' component.");
+	ZEN_ASSERT(origin, "The entity has no 'Origin' component.");
 
 	origin->x = x;
 	origin->y = y;
 
 	// Update display origin
-	origin->displayX = origin->x * size->width;
-	origin->displayY = origin->y * size->height;
+	if (size)
+	{
+		origin->displayX = origin->x * size->width;
+		origin->displayY = origin->y * size->height;
+	}
 }
 
 void SetOrigin (Entity entity, double value)

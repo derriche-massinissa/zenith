@@ -4,6 +4,7 @@
  * @copyright	2021 __COMPANY_LTD__
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
+
 #include "../rotation.hpp"
 
 #include "../../utils/assert.hpp"
@@ -12,6 +13,7 @@
 #include "../../math/angle/wrap_radians.hpp"
 #include "../../components/rotation.hpp"
 #include "../../components/container_item.hpp"
+#include "../../components/dirty.hpp"
 
 namespace Zen {
 
@@ -19,10 +21,13 @@ extern entt::registry g_registry;
 
 void SetAngle (Entity entity, double value)
 {
-	auto rotation = g_registry.try_get<Components::Rotation>(entity);
+	auto [rotation, dirty] = g_registry.try_get<Components::Rotation, Components::Dirty>(entity);
 	ZEN_ASSERT(rotation, "The entity has no 'Rotation' component.");
 
 	rotation->value = Math::WrapDegrees(value * Math::DEG_TO_RAD);
+
+	if (dirty)
+		dirty->value = true;
 }
 
 double GetAngle (Entity entity)
@@ -35,10 +40,13 @@ double GetAngle (Entity entity)
 
 void SetRotation (Entity entity, double value)
 {
-	auto rotation = g_registry.try_get<Components::Rotation>(entity);
+	auto [rotation, dirty] = g_registry.try_get<Components::Rotation, Components::Dirty>(entity);
 	ZEN_ASSERT(rotation, "The entity has no 'Rotation' component.");
 
 	rotation->value = Math::WrapRadians(value);
+
+	if (dirty)
+		dirty->value = true;
 }
 
 double GetRotation (Entity entity)

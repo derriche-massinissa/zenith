@@ -17,6 +17,7 @@
 #include <memory>
 
 #include "event_listener.hpp"
+#include "../ecs/entity.hpp"
 
 namespace Zen {
 
@@ -65,6 +66,21 @@ private:
 	 */
 	std::map<std::string, std::vector<std::unique_ptr<ListenerBase>>> eventMap;
 
+	/**
+	 * A map of entities and their respective event maps.
+	 *
+	 * This is used with the global event manager.
+	 *
+	 * @since 0.0.0
+	 */
+	std::map<
+		 Entity, std::map<
+			std::string, std::vector<
+				std::unique_ptr<ListenerBase>
+			>
+		>
+	> globalEventMap;
+
 public:
 	/**
 	 * Add a listener for a given event.
@@ -95,27 +111,6 @@ public:
 		eventMap[eventName_].emplace_back(
 				std::make_unique<Listener<Args...>> (eventName_, boundCB_, once_)
 				);
-
-		/**
-		 * @todo Delete this block in src/event/event_emitter.h
-		// Check if the event already has listeners (Exists in the event map)
-		auto iterator_ = eventMap.find(eventName_);
-
-		if (iterator_ != eventMap.end())
-		{
-			// Add the listener to this event
-			iterator_->second.emplace_back(
-					std::make_unique<Listener<Args...>> (eventName_, boundCB_, once_)
-					);
-		}
-		else
-		{
-			// Add the event to the event map
-			eventMap.emplace(eventName_, std::vector<std::unique_ptr<ListenerBase>> {
-					std::make_unique<Listener<Args...>> (eventName_, boundCB_, once_)
-					});
-		}
-		*/
 	}
 
 	/**
@@ -302,6 +297,117 @@ public:
 	 * @since 0.0.0
 	 */
 	void shutdown ();
+
+	// GLOBAL VERSION METHODS
+
+	template <typename T, typename... Args>
+	void addListener (Entity entity_, std::string eventName_, void (T::* callback_)(Args...), T *context_, bool once_)
+	{
+		// Bind function to the given context
+		std::function<void(Args...)> boundCB_ = [context_, callback_]
+			(Args... args_) -> void
+			{
+				(context_->*callback_)(args_...);
+			};
+
+		// Add the event to the event map
+		globalEventMap[entity_][eventName_].emplace_back(
+				std::make_unique<Listener<Args...>> (eventName_, boundCB_, once_)
+				);
+	}
+
+	template <typename T, typename... Args>
+	void on (Entity entity_, std::string eventName_, void (T::* callback_)(Args...), T *context_)
+	{
+		// Add the listener to this EventEmitter
+		addListener(entity_, eventName_, callback_, context_, false);
+	}
+
+	template <typename T, typename... Args>
+	void once (Entity entity_, std::string eventName_, void (T::* callback_)(Args...), T *context_)
+	{
+		// Add the listener to this EventEmitter
+		addListener(entity_, eventName_, callback_, context_, true);
+	}
+
+	template <typename... Args>
+	bool emit (Entity entity_, std::string eventName_, Args&&... args_)
+	{
+		// Is there any entity listening to events?
+		auto iterator_ = globalEventMap.find(entity_);
+		if (iterator_ == globalEventMap.end())
+			return false;
+
+		// Is the entity listening to the given event?
+		auto iterator2_ = globalEventMap[entity_].find(eventName_);
+		if (iterator2_ == globalEventMap[entity_].end())
+			return false;
+
+		// Activate the listeners
+		for (auto l_ = iterator2_->second.begin(); l_ != iterator2_->second.end();)
+		{
+			if ( static_cast<Listener<Args...>*>(l_->get())->activate(args_...) )
+			{
+				iterator2_->second.erase(l_);
+			}
+			else
+			{
+				// ONLY INCREMENT IF NO ERASE OPERATION HAPPENED!!
+				// ERASING NATURALLY MOVES LATER ELEMENTS TO THE LEFT!!!
+				l_++;
+			}
+		}
+
+		return true;
+	}
+
+	std::vector<std::string> getEventNames (Entity entity_);
+
+	int getListenerCount (Entity entity_, std::string event_);
+
+	std::vector<ListenerBase*> getListeners (Entity entity_, std::string event_);
+
+	void removeListener (Entity entity_, std::string event_, ListenerBase* listener_);
+
+	template <typename T, typename... Args>
+	void off (Entity entity_, std::string eventName_, void (T::* function_)(Args...), T *context_)
+	{
+		// Check if the entity is listening
+		auto it_ = globalEventMap.find(entity_);
+		if (it_ == globalEventMap.end())
+			return;
+
+		// Check if the event exists
+		auto it2_ = globalEventMap[entity_].find(eventName_);
+		if (it2_ == globalEventMap[entity_].end())
+			return;
+
+		// Bind the function to the given context
+		std::function<void(Args...)> boundFunc_ = [context_, function_]
+			(Args... args_) -> void
+			{
+				(context_->*function_)(args_...);
+			};
+
+		// Get a pointer to the target function
+		auto target_ = boundFunc_.template target<void(*)(Args...)>();
+
+		// Find Listener by comparing functor targets
+		for (auto l_ = it2_->second.begin(); l_ != it2_->second.end(); l_++)
+		{
+			auto listenerTarget_ = static_cast<Listener<Args...>*>(l_->get())->getCallback().template target<void(*)(Args...)>();
+
+			if (target_ == listenerTarget_)
+			{
+				it2_->second.erase(l_);
+				break;
+			}
+		}
+	}
+
+	void removeAllListeners (Entity entity_, std::vector<std::string> eventNames_ = {});
+
+	void removeAllListeners (Entity entity_, std::string eventName_);
 };
 
 }	// namespace Zen

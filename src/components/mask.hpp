@@ -16,6 +16,14 @@ namespace Components {
 struct Mask
 {
 	Entity mask;
+
+	/**
+	 * For camera masks to enable fixed mask position that isn' influenced by
+	 * the camera's transformations.
+	 *
+	 * @since 0.0.0
+	 */
+	bool fixed;
 };
 
 }	// namespace Components

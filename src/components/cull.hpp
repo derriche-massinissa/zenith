@@ -13,7 +13,7 @@ namespace Components {
 
 struct Cull
 {
-	bool value = false;
+	bool value = true;
 };
 
 }	// namespace Components

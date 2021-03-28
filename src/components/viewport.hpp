@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_COMPONENTS_BOUNDS_HPP
-#define ZEN_COMPONENTS_BOUNDS_HPP
+#ifndef ZEN_COMPONENTS_VIEWPORT_HPP
+#define ZEN_COMPONENTS_VIEWPORT_HPP
 
 #include "../geom/types/rectangle.hpp"
 

@@ -5,18 +5,14 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SYSTEMS_MASK_HPP
-#define ZEN_SYSTEMS_MASK_HPP
+#ifndef ZEN_SYSTEMS_VIEWPORT_HPP
+#define ZEN_SYSTEMS_VIEWPORT_HPP
 
 #include "../ecs/entity.hpp"
 
 namespace Zen {
 
-Entity GetMask (Entity entity);
-
-void SetMask (Entity entity, Entity maskEntity, bool fixedPosition = false);
-
-void ClearMask (Entity entity);
+void SetViewport (Entity entity, double x, double y, double width, double height = 0.);
 
 }	// namespace Zen
 

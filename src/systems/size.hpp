@@ -24,7 +24,17 @@ void SetSizeToFrame (Entity entity, Entity frame = entt::null);
 
 void SetSize (Entity entity, double width, double height);
 
+void SetSize (Entity entity, double value);
+
 void SetDisplaySize (Entity entity, double width, double height);
+
+void SetWidth (Entity entity, double value);
+
+void SetHeight (Entity entity, double value);
+
+double GetWidth (Entity entity);
+
+double GetHeight (Entity entity);
 
 }	// namespace Zen
 

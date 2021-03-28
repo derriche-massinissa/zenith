@@ -12,30 +12,32 @@
 
 namespace Zen {
 
-extern entt::registry registry;
+extern entt::registry g_registry;
 
 Entity GetMask (Entity entity)
 {
-	auto mask = registry.try_get<Components::Mask>(entity);
+	auto mask = g_registry.try_get<Components::Mask>(entity);
 	ZEN_ASSERT(mask, "The entity has no 'Mask' component.");
 
 	return mask->mask;
 }
 
-void SetMask (Entity entity, Entity maskEntity)
+void SetMask (Entity entity, Entity maskEntity, bool fixedPosition)
 {
-	auto mask = registry.try_get<Components::Mask>(entity);
+	auto mask = g_registry.try_get<Components::Mask>(entity);
 	ZEN_ASSERT(mask, "The entity has no 'Mask' component.");
 
 	mask->mask = maskEntity;
+	mask->fixed = fixedPosition;
 }
 
 void ClearMask (Entity entity)
 {
-	auto mask = registry.try_get<Components::Mask>(entity);
+	auto mask = g_registry.try_get<Components::Mask>(entity);
 	ZEN_ASSERT(mask, "The entity has no 'Mask' component.");
 
 	mask->mask = entt::null;
+	mask->fixed = false;
 }
 
 }	// namespace Zen

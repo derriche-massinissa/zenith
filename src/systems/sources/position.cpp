@@ -8,6 +8,8 @@
 #include "../position.hpp"
 
 #include "../../components/position.hpp"
+#include "../../components/update.hpp"
+#include "../../components/size.hpp"
 #include "../../utils/assert.hpp"
 #include "../../math/random.hpp"
 #include "../../scale/scale_manager.hpp"
@@ -64,34 +66,46 @@ void SetRandomPosition (Entity entity, double x, double y, double width, double 
 
 void SetX (Entity entity, double value)
 {
-	auto position = g_registry.try_get<Components::Position>(entity);
+	auto [position, update] = g_registry.try_get<Components::Position, Components::Update<Components::Position>>(entity);
 	ZEN_ASSERT(position, "The entity has no 'Position' component.");
 
 	position->x = value;
+
+	if (update)
+		update->update(entity);
 }
 
 void SetY (Entity entity, double value)
 {
-	auto position = g_registry.try_get<Components::Position>(entity);
+	auto [position, update] = g_registry.try_get<Components::Position, Components::Update<Components::Position>>(entity);
 	ZEN_ASSERT(position, "The entity has no 'Position' component.");
 
 	position->y = value;
+
+	if (update)
+		update->update(entity);
 }
 
 void SetZ (Entity entity, double value)
 {
-	auto position = g_registry.try_get<Components::Position>(entity);
+	auto [position, update] = g_registry.try_get<Components::Position, Components::Update<Components::Position>>(entity);
 	ZEN_ASSERT(position, "The entity has no 'Position' component.");
 
 	position->z = value;
+
+	if (update)
+		update->update(entity);
 }
 
 void SetW (Entity entity, double value)
 {
-	auto position = g_registry.try_get<Components::Position>(entity);
+	auto [position, update] = g_registry.try_get<Components::Position, Components::Update<Components::Position>>(entity);
 	ZEN_ASSERT(position, "The entity has no 'Position' component.");
 
 	position->w = value;
+
+	if (update)
+		update->update(entity);
 }
 
 double GetX (Entity entity)
@@ -124,6 +138,22 @@ double GetW (Entity entity)
 	ZEN_ASSERT(position, "The entity has no 'Position' component.");
 
 	return position->w;
+}
+
+double GetCenterX (Entity entity)
+{
+	auto [position, size] = g_registry.try_get<Components::Position, Components::Size>(entity);
+	ZEN_ASSERT(position && size, "The entity has no 'Position' or 'Size' component.");
+
+	return position->x + (0.5 * size->width);
+}
+
+double GetCenterY (Entity entity)
+{
+	auto [position, size] = g_registry.try_get<Components::Position, Components::Size>(entity);
+	ZEN_ASSERT(position && size, "The entity has no 'Position' or 'Size' component.");
+
+	return position->y + (0.5 * size->height);
 }
 
 }	// namespace Zen

@@ -7,694 +7,565 @@
 
 #include "camera.hpp"
 
-#include "../../math/linear.hpp"
-#include "../../math/deg_to_rad.hpp"
+#include <map>
+#include "../../../utils/assert.hpp"
+#include "../../../event/event_emitter.hpp"
+#include "../../../math/linear.hpp"
+#include "../../../math/deg_to_rad.hpp"
+#include "../../../geom/rectangle.hpp"
+
+#include "../../../components/position.hpp"
+#include "../../../components/size.hpp"
+#include "../../../components/scroll.hpp"
+#include "../../../components/zoom.hpp"
+#include "../../../components/rotation.hpp"
+#include "../../../components/transform_matrix.hpp"
+#include "../../../components/viewport.hpp"
+#include "../../../components/input.hpp"
+#include "../../../components/follow.hpp"
+#include "../../../components/deadzone.hpp"
+#include "../../../components/renderable.hpp"
+#include "../../../components/actor.hpp"
+#include "../../../components/id.hpp"
+#include "../../../components/visible.hpp"
+#include "../../../components/alpha.hpp"
+#include "../../../components/flip.hpp"
+#include "../../../components/tint.hpp"
+#include "../../../components/world_view.hpp"
+#include "../../../components/dirty.hpp"
+#include "../../../components/transparent.hpp"
+#include "../../../components/cull.hpp"
+#include "../../../components/origin.hpp"
+#include "../../../components/mask.hpp"
+#include "../../../components/background_color.hpp"
+#include "../../../components/update.hpp"
+#include "../../../components/scroll_factor.hpp"
+#include "../../../components/container_item.hpp"
+#include "../../../components/bounds.hpp"
+#include "../../../components/mid_point.hpp"
+#include "../../../systems/scroll.hpp"
+#include "../../../systems/bounds.hpp"
+#include "../../../systems/transform_matrix.hpp"
 
 namespace Zen {
 
-Entity CreateCamera (Entity camera, int x_, int y_, int width_, int height_)
+extern entt::registry g_registry;
+extern EventEmitter g_event;
+
+// Temporary vector, to not recreate a new one each culling pass
+static std::vector<Entity> culledObjects;
+
+// Map: Camera - Object List
+static std::map<Entity, std::vector<Entity>> renderLists;
+
+Entity CreateCamera (int x, int y, int width, int height)
 {
+	Entity camera = g_registry.create();
+
+	g_registry.emplace<Components::Position>(camera, x, y);
+	g_registry.emplace<Components::Size>(camera, width, height);
+	g_registry.emplace<Components::Scroll>(camera);
+	g_registry.emplace<Components::Zoom>(camera);
+	g_registry.emplace<Components::Rotation>(camera);
+	g_registry.emplace<Components::TransformMatrix>(camera);
+	g_registry.emplace<Components::Viewport>(camera);
+	g_registry.emplace<Components::Input>(camera);
+	g_registry.emplace<Components::Follow>(camera);
+	g_registry.emplace<Components::Deadzone>(camera);
+	g_registry.emplace<Components::Renderable>(camera);
+	g_registry.emplace<Components::Actor>(camera);
+	g_registry.emplace<Components::Id>(camera);
+	g_registry.emplace<Components::Visible>(camera);
+	g_registry.emplace<Components::Alpha>(camera);
+	g_registry.emplace<Components::Flip>(camera);
+	g_registry.emplace<Components::Tint>(camera);
+	g_registry.emplace<Components::WorldView>(camera);
+	g_registry.emplace<Components::Dirty>(camera);
+	g_registry.emplace<Components::Transparent>(camera, true);
+	g_registry.emplace<Components::Cull>(camera, true);
+	g_registry.emplace<Components::Origin>(camera);
+	g_registry.emplace<Components::Mask>(camera);
+	g_registry.emplace<Components::BackgroundColor>(camera);
+	g_registry.emplace<Components::MidPoint>(camera, width / 2., height / 2.);
+	g_registry.emplace<Components::Update<Components::Position>>(camera, &UpdateSystem);
+	g_registry.emplace<Components::Update<Components::Size>>(camera, &UpdateSystem);
+	g_registry.emplace<Components::Update<Components::Actor>>(camera, &UpdateSystem);
+
 	/*
 	 * Components:
-	 * - PositionComponent
-	 * - SizeComponent
-	 * - RotationComponent
-	 * - ZoomComponent
-	 * - UpdateComponent<PositionComponent>
-	 * - UpdateComponent<SizeComponent>
-	 * - UpdateComponent<RotationComponent> (Set dirty)
+	 * - Position
+	 * - Size
+	 * - Scroll
+	 * - Zoom
+	 * - Rotation
+	 * - Bounds (Only added if set by user)
+	 * - TransformMatrix
+	 * - Viewport
+	 * - Input
+	 * - Follow
+	 * - Deadzone
+	 * - Renderable
+	 * - Actor
+	 * - Id
+	 * - Name (Only added if set by user)
+	 * - Visible
+	 * - Alpha
+	 * - Flip
+	 * - Tint
+	 * - WorldView
+	 * - Dirty
+	 * - Transparent
+	 * - Cull
+	 * - Origin
+	 * - Mask
+	 * - Color (BG)
+	 * - Update<Position>
+	 * - Update<Size>
+	 * - Update<Rotation> (Set dirty)
+	 */
+
+	/*
+	 * ***
+	 *
+	 * culledObjects (Temporary): In camera manager:
+	 * std::map<Entity, std::vector<Entity>> culledObjects;
+	 *
+	 * ***
+	 *
+	 * The Camera that this Camera uses for translation during masking.
+	 *
+	 * If the mask is fixed in position this will be a reference to
+	 * the `CameraManager.def` instance. Otherwise, it'll be a reference
+	 * to itself.
+	 *
+	 * @since 0.0.0
+	 * Camera* maskCamera = nullptr;
+	 *
+	 * ***
+	 *
+	 * Effects
+	 *
+	 * ***
+	 * renderList: In camera manager:
+	 * std::map<Entity, std::vector<Entity>> renderLists;
+	 * Map of Camera - GameObjects
+	 * ---
+	 * This array is populated with all of the Game Objects that this Camera 
+	 * has rendered in the previous (or current, depending on when you
+	 * inspect it) frame.
+	 *
+	 * It is cleared at the start of `Camera.preUpdate`, or if the Camera is 
+	 * destroyed.
+	 *
+	 * You should not modify this array as it is used internally by the input 
+	 * system, however you can read it as required. Note that Game Objects may 
+	 * appear in this list multiple times if they belong to multiple non-
+	 * exclusive Containers.
+	 *
+	 * @since 0.0.0
+	 * std::vector<GameObjects::GameObject*> renderList;
+	 *
+	 * ***
+	 *
+	 * The mid-point of the Camera in 'world' coordinates.
+	 *
+	 * Use it to obtain exactly where in the world the center of the camera is 
+	 * currently looking.
+	 *
+	 * This value is updated in the preRender method, after the scroll values 
+	 * and follower
+	 * have been processed.
+	 *
+	 * @since 0.0.0
+	 * Math::Vector2 midPoint;
 	 */
 }
 
-void DestroyCamera (Entity camera, Entity camera)
+void DestroyCamera (Entity entity)
 {
-	resetFX();
+	//ResetFX(entity);
 
-	emit("destroy");
+	g_event.emit(entity, "destroy");
 
-	removeAllListeners();
+	g_event.removeAllListeners(entity);
 
 	culledObjects.clear();
 
-	if (customViewport)
-		// We're turning off a custom viewport for this Camera
-		sceneManager->customViewports--;
+	auto it = renderLists.find(entity);
+	if (it != renderLists.end())
+		renderLists.erase(it);
 
-	renderList.clear();
+	g_registry.destroy(entity);
 }
 
-int GetComponentMask (Entity camera)
+void AddToRenderList (Entity entity, Entity child)
 {
-	return COMPONENT_MASK;
+	renderLists[entity].emplace_back(child);
 }
 
-void AddToRenderList (Entity camera, GameObjects::GameObject& child_)
+std::vector<Entity> Cull (
+		Entity entity,
+		std::vector<Entity> renderableEntities)
 {
-	renderList.emplace_back(&child_);
-}
+	auto [cull, matrix, position, size, scroll] = g_registry.try_get<
+		Components::Cull,
+		Components::TransformMatrix,
+		Components::Position,
+		Components::Size,
+		Components::Scroll
+		>(entity);
 
-Math::Vector2 GetScroll (Entity camera, int x_, int y_)
-{
-	Math::Vector2 out_;
+	ZEN_ASSERT(cull && matrix && position && size && scroll, "The entity has no 'Cull', 'TransformMatrix', 'Position', 'Size' or 'Scroll' component.");
 
-	auto originX_ = width * 0.5;
-	auto originY_ = height * 0.5;
+	if (!cull || !cull->value)
+		return renderableEntities;
 
-	out_.x = x_ - originX_;
-	out_.y = y_ - originY_;
-
-	if (useBounds) {
-		out_.x = clampX(out_.x);
-		out_.y = clampX(out_.y);
-	}
-
-	return out_;
-}
-
-void CenterOnX (Entity camera, int x_)
-{
-	double originX_ = width * 0.5;
-
-	midPoint.x = x_;
-
-	setScrollX(x_ - originX_);
-
-	if (useBounds)
-		setScrollX( clampX( getScrollX() ) );
-
-	return *this;
-}
-
-void CenterOnY (Entity camera, int y_)
-{
-	double originY_ = height * 0.5;
-
-	midPoint.y = y_;
-
-	setScrollY(y_ - originY_);
-
-	if (useBounds)
-		setScrollY( clampY( getScrollY() ) );
-
-	return *this;
-}
-
-void CenterOn (Entity camera, int x_, int y_)
-{
-	centerOnX(x_);
-	centerOnY(y_);
-
-	return *this;
-}
-
-void CenterToBounds (Entity camera)
-{
-	if (useBounds) {
-		auto originX_ = width * 0.5;
-		auto originY_ = height * 0.5;
-
-		midPoint.set(bounds.centerX(), bounds.centerY());
-
-		setScrollX(bounds.centerX() - originX_);
-		setScrollY(bounds.centerY() - originY_);
-	}
-
-	return *this;
-}
-
-void CenterToSize (Entity camera)
-{
-	setScrollX(width * 0.5);
-	setScrollY(height * 0.5);
-
-	return *this;
-}
-
-std::vector<GameObjects::GameObject*> Cull (
-		std::vector<GameObjects::GameObject*> renderableObjects_)
-{
-	if (disableCull)
-		return renderableObjects_;
-
-	auto cameraMatrix_ = matrix.getVector();
-
-	auto mva_ = cameraMatrix_[0];
-	auto mvb_ = cameraMatrix_[1];
-	auto mvc_ = cameraMatrix_[2];
-	auto mvd_ = cameraMatrix_[3];
+	double mva = matrix->a;
+	double mvb = matrix->b;
+	double mvc = matrix->c;
+	double mvd = matrix->d;
 
 	// First Invert Matrix
-	auto determinant_ = (mva_ * mvd_) - (mvb_ * mvc_);
+	double determinant = (mva * mvd) - (mvb * mvc);
 
-	if (!determinant_)
-		return renderableObjects_;
+	if (!determinant)
+		return renderableEntities;
 
-	auto mve_ = cameraMatrix_[4];
-	auto mvf_ = cameraMatrix_[5];
+	double mve = matrix->e;
+	double mvf = matrix->f;
 
-	auto cullTop_ = y;
-	auto cullBottom_ = y + height;
-	auto cullLeft_ = x;
-	auto cullRight_ = x + width;
+	double cullTop = position->y;
+	double cullBottom = position->y + size->height;
+	double cullLeft = position->x;
+	double cullRight = position->x + size->width;
 
-	determinant_ = 1.f / determinant_;
+	determinant = 1.f / determinant;
 
+	// Clear the temporary matrix
 	culledObjects.clear();
 
-	for (auto& object_ : renderableObjects_)
+	for (auto& object : renderableEntities)
 	{
-		//if constexpr (object_->hasComponent(COMPONENT_MASK_SIZE))
-		if (true)
+		auto [oSize, oPosition, oScrollFactor, oOrigin, oItem] = g_registry.try_get<
+			Components::Size,
+			Components::Position,
+			Components::ScrollFactor,
+			Components::Origin,
+			Components::ContainerItem
+			>(object);
+
+		if (oSize && oPosition && oScrollFactor && oOrigin && oItem)
 		{
-			if (object_->parentContainer != nullptr)
-			{
-				culledObjects.emplace_back(object_);
-				continue;
-			}
+			auto objectW = oSize->width;
+			auto objectH = oSize->height;
+			auto objectX = (oPosition->x - (scroll->x * oScrollFactor->x)) - (objectW * oOrigin->x);
+			auto objectY = (oPosition->y - (scroll->y * oScrollFactor->y)) - (objectH * oOrigin->y);
+			auto tx = (objectX * mva + objectY * mvc + mve);
+			auto ty = (objectX * mvb + objectY * mvd + mvf);
+			auto tw = ((objectX + objectW) * mva + (objectY + objectH) * mvc + mve);
+			auto th = ((objectX + objectW) * mvb + (objectY + objectH) * mvd + mvf);
 
-			auto objectW_ = object_->width;
-			auto objectH_ = object_->height;
-			auto objectX_ = (object_->getX() - (scrollX * object_->getScrollFactorX())) - (objectW_ * object_->getOriginX());
-			auto objectY_ = (object_->getY() - (scrollY * object_->getScrollFactorY())) - (objectH_ * object_->getOriginY());
-			auto tx_ = (objectX_ * mva_ + objectY_ * mvc_ + mve_);
-			auto ty_ = (objectX_ * mvb_ + objectY_ * mvd_ + mvf_);
-			auto tw_ = ((objectX_ + objectW_) * mva_ + (objectY_ + objectH_) * mvc_ + mve_);
-			auto th_ = ((objectX_ + objectW_) * mvb_ + (objectY_ + objectH_) * mvd_ + mvf_);
-
-			if ((tw_ > cullLeft_ && tx_ < cullRight_) && (th_ > cullTop_ && ty_ < cullBottom_))
+			if ((tw > cullLeft && tx < cullRight) && (th > cullTop && ty < cullBottom))
 			{
-				culledObjects.emplace_back(object_);
+				culledObjects.emplace_back(object);
 			}
 		}
 		else
 		{
-			culledObjects.emplace_back(object_);
+			culledObjects.emplace_back(object);
 		}
 	}
 
 	return culledObjects;
 }
 
-Math::Vector2 GetWorldPoint (Entity camera, int x_, int y_)
+Math::Vector2 GetWorldPoint (Entity entity, int x, int y)
 {
-	Math::Vector2 output_;
+	auto [matrix, rotation, scroll, zoom] = g_registry.try_get<
+		Components::TransformMatrix,
+		Components::Rotation,
+		Components::Scroll,
+		Components::Zoom
+		>(entity);
 
-	auto cameraMatrix_ = matrix.getVector();
+	ZEN_ASSERT(matrix && rotation && scroll && zoom, "The entity has no 'TransformMatrix', 'Rotation', 'Scroll' or 'Zoom' component.");
 
-	auto mva_ = cameraMatrix_[0];
-	auto mvb_ = cameraMatrix_[1];
-	auto mvc_ = cameraMatrix_[2];
-	auto mvd_ = cameraMatrix_[3];
-	auto mve_ = cameraMatrix_[4];
-	auto mvf_ = cameraMatrix_[5];
+	Math::Vector2 output;
+
+	double mva = matrix->a;
+	double mvb = matrix->b;
+	double mvc = matrix->c;
+	double mvd = matrix->d;
+	double mve = matrix->e;
+	double mvf = matrix->f;
 
 	// Invert Matrix
-	double determinant_ = (mva_ * mvd_) - (mvb_ * mvc_);
+	double determinant = (mva * mvd) - (mvb * mvc);
 
-	if (!determinant_) {
-		output_.x = x_;
-		output_.y = y_;
+	if (!determinant) {
+		output.x = x;
+		output.y = y;
 
-		return output_;
+		return output;
 	}
 
-	determinant_ = 1 / determinant_;
+	determinant = 1. / determinant;
 
-	auto ima_ = mvd_ * determinant_;
-	auto imb_ = -mvb_ * determinant_;
-	auto imc_ = -mvc_ * determinant_;
-	auto imd_ = mva_ * determinant_;
-	auto ime_ = (mvc_ * mvf_ - mvd_ * mve_) * determinant_;
-	auto imf_ = (mvb_ * mve_ - mva_ * mvf_) * determinant_;
+	double ima = mvd * determinant;
+	double imb = -mvb * determinant;
+	double imc = -mvc * determinant;
+	double imd = mva * determinant;
+	double ime = (mvc * mvf - mvd * mve) * determinant;
+	double imf = (mvb * mve - mva * mvf) * determinant;
 
-	double c_ = std::cos(rotation);
-	double s_ = std::sin(rotation);
+	double c = std::cos(rotation->value);
+	double s = std::sin(rotation->value);
 
-	double sx_ = x_ + ((scrollX * c_ - scrollY * s_) * zoomX);
-	double sy_ = y_ + ((scrollX * s_ - scrollY * c_) * zoomY);
+	double sx = x + ((scroll->x * c - scroll->y * s) * zoom->x);
+	double sy = y + ((scroll->x * s - scroll->y * c) * zoom->y);
 
 	// Apply transform to point
-	output_.x = (sx_ * ima_ + sy_ * imc_) + ime_;
-	output_.y = (sx_ * imb_ + sy_ * imd_) + imf_;
+	output.x = (sx * ima + sy * imc) + ime;
+	output.y = (sx * imb + sy * imd) + imf;
 
-	return output_;
+	return output;
 }
 
-void Ignore (Entity camera, Entity entry_)
+void Ignore (Entity camera, Entity entry)
 {
-	entry_->cameraFilter |= id;
+	auto cameraId = g_registry.try_get<Components::Id>(camera);
+	auto entityCameraFilter = g_registry.try_get<Components::Id>(entry);
 
-	return *this;
+	if (cameraId && entityCameraFilter)
+		entityCameraFilter->value |= cameraId->value;
+
+	// TODO Group ignore
+	//for (auto& child_ : entry_)
+	//{
+	//	if (child_->isParent)
+	//		// A group in the group
+	//		ignore(child_);
+	//	else
+	//		child_->cameraFilter |= id;
+	//}
 }
 
-void Ignore (Entity camera, std::vector<Entity>& entries_)
+void Ignore (Entity camera, std::vector<Entity>& entries)
 {
-	for (auto it_ : entries_)
-		ignore(it_);
-
-	return *this;
+	for (auto it : entries)
+		Ignore(camera, it);
 }
 
-void Ignore (Entity camera, std::vector<Entity>&& entries_)
+void Ignore (Entity camera, std::vector<Entity>&& entries)
 {
-	return ignore(entries_);
+	Ignore(camera, entries);
 }
 
-void PreRender (Entity camera)
+void PreRender (Entity entity)
 {
-	renderList.clear();
+	auto [size, origin, scroll, deadzone, follow, bounds, position, rotation, zoom, matrix, midPoint, worldView] = g_registry.try_get<
+		Components::Size,
+		Components::Origin,
+		Components::Scroll,
+		Components::Deadzone,
+		Components::Follow,
+		Components::Bounds,
+		Components::Position,
+		Components::Rotation,
+		Components::Zoom,
+		Components::TransformMatrix,
+		Components::MidPoint,
+		Components::WorldView
+		>(entity);
 
-	int halfWidth_ = width * 0.5;
-	int halfHeight_ = height * 0.5;
+	// TODO ZEN_ASSERT(matrix && rotation && scroll && zoom, "The entity has no 'TransformMatrix', 'Rotation', 'Scroll' or 'Zoom' component.");
 
-	int originX_ = width * originX;
-	int originY_ = height * originY;
+	renderLists[entity].clear();
 
-	int sx_ = scrollX;
-	int sy_ = scrollY;
+	int halfWidth = size->width * 0.5;
+	int halfHeight = size->height * 0.5;
+
+	int originX = size->width * origin->x;
+	int originY = size->height * origin->y;
+
+	int sx = scroll->x;
+	int sy = scroll->y;
 
 	if (deadzone)
 	{
-		deadzone->centerOn(midPoint.x, midPoint.y);
+		CenterOn(&deadzone->zone, midPoint->x, midPoint->y);
 	}
 
-	bool emitFollowEvent_ = false;
+	////bool emitFollowEvent = false;
 
-	if (follow && !panEffect.isRunning) {
-		int fx_ = follow->getX() - followOffset.x;
-		int fy_ = follow->getY() - followOffset.y;
+	if (follow) // TODO && !panEffect.isRunning) {
+	{
+		auto& tPosition = g_registry.get<Components::Position>(follow->target);
+		int fx = tPosition.x - follow->offset.x;
+		int fy = tPosition.y - follow->offset.y;
 
 		if (deadzone)
 		{
-			if (fx_ < deadzone->x)
+			auto& z = deadzone->zone;
+
+			if (fx < z.x)
 			{
-				sx_ = Math::linear(sx_, sx_ - (deadzone->x - fx_), lerp.x);
+				sx = Math::Linear(sx, sx - (z.x - fx), follow->lerp.x);
 			}
-			else if (fx_ > deadzone->getRight())
+			else if (fx > (z.x + z.width))
 			{
-				sx_ = Math::linear(sx_, sx_ + (fx_ - deadzone->getRight()), lerp.x);
+				sx = Math::Linear(sx, sx + (fx - (z.x + z.width)), follow->lerp.x);
 			}
 
-			if (fy_ < deadzone->y)
+			if (fy < z.y)
 			{
-				sy_ = Math::linear(sy_, sy_ - (deadzone->y - fy_), lerp.y);
+				sy = Math::Linear(sy, sy - (z.y - fy), follow->lerp.y);
 			}
-			else if (fy_ > deadzone->getBottom())
+			else if (fy > (z.y + z.height))
 			{
-				sy_ = Math::linear(sy_, sy_ + (fy_ - deadzone->getBottom()), lerp.y);
+				sy = Math::Linear(sy, sy + (fy - (z.y + z.height)), follow->lerp.y);
 			}
 		}
 		else
 		{
-			sx_ = Math::linear(sx_, fx_ - originX_, lerp.x);
-			sy_ = Math::linear(sy_, fy_ - originY_, lerp.y);
+			sx = Math::Linear(sx, fx - origin->x, follow->lerp.x);
+			sy = Math::Linear(sy, fy - origin->y, follow->lerp.y);
 		}
 
-		emitFollowEvent_ = true;
+		////emitFollowEvent = true;
 	}
 
-	if (useBounds) {
-		sx_ = clampX(sx_);
-		sy_ = clampY(sy_);
+	if (bounds)
+	{
+		sx = ClampX(entity, sx);
+		sy = ClampY(entity, sy);
 	}
 
 	// Values are in pixels and not impacted by zooming the Camera
-	setScrollX(sx_);
-	setScrollY(sy_);
+	SetScrollX(entity, sx);
+	SetScrollY(entity, sy);
 
-	int midX_ = sx_ + halfWidth_;
-	int midY_ = sy_ + halfHeight_;
+	int midX = sx + halfWidth;
+	int midY = sy + halfHeight;
 
 	// The center of the camera, in world space, so taking zoom into account
 	// Basically the pixel value of what it's looking at in the middle of the cam
-	midPoint.set(midX_, midY_);
+	midPoint->x = midX;
+	midPoint->y = midY;
 
-	int displayWidth_ = width / zoomX;
-	int displayHeight_ = height / zoomY;
+	int displayWidth = size->width / zoom->x;
+	int displayHeight = size->height / zoom->y;
 
-	worldView.setTo(
-			midX_ - (displayWidth_ / 2),
-			midY_ - (displayHeight_ / 2),
-			displayWidth_,
-			displayHeight_
-			);
+	SetTo(&worldView->worldView,
+		midX - (displayWidth / 2.),
+		midY - (displayHeight / 2.),
+		displayWidth,
+		displayHeight
+		);
 
-	matrix.applyITRS(x + originX_, y + originY_, rotation, zoomX, zoomY);
-	matrix.translate(-originX_, -originY_);
+	ApplyITRS(matrix, position->x + originX, position->y + originY, rotation->value, zoom->x, zoom->y);
+	Translate(matrix, -originX, -originY);
 
-	shakeEffect.preRender();
+	// TODO
+	//shakeEffect.preRender();
 
-	if (emitFollowEvent_)
-		emit("follow-update");
+	////if (emitFollowEvent)
+	////	emit("follow-update");
 }
 
-int ClampX (Entity camera, int x_)
+/*
+void UpdateSystem (Entity entity)
 {
-	int bx_ = bounds.x + ((getDisplayWidth() - width) / 2);
-	int bw_ = std::max(bx_, bx_ + bounds.width - getDisplayWidth());
+	if (scaleManager == nullptr)
+		return;
 
-	if (x_ < bx_)
-		x_ = bx_;
-	else if (x_ > bw_)
-		x_ = bw_;
+	bool custom_ = (x != 0 || y != 0 || scaleManager->getWidth() != width || scaleManager->getHeight() != height);
 
-	return x_;
-}
-
-int ClampY (Entity camera, int y_)
-{
-	int by_ = bounds.y + ((getDisplayHeight() - height) / 2);
-	int bh_ = std::max(by_, by_ + bounds.height - getDisplayHeight());
-
-	if (y_ < by_)
-		y_ = by_;
-	else if (y_ > bh_)
-		y_ = bh_;
-
-	return y_;
-}
-
-void RemoveBounds (Entity camera)
-{
-	useBounds = false;
-
-	dirty = true;
-
-	bounds.setEmpty();
-
-	return *this;
-}
-
-void SetAngle (Entity camera, double value_)
-{
-	setRotation(Math::degToRad(value_));
-
-	return *this;
-}
-
-void SetBackgroundColor (Entity camera, int color_)
-{
-	backgroundColor.setFromHex(color_);
-
-	transparent = (backgroundColor.alpha() == 0);
-
-	return *this;
-}
-
-void SetBackgroundColor (Entity camera, int r_, int g_, int b_, int a_)
-{
-	backgroundColor.setTo(r_, g_, b_, a_);
-
-	transparent = (backgroundColor.alpha() == 0);
-
-	return *this;
-}
-
-void SetBackgroundColor (Entity camera, Display::Color color_)
-{
-	backgroundColor = color_;
-
-	transparent = (backgroundColor.alpha() == 0);
-
-	return *this;
-}
-
-void SetBounds (Entity camera, int x_, int y_, int width_, int height_, bool centerOn_)
-{
-	bounds.setTo(x_, y_, width_, height_);
-
-	dirty = true;
-	useBounds = true;
-
-	if (centerOn_)
-	{
-		centerToBounds();
-	}
-	else
-	{
-		setScrollX( clampX(scrollX) );
-		setScrollY( clampX(scrollY) );
-	}
-
-	return *this;
-}
-
-Geom::Rectangle GetBounds (Entity camera)
-{
-	return bounds;
-}
-
-void SetPosition (Entity camera, int x_, int y_)
-{
-	setX(x_);
-	setY(y_);
-
-	return *this;
-}
-
-void SetPosition (Entity camera, int x_)
-{
-	return setPosition(x_, x_);
-}
-
-void SetRotation (Entity camera, double value_)
-{
-	rotation = value_;
-	dirty = true;
-
-	return *this;
-}
-
-void SetScene (Entity camera, Scene* scene_)
-{
-	if (scene != nullptr && customViewport)
+	if (custom_ && !customViewport)
+		// We need a custom viewport for this camera
+		sceneManager->customViewports++;
+	else if (!custom_ && customViewport)
+		// We're turning off a custom viewport for this Camera
 		sceneManager->customViewports--;
 
-	scene = scene_;
-
-	sceneManager = &scene_->game.scene;
-	scaleManager = &scene_->scale;
-	cameraManager = &scene_->cameras;
-
-	updateSystem();
-
-	return *this;
+	dirty = true;
+	customViewport = custom_;
 }
+*/
 
-void SetScroll (Entity camera, int x_, int y_)
+////void FadeIn (
+////		Entity entity,
+////		int duration_, int red_, int green_, int blue_)
+////{
+////	return fadeEffect.start(false, duration_, red_, green_, blue_, true);
+////}
+////
+////void FadeOut (Entity entity, int duration_, int red_, int green_, int blue_)
+////{
+////	return fadeEffect.start(true, duration_, red_, green_, blue_, true);
+////}
+////
+////void FadeFrom (Entity entity, int duration_, int red_, int green_, int blue_, bool force_)
+////{
+////	return fadeEffect.start(false, duration_, red_, green_, blue_, force_);
+////}
+////
+////void Fade (Entity entity, int duration_, int red_, int green_, int blue_, bool force_)
+////{
+////	return fadeEffect.start(true, duration_, red_, green_, blue_, force_);
+////}
+////
+////void Flash (Entity entity, int duration_, int red_, int green_, int blue_, bool force_)
+////{
+////	return flashEffect.start(duration_, red_, green_, blue_, force_);
+////}
+////
+////void Shake (Entity entity, int duration_, Math::Vector2 intensity_, bool force_)
+////{
+////	return shakeEffect.start(duration_, intensity_, force_);
+////}
+////
+////void Pan (Entity entity, int x_, int y_, int duration_, std::string ease_, bool force_)
+////{
+////	return panEffect.start(x_, y_, duration_, ease_, force_);
+////}
+////
+////void Camera::rotateTo (
+////		double radians_,
+////		bool shortestPath_,
+////		int duration_,
+////		std::string ease_,
+////		bool force_)
+////{
+////	return rotateToEffect.start(radians_, shortestPath_, duration_, ease_, force_);
+////}
+////
+////void ZoomTo (Entity entity, double zoom_, int duration_, std::string ease_, bool force_)
+////{
+////	return zoomEffect.start(zoom_, duration_, ease_, force_);
+////}
+////
+////void ResetFX (Entity entity)
+////{
+////	rotateToEffect.reset();
+////	panEffect.reset();
+////	shakeEffect.reset();
+////	flashEffect.reset();
+////	fadeEffect.reset();
+////
+////	return *this;
+////}
+
+void Update (Entity entity, Uint32 time, Uint32 delta)
 {
-	setScrollX(x_);
-	setScrollY(y_);
-
-	return *this;
-}
-
-void SetScroll (Entity camera, int x_)
-{
-	return setScroll(x_, x_);
-}
-
-void SetSize (Entity camera, int width_, int height_)
-{
-	setWidth(width_);
-	setHeight(height_);
-
-	return *this;
-}
-
-void SetSize (Entity camera, int size_)
-{
-	return setSize(size_, size_);
-}
-
-void SetViewport (Entity camera, int x_, int y_, int width_, int height_)
-{
-	setX(x_);
-	setY(y_);
-	setWidth(width_);
-	setHeight((height_ < 0) ? width_ : height_);
-
-	return *this;
-}
-
-void SetZoom (Entity camera, double x_, double y_)
-{
-	if (x_ == 0)
-		x_ = 0.001;
-
-	if (y_ == 0)
-		y_ = 0.001;
-
-	setZoomX(x_);
-	setZoomY(y_);
-
-	return *this;
-}
-
-void SetZoom (Entity camera, double value_)
-{
-	return setZoom(value_, value_);
-}
-
-
-void SetDeadzone (Entity camera, int width_, int height_)
-{
-	if (width_ < 0) {
-		deadzone.reset();
-	} else {
-		if (deadzone) {
-			deadzone->setSize(width_, height_);
-		} else {
-			deadzone = std::make_shared<Geom::Rectangle>(0, 0, width_, height_);
-		}
-
-		if (follow) {
-			int originX_ = width / 2;
-			int originY_ = height / 2;
-
-			int fx_ = follow->getX() - followOffset.x;
-			int fy_ = follow->getY() - followOffset.y;
-
-			midPoint.set(fx_, fy_);
-
-			setScrollX(fx_ - originX_);
-			setScrollY(fy_ - originY_);
-		}
-
-		deadzone->centerOn(midPoint.x, midPoint.y);
-	}
-
-	return *this;
-}
-
-void FadeIn (
-		int duration_, int red_, int green_, int blue_)
-{
-	return fadeEffect.start(false, duration_, red_, green_, blue_, true);
-}
-
-void FadeOut (Entity camera, int duration_, int red_, int green_, int blue_)
-{
-	return fadeEffect.start(true, duration_, red_, green_, blue_, true);
-}
-
-void FadeFrom (Entity camera, int duration_, int red_, int green_, int blue_, bool force_)
-{
-	return fadeEffect.start(false, duration_, red_, green_, blue_, force_);
-}
-
-void Fade (Entity camera, int duration_, int red_, int green_, int blue_, bool force_)
-{
-	return fadeEffect.start(true, duration_, red_, green_, blue_, force_);
-}
-
-void Flash (Entity camera, int duration_, int red_, int green_, int blue_, bool force_)
-{
-	return flashEffect.start(duration_, red_, green_, blue_, force_);
-}
-
-void Shake (Entity camera, int duration_, Math::Vector2 intensity_, bool force_)
-{
-	return shakeEffect.start(duration_, intensity_, force_);
-}
-
-void Pan (Entity camera, int x_, int y_, int duration_, std::string ease_, bool force_)
-{
-	return panEffect.start(x_, y_, duration_, ease_, force_);
-}
-
-void RotateTo (
-		double radians_,
-		bool shortestPath_,
-		int duration_,
-		std::string ease_,
-		bool force_)
-{
-	return rotateToEffect.start(radians_, shortestPath_, duration_, ease_, force_);
-}
-
-void ZoomTo (Entity camera, double zoom_, int duration_, std::string ease_, bool force_)
-{
-	return zoomEffect.start(zoom_, duration_, ease_, force_);
-}
-
-void SetLerp (Entity camera, double x_, double y_)
-{
-	lerp.set(x_, y_);
-
-	return *this;
-}
-
-void SetFollowOffset (Entity camera, int x_, int y_)
-{
-	followOffset.set(x_, y_);
-
-	return *this;
-}
-
-void StartFollow (
-		GameObjects::GameObject& target_,
-		double lerpX_,
-		double lerpY_,
-		int offsetX_,
-		int offsetY_)
-{
-	follow = &target_;
-
-	lerpX_ = Math::clamp(lerpX_, 0.0, 1.0);
-	lerpY_ = Math::clamp(lerpY_, 0.0, 1.0);
-
-	lerp.set(lerpX_, lerpY_);
-
-	followOffset.set(offsetX_, offsetY_);
-
-	int originX_ = getWidth() / 2;
-	int originY_ = getHeight() / 2;
-
-	int fx_ = target_.getX() - offsetX_;
-	int fy_ = target_.getY() - offsetY_;
-
-	midPoint.set(fx_, fy_);
-
-	setScrollX(fx_ - originX_);
-	setScrollY(fy_ - originY_);
-
-	if (useBounds) {
-		setScrollX( clampX( getScrollX() ) );
-		setScrollY( clampY( getScrollY() ) );
-	}
-
-	return *this;
-}
-
-void StopFollow (Entity camera)
-{
-	follow = nullptr;
-
-	return *this;
-}
-
-void ResetFX (Entity camera)
-{
-	rotateToEffect.reset();
-	panEffect.reset();
-	shakeEffect.reset();
-	flashEffect.reset();
-	fadeEffect.reset();
-
-	return *this;
-}
-
-void Update (Entity camera, Uint32 time_, Uint32 delta_)
-{
-	if (visible) {
-		rotateToEffect.update(time_, delta_);
-		panEffect.update(time_, delta_);
-		zoomEffect.update(time_, delta_);
-		shakeEffect.update(time_, delta_);
-		flashEffect.update(time_, delta_);
-		fadeEffect.update(time_, delta_);
-	}
+	////if (visible) {
+	////	rotateToEffect.update(time_, delta_);
+	////	panEffect.update(time_, delta_);
+	////	zoomEffect.update(time_, delta_);
+	////	shakeEffect.update(time_, delta_);
+	////	flashEffect.update(time_, delta_);
+	////	fadeEffect.update(time_, delta_);
+	////}
 }
 
 }	// namespace Zen

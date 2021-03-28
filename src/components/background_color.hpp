@@ -5,19 +5,21 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SYSTEMS_MASK_HPP
-#define ZEN_SYSTEMS_MASK_HPP
+#ifndef ZEN_COMPONENTS_COLOR_HPP
+#define ZEN_COMPONENTS_COLOR_HPP
 
 #include "../ecs/entity.hpp"
+#include "../display/types/color.hpp"
 
 namespace Zen {
+namespace Components {
 
-Entity GetMask (Entity entity);
+struct BackgroundColor
+{
+	Color color;
+};
 
-void SetMask (Entity entity, Entity maskEntity, bool fixedPosition = false);
-
-void ClearMask (Entity entity);
-
+}	// namespace Components
 }	// namespace Zen
 
 #endif

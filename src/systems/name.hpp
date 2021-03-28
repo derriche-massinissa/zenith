@@ -5,18 +5,16 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SYSTEMS_MASK_HPP
-#define ZEN_SYSTEMS_MASK_HPP
+#ifndef ZEN_SYSTEMS_NAME_HPP
+#define ZEN_SYSTEMS_NAME_HPP
 
 #include "../ecs/entity.hpp"
 
 namespace Zen {
 
-Entity GetMask (Entity entity);
+void SetName (Entity entity, const char* name);
 
-void SetMask (Entity entity, Entity maskEntity, bool fixedPosition = false);
-
-void ClearMask (Entity entity);
+const char* GetName (Entity entity);
 
 }	// namespace Zen
 

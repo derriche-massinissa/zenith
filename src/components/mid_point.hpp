@@ -5,20 +5,16 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_COMPONENTS_TRANSPARENT_HPP
-#define ZEN_COMPONENTS_TRANSPARENT_HPP
+#ifndef ZEN_COMPONENTS_MIDPOINT_HPP
+#define ZEN_COMPONENTS_MIDPOINT_HPP
 
 namespace Zen {
 namespace Components {
 
-/**
- * Does the Camera have a transparent background?
- *
- * @since 0.0.0
- */
-struct Transparent
+struct MidPoint
 {
-	bool value = true;
+	double x = 0.,
+		   y = 0.;
 };
 
 }	// namespace Components
