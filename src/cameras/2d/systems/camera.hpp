@@ -518,7 +518,7 @@ void PreRender (Entity entity);
  *
  * @since 0.0.0
  */
-void UpdateSystem (Entity entity);
+void UpdateCameraSystem (Entity entity);
 
 /**
  * Internal method called automatically by the Camera Manager.
@@ -528,7 +528,7 @@ void UpdateSystem (Entity entity);
  * @param time_ The amount of time since SDL started in ms.
  * @param delta_ The delta time, in ms, elapsed since the last frame.
  */
-void Update (Entity entity, Uint32 time, Uint32 delta);
+void UpdateCamera (Entity entity, Uint32 time, Uint32 delta);
 
 }	// namespace Zen
 

@@ -12,19 +12,18 @@
 #include <SDL2/SDL_types.h>
 
 #include "../data.h"
-#include "../event/event_emitter.h"
+#include "../event/event_emitter.hpp"
 
 #include "scene_systems.h"
 #include "scene_plugin.h"
-#include "../core/game.h"
-#include "../scale/scale_manager.h"
-#include "../cameras/2d/camera_manager.h"
+#include "../core/game.hpp"
+#include "../scale/scale_manager.hpp"
+#include "../cameras/2d/camera_manager.hpp"
 #include "../loader/loader_plugin.h"
-#include "../texture/texture_manager.h"
+#include "../texture/texture_manager.hpp"
 #include "../gameobjects/display_list.h"
 #include "../gameobjects/update_list.h"
 #include "../gameobjects/gameobject_factory.h"
-
 
 namespace Zen {
 
@@ -97,21 +96,21 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Textures::TextureManager& textures;
+	TextureManager& textures;
 
 	/**
 	 * A scene level Event Emitter.
 	 *
 	 * @since 0.0.0
 	 */
-	Events::EventEmitter events;
+	EventEmitter events;
 
 	/**
 	 * A scene level Camera System.
 	 *
 	 * @since 0.0.0
 	 */
-	Cameras::Scene2D::CameraManager cameras;
+	CameraManager cameras;
 
 	/**
 	 * A scene level Game Object Factory.
@@ -202,7 +201,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scale::ScaleManager& scale;
+	ScaleManager& scale;
 
 	/**
 	 * A reference to the renderer instance.

@@ -5,17 +5,17 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_CAMERAS_SCENE2D_CAMERA_MANAGER_FWD_H
-#define ZEN_CAMERAS_SCENE2D_CAMERA_MANAGER_FWD_H
+#ifndef ZEN_SYSTEMS_ID_HPP
+#define ZEN_SYSTEMS_ID_HPP
+
+#include "../ecs/entity.hpp"
 
 namespace Zen {
-namespace Cameras {
-namespace Scene2D {
 
-class CameraManager;
+void SetId (Entity entity, int id);
 
-}	// namespace Scene2D
-}	// namespace Cameras
+int GetId (Entity entity);
+
 }	// namespace Zen
 
 #endif

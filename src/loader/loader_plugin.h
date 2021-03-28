@@ -11,12 +11,12 @@
 #include <vector>
 #include <string>
 
-#include "../texture/sprite_sheet_config.h"
+#include "../texture/sprite_sheet_config.hpp"
 
-#include "../texture/texture_manager.fwd.h"
+#include "../texture/texture_manager.fwd.hpp"
 #include "../scene/scene.fwd.h"
 #include "../scene/scene_manager.fwd.h"
-#include "../cameras/2d/camera_manager.fwd.h"
+#include "../cameras/2d/camera_manager.fwd.hpp"
 
 namespace Zen {
 namespace Loader {
@@ -48,7 +48,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Textures::TextureManager& textureManager;
+	TextureManager& textureManager;
 
 	/**
 	 * A reference to the global Scene Manager.
@@ -149,7 +149,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& spritesheet (std::string key_, std::string path_, Textures::SpriteSheetConfig config_);
+	LoaderPlugin& spritesheet (std::string key_, std::string path_, SpriteSheetConfig config_);
 
 	/**
 	 * Load an audio file.

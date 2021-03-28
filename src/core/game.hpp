@@ -22,8 +22,9 @@
 //#include "../input/input_manager.h"
 #include "../scale/scale_manager.hpp"
 #include "../scene/scene_manager.h"
-#include "../texture/texture_manager.h"
-#include "../renderer/renderer.h"
+#include "../texture/texture_manager.hpp"
+// FIXME
+//#include "../renderer/renderer.h"
 //#include "../audio/audio_manager.h"
 
 /**
@@ -73,7 +74,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Events::EventEmitter events;
+	EventEmitter events;
 
 	/**
 	 * The Game Configuration structure.
@@ -94,7 +95,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Renderer renderer;
+	//Renderer renderer;
 
 	/**
 	 * An instance of the Animation Manager.
@@ -114,7 +115,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Textures::TextureManager textures;
+	TextureManager textures;
 
 	/**
 	 * An instance of the Data Manager.

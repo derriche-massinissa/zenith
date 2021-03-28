@@ -5,17 +5,14 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_CAMERAS_SCENE2D_CAMERA_CONFIG_H
-#define ZEN_CAMERAS_SCENE2D_CAMERA_CONFIG_H
+#ifndef ZEN_CAMERAS_SCENE2D_CAMERACONFIG_HPP
+#define ZEN_CAMERAS_SCENE2D_CAMERACONFIG_HPP
 
 #include <string>
-
-#include "../../display/color.h"
-#include "../../geom/rectangle.h"
+#include "../../display/types/color.hpp"
+#include "../../geom/types/rectangle.hpp"
 
 namespace Zen {
-namespace Cameras {
-namespace Scene2D {
 
 /**
  * @struct CameraConfig
@@ -53,15 +50,13 @@ struct CameraConfig
 
 	int scrollY = 0;
 
-	Display::Color backgroundColor;
+	Color backgroundColor;
 
-	Geom::Rectangle bounds {0, 0, 0, 0};
+	Rectangle bounds {0, 0, 0, 0};
 
 	bool visible = true;
 };
 
-}	// namespace Scene2D
-}	// namespace Cameras
 }	// namespace Zen
 
 #endif

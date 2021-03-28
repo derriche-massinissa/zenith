@@ -14,7 +14,7 @@
 
 #include "../data.h"
 #include "../const.h"
-#include "../cameras/2d/camera_config.h"
+#include "../cameras/2d/camera_config.hpp"
 
 #include "scene.fwd.h"
 
@@ -55,7 +55,7 @@ public:
 
 	Data data = {};
 
-	std::vector<Cameras::Scene2D::CameraConfig> cameras;
+	std::vector<CameraConfig> cameras;
 };
 
 }	// namespace Scenes

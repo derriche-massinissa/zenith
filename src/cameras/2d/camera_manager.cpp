@@ -5,12 +5,31 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "camera_manager.h"
+#include "camera_manager.hpp"
+
 #include <memory>
+#include "systems/camera.hpp"
+#include "../../scene/scene_manager.h"
+#include "../../scene/scene.h"
+#include "../../geom/rectangle.hpp"
+#include "../../gameobjects/display_list.h"
+#include "../../renderer/renderer.h"
+#include "../../systems/actor.hpp"
+#include "../../systems/name.hpp"
+#include "../../systems/id.hpp"
+#include "../../systems/visible.hpp"
+#include "../../systems/zoom.hpp"
+#include "../../systems/rotation.hpp"
+#include "../../systems/scroll.hpp"
+#include "../../systems/background_color.hpp"
+#include "../../systems/bounds.hpp"
+#include "../../systems/position.hpp"
+#include "../../systems/size.hpp"
+#include "../../systems/input.hpp"
+#include "../../systems/alpha.hpp"
+#include "../../systems/renderable.hpp"
 
 namespace Zen {
-namespace Cameras {
-namespace Scene2D {
 
 CameraManager::CameraManager (Scene* scene_)
 	: systems (scene_->sys)
@@ -41,18 +60,18 @@ void CameraManager::boot ()
 		add();
 	}
 
-	main = cameras[0].get();
+	main = cameras[0];
 
-	// Configure the default camera (It already exists)
-	def.setViewport(0, 0, scene->scale.getWidth(), scene->scale.getHeight())
-		.setScene(scene);
+	// Create a default camera
+	def = CreateCamera(0, 0, scene->scale.getWidth(), scene->scale.getHeight());
+	SetScene(def, scene);
 
 	scene->scale.on("resize", &CameraManager::onResize, this);
 }
 
 void CameraManager::start ()
 {
-	if (main == nullptr)
+	if (main == entt::null)
 	{
 		if (systems.settings.cameras.size())
 		{
@@ -65,26 +84,26 @@ void CameraManager::start ()
 			add();
 		}
 
-		main = cameras[0].get();
+		main = cameras[0];
 	}
 
 	systems.events.on("update", &CameraManager::update, this);
 	systems.events.on("shutdown", &CameraManager::shutdown, this);
 }
 
-Camera* CameraManager::add (
+Entity CameraManager::add (
 		int x_, int y_, int width_, int height_, bool makeMain_, std::string name_)
 {
 	if (width_ == 0)	width_ = scene->scale.getWidth();
 	if (height_ == 0)	height_ = scene->scale.getHeight();
 
-	cameras.emplace_back( std::make_unique<Camera>(x_, y_, width_, height_) );
-	Camera* camera_ = cameras.back().get();
+	auto camera_ = CreateCamera(x_, y_, width_, height_);
+	cameras.emplace_back(camera_);
 
-	camera_->setName(name_);
-	camera_->setScene(scene);
+	SetName(camera_, name_.c_str());
+	SetScene(camera_, scene);
 
-	camera_->id = getNextID();
+	SetId(camera_, getNextID());
 
 	if (makeMain_)
 		main = camera_;
@@ -103,7 +122,7 @@ int CameraManager::getNextID ()
 
 		for (auto& camera_ : cameras)
 		{
-			if (camera_->id == testID_)
+			if (GetId(camera_) == testID_)
 			{
 				found_ = true;
 				break;
@@ -125,7 +144,7 @@ int CameraManager::getTotal (bool isVisible_)
 
 	for (auto& camera_ : cameras)
 	{
-		if (!isVisible_ || (isVisible_ && camera_->getVisible()))
+		if (!isVisible_ || (isVisible_ && GetVisible(camera_)))
 			total_++;
 	}
 
@@ -135,9 +154,6 @@ int CameraManager::getTotal (bool isVisible_)
 CameraManager& CameraManager::fromConfig (
 		std::vector<CameraConfig> config_)
 {
-	int gameWidth_ = scene->scale.getWidth();
-	int gameHeight_ = scene->scale.getHeight();
-
 	for (auto& camConfig_ :  config_)
 	{
 		auto camera_ = add(
@@ -148,16 +164,17 @@ CameraManager& CameraManager::fromConfig (
 				);
 
 		// Direct properties
-		camera_->setName(camConfig_.name)
-			.setZoom(camConfig_.zoom)
-			.setRotation(camConfig_.rotation)
-			.setScroll(camConfig_.scrollX, camConfig_.scrollY)
-			.setVisible(camConfig_.visible)
-			.setBackgroundColor(camConfig_.backgroundColor);
+		SetName(camera_, camConfig_.name.c_str());
+		SetZoom(camera_, camConfig_.zoom);
+		SetRotation(camera_, camConfig_.rotation);
+		SetScroll(camera_, camConfig_.scrollX, camConfig_.scrollY);
+		SetVisible(camera_, camConfig_.visible);
+		SetBackgroundColor(camera_, camConfig_.backgroundColor);;
 
 		if (camConfig_.bounds.width)
 		{
-			camera_->setBounds(
+			SetBounds(
+					camera_,
 					camConfig_.bounds.x,
 					camConfig_.bounds.y,
 					camConfig_.bounds.width,
@@ -169,57 +186,58 @@ CameraManager& CameraManager::fromConfig (
 	return *this;
 }
 
-Camera* CameraManager::getCamera (std::string name_)
+Entity CameraManager::getCamera (std::string name_)
 {
-	for (std::unique_ptr<Camera>& camera_ : cameras)
+	for (auto camera_ : cameras)
 	{
-		if (camera_->name == name_)
-			return camera_.get();
+		if (GetName(camera_) == name_)
+			return camera_;
 	}
 
-	return nullptr;
+	return entt::null;
 }
 
-std::vector<Camera*> CameraManager::getCamerasBelowPointer (
+std::vector<Entity> CameraManager::getCamerasBelowPointer (
 		Input::Pointer pointer_)
 {
-	std::vector<Camera*> output_;
-	Geom::Rectangle camRect_;
+	std::vector<Entity> output_;
+	Rectangle camRect_;
 
 	// Inverted search
 	// So the top-most camera is at the top of the search vector
 	for (int i = cameras.size() - 1; i >= 0; i++)
 	{
-		camRect_.setTo(
-			cameras[i]->getX(),
-			cameras[i]->getY(),
-			cameras[i]->getWidth(),
-			cameras[i]->getHeight()
+		SetTo(
+			&camRect_,
+			GetX(cameras[i]),
+			GetY(cameras[i]),
+			GetWidth(cameras[i]),
+			GetHeight(cameras[i])
 			);
 
-		if (cameras[i]->getVisible() &&
-			cameras[i]->inputEnabled &&
-			camRect_.contains(pointer_.x, pointer_.y)
+		if (GetVisible(cameras[i]) &&
+			IsInputEnabled(cameras[i]) &&
+			Contains(camRect_, pointer_.x, pointer_.y)
 		   )
 		{
-			output_.emplace_back(cameras[i].get());
+			output_.emplace_back(cameras[i]);
 		}
 	}
 
 	return output_;
 }
 
-int CameraManager::remove (std::vector<Camera*> camerasToRemove_)
+int CameraManager::remove (std::vector<Entity> camerasToRemove_)
 {
 	int total_ = 0;
 
 	for (auto it_ = cameras.begin(); it_ != cameras.end();)
 	{
-		for (Camera*& c_ : camerasToRemove_)
+		for (Entity c_ : camerasToRemove_)
 		{
-			if (c_ == it_->get())
+			if (c_ == *it_)
 			{
-				if (c_ == main) main = nullptr;
+				if (c_ == main) main = entt::null;
 				cameras.erase(it_);
 				total_++;
 			}
@@ -231,15 +249,15 @@ int CameraManager::remove (std::vector<Camera*> camerasToRemove_)
 		}
 	}
 
-	if (main == nullptr && cameras.size())
-		main = cameras[0].get();
+	if (main == entt::null && cameras.size())
+		main = cameras[0];
 
 	return total_;
 }
 
-int CameraManager::remove (Camera* cameraToRemove_)
+int CameraManager::remove (Entity cameraToRemove_)
 {
-	std::vector<Camera*> camerasToRemove_ {cameraToRemove_};
+	std::vector<Entity> camerasToRemove_ {cameraToRemove_};
 
 	return remove(camerasToRemove_);
 }
@@ -250,33 +268,33 @@ void CameraManager::render (
 {
 	for (auto& camera_ : cameras)
 	{
-		if (camera_->getVisible() && camera_->getAlpha() > 0)
+		if (GetVisible(camera_) && GetAlpha(camera_) > 0)
 		{
-			camera_->preRender();
+			PreRender(camera_);
 
-			auto visibleChildren_ = getVisibleChildren(displayList_.getChildren(), camera_.get());
+			auto visibleChildren_ = getVisibleChildren(displayList_.getChildren(), camera_);
 
-			renderer_.render(*scene, visibleChildren_, *camera_.get());
+			renderer_.render(*scene, visibleChildren_, camera_);
 		}
 	}
 }
 
-std::vector<GameObjects::GameObject*> CameraManager::getVisibleChildren (
-		std::vector<GameObjects::GameObject*> children_,
-		Camera *camera_)
+std::vector<Entity> CameraManager::getVisibleChildren (
+		std::vector<Entity> children_,
+		Entity camera_)
 {
-	std::vector<GameObjects::GameObject*> visible_;
+	std::vector<Entity> visible_;
 
 	for (auto& child_ : children_)
 	{
-		if (child_->willRender(*camera_))
+		if (WillRender(child_, camera_))
 			visible_.emplace_back(child_);
 	}
 
 	return visible_;
 }
 
-Camera* CameraManager::resetAll ()
+Entity CameraManager::resetAll ()
 {
 	cameras.clear();
 
@@ -288,12 +306,12 @@ Camera* CameraManager::resetAll ()
 void CameraManager::update (Uint32 time_, Uint32 delta_)
 {
 	for (auto& camera_ : cameras)
-		camera_->update(time_, delta_);
+		UpdateCamera(camera_, time_, delta_);
 }
 
 void CameraManager::onResize (
-		Structs::Size& gameSize_,
-		Structs::Size& displaySize_,
+		Size& gameSize_,
+		Size& displaySize_,
 		int previousWidth_,
 		int previousHeight_)
 {
@@ -302,9 +320,9 @@ void CameraManager::onResize (
 		// If camera is at 0x0 and was the size of the previous game size, then
 		// we can safely assume it should be updated to match the new game size too
 
-		if (camera_->getX() == 0 && camera_->getY() == 0 && camera_->getWidth() == previousWidth_ && camera_->getHeight() == previousHeight_)
+		if (GetX(camera_) == 0 && GetY(camera_) == 0 && GetWidth(camera_) == previousWidth_ && GetHeight(camera_) == previousHeight_)
 		{
-			camera_->setSize(gameSize_.getWidth(), gameSize_.getHeight());
+			SetSize(camera_, gameSize_.width, gameSize_.height);
 		}
 	}
 }
@@ -312,12 +330,12 @@ void CameraManager::onResize (
 void CameraManager::resize (int width_, int height_)
 {
 	for (auto& camera_ : cameras)
-		camera_->setSize(width_, height_);
+		SetSize(camera_, width_, height_);
 }
 
 void CameraManager::shutdown ()
 {
-	main = nullptr;
+	main = entt::null;
 
 	cameras.clear();
 
@@ -325,6 +343,4 @@ void CameraManager::shutdown ()
 	systems.events.off("shutdown", &CameraManager::shutdown, this);
 }
 
-}	// namespace Scene2D
-}	// namespace Cameras
 }	// namespace Zen

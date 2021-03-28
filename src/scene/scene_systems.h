@@ -11,13 +11,13 @@
 #include <SDL2/SDL.h>
 
 #include "../data.h"
-#include "../event/event_emitter.h"
+#include "../event/event_emitter.hpp"
 
 #include "scene_settings.h"
 
 #include "scene_config.fwd.h"
 #include "scene.fwd.h"
-#include "../core/game.fwd.h"
+#include "../core/game.fwd.hpp"
 
 namespace Zen {
 namespace Scenes {
@@ -54,7 +54,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Events::EventEmitter events;
+	EventEmitter events;
 
 	/**
 	 * This method is called only once by the Scene Manager when the Scene

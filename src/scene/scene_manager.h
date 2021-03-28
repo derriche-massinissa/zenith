@@ -20,7 +20,7 @@
 #include "../data.h"
 #include "scene_settings_config.h"
 
-#include "../core/game.fwd.h"
+#include "../core/game.fwd.hpp"
 #include "scene.fwd.h"
 #include "scene_config.fwd.h"
 

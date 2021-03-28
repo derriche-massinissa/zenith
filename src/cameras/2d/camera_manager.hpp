@@ -5,28 +5,24 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_CAMERAS_SCENE2D_CAMERA_MANAGER_H
-#define ZEN_CAMERAS_SCENE2D_CAMERA_MANAGER_H
+#ifndef ZEN_CAMERAS_SCENE2D_CAMERAMANAGER_HPP
+#define ZEN_CAMERAS_SCENE2D_CAMERAMANAGER_HPP
 
 #include <vector>
 #include <functional>
 #include <string>
-#include <memory>
 
-#include "camera_config.h"
-#include "camera.h"
+#include "../../ecs/entity.hpp"
+#include "camera_config.hpp"
 #include "../../scene/scene.fwd.h"
 #include "../../scene/scene_systems.h"
-#include "../../geom/rectangle.h"
-#include "../../structs/size.h"
+#include "../../geom/types/rectangle.hpp"
+#include "../../structs/types/size.hpp"
 #include "../../input/pointer.h"
-#include "../../gameobjects/gameobject.h"
 #include "../../gameobjects/display_list.h"
 #include "../../renderer/renderer.fwd.h"
 
 namespace Zen {
-namespace Cameras {
-namespace Scene2D {
 
 /**
  * The Camera Manager is a plugin that belongs to a Scene and is responsible for 
@@ -99,7 +95,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::vector<std::unique_ptr<Camera>> cameras;
+	std::vector<Entity> cameras;
 
 	/**
 	 * A handy pointer to the 'main' camera. By default this is the first Camera the
@@ -117,7 +113,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Camera *main;
+	Entity main;
 
 	/**
 	 * A default un-transformed Camera that doesn't exist on the camera list and doesn't
@@ -127,7 +123,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Camera def;
+	Entity def;
 
 	/**
 	 * This method is called automatically, only once, when the Scene is first 
@@ -173,7 +169,7 @@ public:
 	 *
 	 * @return A pointer to the newly created Camera.
 	 */
-	Camera* add (
+	Entity add (
 			int x_ = 0,
 			int y_ = 0,
 			int width_ = 0,
@@ -219,7 +215,7 @@ public:
 	 *
 	 * @return A pointer to the first Camera with a name matching the given string, otherwise `null`.
 	 */
-	Camera* getCamera (std::string name_);
+	Entity getCamera (std::string name_);
 
 	/**
 	 * Returns an array of all cameras below the given Pointer.
@@ -232,7 +228,7 @@ public:
 	 *
 	 * @return A vector of cameras below the Pointer.
 	 */
-	std::vector<Camera*> getCamerasBelowPointer (Input::Pointer pointer_);
+	std::vector<Entity> getCamerasBelowPointer (Input::Pointer pointer_);
 
 	/**
 	 * Removes the given vector of Cameras, from this Camera Manager.
@@ -247,7 +243,7 @@ public:
 	 *
 	 * @return The total number of Cameras removed.
 	 */
-	int remove (std::vector<Camera*> camerasToRemove_);
+	int remove (std::vector<Entity> camerasToRemove_);
 
 	/**
 	 * @overload
@@ -258,7 +254,7 @@ public:
 	 *
 	 * @return The total number of Cameras removed.
 	 */
-	int remove (Camera* cameraToRemove_);
+	int remove (Entity cameraToRemove_);
 
 	/**
 	 * The internal render method. This is called automatically by the Scene and should not be invoked directly.
@@ -286,9 +282,9 @@ public:
 	 * @return A filtered list of only Game Objects within the Scene that will 
 	 * render against the given Camera.
 	 */
-	std::vector<GameObjects::GameObject*> getVisibleChildren (
-			std::vector<GameObjects::GameObject*> children_,
-			Camera* camera_);
+	std::vector<Entity> getVisibleChildren (
+			std::vector<Entity> children_,
+			Entity camera_);
 
 	/**
 	 * Resets this Camera Manager.
@@ -301,7 +297,7 @@ public:
 	 *
 	 * @return A pointer to the freshly created main Camera.
 	 */
-	Camera* resetAll ();
+	Entity resetAll ();
 
 	/**
 	 * The main update loop. Called automatically when the Scene steps.
@@ -324,7 +320,7 @@ public:
 	 * @param previousWidth_ The previous base width before resize.
 	 * @param previousHeight_ The previous base height before resize.
 	 */
-	void onResize (Structs::Size& gameSize_, Structs::Size& displaySize_, int previousWidth_, int previousHeight_);
+	void onResize (Size& gameSize_, Size& displaySize_, int previousWidth_, int previousHeight_);
 
 	/**
 	 * Resizes all cameras to the given dimensions.
@@ -358,11 +354,6 @@ private:
 	int getNextID ();
 };
 
-}	// namespace Scene2D
-}	// namespace Cameras
 }	// namespace Zen
-
-#include "../../scene/scene_manager.h"
-#include "../../scene/scene.h"
 
 #endif

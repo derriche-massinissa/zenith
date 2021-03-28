@@ -11,6 +11,11 @@
 
 namespace Zen {
 
+EventEmitter g_event;
+entt::registry g_registry;
+//Window g_window;
+//TextureManager g_texture;
+
 Game::Game (Core::GameConfig& config_)
 	: config (config_)
 	, renderer (*this)

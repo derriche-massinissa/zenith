@@ -87,9 +87,9 @@ Entity CreateCamera (int x, int y, int width, int height)
 	g_registry.emplace<Components::Mask>(camera);
 	g_registry.emplace<Components::BackgroundColor>(camera);
 	g_registry.emplace<Components::MidPoint>(camera, width / 2., height / 2.);
-	g_registry.emplace<Components::Update<Components::Position>>(camera, &UpdateSystem);
-	g_registry.emplace<Components::Update<Components::Size>>(camera, &UpdateSystem);
-	g_registry.emplace<Components::Update<Components::Actor>>(camera, &UpdateSystem);
+	g_registry.emplace<Components::Update<Components::Position>>(camera, &UpdateCameraSystem);
+	g_registry.emplace<Components::Update<Components::Size>>(camera, &UpdateCameraSystem);
+	g_registry.emplace<Components::Update<Components::Actor>>(camera, &UpdateCameraSystem);
 
 	/*
 	 * Components:
@@ -334,10 +334,10 @@ Math::Vector2 GetWorldPoint (Entity entity, int x, int y)
 void Ignore (Entity camera, Entity entry)
 {
 	auto cameraId = g_registry.try_get<Components::Id>(camera);
-	auto entityCameraFilter = g_registry.try_get<Components::Id>(entry);
+	auto entityRenderable = g_registry.try_get<Components::Renderable>(entry);
 
-	if (cameraId && entityCameraFilter)
-		entityCameraFilter->value |= cameraId->value;
+	if (cameraId && entityRenderable)
+		entityRenderable->filter |= cameraId->value;
 
 	// TODO Group ignore
 	//for (auto& child_ : entry_)
@@ -473,26 +473,6 @@ void PreRender (Entity entity)
 	////	emit("follow-update");
 }
 
-/*
-void UpdateSystem (Entity entity)
-{
-	if (scaleManager == nullptr)
-		return;
-
-	bool custom_ = (x != 0 || y != 0 || scaleManager->getWidth() != width || scaleManager->getHeight() != height);
-
-	if (custom_ && !customViewport)
-		// We need a custom viewport for this camera
-		sceneManager->customViewports++;
-	else if (!custom_ && customViewport)
-		// We're turning off a custom viewport for this Camera
-		sceneManager->customViewports--;
-
-	dirty = true;
-	customViewport = custom_;
-}
-*/
-
 ////void FadeIn (
 ////		Entity entity,
 ////		int duration_, int red_, int green_, int blue_)
@@ -556,7 +536,27 @@ void UpdateSystem (Entity entity)
 ////	return *this;
 ////}
 
-void Update (Entity entity, Uint32 time, Uint32 delta)
+void UpdateCameraSystem (Entity entity)
+{
+	/*
+	if (scaleManager == nullptr)
+		return;
+
+	bool custom_ = (x != 0 || y != 0 || scaleManager->getWidth() != width || scaleManager->getHeight() != height);
+
+	if (custom_ && !customViewport)
+		// We need a custom viewport for this camera
+		sceneManager->customViewports++;
+	else if (!custom_ && customViewport)
+		// We're turning off a custom viewport for this Camera
+		sceneManager->customViewports--;
+
+	dirty = true;
+	customViewport = custom_;
+	*/
+}
+
+void UpdateCamera (Entity entity, Uint32 time, Uint32 delta)
 {
 	////if (visible) {
 	////	rotateToEffect.update(time_, delta_);

@@ -5,19 +5,17 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_COMPONENTS_RENDERABLE_HPP
-#define ZEN_COMPONENTS_RENDERABLE_HPP
+#ifndef ZEN_SYSTEMS_RENDERABLE_HPP
+#define ZEN_SYSTEMS_RENDERABLE_HPP
+
+#include "../ecs/entity.hpp"
 
 namespace Zen {
-namespace Components {
 
-struct Renderable
-{
-	int flags = 0b1111;
-	int filter = 0;
-};
+bool WillRender (Entity entity, Entity camera);
 
-}	// namespace Components
+int GetRenderFlags (Entity entity);
+
 }	// namespace Zen
 
 #endif
