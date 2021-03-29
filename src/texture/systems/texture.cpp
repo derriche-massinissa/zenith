@@ -32,7 +32,7 @@ Entity CreateTexture (const char* key, std::vector<const char*> sources)
 	// Load the Sources
 	for (size_t i = 0; i < sources.size(); i++)
 	{
-		sourceEntities[i] = CreateTextureSource(texture, sources[i], i);
+		sourceEntities.emplace_back(CreateTextureSource(texture, sources[i], i));
 
 		// Check if the source is valid and loaded
 		// Otherwise this texture is invalid

@@ -78,7 +78,7 @@ void ScaleManager::updateScale ()
 	else
 	{
 		displayScale.x = displaySize.width / gameSize.width;
-		displayScale.x = displaySize.height / gameSize.height;
+		displayScale.y = displaySize.height / gameSize.height;
 	}
 }
 
@@ -92,7 +92,7 @@ void ScaleManager::updateOffset ()
 	else
 	{
 		displayOffset.x = (g_window.width() - displaySize.width) / 2.;
-		displayOffset.x = (g_window.height() - displaySize.height) / 2.;
+		displayOffset.y = (g_window.height() - displaySize.height) / 2.;
 	}
 }
 

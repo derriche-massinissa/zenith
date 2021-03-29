@@ -147,7 +147,7 @@ void Constrain (Size *size, double width, double height, bool fit)
 		height = width;
 
 	width = GetNewWidth(*size, width);
-	height = GetNewWidth(*size, height);
+	height = GetNewHeight(*size, height);
 
 	double newRatio = (height == 0) ? 1.0 : (width / height);
 

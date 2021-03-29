@@ -13,7 +13,7 @@
 
 namespace Zen {
 
-Size CreateSize (double width, double height, SCALE_MODE aspectMode);
+Size CreateSize (double width, double height, SCALE_MODE aspectMode = SCALE_MODE::RESIZE);
 
 void SetAspectMode (Size *size, SCALE_MODE value = SCALE_MODE::RESIZE);
 

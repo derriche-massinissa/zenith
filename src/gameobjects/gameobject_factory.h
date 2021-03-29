@@ -10,10 +10,10 @@
 
 #include <string>
 #include "../scene/scene.fwd.h"
+#include "../ecs/entity.hpp"
 //#include "image/image.fwd.h"
 
 namespace Zen {
-namespace GameObjects {
 
 class GameObjectFactory
 {
@@ -25,9 +25,9 @@ public:
 	void boot ();
 
 	//Image& image (int x, int y, std::string key, std::string frame = "");
+	Entity image (double x, double y, std::string key, std::string frame = "");
 };
 
-}	//namespace GameObjects
 }	//namespace Zen
 
 #endif

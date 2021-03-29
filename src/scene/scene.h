@@ -117,7 +117,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	GameObjects::GameObjectFactory add;
+	GameObjectFactory add;
 
 	/**
 	 * A scene level Game Object Creator.

@@ -12,8 +12,8 @@
 namespace Zen {
 
 // Global Systems
-EventEmitter g_event;
 entt::registry g_registry;
+EventEmitter g_event;
 Window g_window;
 TextureManager g_texture;
 ScaleManager g_scale;

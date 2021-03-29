@@ -25,7 +25,7 @@ void DisplayList::add (Entity gameObject_)
 	g_event.emit(gameObject_, "removed-from-scene");
 
 	/*
-	 * FIXME
+	 * TODO FIXME
 	if (obj_->displayList)
 		obj_->displayList->remove(obj_);
 		*/

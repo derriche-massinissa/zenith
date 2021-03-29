@@ -10,7 +10,7 @@ set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
 # Debug mode (GDB) + Disable optimization (for debugging) + Warnings
 set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -Og -Wall -Wpedantic -Wextra" CACHE STRING "" FORCE)
 
-# Releas mode
+# Release mode
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
 
 # Install directory
@@ -25,7 +25,6 @@ project(
 
 # Source files
 set(zenith_SRCS
-	src/cameras/2d/camera.cpp
 	src/cameras/2d/camera_manager.cpp
 	src/cameras/2d/systems/camera.cpp
 	src/core/config.cpp
@@ -34,9 +33,8 @@ set(zenith_SRCS
 	src/display/color.cpp
 	src/event/event_emitter.cpp
 	src/gameobjects/display_list.cpp
-	src/gameobjects/gameobject.cpp
 	src/gameobjects/gameobject_factory.cpp
-	src/gameobjects/image/image.cpp
+	#src/gameobjects/image/image.cpp
 	src/gameobjects/update_list.cpp
 	src/geom/line.cpp
 	src/geom/rectangle.cpp
@@ -405,6 +403,7 @@ install(
 # Header files
 install(
 	DIRECTORY "${CMAKE_SOURCE_DIR}/src/"
+	DIRECTORY "${CMAKE_SOURCE_DIR}/includes/"
 	TYPE INCLUDE
 	FILES_MATCHING
 	PATTERN "*.h"

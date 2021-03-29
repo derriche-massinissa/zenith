@@ -48,6 +48,8 @@ extern ScaleManager g_scale;
 
 Renderer::~Renderer ()
 {
+	/*
+	 * Destroying the renderer is enough to clean all textures
 	if (snapshotState.surface)
 		SDL_FreeSurface(snapshotState.surface);
 
@@ -59,6 +61,7 @@ Renderer::~Renderer ()
 
 	if (maskTexture)
 		SDL_DestroyTexture(maskTexture);
+	*/
 }
 
 void Renderer::start (GameConfig *cfg_)
@@ -565,11 +568,11 @@ void Renderer::batchSprite (
 	// FIXME AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 	double res_ = 1.0; // frame___.source->resolution;
 
-	int displayOriginX_ = GetDisplayOriginX(sprite_);
-	int displayOriginY_ = GetDisplayOriginY(sprite_);
+	double displayOriginX_ = GetDisplayOriginX(sprite_);
+	double displayOriginY_ = GetDisplayOriginY(sprite_);
 
-	int x_ = -displayOriginX_ + frameCheat___.x;
-	int y_ = -displayOriginY_ + frameCheat___.y;
+	double x_ = (-1. * displayOriginX_) + frameCheat___.x;
+	double y_ = (-1. * displayOriginY_) + frameCheat___.y;
 
 	if (IsCropped(sprite_))
 	{
@@ -647,12 +650,22 @@ void Renderer::batchSprite (
 
 	SDL_Rect destination_;
 
+	// Value scaling (Window resize & Camera zoom)
+	double sx_ = dm_.scaleX * sScale_.x;
+	double sy_ = dm_.scaleY * sScale_.y;
+
 	// Position
-	destination_.x = x_ * dm_.scaleX + dm_.translateX * sScale_.x + sOffset_.x;
-	destination_.y = y_ * dm_.scaleY + dm_.translateY * sScale_.y + sOffset_.y;
+	destination_.x = x_ * sx_ + dm_.translateX * sx_ + sOffset_.x;
+	destination_.y = y_ * sy_ + dm_.translateY * sy_ + sOffset_.y;
 	// Scale
-	destination_.w = (frameWidth_ / res_) * dm_.scaleX * sScale_.x;
-	destination_.h = (frameHeight_ / res_) * dm_.scaleY * sScale_.y;
+	destination_.w = (frameWidth_ / res_) * sx_;
+	destination_.h = (frameHeight_ / res_) * sy_;
+	//////// Position
+	//////destination_.x = x_ * dm_.scaleX + dm_.translateX * sScale_.x + sOffset_.x;
+	//////destination_.y = y_ * dm_.scaleY + dm_.translateY * sScale_.y + sOffset_.y;
+	//////// Scale
+	//////destination_.w = (frameWidth_ / res_) * dm_.scaleX * sScale_.x;
+	//////destination_.h = (frameHeight_ / res_) * dm_.scaleY * sScale_.y;
 
 	// Rotation
 	double angle_ = Math::RadToDeg(dm_.rotation);

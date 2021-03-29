@@ -12,7 +12,6 @@
 #include "../components/frame.hpp"
 #include "../components/source.hpp"
 #include "../../utils/assert.hpp"
-#include "../../structs/size.hpp"
 #include "../../math/clamp.hpp"
 
 namespace Zen {
@@ -36,6 +35,8 @@ Entity CreateFrame (Entity source, const char* name, int x, int y, int width, in
 				.centerX = width/2,
 				.centerY = height/2
 			});
+
+	SetFrameSize(frame, width, height, x, y);
 
 	return frame;
 }
@@ -64,7 +65,8 @@ void SetFrameSize (Entity entity, int width, int height, int x, int y)
 	frame->data.cut.width = width;
 	frame->data.cut.height = height;
 
-	SetSize(&frame->data.sourceSize, width, height);
+	frame->data.sourceSize.width = width;
+	frame->data.sourceSize.height = height;
 
 	frame->data.radius = 0.5 * std::sqrt(width * width + height * height);
 
