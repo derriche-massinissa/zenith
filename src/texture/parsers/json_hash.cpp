@@ -28,10 +28,10 @@ void ParseJsonHash (Entity texture, int sourceIndex, nlohmann::json json)
 	}
 
 	// Get the source component
-	TextureSourceComponent *source = nullptr;
-	for (auto& entity : g_registry.view<TextureSourceComponent>())
+	Components::TextureSource *source = nullptr;
+	for (auto& entity : g_registry.view<Components::TextureSource>())
 	{
-		auto& src = g_registry.get<TextureSourceComponent>(entity);
+		auto& src = g_registry.get<Components::TextureSource>(entity);
 		if (src.texture == texture && src.index == sourceIndex)
 		{
 			source = &src;
@@ -75,7 +75,7 @@ void ParseJsonHash (Entity texture, int sourceIndex, nlohmann::json json)
 					);
 		}
 
-		auto& frame = g_registry.get<FrameComponent>(newFrame);
+		auto& frame = g_registry.get<Components::Frame>(newFrame);
 
 		if (src["rotated"] != nullptr && src["rotated"])
 		{

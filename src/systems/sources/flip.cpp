@@ -5,20 +5,18 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "flip.hpp"
+#include "../flip.hpp"
 
-#include "entt/entt.hpp"
-#include "../components/flip.hpp"
+#include "../../components/flip.hpp"
 #include "../../utils/assert.hpp"
 
 namespace Zen {
 
-extern entt::registry registry;
+extern entt::registry g_registry;
 
 void ToggleFlipX (Entity entity)
 {
-	auto flip = registry.try_get<FlipComponent>(entity);
-
+	auto flip = g_registry.try_get<Components::Flip>(entity);
 	ZEN_ASSERT(flip, "The entity has no 'Flip' component.");
 
 	flip->x = !flip->x;
@@ -26,8 +24,7 @@ void ToggleFlipX (Entity entity)
 
 void ToggleFlipY (Entity entity)
 {
-	auto flip = registry.try_get<FlipComponent>(entity);
-
+	auto flip = g_registry.try_get<Components::Flip>(entity);
 	ZEN_ASSERT(flip, "The entity has no 'Flip' component.");
 
 	flip->y = !flip->y;
@@ -35,8 +32,7 @@ void ToggleFlipY (Entity entity)
 
 void SetFlipX (Entity entity, bool value)
 {
-	auto flip = registry.try_get<FlipComponent>(entity);
-
+	auto flip = g_registry.try_get<Components::Flip>(entity);
 	ZEN_ASSERT(flip, "The entity has no 'Flip' component.");
 
 	flip->x = value;
@@ -44,8 +40,7 @@ void SetFlipX (Entity entity, bool value)
 
 void SetFlipY (Entity entity, bool value)
 {
-	auto flip = registry.try_get<FlipComponent>(entity);
-
+	auto flip = g_registry.try_get<Components::Flip>(entity);
 	ZEN_ASSERT(flip, "The entity has no 'Flip' component.");
 
 	flip->y = value;
@@ -53,8 +48,7 @@ void SetFlipY (Entity entity, bool value)
 
 void SetFlip (Entity entity, bool x, bool y)
 {
-	auto flip = registry.try_get<FlipComponent>(entity);
-
+	auto flip = g_registry.try_get<Components::Flip>(entity);
 	ZEN_ASSERT(flip, "The entity has no 'Flip' component.");
 
 	flip->x = x;
@@ -63,8 +57,7 @@ void SetFlip (Entity entity, bool x, bool y)
 
 void ResetFlip (Entity entity)
 {
-	auto flip = registry.try_get<FlipComponent>(entity);
-
+	auto flip = g_registry.try_get<Components::Flip>(entity);
 	ZEN_ASSERT(flip, "The entity has no 'Flip' component.");
 
 	flip->x = false;
@@ -73,8 +66,7 @@ void ResetFlip (Entity entity)
 
 bool GetFlipX (Entity entity)
 {
-	auto flip = registry.try_get<FlipComponent>(entity);
-
+	auto flip = g_registry.try_get<Components::Flip>(entity);
 	ZEN_ASSERT(flip, "The entity has no 'Flip' component.");
 
 	return flip->x;
@@ -82,8 +74,7 @@ bool GetFlipX (Entity entity)
 
 bool GetFlipY (Entity entity)
 {
-	auto flip = registry.try_get<FlipComponent>(entity);
-
+	auto flip = g_registry.try_get<Components::Flip>(entity);
 	ZEN_ASSERT(flip, "The entity has no 'Flip' component.");
 
 	return flip->y;

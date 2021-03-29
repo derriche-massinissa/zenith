@@ -10,6 +10,7 @@
 #include <map>
 #include "../../../utils/assert.hpp"
 #include "../../../event/event_emitter.hpp"
+#include "../../../scale/scale_manager.hpp"
 #include "../../../math/linear.hpp"
 #include "../../../math/deg_to_rad.hpp"
 #include "../../../geom/rectangle.hpp"
@@ -46,11 +47,15 @@
 #include "../../../systems/scroll.hpp"
 #include "../../../systems/bounds.hpp"
 #include "../../../systems/transform_matrix.hpp"
+#include "../../../systems/position.hpp"
+#include "../../../systems/size.hpp"
+#include "../../../systems/dirty.hpp"
 
 namespace Zen {
 
 extern entt::registry g_registry;
 extern EventEmitter g_event;
+extern ScaleManager g_scale;
 
 // Temporary vector, to not recreate a new one each culling pass
 static std::vector<Entity> culledObjects;
@@ -58,7 +63,7 @@ static std::vector<Entity> culledObjects;
 // Map: Camera - Object List
 static std::map<Entity, std::vector<Entity>> renderLists;
 
-Entity CreateCamera (int x, int y, int width, int height)
+Entity CreateCamera (double x, double y, double width, double height)
 {
 	Entity camera = g_registry.create();
 
@@ -89,7 +94,9 @@ Entity CreateCamera (int x, int y, int width, int height)
 	g_registry.emplace<Components::MidPoint>(camera, width / 2., height / 2.);
 	g_registry.emplace<Components::Update<Components::Position>>(camera, &UpdateCameraSystem);
 	g_registry.emplace<Components::Update<Components::Size>>(camera, &UpdateCameraSystem);
-	g_registry.emplace<Components::Update<Components::Actor>>(camera, &UpdateCameraSystem);
+	//g_registry.emplace<Components::Update<Components::Actor>>(camera, &UpdateCameraScene);
+
+	return camera;
 
 	/*
 	 * Components:
@@ -398,11 +405,13 @@ void PreRender (Entity entity)
 
 	////bool emitFollowEvent = false;
 
-	if (follow) // TODO && !panEffect.isRunning) {
+	if (follow->target != entt::null) // TODO && !panEffect.isRunning) {
 	{
-		auto& tPosition = g_registry.get<Components::Position>(follow->target);
-		int fx = tPosition.x - follow->offset.x;
-		int fy = tPosition.y - follow->offset.y;
+		auto tPosition = g_registry.try_get<Components::Position>(follow->target);
+		ZEN_ASSERT(tPosition, "The camera follow target has no 'Position' component.");
+
+		int fx = tPosition->x - follow->offset.x;
+		int fy = tPosition->y - follow->offset.y;
 
 		if (deadzone)
 		{
@@ -538,22 +547,23 @@ void PreRender (Entity entity)
 
 void UpdateCameraSystem (Entity entity)
 {
+	bool custom_ = (GetX(entity) != 0 || GetY(entity) != 0 || g_scale.getWidth() != GetWidth(entity) || g_scale.getHeight() != GetHeight(entity));
+
 	/*
-	if (scaleManager == nullptr)
-		return;
-
-	bool custom_ = (x != 0 || y != 0 || scaleManager->getWidth() != width || scaleManager->getHeight() != height);
-
 	if (custom_ && !customViewport)
 		// We need a custom viewport for this camera
 		sceneManager->customViewports++;
 	else if (!custom_ && customViewport)
 		// We're turning off a custom viewport for this Camera
 		sceneManager->customViewports--;
+		*/
 
-	dirty = true;
-	customViewport = custom_;
-	*/
+	SetDirty(entity, true);
+
+	auto viewport = g_registry.try_get<Components::Viewport>(entity);
+	ZEN_ASSERT(viewport, "The entity has no 'Viewport' component.");
+
+	viewport->value = custom_;
 }
 
 void UpdateCamera (Entity entity, Uint32 time, Uint32 delta)

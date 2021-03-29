@@ -9,7 +9,6 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include "entt/entt.hpp"
 #include "../../utils/assert.hpp"
 #include "../../utils/base64_decode.hpp"
 #include "../../utils/messages.hpp"
@@ -63,11 +62,12 @@ Entity CreateTextureSource (Entity texture, std::string src, int index)
 
 		// Create a Texture Source entity
 		auto source = g_registry.create();
-		g_registry.emplace<TextureSourceComponent>(
+		g_registry.emplace<Components::TextureSource>(
+				source,
 				texture,
 				src.c_str(),
-				1.0,
 				index,
+				1.0,
 				sdlTexture,
 				width,
 				height
@@ -79,7 +79,7 @@ Entity CreateTextureSource (Entity texture, std::string src, int index)
 
 void DestroyTextureSource (Entity source)
 {
-	auto src = g_registry.try_get<TextureSourceComponent>(source);
+	auto src = g_registry.try_get<Components::TextureSource>(source);
 	ZEN_ASSERT(src, "The entity has no 'TextureSource' component.");
 
 	if (src->sdlTexture)

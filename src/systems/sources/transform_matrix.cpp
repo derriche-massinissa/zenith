@@ -332,7 +332,10 @@ Components::TransformMatrix GetTransformMatrix (Entity entity)
 Components::TransformMatrix* GetParentTransformMatrix (Entity entity)
 {
 	auto item = g_registry.try_get<Components::ContainerItem>(entity);
-	ZEN_ASSERT(item, "The entity has no 'Item' component.");
+	//ZEN_ASSERT(item, "The entity has no 'Item' component.");
+
+	if (!item)
+		return nullptr;
 
 	auto matrix = g_registry.try_get<Components::TransformMatrix>(item->parent);
 

@@ -15,7 +15,7 @@ namespace Components {
 
 struct Mask
 {
-	Entity mask;
+	Entity mask = entt::null;
 
 	/**
 	 * For camera masks to enable fixed mask position that isn' influenced by
@@ -23,7 +23,7 @@ struct Mask
 	 *
 	 * @since 0.0.0
 	 */
-	bool fixed;
+	bool fixed = false;
 };
 
 }	// namespace Components

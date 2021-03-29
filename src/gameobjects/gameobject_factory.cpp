@@ -6,7 +6,6 @@
  */
 
 #include "../scene/scene.h"
-#include "image/image.h"
 
 #include <memory>
 
@@ -20,12 +19,14 @@ GameObjectFactory::GameObjectFactory (Scene* scene_)
 void GameObjectFactory::boot ()
 {}
 
+/*
 Image& GameObjectFactory::image (int x, int y, std::string key, std::string frame)
 {
 	return *static_cast<Image*> (
 		scene->children.add(std::move( std::make_unique<Image>(scene, x, y, key, frame) ))
 	);
 }
+*/
 
 }	//namespace GameObjects
 }	//namespace Zen

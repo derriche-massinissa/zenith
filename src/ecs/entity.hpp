@@ -5,7 +5,7 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include <entt/entt.hpp>
+#include <entt/entity/registry.hpp>
 
 #ifndef ZEN_ENTITY_HPP
 #define ZEN_ENTITY_HPP

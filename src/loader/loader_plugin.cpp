@@ -7,15 +7,16 @@
 
 #include "loader_plugin.h"
 
-#include "nlohmann/json.hpp"
+#include <fstream>
+#include "json/json.hpp"
 
-#include "../messages.h"
-#include "../event/event_emitter.h"
+#include "../utils/messages.hpp"
+#include "../event/event_emitter.hpp"
 
-#include "../texture/texture_manager.h"
+#include "../texture/texture_manager.hpp"
 #include "../scene/scene.h"
 #include "../scene/scene_manager.h"
-#include "../cameras/2d/camera_manager.h"
+#include "../cameras/2d/camera_manager.hpp"
 
 namespace Zen {
 namespace Loader {
@@ -78,7 +79,7 @@ LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_
 
 	if (!file_)
 	{
-		messageError("Atlas file failed to open: ", atlasPath_);
+		MessageError("Atlas file failed to open: ", atlasPath_);
 		return *this;
 	}
 
@@ -97,7 +98,7 @@ LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::spritesheet (std::string key_, std::string path_, Textures::SpriteSheetConfig config_)
+LoaderPlugin& LoaderPlugin::spritesheet (std::string key_, std::string path_, SpriteSheetConfig config_)
 {
 	textureManager.addSpriteSheet(key_, path_, config_);
 
@@ -106,14 +107,14 @@ LoaderPlugin& LoaderPlugin::spritesheet (std::string key_, std::string path_, Te
 
 LoaderPlugin& LoaderPlugin::audio (std::string key_, std::string path_)
 {
-	messageWarning("Audio is not yet implemented!");
+	MessageWarning("Audio is not yet implemented!");
 
 	return *this;
 }
 
 LoaderPlugin& LoaderPlugin::font (std::string key_, std::string path_)
 {
-	messageWarning("Fonts and text are not yet implemented!");
+	MessageWarning("Fonts and text are not yet implemented!");
 
 	return *this;
 }

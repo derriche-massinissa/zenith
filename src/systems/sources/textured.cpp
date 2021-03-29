@@ -30,7 +30,7 @@
 namespace Zen {
 
 extern entt::registry g_registry;
-extern TextureManager g_textures;
+extern TextureManager g_texture;
 
 void SetCrop (Entity entity, int x, int y, int width, int height)
 {
@@ -72,7 +72,7 @@ void SetTexture (Entity entity, std::string key, std::string frame)
 	auto textured = g_registry.try_get<Components::Textured>(entity);
 	ZEN_ASSERT(textured, "The entity has no 'Textured' component.");
 
-	textured->texture = g_textures.get(key);
+	textured->texture = g_texture.get(key);
 
 	SetFrame(entity, frame);
 }

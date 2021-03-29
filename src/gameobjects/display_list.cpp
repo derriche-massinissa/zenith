@@ -10,36 +10,38 @@
 #include <algorithm>
 #include <iterator>
 
-#include "gameobject.h"
+#include "../systems/depth.hpp"
+#include "../event/event_emitter.hpp"
 
 namespace Zen {
+extern EventEmitter g_event;
+
 namespace GameObjects {
 
-GameObject* DisplayList::add (std::unique_ptr<GameObject> gameObject_)
+void DisplayList::add (Entity gameObject_)
 {
-	GameObject* obj_ = gameObject_.get();
+	list.emplace_back(gameObject_);
 
-	list.emplace_back(std::move(gameObject_));
+	g_event.emit(gameObject_, "removed-from-scene");
 
-	obj_->emit("removed-from-scene");
-
+	/*
+	 * FIXME
 	if (obj_->displayList)
 		obj_->displayList->remove(obj_);
+		*/
 
-	obj_->displayList = this;
+	//obj_->displayList = this;
 
 	queueDepthSort();
 
-	obj_->emit("added-to-scene");
-
-	return obj_;
+	g_event.emit(gameObject_, "added-to-scene");
 }
 
-void DisplayList::remove (GameObject* gameObject_)
+void DisplayList::remove (Entity gameObject_)
 {
 	for (auto it = list.begin(); it != list.end(); it++)
 	{
-		if (gameObject_ == it->get())
+		if (gameObject_ == *it)
 		{
 			list.erase(it);
 			break;
@@ -65,29 +67,29 @@ void DisplayList::depthSort ()
 }
 
 bool DisplayList::sortByDepth (
-		const std::unique_ptr<GameObject>& childA,
-		const std::unique_ptr<GameObject>& childB)
+		const Entity childA,
+		const Entity childB)
 {
-	return childA->getDepth() < childB->getDepth();
+	return GetDepth(childA) < GetDepth(childB);
 }
 
-std::vector<GameObject*> DisplayList::getChildren ()
+std::vector<Entity> DisplayList::getChildren ()
 {
-	std::vector<GameObject*> out_;
+	std::vector<Entity> out_;
 
 	for (const auto& obj_ : list)
 	{
-		out_.emplace_back(obj_.get());
+		out_.emplace_back(obj_);
 	}
 
 	return out_;
 }
 
-int DisplayList::getIndex (GameObject* child_)
+int DisplayList::getIndex (Entity child_)
 {
 	for (int i = 0; i < list.size(); i++)
 	{
-		if (child_ == list[i].get())
+		if (child_ == list[i])
 		{
 			return i;
 		}

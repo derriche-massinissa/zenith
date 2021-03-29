@@ -17,11 +17,11 @@
 
 namespace Zen {
 
-extern entt::registry registry;
+extern entt::registry g_registry;
 
 void SetDisplayOriginX (Entity entity, int value)
 {
-	auto [origin, size] = registry.try_get<Components::Origin, Components::Size>(entity);
+	auto [origin, size] = g_registry.try_get<Components::Origin, Components::Size>(entity);
 	ZEN_ASSERT(origin && size, "The entity has no 'Origin' or 'Size' component.");
 
 	origin->displayX = value;
@@ -30,7 +30,7 @@ void SetDisplayOriginX (Entity entity, int value)
 
 void SetDisplayOriginY (Entity entity, int value)
 {
-	auto [origin, size] = registry.try_get<Components::Origin, Components::Size>(entity);
+	auto [origin, size] = g_registry.try_get<Components::Origin, Components::Size>(entity);
 	ZEN_ASSERT(origin && size, "The entity has no 'Origin' or 'Size' component.");
 
 	origin->displayY = value;
@@ -39,7 +39,7 @@ void SetDisplayOriginY (Entity entity, int value)
 
 void SetDisplayOrigin (Entity entity, int x, int y)
 {
-	auto [origin, size] = registry.try_get<Components::Origin, Components::Size>(entity);
+	auto [origin, size] = g_registry.try_get<Components::Origin, Components::Size>(entity);
 	ZEN_ASSERT(origin && size, "The entity has no 'Origin' or 'Size' component.");
 
 	origin->displayX = x;
@@ -55,7 +55,7 @@ void SetDisplayOrigin (Entity entity, int value = 0)
 
 void SetOrigin (Entity entity, double x, double y)
 {
-	auto [origin, size] = registry.try_get<Components::Origin, Components::Size>(entity);
+	auto [origin, size] = g_registry.try_get<Components::Origin, Components::Size>(entity);
 	ZEN_ASSERT(origin, "The entity has no 'Origin' component.");
 
 	origin->x = x;
@@ -76,11 +76,11 @@ void SetOrigin (Entity entity, double value)
 
 void SetOriginFromFrame (Entity entity)
 {
-	auto [origin, size, textured] = registry.try_get<Components::Origin, Components::Size, Components::Textured>(entity);
+	auto [origin, size, textured] = g_registry.try_get<Components::Origin, Components::Size, Components::Textured>(entity);
 	ZEN_ASSERT(origin && size, "The entity has no 'Origin', 'Size' or 'Textured' component.");
 
 	// Get texture
-	auto& frame = registry.get<Components::Frame>(textured->frame);
+	auto& frame = g_registry.get<Components::Frame>(textured->frame);
 
 	if (!textured || !frame.customPivot)
 	{
@@ -100,7 +100,7 @@ void SetOriginFromFrame (Entity entity)
 
 double GetOriginX (Entity entity)
 {
-	auto origin = registry.try_get<Components::Origin>(entity);
+	auto origin = g_registry.try_get<Components::Origin>(entity);
 	ZEN_ASSERT(origin, "The entity has no 'Origin' component.");
 
 	return origin->x;
@@ -108,7 +108,7 @@ double GetOriginX (Entity entity)
 
 double GetOriginY (Entity entity)
 {
-	auto origin = registry.try_get<Components::Origin>(entity);
+	auto origin = g_registry.try_get<Components::Origin>(entity);
 	ZEN_ASSERT(origin, "The entity has no 'Origin' component.");
 
 	return origin->y;
@@ -116,7 +116,7 @@ double GetOriginY (Entity entity)
 
 double GetDisplayOriginX (Entity entity)
 {
-	auto origin = registry.try_get<Components::Origin>(entity);
+	auto origin = g_registry.try_get<Components::Origin>(entity);
 	ZEN_ASSERT(origin, "The entity has no 'Origin' component.");
 
 	return origin->displayX;
@@ -124,7 +124,7 @@ double GetDisplayOriginX (Entity entity)
 
 double GetDisplayOriginY (Entity entity)
 {
-	auto origin = registry.try_get<Components::Origin>(entity);
+	auto origin = g_registry.try_get<Components::Origin>(entity);
 
 	ZEN_ASSERT(origin, "The entity has no 'Origin' component.");
 	return origin->displayY;
@@ -132,7 +132,7 @@ double GetDisplayOriginY (Entity entity)
 
 void UpdateDisplayOrigin (Entity entity)
 {
-	auto [origin, size] = registry.try_get<Components::Origin, Components::Size>(entity);
+	auto [origin, size] = g_registry.try_get<Components::Origin, Components::Size>(entity);
 	ZEN_ASSERT(origin && size, "The entity has no 'Origin' or 'Size' component.");
 
 	// Update display origin

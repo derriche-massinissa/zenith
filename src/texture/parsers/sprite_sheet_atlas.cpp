@@ -27,10 +27,10 @@ void ParseSpriteSheetFromAtlas (Entity texture, Entity frame, SpriteSheetConfig 
 	}
 
 	// Get the source component
-	TextureSourceComponent *source = nullptr;
-	for (auto& entity : g_registry.view<TextureSourceComponent>())
+	Components::TextureSource *source = nullptr;
+	for (auto& entity : g_registry.view<Components::TextureSource>())
 	{
-		auto& src = g_registry.get<TextureSourceComponent>(entity);
+		auto& src = g_registry.get<Components::TextureSource>(entity);
 		if (src.texture == texture && src.index == 0)
 		{
 			source = &src;
@@ -42,7 +42,7 @@ void ParseSpriteSheetFromAtlas (Entity texture, Entity frame, SpriteSheetConfig 
 	// Add in a __BASE entry (for the entire frame)
 	AddFrame(texture, "__BASE", 0, 0, 0, source->width, source->height);
 
-	auto& fr = g_registry.get<FrameComponent>(frame);
+	auto& fr = g_registry.get<Components::Frame>(frame);
 
 	int startFrame = config.startFrame;
 	int endFrame = config.endFrame;
@@ -102,7 +102,7 @@ void ParseSpriteSheetFromAtlas (Entity texture, Entity frame, SpriteSheetConfig 
 			bool rightRow = (sheetX == row - 1);
 
 			sheetFrame = AddFrame(texture, frameIndex, sourceIndex, x + frameX, y + frameY, config.frameWidth, config.frameHeight);
-			auto& sfr = g_registry.get<FrameComponent>(sheetFrame);
+			auto& sfr = g_registry.get<Components::Frame>(sheetFrame);
 
 			if (leftRow || topRow || rightRow || bottomRow)
 			{

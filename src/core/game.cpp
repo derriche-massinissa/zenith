@@ -39,6 +39,10 @@ Game::~Game ()
 	events.emit("destroy");
 
 	events.removeAllListeners();
+
+	// FIXME
+	// Destroying the SDL_Renderer from inside the Window global object makes everything crash to the ground, it works from here, but it would be good to know what's happening... So yeah future me, investigate!
+	g_window.close();
 }
 
 void Game::boot ()

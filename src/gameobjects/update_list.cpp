@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <vector>
 #include "../scene/scene.h"
-#include "../event/event_emitter.h"
+#include "../event/event_emitter.hpp"
 
 namespace Zen {
 namespace GameObjects {
@@ -37,6 +37,8 @@ void UpdateList::start ()
 
 void UpdateList::sceneUpdate (Uint32 time_, Uint32 delta_)
 {
+	/*
+	 * TODO entity update
 	for (const auto& obj_ : active)
 	{
 		if (obj_->active)
@@ -44,6 +46,7 @@ void UpdateList::sceneUpdate (Uint32 time_, Uint32 delta_)
 			obj_->preUpdate(time_, delta_);
 		}
 	}
+	*/
 }
 
 void UpdateList::shutdown (Data data_)
@@ -53,14 +56,14 @@ void UpdateList::shutdown (Data data_)
 	scene->sys.events.off("shutdown", &UpdateList::shutdown, this);
 }
 
-void UpdateList::add (GameObject* gameObject_)
+void UpdateList::add (Entity gameObject_)
 {
 	pending.emplace_back(gameObject_);
 
 	toProcess++;
 }
 
-void UpdateList::remove (GameObject* gameObject_)
+void UpdateList::remove (Entity gameObject_)
 {
 	destroy.emplace_back(gameObject_);
 
@@ -115,7 +118,7 @@ void UpdateList::update (Uint32 time_, Uint32 delta_)
 	toProcess = 0;
 }
 
-std::vector<GameObject*> UpdateList::getActive ()
+std::vector<Entity> UpdateList::getActive ()
 {
 	return active;
 }

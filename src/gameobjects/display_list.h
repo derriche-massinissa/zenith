@@ -11,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-#include "gameobject.fwd.h"
+#include "../ecs/entity.hpp"
 
 namespace Zen {
 namespace GameObjects {
@@ -36,7 +36,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::vector<std::unique_ptr<GameObject>> list;
+	std::vector<Entity> list;
 
 	/**
 	 * The flag the determines whether GameObjects should be sorted when
@@ -53,7 +53,7 @@ public:
 	 *
 	 * @param gameObject_ A unique pointer to a GameObject instance.
 	 */
-	GameObject* add (std::unique_ptr<GameObject> gameObject_);
+	void add (Entity gameObject_);
 
 	/**
 	 * Remove a GameObject instance from the list.
@@ -62,7 +62,7 @@ public:
 	 *
 	 * @param gameObject_ A pointer to the GameObject instance.
 	 */
-	void remove (GameObject* gameObject_);
+	void remove (Entity gameObject_);
 
 	/**
 	 * Force a sort of the display list on the next call to depthSort.
@@ -90,8 +90,8 @@ public:
 	 * otherwise.
 	 */
 	static bool sortByDepth (
-			const std::unique_ptr<GameObject>& childA,
-			const std::unique_ptr<GameObject>& childB);
+			const Entity childA,
+			const Entity childB);
 
 	/**
 	 * Returns a vector which contains all objects currently on the DisplayList.
@@ -100,9 +100,9 @@ public:
 	 *
 	 * @return The GameObject instances.
 	 */
-	std::vector<GameObject*> getChildren ();
+	std::vector<Entity> getChildren ();
 
-	int getIndex (GameObject* child_);
+	int getIndex (Entity child_);
 };
 
 }	// namespace Input

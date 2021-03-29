@@ -141,7 +141,7 @@ void Rotate (Components::TransformMatrix *matrix, double angle);
  *
  * @return This Components::TransformMatrix.
  */
-void Multiply (Components::TransformMatrix *matrix, const Components::TransformMatrix& rhs);
+void Multiply (Components::TransformMatrix *matrix, const Components::TransformMatrix rhs);
 
 /**
  * Multiply this Matrix by the matrix given, including the offset.
@@ -157,7 +157,7 @@ void Multiply (Components::TransformMatrix *matrix, const Components::TransformM
  *
  * @return This Components::TransformMatrix.
  */
-void MultiplyWithOffset (Components::TransformMatrix *matrix, const Components::TransformMatrix& src, double offsetX, double offsetY);
+void MultiplyWithOffset (Components::TransformMatrix *matrix, const Components::TransformMatrix src, double offsetX, double offsetY);
 
 /**
  * Transform the Matrix.

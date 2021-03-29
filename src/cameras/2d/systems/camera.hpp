@@ -24,7 +24,7 @@ namespace Zen {
  * @param width_ The width of the Camera, in pixels.
  * @param height_ The height of the Camera, in pixels.
  */
-Entity CreateCamera (int x, int y, int width, int height);
+Entity CreateCamera (double x, double y, double width, double height);
 
 /**
  * @since 0.0.0

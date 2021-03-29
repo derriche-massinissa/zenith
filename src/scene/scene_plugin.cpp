@@ -10,15 +10,16 @@
 #include "scene.h"
 #include "scene_systems.fwd.h"
 #include "scene_manager.h"
+#include "../math/clamp.hpp"
 
 namespace Zen {
 namespace Scenes {
 
 ScenePlugin::ScenePlugin (Scene* scene_)
-	: manager(&scene_->game.scene)
+	: scene(scene_)
 	, systems (&scene_->sys)
+	, manager(&scene_->game.scene)
 	, key (scene_->sys.settings.key)
-	, scene(scene_)
 {
 	scene_->sys.events.on("start", &ScenePlugin::pluginStart, this);
 }
@@ -117,7 +118,7 @@ void ScenePlugin::step (Uint32 time_, Uint32 delta_)
 {
 	transitionElapsed += delta_;
 
-	transitionProgress = Math::clamp(transitionElapsed / transitionDuration, 0.f, 1.f);
+	transitionProgress = Math::Clamp(static_cast<double>(transitionElapsed) / transitionDuration, 0.f, 1.f);
 
 	if (transitionCallback)
 		transitionCallback(transitionProgress);
@@ -159,7 +160,7 @@ Scene& ScenePlugin::add (
 		Data data_
 		)
 {
-	manager->add(key_, std::move(sceneToAdd_), autoStart_, data_);
+	return *manager->add(key_, std::move(sceneToAdd_), autoStart_, data_);
 }
 
 ScenePlugin& ScenePlugin::launch (std::string key_, Data data_)

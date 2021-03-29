@@ -12,11 +12,11 @@
 
 namespace Zen {
 
-extern entt::registry registry;
+extern entt::registry g_registry;
 
 void SetScrollFactor (Entity entity, double x, double y)
 {
-	auto scrollFactor = registry.try_get<Components::ScrollFactor>(entity);
+	auto scrollFactor = g_registry.try_get<Components::ScrollFactor>(entity);
 	ZEN_ASSERT(scrollFactor, "The entity has no 'ScrollFactor' component.");
 
 	scrollFactor->x = x;
@@ -30,7 +30,7 @@ void SetScrollFactor (Entity entity, double value)
 
 double GetScrollFactorX (Entity entity)
 {
-	auto scrollFactor = registry.try_get<Components::ScrollFactor>(entity);
+	auto scrollFactor = g_registry.try_get<Components::ScrollFactor>(entity);
 	ZEN_ASSERT(scrollFactor, "The entity has no 'ScrollFactor' component.");
 
 	return scrollFactor->x;
@@ -38,7 +38,7 @@ double GetScrollFactorX (Entity entity)
 
 double GetScrollFactorY (Entity entity)
 {
-	auto scrollFactor = registry.try_get<Components::ScrollFactor>(entity);
+	auto scrollFactor = g_registry.try_get<Components::ScrollFactor>(entity);
 	ZEN_ASSERT(scrollFactor, "The entity has no 'ScrollFactor' component.");
 
 	return scrollFactor->y;

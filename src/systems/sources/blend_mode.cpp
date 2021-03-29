@@ -7,18 +7,16 @@
 
 #include "../blend_mode.hpp"
 
-#include "entt/entt.hpp"
 #include "../../utils/assert.hpp"
-
 #include "../../components/blend_mode.hpp"
 
 namespace Zen {
 
-extern entt::registry registry;
+extern entt::registry g_registry;
 
 BLEND_MODE GetBlendMode (Entity entity)
 {
-	auto blendMode = registry.try_get<Components::BlendMode>(entity);
+	auto blendMode = g_registry.try_get<Components::BlendMode>(entity);
 	ZEN_ASSERT(blendMode, "The entity has no 'BlendMode' component.");
 
 	return blendMode->value;
@@ -26,7 +24,7 @@ BLEND_MODE GetBlendMode (Entity entity)
 
 void SetBlendMode (Entity entity, BLEND_MODE value)
 {
-	auto blendMode = registry.try_get<Components::BlendMode>(entity);
+	auto blendMode = g_registry.try_get<Components::BlendMode>(entity);
 	ZEN_ASSERT(blendMode, "The entity has no 'BlendMode' component.");
 
 	blendMode->value = value;

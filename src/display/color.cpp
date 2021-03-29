@@ -48,7 +48,7 @@ void SetHSV (Color *color, double h, double s, double l)
 	UpdateOnHsv(color);
 }
 
-void SetHex (Color *color, uint8_t hex)
+void SetHex (Color *color, uint32_t hex)
 {
 	uint8_t red = (hex & 0xff0000) >> 16;
 	uint8_t green = (hex & 0x00ff00) >> 8;

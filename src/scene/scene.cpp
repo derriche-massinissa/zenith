@@ -20,16 +20,16 @@
 namespace Zen {
 
 Scene::Scene (Game& game_)
-	: load (this)
-	, updateList (this)
-	, sys (this)
-	, scene (this)
+	: sys (this)
+	, game (game_)
+	, textures (game_.textures)
 	, cameras (this)
 	, add (this)
-	, renderer (game_.renderer)
-	, textures (game_.textures)
+	, scene (this)
+	, updateList (this)
+	, load (this)
 	, scale (game_.scale)
-	, game (game_)
+	, renderer (game_.renderer)
 {}
 
 void Scene::init (Data data_)

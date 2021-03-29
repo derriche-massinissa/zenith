@@ -7,18 +7,16 @@
 
 #include "../depth.hpp"
 
-#include "entt/entt.hpp"
 #include "../../utils/assert.hpp"
-
 #include "../../components/depth.hpp"
 
 namespace Zen {
 
-extern entt::registry registry;
+extern entt::registry g_registry;
 
 int GetDepth (Entity entity)
 {
-	auto depth = registry.try_get<Components::Depth>(entity);
+	auto depth = g_registry.try_get<Components::Depth>(entity);
 	ZEN_ASSERT(depth, "The entity has no 'Depth' component.");
 
 	return depth->value;
@@ -26,7 +24,7 @@ int GetDepth (Entity entity)
 
 void SetDepth (Entity entity, int value)
 {
-	auto depth = registry.try_get<Components::Depth>(entity);
+	auto depth = g_registry.try_get<Components::Depth>(entity);
 	ZEN_ASSERT(depth, "The entity has no 'Depth' component.");
 
 	depth->value = value;

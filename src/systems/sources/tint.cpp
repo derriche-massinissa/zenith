@@ -13,7 +13,7 @@
 
 namespace Zen {
 
-extern entt::registry registry;
+extern entt::registry g_registry;
 
 void ClearTint (Entity entity)
 {
@@ -22,7 +22,7 @@ void ClearTint (Entity entity)
 
 void SetTint (Entity entity, int topLeft, int topRight, int bottomLeft, int bottomRight)
 {
-	auto tint = registry.try_get<Components::Tint>(entity);
+	auto tint = g_registry.try_get<Components::Tint>(entity);
 
 	ZEN_ASSERT(tint, "The entity has no 'Tint' component.");
 
@@ -50,12 +50,12 @@ void SetTintFill (Entity entity, int topLeft, int topRight, int bottomLeft, int 
 {
 	SetTint(entity, topLeft, topRight, bottomLeft, bottomRight);
 
-	registry.get<Components::Tint>(entity).fill = true;
+	g_registry.get<Components::Tint>(entity).fill = true;
 }
 
 Color GetTint (Entity entity)
 {
-	auto tint = registry.try_get<Components::Tint>(entity);
+	auto tint = g_registry.try_get<Components::Tint>(entity);
 	ZEN_ASSERT(tint, "The entity has no 'Tint' component.");
 
 	Color output;
@@ -66,7 +66,7 @@ Color GetTint (Entity entity)
 
 bool IsTinted (Entity entity)
 {
-	auto tint = registry.try_get<Components::Tint>(entity);
+	auto tint = g_registry.try_get<Components::Tint>(entity);
 	ZEN_ASSERT(tint, "The entity has no 'Tint' component.");
 
 	return (tint->fill ||

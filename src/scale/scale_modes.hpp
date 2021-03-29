@@ -8,6 +8,8 @@
 #ifndef ZEN_CONST_SCALEMODES_HPP
 #define ZEN_CONST_SCALEMODES_HPP
 
+namespace Zen {
+
 /**
  * The available scale modes.
  *
@@ -20,5 +22,7 @@ enum class SCALE_MODE {
 	FIT,
 	ENVELOP
 };
+
+}	// namespace Zen
 
 #endif

@@ -17,7 +17,8 @@ Window::~Window ()
 {
 	removeAllListeners();
 
-	close();
+	// close called from the Game destructorr cuz calling it here crashes the program. Fix later, pls...
+	//close();
 }
 
 int Window::width()
@@ -202,7 +203,7 @@ int Window::close ()
 //	return;
 //}
 
-	template<typename T, typename... Args>
+template<typename T, typename... Args>
 void Window::cleanup (T t_, Args&&... args_)
 {
 	cleanup(t_);

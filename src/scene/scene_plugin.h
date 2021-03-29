@@ -14,7 +14,6 @@
 #include <memory>
 
 #include "../data.h"
-#include "../math.h"
 #include "../event/event_listener.hpp"
 #include "scene_transition_config.h"
 

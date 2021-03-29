@@ -10,7 +10,7 @@
 
 #include <string>
 #include "../scene/scene.fwd.h"
-#include "image/image.fwd.h"
+//#include "image/image.fwd.h"
 
 namespace Zen {
 namespace GameObjects {
@@ -24,7 +24,7 @@ public:
 
 	void boot ();
 
-	Image& image (int x, int y, std::string key, std::string frame = "");
+	//Image& image (int x, int y, std::string key, std::string frame = "");
 };
 
 }	//namespace GameObjects

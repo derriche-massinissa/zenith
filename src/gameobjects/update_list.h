@@ -11,7 +11,7 @@
 #include <vector>
 #include <SDL2/SDL_types.h>
 
-#include "gameobject.fwd.h"
+#include "../ecs/entity.hpp"
 #include "../scene/scene.fwd.h"
 #include "../data.h"
 
@@ -42,11 +42,11 @@ public:
 
 	bool chechQueue = true;
 
-	std::vector<GameObject*> pending;
+	std::vector<Entity> pending;
 
-	std::vector<GameObject*> active;
+	std::vector<Entity> active;
 
-	std::vector<GameObject*> destroy;
+	std::vector<Entity> destroy;
 
 	int toProcess = 0;
 
@@ -63,7 +63,7 @@ public:
 	 *
 	 * @param gameObject_ A unique pointer to a GameObject instance.
 	 */
-	void add (GameObject* gameObject_);
+	void add (Entity gameObject_);
 
 	/**
 	 * Remove a GameObject instance from the list.
@@ -72,13 +72,13 @@ public:
 	 *
 	 * @param gameObject_ A pointer to the GameObject instance.
 	 */
-	void remove (GameObject* gameObject_);
+	void remove (Entity gameObject_);
 
 	void removeAll ();
 
 	void update (Uint32 time_, Uint32 delta_);
 
-	std::vector<GameObject*> getActive ();
+	std::vector<Entity> getActive ();
 
 	int getLength ();
 };

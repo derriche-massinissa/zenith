@@ -9,14 +9,14 @@
 
 #include "scene_config.h"
 #include "scene.h"
-#include "../core/game.h"
+#include "../core/game.hpp"
 
 namespace Zen {
 namespace Scenes {
 
 SceneSystems::SceneSystems (Scene* scene_)
-	: settings(scene_->key)
-	, scene(scene_)
+	: scene(scene_)
+	, settings(scene_->key)
 {}
 
 SceneSystems::~SceneSystems ()

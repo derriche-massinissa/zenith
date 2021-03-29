@@ -7,9 +7,9 @@
 
 #include "scene_manager.h"
 
-#include "../messages.h"
+#include "../utils/messages.hpp"
 
-#include "../core/game.h"
+#include "../core/game.hpp"
 #include "scene.h"
 #include "scene_config.h"
 
@@ -60,7 +60,7 @@ void SceneManager::bootQueue ()
 	SceneConfig* entry_;
 	std::string key_;
 
-	for (int i_ = 0; i_ < pending.size(); i_++)
+	for (size_t i_ = 0; i_ < pending.size(); i_++)
 	{
 		entry_ = &pending.at(i_);
 
@@ -121,7 +121,7 @@ void SceneManager::processQueue ()
 	{
 		SceneConfig* entry_;
 
-		for (int i_ = 0; i_ < pendingLength_; i_++)
+		for (size_t i_ = 0; i_ < pendingLength_; i_++)
 		{
 			entry_ = &pending[i_];
 			add(entry_->key, std::move(entry_->scene), entry_->autoStart, entry_->data);
@@ -161,7 +161,7 @@ void SceneManager::processQueue ()
 		else if (op_ == "moveAbove")	moveAbove(keyA_, keyB_);
 		else if (op_ == "moveBelow")	moveBelow(keyA_, keyB_);
 		else if (op_ == "swapPosition")	swapPosition(keyA_, keyB_);
-		else	messageWarning("Scene operation unknown: ", op_);
+		else	MessageWarning("Scene operation unknown: ", op_);
 
 		operationsQueue.pop();
 	}
@@ -227,7 +227,7 @@ SceneManager& SceneManager::remove (std::string key_)
 			keys.erase(mapI_);
 
 		// Remove from the scene vector
-		for (int i_ = 0; i_ < scenes.size(); i_++)
+		for (size_t i_ = 0; i_ < scenes.size(); i_++)
 		{
 			if (sceneToRemove_ == scenes.at(i_).get())
 			{
@@ -237,7 +237,7 @@ SceneManager& SceneManager::remove (std::string key_)
 		}
 
 		// Remove from the toStart list if there too
-		for (int i_ = 0; i_ < toStart.size(); i_++)
+		for (size_t i_ = 0; i_ < toStart.size(); i_++)
 		{
 			if (key_ == toStart.at(i_))
 			{
@@ -315,7 +315,7 @@ void SceneManager::update (Uint32 time_, Uint32 delta_)
 void SceneManager::render ()
 {
 	// Loop through the scenes in forward order
-	for (int i_ = 0; i_ < scenes.size(); i_++)
+	for (size_t i_ = 0; i_ < scenes.size(); i_++)
 	{
 		auto& sys_ = scenes[i_]->sys;
 
@@ -359,7 +359,7 @@ std::vector<Scene*> SceneManager::getScenes (bool isActive_, bool inReverse_)
 
 	if (!inReverse_)
 	{
-		for (int i_ = 0; i_ < scenes.size(); i_++)
+		for (size_t i_ = 0; i_ < scenes.size(); i_++)
 		{
 			if (!isActive_ || (isActive_ && scenes.at(i_)->sys.isActive()))
 				out_.emplace_back(scenes.at(i_).get());
@@ -367,7 +367,7 @@ std::vector<Scene*> SceneManager::getScenes (bool isActive_, bool inReverse_)
 	}
 	else
 	{
-		for (int i_ = scenes.size() - 1; i_ >= 0; i_++)
+		for (auto i_ = scenes.size() - 1; i_ != 0; i_--)
 		{
 			if (!isActive_ || (isActive_ && scenes.at(i_)->sys.isActive()))
 				out_.emplace_back(scenes.at(i_).get());
@@ -472,7 +472,7 @@ SceneManager& SceneManager::run (std::string key_, Data data_)
 
 	if (scene_ == nullptr)
 	{
-		for (int i_ = 0; i_ < pending.size(); i_++)
+		for (size_t i_ = 0; i_ < pending.size(); i_++)
 		{
 			if (pending.at(i_).key == key_)
 			{
@@ -574,7 +574,7 @@ int SceneManager::getIndex (std::string key_)
 	if (scene_ == nullptr)
 		return -1;
 
-	for (int i_ = 0; i_ < scenes.size(); i_++)
+	for (size_t i_ = 0; i_ < scenes.size(); i_++)
 	{
 		if (scene_ == scenes.at(i_).get())
 			return i_;
@@ -593,7 +593,7 @@ SceneManager& SceneManager::bringToTop (std::string key_)
 	{
 		int index_ = getIndex(key_);
 
-		if (index_ != -1 && index_ < scenes.size())
+		if (index_ != -1 && static_cast<unsigned int>(index_) < scenes.size())
 		{
 			std::unique_ptr<Scene> scene_ = std::move(scenes.at(index_));
 			scenes.erase(scenes.begin() + index_);
@@ -614,7 +614,7 @@ SceneManager& SceneManager::sendToBack (std::string key_)
 	{
 		int index_ = getIndex(key_);
 
-		if (index_ != -1 && index_ < scenes.size())
+		if (index_ != -1 && static_cast<unsigned int>(index_) < scenes.size())
 		{
 			std::unique_ptr<Scene> scene_ = std::move(scenes.at(index_));
 			scenes.erase(scenes.begin() + index_);
@@ -654,7 +654,7 @@ SceneManager& SceneManager::moveUp (std::string key_)
 	{
 		int index_ = getIndex(key_);
 
-		if (index_ < scenes.size() - 1)
+		if (static_cast<unsigned int>(index_) < scenes.size() - 1)
 		{
 			scenes.at(index_).swap(scenes.at(index_+1));
 		}
@@ -682,7 +682,7 @@ SceneManager& SceneManager::moveAbove (std::string keyA_, std::string keyB_)
 			std::unique_ptr<Scene> tempScene_ = std::move(scenes.at(indexB_));
 			scenes.erase(scenes.begin() + indexB_);
 
-			if (indexA_ >= scenes.size() - 1)
+			if (static_cast<unsigned int>(indexA_) >= scenes.size() - 1)
 			{
 				scenes.emplace_back(std::move(tempScene_));
 			}

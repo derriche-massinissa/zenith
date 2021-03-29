@@ -11,9 +11,10 @@
 #include "systems/camera.hpp"
 #include "../../scene/scene_manager.h"
 #include "../../scene/scene.h"
+#include "../../scale/scale_manager.hpp"
 #include "../../geom/rectangle.hpp"
 #include "../../gameobjects/display_list.h"
-#include "../../renderer/renderer.h"
+#include "../../renderer/renderer.hpp"
 #include "../../systems/actor.hpp"
 #include "../../systems/name.hpp"
 #include "../../systems/id.hpp"
@@ -31,9 +32,11 @@
 
 namespace Zen {
 
+extern ScaleManager g_scale;
+
 CameraManager::CameraManager (Scene* scene_)
-	: systems (scene_->sys)
-	, scene (scene_)
+	: scene (scene_)
+	, systems (scene_->sys)
 {
 	scene_->sys.events.once("boot", &CameraManager::boot, this);
 
@@ -63,10 +66,11 @@ void CameraManager::boot ()
 	main = cameras[0];
 
 	// Create a default camera
-	def = CreateCamera(0, 0, scene->scale.getWidth(), scene->scale.getHeight());
-	SetScene(def, scene);
+	def = CreateCamera(0, 0, g_scale.getWidth(), g_scale.getHeight());
+	//SetScene(def, scene);
+	//TODO SetDefaultCamera();
 
-	scene->scale.on("resize", &CameraManager::onResize, this);
+	g_scale.on("resize", &CameraManager::onResize, this);
 }
 
 void CameraManager::start ()
@@ -94,14 +98,14 @@ void CameraManager::start ()
 Entity CameraManager::add (
 		int x_, int y_, int width_, int height_, bool makeMain_, std::string name_)
 {
-	if (width_ == 0)	width_ = scene->scale.getWidth();
-	if (height_ == 0)	height_ = scene->scale.getHeight();
+	if (width_ == 0)	width_ = g_scale.getWidth();
+	if (height_ == 0)	height_ = g_scale.getHeight();
 
 	auto camera_ = CreateCamera(x_, y_, width_, height_);
 	cameras.emplace_back(camera_);
 
 	SetName(camera_, name_.c_str());
-	SetScene(camera_, scene);
+	//SetScene(camera_, scene);
 
 	SetId(camera_, getNextID());
 
@@ -266,7 +270,7 @@ void CameraManager::render (
 		Renderer& renderer_,
 		GameObjects::DisplayList& displayList_)
 {
-	for (auto& camera_ : cameras)
+	for (auto camera_ : cameras)
 	{
 		if (GetVisible(camera_) && GetAlpha(camera_) > 0)
 		{

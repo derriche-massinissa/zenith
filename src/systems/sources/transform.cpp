@@ -105,9 +105,11 @@ Math::Vector2 GetLocalPoint (Entity entity, double x, double y, Entity camera)
 	 */
 	if (camera == entt::null)
 	{
-		auto scene = actor->scene;
-		auto& cameraManager = g_registry.get<Components::CameraManager>(scene);
-		camera = cameraManager.main;
+		return {-1, -1};
+
+		///auto scene = actor->scene;
+		///auto& cameraManager = g_registry.get<Components::CameraManager>(scene);
+		///camera = cameraManager.main;
 	}
 
 	auto& scroll = g_registry.get<Components::Scroll>(camera);

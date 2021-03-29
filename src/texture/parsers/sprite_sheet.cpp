@@ -35,10 +35,10 @@ void ParseSpriteSheet (
 	}
 
 	// Get the source component
-	TextureSourceComponent *source = nullptr;
-	for (auto& entity : g_registry.view<TextureSourceComponent>())
+	Components::TextureSource *source = nullptr;
+	for (auto& entity : g_registry.view<Components::TextureSource>())
 	{
-		auto& src = g_registry.get<TextureSourceComponent>(entity);
+		auto& src = g_registry.get<Components::TextureSource>(entity);
 		if (src.texture == texture && src.index == sourceIndex)
 		{
 			source = &src;
@@ -61,7 +61,7 @@ void ParseSpriteSheet (
 
 	if (total == 0)
 	{
-		auto& tx = g_registry.get<TextureComponent>(texture);
+		auto& tx = g_registry.get<Components::Texture>(texture);
 		MessageWarning("SpriteSheet frame dimensions will result in zero frame for texture: ", tx.key);
 	}
 

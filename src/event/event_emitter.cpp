@@ -38,7 +38,7 @@ std::vector<ListenerBase*> EventEmitter::getListeners (std::string event_)
 	auto iterator_ = eventMap.find(event_);
 	if (iterator_ != eventMap.end())
 	{
-		for (int i_ = 0; i_ < iterator_->second.size(); i_++)
+		for (size_t i_ = 0; i_ < iterator_->second.size(); i_++)
 			vec_.emplace_back(iterator_->second[i_].get());
 	}
 
@@ -52,7 +52,7 @@ void EventEmitter::removeListener (std::string event_, ListenerBase* listener_)
 	if (iterator_ != eventMap.end())
 	{
 		// Find listener
-		for (int l_ = 0; l_ < iterator_->second.size(); l_++)
+		for (size_t l_ = 0; l_ < iterator_->second.size(); l_++)
 		{
 			if (listener_ == iterator_->second[l_].get())
 			{
@@ -135,7 +135,7 @@ std::vector<ListenerBase*> EventEmitter::getListeners (Entity entity_, std::stri
 	auto iterator_ = globalEventMap[entity_].find(event_);
 	if (iterator_ != globalEventMap[entity_].end())
 	{
-		for (int i_ = 0; i_ < iterator_->second.size(); i_++)
+		for (size_t i_ = 0; i_ < iterator_->second.size(); i_++)
 			vec_.emplace_back(iterator_->second[i_].get());
 	}
 
@@ -152,7 +152,7 @@ void EventEmitter::removeListener (Entity entity_, std::string event_, ListenerB
 	if (iterator_ != globalEventMap[entity_].end())
 	{
 		// Find listener
-		for (int l_ = 0; l_ < iterator_->second.size(); l_++)
+		for (size_t l_ = 0; l_ < iterator_->second.size(); l_++)
 		{
 			if (listener_ == iterator_->second[l_].get())
 			{

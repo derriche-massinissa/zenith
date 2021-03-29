@@ -70,7 +70,8 @@ public:
 	 * @param flag_ Whether this listener is one timed or not.
 	 */
 	Listener (std::string event_, std::function<void(Args...)> cb_, bool flag_)
-		: callback(cb_), ListenerBase(event_, flag_)
+		: ListenerBase(event_, flag_)
+		, callback(cb_)
 	{}
 
 	/**

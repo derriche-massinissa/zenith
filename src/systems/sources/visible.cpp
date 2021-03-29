@@ -15,11 +15,11 @@
 
 namespace Zen {
 
-extern entt::registry registry;
+extern entt::registry g_registry;
 
 bool GetVisible (Entity entity)
 {
-	auto visible = registry.try_get<Components::Visible>(entity);
+	auto visible = g_registry.try_get<Components::Visible>(entity);
 
 	ZEN_ASSERT(visible, "The entity has no 'Visible' component.");
 
@@ -28,13 +28,13 @@ bool GetVisible (Entity entity)
 
 void SetVisible (Entity entity, bool value)
 {
-	auto visible = registry.try_get<Components::Visible>(entity);
+	auto visible = g_registry.try_get<Components::Visible>(entity);
 
 	ZEN_ASSERT(visible, "The entity has no 'Visible' component.");
 
 	visible->value = value;
 
-	if(auto renderable = registry.try_get<Components::Renderable>(entity))
+	if(auto renderable = g_registry.try_get<Components::Renderable>(entity))
 	{
 		if (value)
 			// Turn the visibility bit to 1

@@ -33,13 +33,15 @@ void ScaleManager::boot (GameConfig *cfg)
 
 void ScaleManager::parseConfig ()
 {
-	Resize(&gameSize, config->width, config->height);
-	Resize(&displaySize, config->width, config->height);
+	gameSize = CreateSize(config->width, config->height, config->scaleMode);
+	displaySize = CreateSize(config->width, config->height, config->scaleMode);
 
 	scaleMode = config->scaleMode;
 
+	/*
 	SetAspectMode(&gameSize, scaleMode);
 	SetAspectMode(&displaySize, scaleMode);
+	*/
 }
 
 void ScaleManager::setGameSize (int width_, int height_)
