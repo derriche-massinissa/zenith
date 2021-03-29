@@ -8,6 +8,7 @@
 #ifndef ZEN_SCENES_SCENE_TRANSITION_CONFIG_H
 #define ZEN_SCENES_SCENE_TRANSITION_CONFIG_H
 
+#include <SDL2/SDL_types.h>
 #include <functional>
 #include <string>
 

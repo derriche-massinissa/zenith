@@ -7,15 +7,11 @@
 
 #include "window.hpp"
 
+#include <utility>
 #include "../core/config.hpp"
 #include "../utils/messages.hpp"
-#include <utility>
 
 namespace Zen {
-
-Window::Window (GameConfig& cfg)
-	: config (cfg)
-{}
 
 Window::~Window ()
 {
@@ -42,8 +38,10 @@ int Window::height()
 	return height_;
 }
 
-int Window::create ()
+int Window::create (GameConfig *cfg)
 {
+	config = cfg;
+
 	if (initSdl()) {
 		return 1;
 	} else if (initSdlImg()) {
@@ -64,13 +62,13 @@ int Window::create ()
 	} else {
 		// Everything has gone well
 
-		setPixelArt(config.pixelArt);
+		setPixelArt(config->pixelArt);
 
-		if (config.minWidth || config.minHeight)
-			setMinSize(config.minWidth, config.minHeight);
+		if (config->minWidth || config->minHeight)
+			setMinSize(config->minWidth, config->minHeight);
 
-		if (config.maxWidth || config.maxHeight)
-			setMaxSize(config.maxWidth, config.maxHeight);
+		if (config->maxWidth || config->maxHeight)
+			setMaxSize(config->maxWidth, config->maxHeight);
 	}
 
 	return 0;
@@ -129,11 +127,11 @@ int Window::createWindow ()
 {
 	// Create a window
 	window = SDL_CreateWindow(
-			config.title.c_str(),
+			config->title.c_str(),
 			SDL_WINDOWPOS_UNDEFINED,
 			SDL_WINDOWPOS_UNDEFINED,
-			config.width,
-			config.height,
+			config->width,
+			config->height,
 			SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 			);
 	if (window == nullptr) {

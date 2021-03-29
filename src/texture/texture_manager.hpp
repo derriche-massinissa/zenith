@@ -38,18 +38,11 @@ class TextureManager : public EventEmitter
 {
 public:
 	/**
-	 * @since 0.0.0
-	 *
-	 * @param game_ A reference to the Game owning this TextureManager.
-	 */
-	TextureManager (GameConfig& config_);
-
-	/**
 	 * The boot handler called by the Game instance when it first starts up.
 	 *
 	 * @since 0.0.0
 	 */
-	void boot ();
+	void boot (GameConfig *config_);
 
 	/**
 	 * Checks the given texture key and to see if it is already in use.
@@ -456,7 +449,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	GameConfig& config;
+	GameConfig *config;
 
 	/**
 	 * Avector that has all the textures that the TextureManager creates.

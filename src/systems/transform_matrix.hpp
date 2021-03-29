@@ -297,6 +297,8 @@ int GetYRound (Components::TransformMatrix matrix, double x, double y, bool roun
 
 Components::TransformMatrix GetTransformMatrix (Entity entity);
 
+Components::TransformMatrix* GetParentTransformMatrix (Entity entity);
+
 }	// namespace Zen
 
 #endif

@@ -13,8 +13,7 @@
 #include "../event/event_emitter.hpp"
 #include "../math/types/vector2.hpp"
 
-#include "../window/window.fwd.hpp"
-#include "../core/game.fwd.hpp"
+#include "../core/config.fwd.hpp"
 
 namespace Zen {
 
@@ -42,29 +41,15 @@ class ScaleManager : public EventEmitter
 public:
 	/**
 	 * @since 0.0.0
-	 *
-	 * @param game_ - The Game instance.
-	 */
-	ScaleManager (Game& game_);
-
-	/**
-	 * @since 0.0.0
 	 */
 	~ScaleManager ();
 
 	/**
-	 * A reference to the Game instance.
+	 * A reference to the GameConfig instance.
 	 *
 	 * @since 0.0.0
 	 */
-	Game& game;
-
-	/**
-	 * A reference to the Window instance.
-	 *
-	 * @since 0.0.0
-	 */
-	Window& window;
+	GameConfig *config;
 
 	/**
 	 * The Game Size component.
@@ -140,7 +125,7 @@ public:
      *
      * @since 0.0.0
      */
-    void boot ();
+    void boot (GameConfig *cfg);
 
     /**
      * Parses the game configuration to set-up the scale defaults.

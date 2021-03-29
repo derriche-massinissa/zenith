@@ -11,19 +11,24 @@
 
 namespace Zen {
 
+// Global Systems
 EventEmitter g_event;
 entt::registry g_registry;
-//Window g_window;
-//TextureManager g_texture;
+Window g_window;
+TextureManager g_texture;
+ScaleManager g_scale;
+Renderer g_renderer;
 
-Game::Game (Core::GameConfig& config_)
-	: config (config_)
-	, renderer (*this)
+Game::Game (GameConfig& config_)
+	: events (g_event)
+	, config (config_)
+	, window (g_window)
+	, renderer (g_renderer)
+	, textures (g_texture)
 	, scene (this, config_.sceneFactory)
-	, window (*this)
-	, textures (this)
-	, scale (*this)
+	, scale (g_scale)
 {
+	// Step delta for when the window is minimized/not visible
 	hiddenDelta = config_.hiddenDelta;
 
 	boot();
@@ -40,9 +45,9 @@ void Game::boot ()
 {
 	isBooted = true;
 
-	window.create();
-	renderer.start();
-	scale.boot();
+	window.create(&config);
+	renderer.start(&config);
+	scale.boot(&config);
 
 	window.on("minimize", &Game::onMinimize, this);
 	window.on("restore", &Game::onRestore, this);

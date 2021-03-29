@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_RENDERER_H
-#define ZEN_RENDERER_H
+#ifndef ZEN_RENDERER_HPP
+#define ZEN_RENDERER_HPP
 
 #include <SDL2/SDL.h>
 #include <functional>
@@ -24,9 +24,8 @@
 #include "../structs/types/size.hpp"
 #include "../components/transform_matrix.hpp"
 
-#include "../core/game.fwd.hpp"
-#include "../window/window.fwd.hpp"
 #include "../scene/scene.fwd.h"
+#include "../core/config.fwd.hpp"
 
 namespace Zen {
 
@@ -80,29 +79,10 @@ class Renderer : public EventEmitter
 public:
 	/**
 	 * @since 0.0.0
-	 *
-	 * @param game_ The Game owning this Renderer.
-	 */
-	Renderer (Game& game_);
-
-	/**
-	 * @since 0.0.0
 	 */
 	~Renderer ();
 
-	/**
-	 * The Game instance that owns this renderer.
-	 *
-	 * @since 0.0.0
-	 */
-	Game& game;
-
-	/**
-	 * The Window that the Game uses.
-	 *
-	 * @since 0.0.0
-	 */
-	Window& window;
+	GameConfig *config;
 
 	/**
 	 * The color used to clear the screen.
@@ -245,7 +225,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	void start ();
+	void start (GameConfig *cfg_);
 
 	/**
 	 * Instantiate all the supported blend modes of this Renderer.

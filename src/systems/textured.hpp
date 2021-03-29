@@ -25,6 +25,8 @@ void SetTexture (Entity entity, std::string key, std::string frame);
 
 void SetFrame (Entity entity, std::string frameName, bool updateSize = true, bool updateOrigin = true);
 
+Entity GetFrame (Entity entity);
+
 void ResetCropObject (Entity entity);
 
 bool IsCropped (Entity entity);

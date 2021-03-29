@@ -10,6 +10,7 @@
 #include <cmath>
 #include "../../math/const.hpp"
 #include "../../utils/assert.hpp"
+#include "../../components/container_item.hpp"
 
 namespace Zen {
 
@@ -326,6 +327,16 @@ Components::TransformMatrix GetTransformMatrix (Entity entity)
 	ZEN_ASSERT(matrix, "The entity has no 'TransformMatrix' component.");
 
 	return *matrix;
+}
+
+Components::TransformMatrix* GetParentTransformMatrix (Entity entity)
+{
+	auto item = g_registry.try_get<Components::ContainerItem>(entity);
+	ZEN_ASSERT(item, "The entity has no 'Item' component.");
+
+	auto matrix = g_registry.try_get<Components::TransformMatrix>(item->parent);
+
+	return matrix;
 }
 
 }	// namespace Zen

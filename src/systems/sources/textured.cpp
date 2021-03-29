@@ -117,6 +117,14 @@ void SetFrame (Entity entity, std::string frameName, bool updateSize, bool updat
 		UpdateFrameCropUVs(textured->frame, crop->data, flip->x, flip->y);
 }
 
+Entity GetFrame (Entity entity)
+{
+	auto textured = g_registry.try_get<Components::Textured>(entity);
+	ZEN_ASSERT(textured, "Entity has no 'Textured' component.");
+
+	return textured->frame;
+}
+
 void ResetCropObject (Entity entity)
 {
 	auto crop = g_registry.try_get<Components::Crop>(entity);

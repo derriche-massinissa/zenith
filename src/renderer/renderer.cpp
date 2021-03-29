@@ -7,8 +7,8 @@
 
 #include "renderer.hpp"
 
-#include "../core/game.hpp"
 #include "../window/window.hpp"
+#include "../scale/scale_manager.hpp"
 #include "../scene/scene.h"
 
 #include "../structs/types/size.hpp"
@@ -43,11 +43,8 @@
 namespace Zen {
 
 extern entt::registry g_registry;
-
-Renderer::Renderer (Game& game_)
-	: game (game_)
-	, window (game_.window)
-{}
+extern Window g_window;
+extern ScaleManager g_scale;
 
 Renderer::~Renderer ()
 {
@@ -64,15 +61,17 @@ Renderer::~Renderer ()
 		SDL_DestroyTexture(maskTexture);
 }
 
-void Renderer::start ()
+void Renderer::start (GameConfig *cfg_)
 {
-	backgroundColor = game.config.backgroundColor;
+	config = cfg_;
 
-	game.scale.on("resize", &Renderer::onResize, this);
+	backgroundColor = config->backgroundColor;
+
+	g_scale.on("resize", &Renderer::onResize, this);
 
 	// Get the pixel format of the window
 	SDL_Surface *infoSurface_ = nullptr;
-	infoSurface_ = SDL_GetWindowSurface(window.window);
+	infoSurface_ = SDL_GetWindowSurface(g_window.window);
 
 	if (!infoSurface_)
 	{
@@ -97,7 +96,7 @@ void Renderer::start ()
 	// Create the supported blend modes
 	createBlendModes();
 
-	resize(window.width(), window.height());
+	resize(g_window.width(), g_window.height());
 }
 
 void Renderer::onResize (Size gameSize_, Size displaySize_, int previousWidth_, int previousHeight_)
@@ -118,7 +117,7 @@ void Renderer::resize (int width_, int height_)
 
 	// Reset it to the same size as the renderer
 	maskBuffer = SDL_CreateTexture(
-			window.renderer,
+			g_window.renderer,
 			SDL_PIXELFORMAT_RGBA8888,
 			SDL_TEXTUREACCESS_TARGET,
 			width,
@@ -134,7 +133,7 @@ void Renderer::resize (int width_, int height_)
 
 	// Reset it to the same size as the renderer
 	cameraBuffer = SDL_CreateTexture(
-			window.renderer,
+			g_window.renderer,
 			SDL_PIXELFORMAT_RGBA8888,
 			SDL_TEXTUREACCESS_TARGET,
 			width,
@@ -150,7 +149,7 @@ void Renderer::resize (int width_, int height_)
 
 	// Reset it to the same size as the renderer
 	maskTexture = SDL_CreateTexture(
-			window.renderer,
+			g_window.renderer,
 			SDL_PIXELFORMAT_RGBA8888,
 			SDL_TEXTUREACCESS_TARGET,
 			width,
@@ -163,15 +162,15 @@ void Renderer::resize (int width_, int height_)
 
 void Renderer::preRender ()
 {
-	if (game.config.clearBeforeRender)
+	if (config->clearBeforeRender)
 	{
 		SDL_SetRenderDrawColor(
-				window.renderer,
+				g_window.renderer,
 				backgroundColor.red,
 				backgroundColor.green,
 				backgroundColor.blue,
 				0xff);
-		SDL_RenderClear(window.renderer);
+		SDL_RenderClear(g_window.renderer);
 	}
 
 	drawCount = 0;
@@ -186,10 +185,10 @@ void Renderer::render (
 {
 	emit("render");
 
-	int offsetX_ = game.scale.displayOffset.x;
-	int offsetY_ = game.scale.displayOffset.y;
-	double scaleX_ = game.scale.displayScale.x;
-	double scaleY_ = game.scale.displayScale.y;
+	int offsetX_ = g_scale.displayOffset.x;
+	int offsetY_ = g_scale.displayOffset.y;
+	double scaleX_ = g_scale.displayScale.x;
+	double scaleY_ = g_scale.displayScale.y;
 
 	SDL_Rect c_;
 	c_.x = GetX(camera_);
@@ -197,7 +196,7 @@ void Renderer::render (
 	c_.w = GetWidth(camera_);
 	c_.h = GetHeight(camera_);
 
-	if (GetViewport(camera_) || game.scale.scaleMode != SCALE_MODE::RESIZE)
+	if (GetViewport(camera_) || g_scale.scaleMode != SCALE_MODE::RESIZE)
 	{
 		// Skip rendering this camera if its viewport is outside the window
 		if (c_.x > width || c_.y > height || c_.x < -c_.w || c_.y < -c_.h)
@@ -238,9 +237,9 @@ void Renderer::render (
 	c_.y += offsetY_;
 
 	// Clip the renderer
-	if (GetViewport(camera_) || game.scale.scaleMode != SCALE_MODE::RESIZE)
+	if (GetViewport(camera_) || g_scale.scaleMode != SCALE_MODE::RESIZE)
 	{
-		SDL_RenderSetClipRect(window.renderer, &c_);
+		SDL_RenderSetClipRect(g_window.renderer, &c_);
 	}
 
 	if (GetMask(camera_) != entt::null)
@@ -248,22 +247,22 @@ void Renderer::render (
 
 	// Camera's background color if not transparent
 	if (!IsTransparent(camera_)) {
-		SDL_SetRenderDrawBlendMode(window.renderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawBlendMode(g_window.renderer, SDL_BLENDMODE_BLEND);
 
 		auto bgc = GetBackgroundColor(camera_);
 
 		SDL_SetRenderDrawColor(
-			window.renderer,
+			g_window.renderer,
 			bgc.red,
 			bgc.green,
 			bgc.blue,
 			bgc.alpha * GetAlpha(camera_)
 		);
 
-		SDL_RenderFillRect(window.renderer, &c_);
+		SDL_RenderFillRect(g_window.renderer, &c_);
 
 		// Reset draw blend mode
-		SDL_SetRenderDrawBlendMode(window.renderer, SDL_BLENDMODE_NONE);
+		SDL_SetRenderDrawBlendMode(g_window.renderer, SDL_BLENDMODE_NONE);
 	}
 
 	drawCount += children_.size();
@@ -271,10 +270,10 @@ void Renderer::render (
 	// Render the GameObject
 	for (auto& child_ : children_)
 	{
-		camera_.addToRenderList(*child_);
+		AddToRenderList(camera_, child_);
 
-		if (child_ && child_->frame)
-			batchSprite(*child_, *child_->frame, camera_, child_->parentMatrix);
+		if (child_ != entt::null && GetFrame(child_) != entt::null)
+			batchSprite(child_, GetFrame(child_), camera_, GetParentTransformMatrix(child_));
 	}
 
 	//camera_.flashEffect.postRender();
@@ -283,12 +282,12 @@ void Renderer::render (
 	SetDirty(camera_, false);
 
 	if (GetMask(camera_) != entt::null)
-		postRenderMask(camera_.mask, nullptr, camera_);
+		postRenderMask(GetMask(camera_), entt::null, camera_);
 
 	// Remove the viewport if previously set
 	if (GetViewport(camera_))
 	{
-		SDL_RenderSetClipRect(window.renderer, nullptr);
+		SDL_RenderSetClipRect(g_window.renderer, nullptr);
 	}
 }
 
@@ -296,7 +295,7 @@ void Renderer::postRender ()
 {
 	// Update the screen once every element has been rendered
 	// This will also trigger a delay as the renderer is Vsynced
-	SDL_RenderPresent(window.renderer);
+	SDL_RenderPresent(g_window.renderer);
 
 	emit("post-render");
 
@@ -310,7 +309,7 @@ void Renderer::postRender ()
 
 Renderer& Renderer::snapshot (std::string path_, std::function<void(SDL_Surface*)> callback_)
 {
-	return snapshotArea(0, 0, window.width(), window.height(), path_, callback_);
+	return snapshotArea(0, 0, g_window.width(), g_window.height(), path_, callback_);
 }
 
 Renderer& Renderer::snapshotArea (
@@ -329,19 +328,19 @@ Renderer& Renderer::snapshotArea (
 
 	snapshotState.getPixel = false;
 
-	snapshotState.x = Math::Clamp(x_, 0, window.width());
+	snapshotState.x = Math::Clamp(x_, 0, g_window.width());
 
-	snapshotState.y = Math::Clamp(y_, 0, window.height());
+	snapshotState.y = Math::Clamp(y_, 0, g_window.height());
 
 	snapshotState.width = Math::Clamp(
 			width_,
 			0,
-			window.width() - snapshotState.x);
+			g_window.width() - snapshotState.x);
 
 	snapshotState.height = Math::Clamp(
 			height_,
 			0,
-			window.height() - snapshotState.y);
+			g_window.height() - snapshotState.y);
 
 	snapshotState.active = true;
 
@@ -384,7 +383,7 @@ void Renderer::takeSnapshot ()
 		rect_.h = 1;
 
 		if (SDL_RenderReadPixels(
-					window.renderer,
+					g_window.renderer,
 					&rect_,
 					pixelFormat.format,
 					&pixel_,
@@ -413,8 +412,8 @@ void Renderer::takeSnapshot ()
 		bool areaSnapshot = (
 				snapshotState.x != 0 ||
 				snapshotState.y != 0 ||
-				snapshotState.width != window.width() ||
-				snapshotState.height != window.height()
+				snapshotState.width != g_window.width() ||
+				snapshotState.height != g_window.height()
 				);
 
 		// Create a blank surface
@@ -460,7 +459,7 @@ void Renderer::takeSnapshot ()
 			MessageNote("area");
 
 			readFailed_ = SDL_RenderReadPixels(
-					window.renderer,
+					g_window.renderer,
 					&rect_,
 					pixelFormat.format,
 					snapshotState.surface->pixels,
@@ -468,7 +467,7 @@ void Renderer::takeSnapshot ()
 		} else {
 			// Read the whole window
 			readFailed_ = SDL_RenderReadPixels(
-					window.renderer,
+					g_window.renderer,
 					nullptr,
 					pixelFormat.format,
 					snapshotState.surface->pixels,
@@ -643,8 +642,8 @@ void Renderer::batchSprite (
 	SDL_Rect source_ {frameX_, frameY_, frameWidth_, frameHeight_};
 
 	// ScaleManager values
-	Math::Vector2 sScale_ = game.scale.displayScale;
-	Math::Vector2 sOffset_ = game.scale.displayOffset;
+	Math::Vector2 sScale_ = g_scale.displayScale;
+	Math::Vector2 sOffset_ = g_scale.displayOffset;
 
 	SDL_Rect destination_;
 
@@ -718,7 +717,7 @@ void Renderer::batchSprite (
 	}
 
 	SDL_RenderCopyEx(
-			window.renderer,
+			g_window.renderer,
 			source___.sdlTexture,
 			&source_,
 			&destination_,
@@ -765,16 +764,16 @@ void Renderer::preRenderMask (Entity maskedObject_)
 	// Is this a camera mask?
 	if (maskedObject_ != entt::null)
 	{
-		SDL_SetRenderTarget(window.renderer, cameraBuffer);
+		SDL_SetRenderTarget(g_window.renderer, cameraBuffer);
 	}
 	else
 	{
-		SDL_SetRenderTarget(window.renderer, maskBuffer);
+		SDL_SetRenderTarget(g_window.renderer, maskBuffer);
 	}
 
 	// Clear _AFTER_ setting the target, to clear the buffer and not the screen
-	SDL_SetRenderDrawColor(window.renderer, 0x00, 0x00, 0x00, 0x00);
-	SDL_RenderClear(window.renderer);
+	SDL_SetRenderDrawColor(g_window.renderer, 0x00, 0x00, 0x00, 0x00);
+	SDL_RenderClear(g_window.renderer);
 }
 
 void Renderer::postRenderMask (
@@ -783,25 +782,25 @@ void Renderer::postRenderMask (
 		Entity camera_)
 {
 	// Save the target buffer
-	SDL_Texture *currentTarget_ = SDL_GetRenderTarget(window.renderer);
+	SDL_Texture *currentTarget_ = SDL_GetRenderTarget(g_window.renderer);
 
 	// Set the mask texture as the new render target
-	SDL_SetRenderTarget(window.renderer, maskTexture);
+	SDL_SetRenderTarget(g_window.renderer, maskTexture);
 
 	// Clear the mask texture
-	SDL_SetRenderDrawColor(window.renderer, 0x00, 0x00, 0x00, 0x00);
-	SDL_RenderClear(window.renderer);
+	SDL_SetRenderDrawColor(g_window.renderer, 0x00, 0x00, 0x00, 0x00);
+	SDL_RenderClear(g_window.renderer);
 
 	// Draw the mask GameObject
 	AddToRenderList(camera_, maskObject_);
-	batchSprite(maskObject_, maskObject_->frame, camera_, maskObject_->parentMatrix);
+	batchSprite(maskObject_, GetFrame(maskObject_), camera_, GetParentTransformMatrix(maskObject_));
 
 	// Reset the target to the buffer
-	SDL_SetRenderTarget(window.renderer, currentTarget_);
+	SDL_SetRenderTarget(g_window.renderer, currentTarget_);
 
 	// Render the mask on the buffer
 	SDL_RenderCopy(
-			window.renderer,
+			g_window.renderer,
 			maskTexture,
 			nullptr,	// Render the whole texture
 			nullptr		// Render to the entire target
@@ -811,10 +810,10 @@ void Renderer::postRenderMask (
 	if (maskedObject_ != entt::null)
 	{
 		// Reset the rendering target
-		SDL_SetRenderTarget(window.renderer, nullptr);
+		SDL_SetRenderTarget(g_window.renderer, nullptr);
 
 		SDL_RenderCopy(
-				window.renderer,
+				g_window.renderer,
 				cameraBuffer,
 				nullptr,	// Render the whole texture
 				nullptr		// Render to the entire target
@@ -824,12 +823,12 @@ void Renderer::postRenderMask (
 	{
 		// Is a camera mask active? If so, set it back to be the rendering target
 		if (GetMask(camera_) != entt::null)
-			SDL_SetRenderTarget(window.renderer, cameraBuffer);
+			SDL_SetRenderTarget(g_window.renderer, cameraBuffer);
 		else
-			SDL_SetRenderTarget(window.renderer, nullptr);
+			SDL_SetRenderTarget(g_window.renderer, nullptr);
 
 		SDL_RenderCopy(
-				window.renderer,
+				g_window.renderer,
 				maskBuffer,
 				nullptr,	// Render the whole texture
 				nullptr		// Render to the entire target

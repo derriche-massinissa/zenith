@@ -27,21 +27,17 @@
 
 namespace Zen {
 
-extern Window g_window;
 extern EventEmitter g_event;
 extern entt::registry g_registry;
+extern Window g_window;
 
-TextureManager::TextureManager (GameConfig& config_)
-	: config (config_)
+void TextureManager::boot (GameConfig *config_)
 {
-	g_event.once("boot", &TextureManager::boot, this);
-}
+	config = config_;
 
-void TextureManager::boot ()
-{
-	addBase64("__DEFAULT", config.defaultImage);
-	addBase64("__MISSING", config.missingImage);
-	addBase64("__WHITE", config.whiteImage);
+	addBase64("__DEFAULT", config->defaultImage);
+	addBase64("__MISSING", config->missingImage);
+	addBase64("__WHITE", config->whiteImage);
 }
 
 bool TextureManager::checkKey (std::string key_)
@@ -99,10 +95,10 @@ Entity TextureManager::addImage (std::string key_, std::string path_)
 			int sourceIndex_ = 0;
 
 			// Get the source
-			TextureSourceComponent *source_ = nullptr;
-			for (auto entity_ : g_registry.view<TextureSourceComponent>())
+			Components::TextureSource *source_ = nullptr;
+			for (auto entity_ : g_registry.view<Components::TextureSource>())
 			{
-				auto& src_ = g_registry.get<TextureSourceComponent>(entity_);
+				auto& src_ = g_registry.get<Components::TextureSource>(entity_);
 
 				if (src_.texture == texture_ && src_.index == sourceIndex_)
 				{
@@ -229,9 +225,9 @@ Entity TextureManager::addAtlasJSONArray (
 
 		// Count the sources
 		int size_ = 0;
-		for (auto entity_ : g_registry.view<TextureSourceComponent>())
+		for (auto entity_ : g_registry.view<Components::TextureSource>())
 		{
-			auto& src_ = g_registry.get<TextureSourceComponent>(entity_);
+			auto& src_ = g_registry.get<Components::TextureSource>(entity_);
 
 			if (src_.texture == texture_)
 				size_++;
@@ -297,10 +293,10 @@ Entity TextureManager::addSpriteSheet (std::string key_, std::string path_, Spri
 		texture_ = create(key_, path_);
 
 		// Get the source
-		TextureSourceComponent *source_ = nullptr;
-		for (auto entity_ : g_registry.view<TextureSourceComponent>())
+		Components::TextureSource *source_ = nullptr;
+		for (auto entity_ : g_registry.view<Components::TextureSource>())
 		{
-			auto& src_ = g_registry.get<TextureSourceComponent>(entity_);
+			auto& src_ = g_registry.get<Components::TextureSource>(entity_);
 
 			if (src_.texture == texture_)
 			{
@@ -337,8 +333,8 @@ Entity TextureManager::addSpriteSheetFromAtlas (std::string key_, SpriteSheetCon
 
 	if (sheet_ != entt::null)
 	{
-		auto& spritesheet_ = g_registry.get<FrameComponent>(sheet_);
-		auto& source_ = g_registry.get<TextureSourceComponent>(spritesheet_.source);
+		auto& spritesheet_ = g_registry.get<Components::Frame>(sheet_);
+		auto& source_ = g_registry.get<Components::TextureSource>(spritesheet_.source);
 
 		Entity texture_ = create(key_, source_.source);
 
@@ -452,7 +448,7 @@ std::vector<std::string> TextureManager::getTextureKeys ()
 Color TextureManager::getPixel (int x_, int y_, std::string key_, std::string frameName_)
 {
 	auto textureFrame_ = getFrame(key_, frameName_);
-	auto frame_ = g_registry.try_get<FrameComponent>(textureFrame_);
+	auto frame_ = g_registry.try_get<Components::Frame>(textureFrame_);
 
 	Color out_;
 
@@ -473,7 +469,7 @@ Color TextureManager::getPixel (int x_, int y_, std::string key_, std::string fr
 			int pitch_ = 0;
 
 			// Get the frame's source SDL texture
-			auto& source_ = g_registry.get<TextureSourceComponent>(frame_->source);
+			auto& source_ = g_registry.get<Components::TextureSource>(frame_->source);
 			SDL_Texture *texture_ = source_.sdlTexture;
 
 			// Check if the texture exists
@@ -527,7 +523,7 @@ Color TextureManager::getPixel (int x_, int y_, std::string key_, int frameIndex
 {
 	// Get the frame's name
 	Entity f_ = getFrame(key_, frameIndex_);
-	auto frame_ = g_registry.try_get<FrameComponent>(f_);
+	auto frame_ = g_registry.try_get<Components::Frame>(f_);
 	if (frame_)
 		return getPixel(x_, y_, key_, frame_->name);
 	else
@@ -542,7 +538,7 @@ int TextureManager::getPixelAlpha (int x_, int y_, std::string key_, std::string
 
 	if (textureFrame_ != entt::null)
 	{
-		auto& frame_ = g_registry.get<FrameComponent>(textureFrame_);
+		auto& frame_ = g_registry.get<Components::Frame>(textureFrame_);
 
 		// Adjust for trim (if not trimmed x and y are just zero)
 		x_ -= frame_.x;
@@ -559,7 +555,7 @@ int TextureManager::getPixelAlpha (int x_, int y_, std::string key_, std::string
 			int pitch_ = 0;
 
 			// Get the frame's source SDL texture
-			auto& source_ = g_registry.get<TextureSourceComponent>(frame_.source);
+			auto& source_ = g_registry.get<Components::TextureSource>(frame_.source);
 			SDL_Texture *texture_ = source_.sdlTexture;
 
 			// Check if the texture exists
@@ -615,7 +611,7 @@ int TextureManager::getPixelAlpha (int x_, int y_, std::string key_, int frameIn
 	Entity f_ = getFrame(key_, frameIndex_);
 	if (f_ != entt::null)
 	{
-		auto& frame_ = g_registry.get<FrameComponent>(f_);
+		auto& frame_ = g_registry.get<Components::Frame>(f_);
 		return getPixelAlpha(x_, y_, key_, frame_.name);
 	}
 	else

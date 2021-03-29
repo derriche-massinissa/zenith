@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GAME_H
-#define ZEN_GAME_H
+#ifndef ZEN_GAME_HPP
+#define ZEN_GAME_HPP
 
 #include <SDL2/SDL.h>
 
@@ -73,7 +73,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	EventEmitter events;
+	EventEmitter& events;
 
 	/**
 	 * The Game Configuration structure.
@@ -87,14 +87,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Window window;
+	Window& window;
 
 	/**
 	 * The renderer is responsible for displaying contents on the screen.
 	 *
 	 * @since 0.0.0
 	 */
-	//Renderer renderer;
+	Renderer& renderer;
 
 	/**
 	 * An instance of the Animation Manager.
@@ -114,7 +114,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	TextureManager textures;
+	TextureManager& textures;
 
 	/**
 	 * An instance of the Data Manager.
@@ -165,7 +165,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	ScaleManager scale;
+	ScaleManager& scale;
 
 	/**
 	 * An instance of the base Audio Manager.

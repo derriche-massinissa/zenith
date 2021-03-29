@@ -8,27 +8,24 @@
 #include "scale_manager.hpp"
 
 #include "../window/window.hpp"
-#include "../core/game.hpp"
+#include "../structs/size.hpp"
+#include "../core/config.hpp"
+#include "../window/window.hpp"
 
 namespace Zen {
-namespace Scale {
 
-ScaleManager::ScaleManager(Game& game_)
-	: game(game_), window(game_.window)
-{}
+extern EventEmitter g_event;
+extern Window g_window;
 
 ScaleManager::~ScaleManager()
 {
 	stopListeners();
 }
 
-void ScaleManager::preBoot ()
+void ScaleManager::boot (GameConfig *cfg)
 {
-	game.events.once("boot", &ScaleManager::boot, this);
-}
+	config = cfg;
 
-void ScaleManager::boot ()
-{
 	parseConfig();
 
 	startListeners();
@@ -36,13 +33,13 @@ void ScaleManager::boot ()
 
 void ScaleManager::parseConfig ()
 {
-	gameSize.resize(game.config.width, game.config.height);
-	displaySize.resize(game.config.width, game.config.height);
+	Resize(&gameSize, config->width, config->height);
+	Resize(&displaySize, config->width, config->height);
 
-	scaleMode = game.config.scaleMode;
+	scaleMode = config->scaleMode;
 
-	gameSize.setAspectMode(scaleMode);
-	displaySize.setAspectMode(scaleMode);
+	SetAspectMode(&gameSize, scaleMode);
+	SetAspectMode(&displaySize, scaleMode);
 }
 
 void ScaleManager::setGameSize (int width_, int height_)
@@ -50,10 +47,10 @@ void ScaleManager::setGameSize (int width_, int height_)
 	if (scaleMode == SCALE_MODE::RESIZE)
 		return;
 
-	int previousWidth_ = gameSize.getWidth();
-	int previousHeight_ = gameSize.getHeight();
+	int previousWidth_ = gameSize.width;
+	int previousHeight_ = gameSize.height;
 
-	gameSize.resize(width_, height_);
+	Resize(&gameSize, width_, height_);
 
 	refresh();
 
@@ -69,18 +66,17 @@ void ScaleManager::refresh ()
 void ScaleManager::updateScale ()
 {
 	// This will take the aspect mode into account
-	displaySize.setSize(window.width(), window.height());
+	SetSize(&displaySize, g_window.width(), g_window.height());
 
 	if (scaleMode == SCALE_MODE::RESIZE)
 	{
-		displayScale.set(1, 1);
+		displayScale.x = 1.;
+		displayScale.y = 1.;
 	}
 	else
 	{
-		displayScale.set(
-			(double)displaySize.getWidth() / (double)gameSize.getWidth(),
-			(double)displaySize.getHeight() / (double)gameSize.getHeight()
-			);
+		displayScale.x = displaySize.width / gameSize.width;
+		displayScale.x = displaySize.height / gameSize.height;
 	}
 }
 
@@ -88,14 +84,13 @@ void ScaleManager::updateOffset ()
 {
 	if (scaleMode == SCALE_MODE::RESIZE)
 	{
-		displayOffset.set(0, 0);
+		displayOffset.x = 0.;
+		displayOffset.y = 0.;
 	}
 	else
 	{
-		displayOffset.set(
-			(window.width() - displaySize.getWidth()) / 2.0,
-			(window.height() - displaySize.getHeight()) / 2.0
-			);
+		displayOffset.x = (g_window.width() - displaySize.width) / 2.;
+		displayOffset.x = (g_window.height() - displaySize.height) / 2.;
 	}
 }
 
@@ -111,12 +106,12 @@ int ScaleManager::transformY (int windowY_)
 
 void ScaleManager::startListeners ()
 {
-	window.on("resize", &ScaleManager::onResize, this);
+	g_window.on("resize", &ScaleManager::onResize, this);
 }
 
 void ScaleManager::stopListeners ()
 {
-	window.off("resize", &ScaleManager::onResize, this);
+	g_window.off("resize", &ScaleManager::onResize, this);
 }
 
 void ScaleManager::onResize (int width_, int height_)
@@ -126,16 +121,16 @@ void ScaleManager::onResize (int width_, int height_)
 	// Change the game size to fit the window if using RESIZE mode
 	if (scaleMode == SCALE_MODE::RESIZE)
 	{
-		int previousWidth_ = gameSize.getWidth();
-		int previousHeight_ = gameSize.getHeight();
+		int previousWidth_ = gameSize.width;
+		int previousHeight_ = gameSize.height;
 
-		gameSize.resize(width_, height_);
+		Resize(&gameSize, width_, height_);
 
 		emit("resize", gameSize, displaySize, previousWidth_, previousHeight_);
 	}
 	else
 	{
-		emit("resize", gameSize, displaySize, gameSize.getWidth(), gameSize.getHeight());
+		emit("resize", gameSize, displaySize, gameSize.width, gameSize.height);
 	}
 
 }
@@ -143,19 +138,18 @@ void ScaleManager::onResize (int width_, int height_)
 void ScaleManager::setScaleMode (SCALE_MODE sm)
 {
 	scaleMode = sm;
-	gameSize.setAspectMode(sm);
-	displaySize.setAspectMode(sm);
+	SetAspectMode(&gameSize, sm);
+	SetAspectMode(&displaySize, sm);
 }
 
 int ScaleManager::getWidth ()
 {
-	return gameSize.getWidth();
+	return gameSize.width;
 }
 
 int ScaleManager::getHeight ()
 {
-	return gameSize.getHeight();
+	return gameSize.height;
 }
 
-}	// namespace Scale
 }	// namespace Zen

@@ -39,13 +39,6 @@ class Window : public EventEmitter
 public:
 	/**
 	 * @since 0.0.0
-	 *
-	 * @param game_ The Game instance.
-	 */
-	Window (GameConfig& config);
-
-	/**
-	 * @since 0.0.0
 	 */
 	~Window ();
 
@@ -54,7 +47,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	GameConfig& config;
+	GameConfig *config;
 
 	/** 
 	 * A reference to the SDL window.
@@ -92,7 +85,7 @@ public:
 	 *
 	 * @return 0 if no problem occured, 1 otherwise.
 	 */
-	int create ();
+	int create (GameConfig *cfg);
 
 	/**
 	 * This method is responsible for destroying the renderer and the
