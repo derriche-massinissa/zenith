@@ -50,6 +50,7 @@
 #include "../../../systems/position.hpp"
 #include "../../../systems/size.hpp"
 #include "../../../systems/dirty.hpp"
+#include "../../../systems/origin.hpp"
 
 namespace Zen {
 
@@ -95,6 +96,9 @@ Entity CreateCamera (double x, double y, double width, double height)
 	g_registry.emplace<Components::Update<Components::Position>>(camera, &UpdateCameraSystem);
 	g_registry.emplace<Components::Update<Components::Size>>(camera, &UpdateCameraSystem);
 	//g_registry.emplace<Components::Update<Components::Actor>>(camera, &UpdateCameraScene);
+
+	UpdateCameraSystem(camera);
+	SetOrigin(camera, 0.5);
 
 	return camera;
 
@@ -224,7 +228,7 @@ std::vector<Entity> Cull (
 
 	ZEN_ASSERT(cull && matrix && position && size && scroll, "The entity has no 'Cull', 'TransformMatrix', 'Position', 'Size' or 'Scroll' component.");
 
-	if (!cull || !cull->value)
+	if (!cull->value)
 		return renderableEntities;
 
 	double mva = matrix->a;
@@ -385,7 +389,7 @@ void PreRender (Entity entity)
 		Components::WorldView
 		>(entity);
 
-	// TODO ZEN_ASSERT(matrix && rotation && scroll && zoom, "The entity has no 'TransformMatrix', 'Rotation', 'Scroll' or 'Zoom' component.");
+	ZEN_ASSERT(size && origin && scroll && follow && position && rotation && zoom && matrix && midPoint && worldView, "The entity has no 'TransformMatrix', 'Rotation', 'Scroll' or 'Zoom' component.");
 
 	renderLists[entity].clear();
 

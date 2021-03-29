@@ -14,6 +14,8 @@ namespace Zen {
 
 void SetViewport (Entity entity, double x, double y, double width, double height = 0.);
 
+void RemoveViewport (Entity entity);
+
 bool GetViewport (Entity entity);
 
 }	// namespace Zen

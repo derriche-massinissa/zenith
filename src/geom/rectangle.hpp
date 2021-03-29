@@ -17,6 +17,8 @@ namespace Zen {
 
 bool Contains (Rectangle rectangle, double x, double y);
 
+bool Contains (Rectangle container, Rectangle item);
+
 Math::Vector2 GetPoint (Rectangle rectangle, double position);
 
 std::vector<Math::Vector2> GetPoints (Rectangle rectangle, int quantity, double stepRate);

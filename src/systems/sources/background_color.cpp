@@ -23,8 +23,13 @@ void SetBackgroundColor (Entity entity, uint8_t red, uint8_t green, uint8_t blue
 
 	SetTo(&bgc->color, red, green, blue, alpha);
 
-	if (transparent && alpha == 0)
+	if (!transparent)
+		return;
+
+	if (alpha == 0)
 		transparent->value = true;
+	else
+		transparent->value = false;
 }
 
 void SetBackgroundColor (Entity entity, uint32_t color)
@@ -34,8 +39,13 @@ void SetBackgroundColor (Entity entity, uint32_t color)
 
 	SetHex(&bgc->color, color);
 
-	if (transparent && bgc->color.alpha == 0)
+	if (!transparent)
+		return;
+
+	if (bgc->color.alpha == 0)
 		transparent->value = true;
+	else
+		transparent->value = false;
 }
 
 void SetBackgroundColor (Entity entity, Color color)
@@ -45,8 +55,13 @@ void SetBackgroundColor (Entity entity, Color color)
 
 	bgc->color = color;
 
-	if (transparent && bgc->color.alpha == 0)
+	if (!transparent)
+		return;
+
+	if (bgc->color.alpha == 0)
 		transparent->value = true;
+	else
+		transparent->value = false;
 }
 
 Color GetBackgroundColor (Entity entity)

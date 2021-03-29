@@ -655,8 +655,8 @@ void Renderer::batchSprite (
 	double sy_ = dm_.scaleY * sScale_.y;
 
 	// Position
-	destination_.x = x_ * sx_ + dm_.translateX * sx_ + sOffset_.x;
-	destination_.y = y_ * sy_ + dm_.translateY * sy_ + sOffset_.y;
+	destination_.x = x_ * sx_ + dm_.translateX * sScale_.x + sOffset_.x;
+	destination_.y = y_ * sy_ + dm_.translateY * sScale_.y + sOffset_.y;
 	// Scale
 	destination_.w = (frameWidth_ / res_) * sx_;
 	destination_.h = (frameHeight_ / res_) * sy_;
