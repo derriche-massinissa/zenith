@@ -559,10 +559,10 @@ void Renderer::batchSprite (
 	// FIXME Stop cheating and implement correct components to frames
 	auto frameCheat___ = g_registry.get<Components::Frame>(frame_);
 
-	int frameX_ = dd_.x;
-	int frameY_ = dd_.y;
-	int frameWidth_ = cut.width;
-	int frameHeight_ = cut.height;
+	double frameX_ = dd_.x;
+	double frameY_ = dd_.y;
+	double frameWidth_ = cut.width;
+	double frameHeight_ = cut.height;
 	bool customPivot_ = frameCheat___.customPivot;
 
 	// FIXME AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -642,38 +642,33 @@ void Renderer::batchSprite (
 		preRenderMask(sprite_);
 
 	// Render the texture
-	SDL_Rect source_ {frameX_, frameY_, frameWidth_, frameHeight_};
+	SDL_Rect source_ {
+		static_cast<int>(frameX_),
+		static_cast<int>(frameY_),
+		static_cast<int>(frameWidth_),
+		static_cast<int>(frameHeight_)};
 
 	// ScaleManager values
 	Math::Vector2 sScale_ = g_scale.displayScale;
 	Math::Vector2 sOffset_ = g_scale.displayOffset;
 
-	SDL_Rect destination_;
-
-	// Value scaling (Window resize & Camera zoom)
-	double sx_ = dm_.scaleX * sScale_.x;
-	double sy_ = dm_.scaleY * sScale_.y;
+	SDL_FRect destination_;
 
 	// Position
-	destination_.x = x_ * sx_ + dm_.translateX * sScale_.x + sOffset_.x;
-	destination_.y = y_ * sy_ + dm_.translateY * sScale_.y + sOffset_.y;
+	//             |     Origin      |      Pos + Cam Scroll      | Letterbox |
+	destination_.x = x_ * dm_.scaleX + dm_.translateX * sScale_.x + sOffset_.x;
+	destination_.y = y_ * dm_.scaleY + dm_.translateY * sScale_.y + sOffset_.y;
 	// Scale
-	destination_.w = (frameWidth_ / res_) * sx_;
-	destination_.h = (frameHeight_ / res_) * sy_;
-	//////// Position
-	//////destination_.x = x_ * dm_.scaleX + dm_.translateX * sScale_.x + sOffset_.x;
-	//////destination_.y = y_ * dm_.scaleY + dm_.translateY * sScale_.y + sOffset_.y;
-	//////// Scale
-	//////destination_.w = (frameWidth_ / res_) * dm_.scaleX * sScale_.x;
-	//////destination_.h = (frameHeight_ / res_) * dm_.scaleY * sScale_.y;
+	destination_.w = (frameWidth_ / res_) * dm_.scaleX * sScale_.x;
+	destination_.h = (frameHeight_ / res_) * dm_.scaleY * sScale_.y;
 
 	// Rotation
 	double angle_ = Math::RadToDeg(dm_.rotation);
 
 	// Origin
-	SDL_Point origin_ {
-		static_cast<int>(displayOriginX_ * dm_.scaleX),
-		static_cast<int>(displayOriginY_ * dm_.scaleY)
+	SDL_FPoint origin_ {
+		static_cast<float>(displayOriginX_ * dm_.scaleX),
+		static_cast<float>(displayOriginY_ * dm_.scaleY)
 	};
 
 	// Flip
@@ -729,7 +724,7 @@ void Renderer::batchSprite (
 			);
 	}
 
-	SDL_RenderCopyEx(
+	SDL_RenderCopyExF(
 			g_window.renderer,
 			source___.sdlTexture,
 			&source_,
