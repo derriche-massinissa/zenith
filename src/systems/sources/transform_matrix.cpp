@@ -182,8 +182,6 @@ void Transform (Components::TransformMatrix *matrix, double a, double b, double 
 
 Math::Vector2 TransformPoint (Components::TransformMatrix matrix, double x, double y)
 {
-	Math::Vector2 point {x, y};
-
 	double a = matrix.a;
 	double b = matrix.b;
 	double c = matrix.c;
@@ -191,10 +189,10 @@ Math::Vector2 TransformPoint (Components::TransformMatrix matrix, double x, doub
 	double tx = matrix.e;
 	double ty = matrix.f;
 
-	point.x = x * a + y * c + tx;
-	point.y = x * b + y * d + ty;
-
-	return point;
+	return {
+		x * a + y * c + tx,
+		x * b + y * d + ty
+	};
 }
 
 void Invert (Components::TransformMatrix *matrix)

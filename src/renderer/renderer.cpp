@@ -608,7 +608,7 @@ void Renderer::batchSprite (
 	bool flipX_ = GetFlipX(sprite_);
 	bool flipY_ = GetFlipY(sprite_);
 
-	ApplyITRS(&spriteMatrix_, GetX(sprite_), GetY(sprite_), GetRotation(sprite_), GetScaleX(sprite_), GetScaleY(sprite_));
+	ApplyITRS(&spriteMatrix_, GetX(sprite_) + x_, GetY(sprite_) + y_, GetRotation(sprite_), GetScaleX(sprite_), GetScaleY(sprite_));
 
 	camMatrix_ = GetTransformMatrix(camera_);
 
@@ -642,11 +642,11 @@ void Renderer::batchSprite (
 		preRenderMask(sprite_);
 
 	// Render the texture
-	SDL_Rect source_ {
-		static_cast<int>(frameX_),
-		static_cast<int>(frameY_),
-		static_cast<int>(frameWidth_),
-		static_cast<int>(frameHeight_)};
+	SDL_Rect source_;
+	source_.x = frameX_;
+	source_.y = frameY_;
+	source_.w = frameWidth_;
+	source_.h = frameHeight_;
 
 	// ScaleManager values
 	Math::Vector2 sScale_ = g_scale.displayScale;
@@ -655,9 +655,9 @@ void Renderer::batchSprite (
 	SDL_FRect destination_;
 
 	// Position
-	//             |     Origin      |      Pos + Cam Scroll      | Letterbox |
-	destination_.x = x_ * dm_.scaleX + dm_.translateX * sScale_.x + sOffset_.x;
-	destination_.y = y_ * dm_.scaleY + dm_.translateY * sScale_.y + sOffset_.y;
+	destination_.x = dm_.translateX * sScale_.x + sOffset_.x;
+	destination_.y = dm_.translateY * sScale_.y + sOffset_.y;
+
 	// Scale
 	destination_.w = (frameWidth_ / res_) * dm_.scaleX * sScale_.x;
 	destination_.h = (frameHeight_ / res_) * dm_.scaleY * sScale_.y;
@@ -665,11 +665,9 @@ void Renderer::batchSprite (
 	// Rotation
 	double angle_ = Math::RadToDeg(dm_.rotation);
 
-	// Origin
-	SDL_FPoint origin_ {
-		static_cast<float>(displayOriginX_ * dm_.scaleX),
-		static_cast<float>(displayOriginY_ * dm_.scaleY)
-	};
+	// Origin (Already taken care of with the transform matrices)
+	// Set explicitly to '0' as the default is the middle of the sprite.
+	SDL_FPoint origin_ {0.f, 0.f};
 
 	// Flip
 	SDL_RendererFlip flip_ = SDL_FLIP_NONE;
