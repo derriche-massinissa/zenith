@@ -69,11 +69,12 @@ private:
 	/**
 	 * A map of entities and their respective event maps.
 	 *
-	 * This is used with the global event manager.
+	 * This is used with the global event manager. It is static as ALL instances
+	 * of the EventEmitter share the same list.
 	 *
 	 * @since 0.0.0
 	 */
-	std::map<
+	static std::map<
 		 Entity, std::map<
 			std::string, std::vector<
 				std::unique_ptr<ListenerBase>
