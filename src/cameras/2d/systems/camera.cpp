@@ -77,7 +77,7 @@ Entity CreateCamera (double x, double y, double width, double height)
 	g_registry.emplace<Components::Viewport>(camera);
 	g_registry.emplace<Components::Input>(camera);
 	g_registry.emplace<Components::Follow>(camera);
-	g_registry.emplace<Components::Deadzone>(camera);
+	//g_registry.emplace<Components::Deadzone>(camera);
 	g_registry.emplace<Components::Renderable>(camera);
 	g_registry.emplace<Components::Actor>(camera);
 	g_registry.emplace<Components::Id>(camera);
@@ -393,29 +393,29 @@ void PreRender (Entity entity)
 
 	renderLists[entity].clear();
 
-	int halfWidth = size->width * 0.5;
-	int halfHeight = size->height * 0.5;
+	double halfWidth = size->width * 0.5;
+	double halfHeight = size->height * 0.5;
 
-	int originX = size->width * origin->x;
-	int originY = size->height * origin->y;
+	double originX = size->width * origin->x;
+	double originY = size->height * origin->y;
 
-	int sx = scroll->x;
-	int sy = scroll->y;
+	double sx = scroll->x;
+	double sy = scroll->y;
 
 	if (deadzone)
 	{
 		CenterOn(&deadzone->zone, midPoint->x, midPoint->y);
 	}
 
-	////bool emitFollowEvent = false;
+	bool emitFollowEvent = false;
 
 	if (follow->target != entt::null) // TODO && !panEffect.isRunning) {
 	{
 		auto tPosition = g_registry.try_get<Components::Position>(follow->target);
 		ZEN_ASSERT(tPosition, "The camera follow target has no 'Position' component.");
 
-		int fx = tPosition->x - follow->offset.x;
-		int fy = tPosition->y - follow->offset.y;
+		double fx = tPosition->x - follow->offset.x;
+		double fy = tPosition->y - follow->offset.y;
 
 		if (deadzone)
 		{
@@ -441,11 +441,11 @@ void PreRender (Entity entity)
 		}
 		else
 		{
-			sx = Math::Linear(sx, fx - origin->x, follow->lerp.x);
-			sy = Math::Linear(sy, fy - origin->y, follow->lerp.y);
+			sx = Math::Linear(sx, fx - originX, follow->lerp.x);
+			sy = Math::Linear(sy, fy - originY, follow->lerp.y);
 		}
 
-		////emitFollowEvent = true;
+		emitFollowEvent = true;
 	}
 
 	if (bounds)
@@ -458,16 +458,16 @@ void PreRender (Entity entity)
 	SetScrollX(entity, sx);
 	SetScrollY(entity, sy);
 
-	int midX = sx + halfWidth;
-	int midY = sy + halfHeight;
+	double midX = sx + halfWidth;
+	double midY = sy + halfHeight;
 
 	// The center of the camera, in world space, so taking zoom into account
 	// Basically the pixel value of what it's looking at in the middle of the cam
 	midPoint->x = midX;
 	midPoint->y = midY;
 
-	int displayWidth = size->width / zoom->x;
-	int displayHeight = size->height / zoom->y;
+	double displayWidth = size->width / zoom->x;
+	double displayHeight = size->height / zoom->y;
 
 	SetTo(&worldView->worldView,
 		midX - (displayWidth / 2.),
@@ -482,8 +482,8 @@ void PreRender (Entity entity)
 	// TODO
 	//shakeEffect.preRender();
 
-	////if (emitFollowEvent)
-	////	emit("follow-update");
+	if (emitFollowEvent)
+		g_event.emit(entity, "follow-update");
 }
 
 ////void FadeIn (

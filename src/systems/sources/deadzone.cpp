@@ -20,9 +20,6 @@ extern entt::registry g_registry;
 
 void SetDeadzone (Entity entity, double width, double height)
 {
-	auto deadzone = g_registry.try_get<Components::Deadzone>(entity);
-	ZEN_ASSERT(deadzone, "The entity has no 'Deadzone' component.");
-
 	if (width < 0)
 	{
 		g_registry.remove_if_exists<Components::Deadzone>(entity);
@@ -30,6 +27,11 @@ void SetDeadzone (Entity entity, double width, double height)
 	else {
 		g_registry.emplace_or_replace<Components::Deadzone>(entity, Rectangle {0., 0., width, height});
 	}
+}
+
+void RemoveDeadzone (Entity entity)
+{
+	g_registry.remove_if_exists<Components::Deadzone>(entity);
 }
 
 }	// namespace Zen

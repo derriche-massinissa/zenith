@@ -16,6 +16,8 @@ extern entt::registry g_registry;
 
 void SetDeadzone (Entity entity, double width, double height = 0.);
 
+void RemoveDeadzone (Entity entity);
+
 }	// namespace Zen
 
 #endif

@@ -16,7 +16,9 @@ void ToggleFlipX (Entity entity);
 
 void ToggleFlipY (Entity entity);
 
-void SetFlipY (Entity entity, bool value);
+void SetFlipX (Entity entity, bool value = true);
+
+void SetFlipY (Entity entity, bool value = true);
 
 void SetFlip (Entity entity, bool x, bool y);
 
