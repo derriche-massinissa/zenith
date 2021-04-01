@@ -202,7 +202,7 @@ Entity CameraManager::getCamera (std::string name_)
 }
 
 std::vector<Entity> CameraManager::getCamerasBelowPointer (
-		Input::Pointer pointer_)
+		Pointer *pointer_)
 {
 	std::vector<Entity> output_;
 	Rectangle camRect_;
@@ -221,7 +221,7 @@ std::vector<Entity> CameraManager::getCamerasBelowPointer (
 
 		if (GetVisible(cameras[i]) &&
 			IsInputEnabled(cameras[i]) &&
-			Contains(camRect_, pointer_.x, pointer_.y)
+			Contains(camRect_, pointer_->position.x, pointer_->position.y)
 		   )
 		{
 			output_.emplace_back(cameras[i]);

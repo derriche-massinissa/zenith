@@ -52,7 +52,7 @@ struct CameraConfig
 
 	Color backgroundColor;
 
-	Rectangle bounds {0, 0, 0, 0};
+	Rectangle bounds;
 
 	bool visible = true;
 };

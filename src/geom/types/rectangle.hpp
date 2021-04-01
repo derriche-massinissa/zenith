@@ -8,6 +8,8 @@
 #ifndef ZEN_GEOM_TYPES_RECTANGLE_HPP
 #define ZEN_GEOM_TYPES_RECTANGLE_HPP
 
+#include "../shapes.hpp"
+
 namespace Zen {
 
 /**
@@ -18,6 +20,13 @@ namespace Zen {
  */
 struct Rectangle
 {
+	/**
+	 * Used for active type detection for the Shape union;
+	 *
+	 * @since 0.0.0
+	 */
+	SHAPE type;
+
 	double x = 0.,
 		   y = 0.,
 		   width = 0.,

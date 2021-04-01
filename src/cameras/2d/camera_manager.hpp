@@ -18,7 +18,7 @@
 #include "../../scene/scene_systems.h"
 #include "../../geom/types/rectangle.hpp"
 #include "../../structs/types/size.hpp"
-#include "../../input/pointer.h"
+#include "../../input/pointer.hpp"
 #include "../../gameobjects/display_list.h"
 #include "../../renderer/renderer.fwd.hpp"
 
@@ -228,7 +228,7 @@ public:
 	 *
 	 * @return A vector of cameras below the Pointer.
 	 */
-	std::vector<Entity> getCamerasBelowPointer (Input::Pointer pointer_);
+	std::vector<Entity> getCamerasBelowPointer (Pointer *pointer_);
 
 	/**
 	 * Removes the given vector of Cameras, from this Camera Manager.

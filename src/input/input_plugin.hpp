@@ -11,17 +11,21 @@
 #include <vector>
 #include <string>
 #include <SDL2/SDL_types.h>
+#include "../event/event_emitter.hpp"
 #include "../ecs/entity.hpp"
 #include "../display/types/color.hpp"
+#include "../scene/scene.fwd.hpp"
+#include "../scene/scene_systems.fwd.h"
+#include "../scene/scene_settings.fwd.h"
+#include "../cameras/2d/camera_manager.fwd.hpp"
+#include "../gameobjects/display_list.fwd.h"
+#include "types/hit_callback.hpp"
+#include "pointer.fwd.hpp"
 
 namespace Zen {
 
-struct Shape;
-struct Pointer;
-
-class InputPlugin{
-	using HitCallback = std::function<bool(Shape, double, double, Entity)>;
-
+class InputPlugin : public EventEmitter
+{
 public:
 	InputPlugin ();
 	~InputPlugin ();
@@ -36,41 +40,41 @@ public:
 
 	void update ();
 
-	void clear (Entity entity_, bool skipQueue_);
+	void clear (Entity entity_, bool skipQueue_ = false);
 
 	void disable (Entity entity_);
 
-	void enable (Entity entity_, Shape hitArea_, HitCallback hitAreaCallback_, bool dropZone_);
+	void enable (Entity entity_, Shape hitArea_, HitCallback hitAreaCallback_, bool dropZone_ = false);
 
-	std::vector<Entity> hitTestPointer (Pointer pointer_);
+	std::vector<Entity> hitTestPointer (Pointer *pointer_);
 
-	int getDragState (Pointer pointer_);
+	int getDragState (Pointer *pointer_);
 
-	void setDragState (Pointer pointer_, int state_);
+	void setDragState (Pointer *pointer_, int state_);
 
-	void processDragThresholdEvent (Pointer pointer_, Uint32 time_);
+	int processDragThresholdEvent (Pointer *pointer_, Uint32 time_);
 
-	int processDragStartList (Pointer pointer_);
+	int processDragStartList (Pointer *pointer_);
 
-	int processDragDownEvent (Pointer pointer_);
+	int processDragDownEvent (Pointer *pointer_);
 
-	int processDragMoveEvent (Pointer pointer_);
+	int processDragMoveEvent (Pointer *pointer_);
 
-	int processDragUpEvent (Pointer pointer_);
+	int processDragUpEvent (Pointer *pointer_);
 
-	int processMoveEvents (Pointer pointer_);
+	int processMoveEvents (Pointer *pointer_);
 
-	int processWheelEvents (Pointer pointer_);
+	int processWheelEvents (Pointer *pointer_);
 
-	int processOverEvents (Pointer pointer_);
+	int processOverEvents (Pointer *pointer_);
 
-	int processOutEvents (Pointer pointer_);
+	int processOutEvents (Pointer *pointer_);
 
-	int processOverOutEvents (Pointer pointer_);
+	int processOverOutEvents (Pointer *pointer_);
 
-	int processUpEvents (Pointer pointer_);
+	int processUpEvents (Pointer *pointer_);
 
-	int processDownEvents (Pointer pointer_);
+	int processDownEvents (Pointer *pointer_);
 
 	void queueForInsertion (Entity entity_);
 
@@ -106,11 +110,11 @@ public:
 
 	void setTopOnly (bool value_);
 
-	std::vector<Entity> sortEntities (std::vector<Entity> entities_, Pointer pointer);
+	std::vector<Entity> sortEntities (std::vector<Entity> entities_, Pointer *pointer_);
 
 	std::vector<Entity> sortDropZones (std::vector<Entity> entities_);
 
-	int sortDropZoneHandler (Entity childA, Entity childB);
+	int sortDropZoneHandler (Entity childA_, Entity childB_);
 
 	void stopPropagation ();
 
@@ -119,7 +123,42 @@ public:
 	void setDefaultCursor (std::string textureKey_, std::string frameName_);
 
 private:
-	// TODO Move private members here pls
+	Scene* scene;
+
+	Scenes::SceneSystems *sys;
+
+	Scenes::SceneSettings *settings;
+
+	GameObjects::DisplayList *displayList;
+
+	CameraManager *cameras;
+
+	std::vector<Entity> list;
+
+	std::vector<Entity> pendingRemoval;
+
+	std::vector<Entity> pendingInsertion;
+
+	std::vector<Entity> draggable;
+
+	std::vector<std::vector<Entity>> drag;
+
+	std::vector<Entity> over;
+
+	std::vector<Entity> tempZones;
+
+	std::vector<Entity> temp;
+
+	std::vector<int> dragState;
+
+	bool enabled = true;
+
+	bool topOnly = true;
+
+	double dragDistanceThreshold = 0.;
+
+	Uint32 dragTimeThreshold = 0.;
+
 	bool transitionIn ();
 
 	bool transitionComplete ();

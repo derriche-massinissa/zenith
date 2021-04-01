@@ -5,20 +5,13 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_INPUT_POINTER_H
-#define ZEN_INPUT_POINTER_H
+#ifndef ZEN_INPUT_POINTER_FWD_HPP
+#define ZEN_INPUT_POINTER_FWD_HPP
 
 namespace Zen {
-namespace Input {
 
-class Pointer
-{
-public:
-	int x;
-	int y;
-};
+class Pointer;
 
-}	// namespace Input
 }	// namespace Zen
 
 #endif

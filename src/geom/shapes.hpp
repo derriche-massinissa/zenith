@@ -5,15 +5,24 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_INPUT_POINTER_FWD_H
-#define ZEN_INPUT_POINTER_FWD_H
+#ifndef ZEN_CONST_SHAPES_HPP
+#define ZEN_CONST_SHAPES_HPP
 
 namespace Zen {
-namespace Input {
 
-class Pointer;
+/**
+ * @since 0.0.0
+ */
+enum class SHAPE {
+	RECTANGLE = 0,
+	CIRCLE,
+	ELLIPSE,
+	TRIANGLE,
+	LINE,
+	POINT,
+	POLYGON
+};
 
-}	// namespace Input
 }	// namespace Zen
 
 #endif
