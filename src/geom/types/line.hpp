@@ -25,7 +25,7 @@ struct Line
 	 *
 	 * @since 0.0.0
 	 */
-	SHAPE type;
+	const SHAPE type = SHAPE::LINE;
 
 	double x1 = 0.,
 		   y1 = 0.,

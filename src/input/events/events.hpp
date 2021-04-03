@@ -1,0 +1,41 @@
+/**
+ * @file
+ * @author		__AUTHOR_NAME__ <mail@host.com>
+ * @copyright	2021 __COMPANY_LTD__
+ * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
+ */
+
+#include "DRAG.hpp"
+#include "DRAG_END.hpp"
+#include "DRAG_ENTER.hpp"
+#include "DRAG_LEAVE.hpp"
+#include "DRAG_OVER.hpp"
+#include "DRAG_START.hpp"
+#include "DROP.hpp"
+#include "GAMEOBJECT_DOWN.hpp"
+#include "GAMEOBJECT_DRAG.hpp"
+#include "GAMEOBJECT_DRAG_END.hpp"
+#include "GAMEOBJECT_DRAG_ENTER.hpp"
+#include "GAMEOBJECT_DRAG_LEAVE.hpp"
+#include "GAMEOBJECT_DRAG_OVER.hpp"
+#include "GAMEOBJECT_DRAG_START.hpp"
+#include "GAMEOBJECT_DROP.hpp"
+#include "GAMEOBJECT_MOVE.hpp"
+#include "GAMEOBJECT_OUT.hpp"
+#include "GAMEOBJECT_OVER.hpp"
+#include "GAMEOBJECT_POINTER_DOWN.hpp"
+#include "GAMEOBJECT_POINTER_MOVE.hpp"
+#include "GAMEOBJECT_POINTER_OUT.hpp"
+#include "GAMEOBJECT_POINTER_OVER.hpp"
+#include "GAMEOBJECT_POINTER_UP.hpp"
+#include "GAMEOBJECT_POINTER_WHEEL.hpp"
+#include "GAMEOBJECT_UP.hpp"
+#include "GAMEOBJECT_WHEEL.hpp"
+#include "POINTER_DOWN.hpp"
+#include "POINTER_MOVE.hpp"
+#include "POINTER_OUT.hpp"
+#include "POINTER_OVER.hpp"
+#include "POINTER_UP.hpp"
+#include "POINTER_WHEEL.hpp"
+#include "WINDOW_OUT.hpp"
+#include "WINDOW_OVER.hpp"

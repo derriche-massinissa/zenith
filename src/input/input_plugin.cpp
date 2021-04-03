@@ -9,10 +9,16 @@
 
 #include <algorithm>
 #include <SDL2/SDL_timer.h>
+#include <cmath>
 #include "../utils/assert.hpp"
+#include "events/events.hpp"
 #include "../scene/scene.h"
 #include "../components/input.hpp"
 #include "../components/position.hpp"
+#include "../components/container_item.hpp"
+#include "../components/rotation.hpp"
+#include "../components/scale.hpp"
+#include "../components/origin.hpp"
 #include "input_manager.hpp";
 #include "pointer.hpp";
 
@@ -337,15 +343,203 @@ int InputPlugin::processDragMoveEvent (Pointer *pointer_)
 		return 0;
 
 	//  4 = Pointer actively dragging the draglist and has moved
-	//  TODO Start here.
+	auto& dropZones_ = tempZones;
+	auto& list_ = drag[pointer_->id];
+
+	for (auto& obj_ : list_)
+	{
+		auto& input_ = g_registry.get<Components::Input>(obj_);
+		Entity target_ = input_.target;
+
+		//  If this GO has a target then let's check it
+		if (target_ != entt::null)
+		{
+			auto it_ = std::find(dropZones_.begin(), dropZones_.end(), target_);
+
+			//  Got a target, are we still over it?
+			if (it_ == dropZones_.begin())
+			{
+				//  We're still over it, and it's still the top of the display list, phew ...
+				g_event.emit(obj_, "dragover", pointer_, target_);
+				emit("dragover", pointer_, obj_, target_);
+			}
+			else if (it_ != dropZones_.end())
+			{
+				//  Still over it but it's no longer top of the display list (targets must always be at the top)
+				g_event.emit(obj_, "dragleave", pointer_, target_);
+
+				emit("dragleave", pointer_, obj_, target_);
+
+				input_.target = dropZones_.at(0);
+
+				target_ = input_.target;
+
+				g_event.emit(obj_, "dragenter", pointer_, target_);
+
+				emit("dragenter", pointer_, obj_, target_);
+			}
+			else {
+				//  Nope, we've moved on (or the target has!), leave the old target
+				g_event.emit(obj_, "dragleave", pointer_, target_);
+
+				emit("dragleave", pointer_, obj_, target_);
+
+				//  Anything new to replace it?
+				if (dropZones_.size())
+				{
+					//  Yup!
+					input_.target = dropZones_.at(0);
+
+					target_ = input_.target;
+
+					g_event.emit(obj_, "dragenter", pointer_, target_);
+
+					emit("dragenter", pointer_, obj_, target_);
+				}
+				else {
+					// Nope
+					input_.target = entt::null;
+				}
+			}
+		}
+		else if (dropZones_.size())
+		{
+			input_.target = dropZones_.at(0);
+
+			target_ = input_.target;
+
+			g_event.emit(obj_, "dragenter", pointer_, target_);
+
+			emit("dragenter", pointer_, obj_, target_);
+		}
+
+		double dragX_, dragY_;
+
+		auto item_ = g_registry.try_get<Components::ContainerItem>(obj_);
+		if (!item_)
+		{
+			dragX_ = pointer_->worldX - input_.dragX;
+			dragY_ = pointer_->worldY - input_.dragY;
+		}
+		else
+		{
+			double dx_ = pointer_->worldX - input_.dragStartXGlobal;
+			double dy_ = pointer_->worldY - input_.dragStartYGlobal;
+
+			auto [rot_, sca_] = g_registry.try_get<Components::Rotation, Components::Scale>(item_->parent);
+
+			if (rot_ && sca_)
+			{
+				double dxRotated_ = dx_ * std::cos(rot_->value) + dy_ * std::sin(rot_->value);
+				double dyRotated_ = dy_ * std::cos(rot_->value) - dx_ * std::sin(rot_->value);
+
+				dxRotated_ *= (1. / sca_->x);
+				dyRotated_ *= (1. / sca_->y);
+
+				dragX_ = dxRotated_ + input_.dragStartX;
+				dragY_ = dyRotated_ + input_.dragStartY;
+			}
+		}
+
+		g_event.emit(obj_, "drag", pointer_, dragX_, dragY_);
+
+		emit("drag", pointer_, obj_, dragX_, dragY_);
+	}
+
+	return list_.size();
 }
 
 int InputPlugin::processDragUpEvent (Pointer *pointer_)
 {
+	//  5 = Pointer was actively dragging but has been released, notify draglist
+	auto& list_ = drag[pointer_->id];
+
+	for (auto& obj_ : list_)
+	{
+		auto [input_, origin_] = g_registry.try_get<Components::Input, Components::Origin>(obj_);
+
+		if (input_ && origin_ && input_->dragState == 2)
+		{
+			input_->dragState = 0;
+
+			input_->dragX = input_->localX - origin_->displayX;
+			input_->dragY = input_->localY - origin_->displayY;
+
+			bool dropped_ = false;
+			Entity target_ = input_->target;
+
+			if (target_ != entt::null)
+			{
+				g_event.emit(obj_, "drop", pointer_, target_);
+
+				emit("drop", pointer_, obj_, target_);
+
+				input_->target = entt::null;
+
+				dropped_ = true;
+			}
+
+			//  And finally the dragend event
+			g_event.emit(obj_, "dragend", pointer_, input_->dragX, input_->dragY, dropped_);
+
+			emit("dragend", pointer_, obj_, target_);
+		}
+	}
+
+	setDragState(pointer_, 0);
+
+	list_.clear();
+
+	return 0;
 }
 
 int InputPlugin::processMoveEvents (Pointer *pointer_)
 {
+	int total_ = 0;
+	auto& currentlyOver_ = temp;
+
+	resetInputEvent(&tempEvent);
+
+	bool aborted_ = false;
+
+	//  Go through all objects the pointer was over and fire their events / callbacks
+	for (auto obj_ : currentlyOver_)
+	{
+		auto input_ = g_registry.try_get<Components::Input>(obj_);
+		if (!input_)
+			continue;
+
+		total_++;
+
+		tempEvent.pointer = pointer_;
+		tempEvent.gameObject = obj_;
+		tempEvent.x = input_->localX;
+		tempEvent.y = input_->localY;
+
+		g_event.emit(obj_, ZEN_INPUT_POINTER_MOVE, &tempEvent);
+
+		if (tempEvent.stopFlag)
+		{
+			aborted_ = true;
+			break;
+		}
+
+		emit(ZEN_INPUT_GAMEOBJECT_MOVE, &tempEvent);
+
+		if (tempEvent.stopFlag)
+		{
+			aborted_ = true;
+			break;
+		}
+
+		if (topOnly)
+			break;
+	}
+
+	if (!aborted_)
+		emit("pointermove", &tempEvent);
+
+	return total_;
 }
 
 int InputPlugin::processWheelEvents (Pointer *pointer_)
@@ -495,6 +689,25 @@ bool InputPlugin::transitionOut ()
 
 void InputPlugin::shutdown ()
 {
+}
+
+void resetInputEvent (InputEvent* event_)
+{
+	event_->pointer = nullptr;
+
+	event_->gameObject = entt::null;
+
+	event_->gameObjectList.clear();
+
+	event_->target = entt::null;
+
+	event_->stopPropagation = false;
+
+	event_->timestamp = 0;
+
+	event_->x = 0.;
+	event_->y = 0.;
+	event_->z = 0.;
 }
 
 }	// namespace Zen

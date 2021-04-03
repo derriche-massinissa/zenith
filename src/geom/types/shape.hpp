@@ -20,6 +20,10 @@ namespace Zen {
  */
 union Shape
 {
+	struct {
+		SHAPE type;
+	} type;
+
 	Rectangle rectangle;
 
 	//Circle circle;

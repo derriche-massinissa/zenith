@@ -25,7 +25,7 @@ struct Rectangle
 	 *
 	 * @since 0.0.0
 	 */
-	SHAPE type;
+	const SHAPE type = SHAPE::RECTANGLE;
 
 	double x = 0.,
 		   y = 0.,

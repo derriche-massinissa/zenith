@@ -20,6 +20,7 @@
 #include "../cameras/2d/camera_manager.fwd.hpp"
 #include "../gameobjects/display_list.fwd.h"
 #include "types/hit_callback.hpp"
+#include "types/event.hpp"
 #include "pointer.fwd.hpp"
 
 namespace Zen {
@@ -122,6 +123,8 @@ public:
 
 	void setDefaultCursor (std::string textureKey_, std::string frameName_);
 
+	void resetInputEvent (InputEvent* event_);
+
 private:
 	Scene* scene;
 
@@ -154,6 +157,8 @@ private:
 	bool enabled = true;
 
 	bool topOnly = true;
+
+	InputEvent tempEvent;
 
 	double dragDistanceThreshold = 0.;
 
