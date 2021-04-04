@@ -11,6 +11,11 @@
 #include "rectangle.hpp"
 #include "line.hpp"
 
+// TODO initialize like this:
+// Shape myShape { .ellipse = {.x = 0} };
+// `.shape.type` will be initialized by the activated structure thanks to the
+// union's Common Initial Sequence
+
 namespace Zen {
 
 /**
@@ -22,15 +27,15 @@ union Shape
 {
 	struct {
 		SHAPE type;
-	} type;
+	} shape;
 
 	Rectangle rectangle;
 
-	//Circle circle;
+	Circle circle;
 
-	//Ellipse ellipse;
+	Ellipse ellipse;
 
-	//Triangle triangle;
+	Triangle triangle;
 
 	Line line;
 

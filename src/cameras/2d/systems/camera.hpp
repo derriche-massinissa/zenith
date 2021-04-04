@@ -43,6 +43,8 @@ void DestroyCamera (Entity entity);
  */
 void AddToRenderList (Entity entity, Entity child);
 
+std::vector<Entity>* GetRenderList (Entity camera);
+
 /**
  * Takes a vector of Game Objects pointers and returns a new vector featuring 
  * only those objects visible by this camera.

@@ -20,6 +20,15 @@ bool Contains (Rectangle rectangle, double x, double y)
 			rectangle.y <= y && rectangle.y + rectangle.height >= y);
 }
 
+bool RectangleContains (Shape rectangle, double x, double y)
+{
+    if (rectangle.rectangle.width <= 0 || rectangle.rectangle.height <= 0)
+        return false;
+
+    return (rectangle.rectangle.x <= x && rectangle.rectangle.x + rectangle.rectangle.width >= x &&
+			rectangle.rectangle.y <= y && rectangle.rectangle.y + rectangle.rectangle.height >= y);
+}
+
 Math::Vector2 GetPoint (Rectangle rectangle, double position)
 {
 	Math::Vector2 out;

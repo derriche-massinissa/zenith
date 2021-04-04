@@ -11,11 +11,14 @@
 #include <vector>
 #include "types/line.hpp"
 #include "types/rectangle.hpp"
+#include "types/shape.hpp"
 #include "../math/types/vector2.hpp"
 
 namespace Zen {
 
 bool Contains (Rectangle rectangle, double x, double y);
+
+bool RectangleContains (Shape rectangle, double x, double y);
 
 Math::Vector2 GetPoint (Rectangle rectangle, double position);
 

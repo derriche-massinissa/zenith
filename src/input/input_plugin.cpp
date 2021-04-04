@@ -11,6 +11,8 @@
 #include <SDL2/SDL_timer.h>
 #include <cmath>
 #include "../utils/assert.hpp"
+#include "../utils/vector/contains.hpp"
+#include "../utils/vector/index_of.hpp"
 #include "events/events.hpp"
 #include "../scene/scene.h"
 #include "../components/input.hpp"
@@ -19,8 +21,18 @@
 #include "../components/rotation.hpp"
 #include "../components/scale.hpp"
 #include "../components/origin.hpp"
+#include "../components/container.hpp"
 #include "input_manager.hpp";
 #include "pointer.hpp";
+#include "types/input_configuration.hpp";
+#include "../geom/rectangle.hpp"
+#include "../geom/circle.hpp"
+#include "../geom/ellipse.hpp"
+#include "../geom/triangle.hpp"
+#include "../geom/types/rectangle.hpp"
+#include "../geom/types/circle.hpp"
+#include "../geom/types/triangle.hpp"
+#include "../cameras/2d/systems/camera.hpp"
 
 namespace Zen {
 
@@ -544,147 +556,778 @@ int InputPlugin::processMoveEvents (Pointer *pointer_)
 
 int InputPlugin::processWheelEvents (Pointer *pointer_)
 {
+	int total_ = 0;
+	auto& currentlyOver_ = temp;
+
+	resetInputEvent(&tempEvent);
+
+	bool aborted_ = false;
+
+	double dx_ = pointer_->deltaX;
+	double dy_ = pointer_->deltaY;
+	double dz_ = pointer_->deltaZ;
+
+	//  Go through all objects the pointer was over and fire their events / callbacks
+	for (auto obj_ : currentlyOver_)
+	{
+		auto input_ = g_registry.try_get<Components::Input>(obj_);
+		if (!input_)
+			continue;
+
+		total_++;
+
+		tempEvent.pointer = pointer_;
+		tempEvent.gameObject = obj_;
+		tempEvent.x = dx_;
+		tempEvent.y = dy_;
+		tempEvent.z = dz_;
+
+		g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_WHEEL, &tempEvent);
+
+		if (tempEvent.stopFlag)
+		{
+			aborted_ = true;
+			break;
+		}
+
+		emit(ZEN_INPUT_GAMEOBJECT_WHEEL, &tempEvent);
+
+		if (tempEvent.stopFlag)
+		{
+			aborted_ = true;
+			break;
+		}
+	}
+
+	tempEvent.gameObjectList = currentlyOver_;
+
+	if (!aborted_)
+		emit(ZEN_INPUT_POINTER_WHEEL, &tempEvent);
+
+	return total_;
 }
 
 int InputPlugin::processOverEvents (Pointer *pointer_)
 {
+	auto& currentlyOver_ = temp;
+
+	int totalInteracted_ = 0;
+
+	int total_ = currentlyOver_.size();
+
+	std::vector<Entity> justOver_;
+
+	if (total_ > 0)
+	{
+		resetInputEvent(&tempEvent);
+
+		bool aborted_ = false;
+
+		//  Go through all objects the pointer was over and fire their events / callbacks
+		for (auto obj_ : currentlyOver_)
+		{
+			auto input_ = g_registry.try_get<Components::Input>(obj_);
+
+			if (!input_)
+				continue;
+
+			justOver_.push_back(obj_);
+
+			// TODO check this when done with the input manager
+			g_input.setCursor(input_);
+
+			tempEvent.pointer = pointer_;
+			tempEvent.gameObject = obj_;
+			tempEvent.x = input_->localX;
+			tempEvent.y = input_->localY;
+
+			g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_OVER, &tempEvent);
+
+			totalInteracted_++;
+
+			if (tempEvent.stopFlag)
+			{
+				aborted_ = true;
+				break;
+			}
+
+			emit(ZEN_INPUT_GAMEOBJECT_OVER, &tempEvent);
+
+			if (tempEvent.stopFlag)
+			{
+				aborted_ = true;
+				break;
+			}
+		}
+
+		tempEvent.gameObjectList = justOver_;
+
+		if (!aborted_)
+			emit(ZEN_INPUT_POINTER_WHEEL, &tempEvent);
+	}
+
+	// Then sort it into display list order
+	over[pointer_->id] = justOver_;
+
+	return totalInteracted_;
 }
 
 int InputPlugin::processOutEvents (Pointer *pointer_)
 {
+	auto& previouslyOver_ = over[pointer_->id];
+
+	int totalInteracted_ = 0;
+
+	int total_ = previouslyOver_.size();
+
+	if (total_ > 0)
+	{
+		resetInputEvent(&tempEvent);
+
+		bool aborted_ = false;
+
+		sortGameObjects(&previouslyOver_, pointer_);
+
+		//  Go through all objects the pointer was over and fire their events / callbacks
+		for (auto obj_ : currentlyOver_)
+		{
+			// Call onOut for everything in the previouslyOver_ vector
+			auto input_ = g_registry.try_get<Components::Input>(obj_);
+
+			if (!input_)
+				continue;
+
+			// TODO check this when done with the input manager
+			g_input.resetCursor(input_);
+
+			tempEvent.pointer = pointer_;
+			tempEvent.gameObject = obj_;
+
+			g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_OUT, &tempEvent);
+
+			totalInteracted_++;
+
+			if (tempEvent.stopFlag)
+			{
+				aborted_ = true;
+				break;
+			}
+
+			emit(ZEN_INPUT_GAMEOBJECT_OUT, &tempEvent);
+
+			if (tempEvent.stopFlag)
+			{
+				aborted_ = true;
+				break;
+			}
+		}
+
+		tempEvent.gameObjectList = previouslyOver_;
+
+		if (!aborted_)
+			emit(ZEN_INPUT_POINTER_OUT, &tempEvent);
+	}
+
+	// Then sort it into display list order
+	over[pointer_->id] = justOver_;
+
+	return totalInteracted_;
 }
 
 int InputPlugin::processOverOutEvents (Pointer *pointer_)
 {
+	auto& currentlyOver_ = temp;
+
+	std::vector<Entity> justOut_;
+	std::vector<Entity> justOver_;
+	std::vector<Entity> stillOver_;
+	auto& previouslyOver_ = over[pointer_->id];
+	auto& currentlyDragging_ = drag[pointer_->id];
+
+	// Go through all objects the pointer was previously over, and see if it still is.
+	// Splits the previouslyOver array into two parts: justOut and stillOver
+	for (auto obj_ : previouslyOver_)
+	{
+		if (!contains(currentlyOver_, obj_) && !contains(currentlyDragging_, obj_))
+		{
+			// Not in the currentlyOver array, so must be outside of this object now
+			justOut_.push_back(obj_);
+		}
+		else
+		{
+			// In the currentlyOver_ vector
+			stillOver_.push_back(obj_);
+		}
+	}
+
+	// Go through all objects the pointer is currently over (the hit test results)
+	// and if not in the previouslyOver array we know it's a new entry, so add to justOver
+	for (auto obj_ : currentlyOver_)
+	{
+		// Is this newly over?
+		if (!contains(previouslyOver_, obj_))
+		{
+			justOver_.push_back(obj_);
+		}
+	}
+
+	// By this point the vectors are filled, so now we can process what happened...
+
+	// Process the Just Out objects
+	int total_ = justOut_.size();
+
+	int totalInteracted_ = 0;
+
+	resetInputEvent(&tempEvent);
+
+	bool aborted_ = false;
+
+	if (total_ > 0)
+	{
+		sortGameObjects(&justOut_, pointer_);
+
+		//  Call onOut for everything in the justOut_ vector
+		for (auto obj_ : justOut_)
+		{
+			auto input_ = g_registry.try_get<Components::Input>(obj_);
+
+			if (!input_)
+				continue;
+
+			// Reset cursor before we emit the event, in case they want to change it during the event
+			// TODO check this when done with the input manager
+			g_input.resetCursor(input_);
+
+			tempEvent.pointer = pointer_;
+			tempEvent.gameObject = obj_;
+
+			g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_OUT, &tempEvent);
+
+			totalInteracted_++;
+
+			if (tempEvent.stopFlag)
+			{
+				aborted_ = true;
+				break;
+			}
+
+			emit(ZEN_INPUT_GAMEOBJECT_OUT, &tempEvent);
+
+			if (tempEvent.stopFlag)
+			{
+				aborted_ = true;
+				break;
+			}
+		}
+
+		tempEvent.gameObjectList = justOut_;
+
+		if (!aborted_)
+			emit(ZEN_INPUT_POINTER_OUT, &tempEvent);
+	}
+
+	// Process the Just Over objects
+	total_ = justOver_.size();
+
+	resetInputEvent(&tempEvent);
+
+	aborted_ = false;
+
+	if (total_ > 0)
+	{
+		sortGameObjects(&justOver_, pointer_);
+
+		//  Call onOver for everything in the justOver_ vector
+		for (auto obj_ : justOver_)
+		{
+			auto input_ = g_registry.try_get<Components::Input>(obj_);
+
+			if (!input_)
+				continue;
+
+			// Set cursor before we emit the event, in case they want to change it during the event
+			// TODO check this when done with the input manager
+			g_input.setCursor(input_);
+
+			tempEvent.pointer = pointer_;
+			tempEvent.gameObject = obj_;
+			tempEvent.x = input_->localX;
+			tempEvent.x = input_->localY;
+
+			g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_OVER, &tempEvent);
+
+			totalInteracted_++;
+
+			if (tempEvent.stopFlag)
+			{
+				aborted_ = true;
+				break;
+			}
+
+			emit(ZEN_INPUT_GAMEOBJECT_OVER, &tempEvent);
+
+			if (tempEvent.stopFlag)
+			{
+				aborted_ = true;
+				break;
+			}
+		}
+
+		tempEvent.gameObjectList = justOver_;
+
+		if (!aborted_)
+			emit(ZEN_INPUT_POINTER_OVER, &tempEvent);
+	}
+
+	// Add the contents of justOver_ to the previously over array
+	previouslyOver_.insert(previouslyOver_.end(), justOver_.begin(), justOver_.end());
+
+	// Then sort it into display list order
+	sortGameObjects(&previouslyOver_, pointer_);
+	over[pointer_->id] = previouslyOver_;
+
+	return totalInteracted_;
 }
 
 int InputPlugin::processUpEvents (Pointer *pointer_)
 {
+	auto& currentlyOver_ = temp;
+
+	resetInputEvent(&tempEvent);
+
+	bool aborted_ = false;
+
+	//  Go through all objects the pointer was over and fire their events / callbacks
+	for (auto obj_ : currentlyOver_)
+	{
+		auto input_ = g_registry.try_get<Components::Input>(obj_);
+		if (!input_)
+			continue;
+
+		tempEvent.pointer = pointer_;
+		tempEvent.gameObject = obj_;
+		tempEvent.x = input_->localX;
+		tempEvent.y = input_->localY;
+
+		g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_UP, &tempEvent);
+
+		if (tempEvent.stopFlag)
+		{
+			aborted_ = true;
+			break;
+		}
+
+		emit(ZEN_INPUT_GAMEOBJECT_UP, &tempEvent);
+
+		if (tempEvent.stopFlag)
+		{
+			aborted_ = true;
+			break;
+		}
+	}
+
+	tempEvent.gameObjectList = currentlyOver_;
+
+	if (!aborted_)
+		emit(ZEN_INPUT_POINTER_UP, &tempEvent);
+
+	return currentlyOver_.size();
 }
 
 int InputPlugin::processDownEvents (Pointer *pointer_)
 {
-	int total = 0;
+	int total_ = 0;
 	auto& currentlyOver_ = temp;
 
-	for (auto ent_ : currentlyOver_)
+	resetInputEvent(&tempEvent);
+
+	bool aborted_ = false;
+
+	//  Go through all objects the pointer was over and fire their events / callbacks
+	for (auto obj_ : currentlyOver_)
 	{
-		auto input_ = g_registry.try_get<Components::Input>(ent_);
+		auto input_ = g_registry.try_get<Components::Input>(obj_);
 
 		if (!input_)
 			continue;
 
-		total++;
+		total_++;
 
-		g_event.emit(ent_, "pointerdown", pointer_, input_.localX, input_.localY, );
+		tempEvent.pointer = pointer_;
+		tempEvent.gameObject = obj_;
+		tempEvent.x = input_->localX;
+		tempEvent.y = input_->localY;
 
-		if ()
+		g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_DOWN, &tempEvent);
+
+		if (tempEvent.stopFlag)
+		{
+			aborted_ = true;
+			break;
+		}
+
+		emit(ZEN_INPUT_GAMEOBJECT_DOWN, &tempEvent);
+
+		if (tempEvent.stopFlag)
+		{
+			aborted_ = true;
+			break;
+		}
 	}
+
+	tempEvent.gameObjectList = currentlyOver_;
+
+	if (!aborted_)
+		emit(ZEN_INPUT_POINTER_DOWN, &tempEvent);
+
+	return total_;
 }
 
 void InputPlugin::queueForInsertion (Entity entity_)
 {
+	if (contains(pendingInsertion, entity_) && contains(list, entity_))
+	{
+		pendingInsertion.push_back(entity_);
+	}
 }
 
 void InputPlugin::queueForRemoval (Entity entity_)
 {
+	pendingRemoval.push_back(entity_);
 }
 
-void InputPlugin::setDraggable (Entity entity_, bool value_ = true)
+void InputPlugin::setDraggable (Entity entity_, bool value_)
 {
+	auto input_ = g_registry.try_get<Components::Input>(entity_);
+	ZEN_ASSERT(input_, "The entity has no ''Input' component.");
+
+	input_->draggable = value_;
+
+	bool contained_ = contains(draggable, entity_);
+
+	if (value_ && !contained_)
+	{
+		draggable.push_back(entity_);
+	}
+	else if (!value_ && contained_)
+	{
+		draggable.erase(std::find(draggable.begin(), draggable.end(), entity_));
+	}
+}
+
+void InputPlugin::setDraggable (std::vector<Entity> entities_, bool value_)
+{
+	for (auto entity_ : entities_)
+	{
+		setDraggable(entity_, value_);
+	}
 }
 
 HitCallback InputPlugin::makePixelPerfect (double alphaTolerance_)
 {
+	// TODO pixel perfect
+	return {};
+}
+
+void InputPlugin::setHitArea (std::vector<Entity> entities_, InputConfiguration config_)
+{
+	bool customHitArea_ = true;
+
+	if (config_.pixelPerfect)
+	{
+		config_.hitArea.shape.type = SHAPE::NONE;
+		config_.hitAreaCallback = makePixelPerfect(config_.alphaTolerance);
+	}
+
+	// Still no hitArea or callback?
+	if (config_.hitArea == SHAPE::NONE || hitAreaCallback == nullptr)
+	{
+		setHitAreaFromTexture(entity_);
+		customHitArea_ = false;
+	}
+
+	for (auto ent_ : entities_)
+	{
+		auto [input_, container_] = g_registry.try_get<Components::Input, Components::Container>(ent_);
+		if (config_.pixelPerfect && container_)
+		{
+			MessageWarning("Cannot pixelPerfect test a Container. Use a custom callback.");
+			continue;
+		}
+
+		if (!input_)
+			input_ = g_registry.emplace<Components::Input>(ent_);
+
+		input_->customHitArea = config_.customHitArea_;
+		input_->dropZone = config_.dropZone_;
+		input_->cursor = (config_.useHandCursor) ? "pointer" : config_.cursor;
+
+		if (config_.draggable_)
+			setDraggable(ent_);
+
+		queueForInsertion(ent_);
+	}
+}
+
+void InputPlugin::setHitArea (Entity entity_, InputConfiguration config_)
+{
+	setHitArea({entity_}, config_);
+}
+
+void InputPlugin::setHitArea (Entity entity_)
+{
+	setHitAreaFromTexture(entity_);
+}
+
+void InputPlugin::setHitArea (std::vector<Entity> entities_)
+{
+	for (ent_ : entities_)
+		setHitAreaFromTexture(entity_);
+}
+
+void InputPlugin::setHitArea (std::vector<Entity> entities_, Shape hitArea_, HitCallback hitAreaCallback_)
+{
+	for (auto ent_ : entities_)
+	{
+		auto [input_, container_] = g_registry.try_get<Components::Input, Components::Container>(ent_);
+		if (config_.pixelPerfect && container_)
+		{
+			MessageWarning("Cannot pixelPerfect test a Container. Use a custom callback.");
+			continue;
+		}
+
+		if (!input_)
+			input_ = g_registry.emplace<Components::Input>(ent_);
+
+		input_->hitArea = hitArea_;
+		input_->hitAreaCallback = hitAreaCallback_;
+
+		queueForInsertion(ent_);
+	}
 }
 
 void InputPlugin::setHitArea (Entity entity_, Shape hitArea_, HitCallback hitAreaCallback_)
 {
+	setHitArea({entity_}, hitArea_, hitAreaCallback_);
 }
 
-void InputPlugin::setHitAreaCircle (Entity entity_, double x_, double y_, double radius_, HitCallback callback_ = nullptr)
+void InputPlugin::setHitAreaCircle (Entity entity_, double x_, double y_, double radius_, HitCallback callback_)
 {
+	Shape shape_ { .circle = {.x = x_, .y = y_, .radius = radius_} };
+
+	if (!callback_)
+		callback_ = CircleContains;
+
+	setHitArea(entity_, shape_, callback_);
 }
 
-void InputPlugin::setHitAreaEllipse (Entity entity_, double x_, double y_, double width_, double height_, HitCallback callback_ = nullptr)
+void InputPlugin::setHitAreaEllipse (Entity entity_, double x_, double y_, double width_, double height_, HitCallback callback_)
 {
+	Shape shape_ { .ellipse = {.x = x_, .y = y_, .width = width_, .height = height_} };
+
+	if (!callback_)
+		callback_ = EllipseContains;
+
+	setHitArea(entity_, shape_, callback_);
 }
 
-void InputPlugin::setHitAreaFromTexture (Entity entity_, HitCallback callback_ = nullptr)
+void InputPlugin::setHitAreaFromTexture (Entity entity_, HitCallback callback_)
 {
+	if (!callback_)
+		callback_ = RectangleContains;
+
+	auto [frame_, size_, container_] = g_registry.try_get<Components::Frame, Components::Size, Components::Container>(entity_);
+
+	double width_ = 0.;
+	double height_ = 0.;
+
+	if (size_)
+	{
+		width_ = size_->width;
+		height_ = size_->height;
+	}
+	else if (frame_)
+	{
+		width_ = frame_->data.sourceSize.width;
+		height_ = frame_->data.sourceSize.height;
+	}
+
+	if (container_ && (width_ == 0. || height_ == 0.))
+	{
+		MessageWarning("Making a container interactive requires a shape or setting its size first.");
+		continue;
+	}
+
+	if (width_ != 0. && height_ != 0.)
+	{
+		auto& input_ = g_registry.emplace<Components::Input>(entity_);
+
+		input_.hitArea = Shape { .rectangle = {.x = 0., .y = 0., .width = width_, .height = height_} };
+
+		queueForInsertion(entity_);
+	}
 }
 
-void InputPlugin::setHitAreaRectangle (Entity entity_, double x_, double y_, double width_, double height_, HitCallback callback_ = nullptr)
+void InputPlugin::setHitAreaFromTexture (std::vector<Entity> entities_, HitCallback callback_)
 {
+	for (auto entity_ : entities_)
+	{
+		setHitAreaFromTexture(entity_, callback_);
+	}
 }
 
-void InputPlugin::setHitAreaTriangle (Entity entity_, double x1_, double y1_, double x2_, double y2_, double x3_, double y3_, HitCallback callback_ = nullptr)
+void InputPlugin::setHitAreaRectangle (Entity entity_, double x_, double y_, double width_, double height_, HitCallback callback_)
 {
+	Shape shape_ { .rectangle = {.x = x_, .y = y_, .width = width_, .height = height_} };
+
+	if (!callback_)
+		callback_ = RectangleContains;
+
+	setHitArea(entity_, shape_, callback_);
+}
+
+void InputPlugin::setHitAreaTriangle (Entity entity_, double x1_, double y1_, double x2_, double y2_, double x3_, double y3_, HitCallback callback_)
+{
+	Shape shape_ { .triangle = {.x1 = x1_, .y1 = y1_, .x2 = x2_, .y2 = y2_, .x3 = x3_, .y3 = y3_} };
+
+	if (!callback_)
+		callback_ = TriangleContains;
+
+	setHitArea(entity_, shape_, callback_);
 }
 
 void InputPlugin::enableDebug (Entity entity_, Color color_)
 {
+	// TODO debug
 }
 
 void InputPlugin::removeDebug (Entity entity_)
 {
+	// TODO debug
 }
 
 void InputPlugin::setPollAlways ()
 {
+	setPollRate(0);
 }
 
 void InputPlugin::setPollOnMove ()
 {
+	setPollRate(-1);
 }
 
-void InputPlugin::setPollRate ()
+void InputPlugin::setPollRate (Uint32 value_)
 {
+	pollRate = value_;
+	pollTimer = 0;
 }
 
 void InputPlugin::setGlobalTopOnly (bool value_)
 {
+	g_input.globalTopOnly = value_;
 }
 
 void InputPlugin::setTopOnly (bool value_)
 {
+	topOnly = value_;
 }
 
-std::vector<Entity> InputPlugin::sortEntities (std::vector<Entity> entities_, Pointer pointer)
+std::vector<Entity> InputPlugin::sortEntities (std::vector<Entity> entities_, Pointer *pointer_)
 {
+	if (entities_.size() < 2)
+		return entities_;
+
+	auto list_ = GetRenderList(pointer_->camera);
+
+	std::stable_sort(
+		entities_->begin(),
+		entities_->end(),
+		[&] (Entity childA_, Entity childB_) -> bool {
+			return IndexOf(list_, childA_) < IndexOf(list_, childB_);
+		}
+	);
+
+	return entities_;
 }
 
 std::vector<Entity> InputPlugin::sortDropZones (std::vector<Entity> entities_)
 {
+	if (entities_.size() < 2)
+		return entities_;
+
+	scene->sys.depthSort();
+
+	std::stable_sort(
+		entities_->begin(),
+		entities_->end(),
+		sortDropZoneHandler
+	);
+
+	return entities_;
 }
 
-int InputPlugin::sortDropZoneHandler (Entity childA, Entity childB)
+bool InputPlugin::sortDropZoneHandler (Entity childA_, Entity childB_)
 {
+	if (!itemA_ && !itemB_)
+	{
+		// Quick bail when neither child has a container
+		return scene->displayList.getIndex(childA_) < scene->displayList.getIndex(childA_);
+	}
+	/*
+	 * TODO container
+	else if (itemA_->parent == itemB_->parent)
+	{
+		// Quick bail out when both children have the same container
+		return
+			itemB_->
+	}
+	*/
+	else if (itemA_->parent == childB_)
+	{
+		return false;
+	}
+	else if (itemB_->parent == childA_)
+	{
+		return true;
+	}
+	else
+	{
+		// Container index check
+		// TODO containers
+		return true;
+	}
 }
 
 void InputPlugin::stopPropagation ()
 {
+	g_input.tempSkip = true;
 }
 
-std::vector<Pointer> InputPlugin::addPointer (int quantity_)
+std::vector<Pointer*> InputPlugin::addPointer (int quantity_)
 {
+	return g_input.addPointer(quantity_);
 }
 
 void InputPlugin::setDefaultCursor (std::string textureKey_, std::string frameName_)
 {
+	g_input.setDefaultCursor(textureKey_, frameName_);
 }
 
 // TODO Move private members here pls
 bool InputPlugin::transitionIn ()
 {
+	enabled = scene->sys.settings.transitionAllowInput;
 }
 
 bool InputPlugin::transitionComplete ()
 {
+	if (scene->sys.settings.transitionAllowInput)
+		enabled = true;
 }
 
 bool InputPlugin::transitionOut ()
 {
+	enabled = scene->sys.settings.transitionAllowInput;
 }
 
 void InputPlugin::shutdown ()

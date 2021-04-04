@@ -214,6 +214,11 @@ void AddToRenderList (Entity entity, Entity child)
 	renderLists[entity].emplace_back(child);
 }
 
+std::vector<Entity>* GetRenderList (Entity camera)
+{
+	return &renderLists[camera];
+}
+
 std::vector<Entity> Cull (
 		Entity entity,
 		std::vector<Entity> renderableEntities)

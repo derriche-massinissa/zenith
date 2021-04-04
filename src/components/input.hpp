@@ -45,8 +45,8 @@ struct Input
 	bool alwaysEnabled = false;
 	bool draggable = false;
 	bool dropZone = false;
-	char cursorTexture[20];
-	char cursorFrame[20];
+	char cursorTexture[20] = "";
+	char cursorFrame[20] = "";
 	Entity target = entt::null;
 	Entity camera = entt::null;
 	Shape hitArea;

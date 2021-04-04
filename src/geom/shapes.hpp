@@ -14,7 +14,8 @@ namespace Zen {
  * @since 0.0.0
  */
 enum class SHAPE {
-	RECTANGLE = 0,
+	NONE = 0,
+	RECTANGLE,
 	CIRCLE,
 	ELLIPSE,
 	TRIANGLE,

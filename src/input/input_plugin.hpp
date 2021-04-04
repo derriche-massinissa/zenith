@@ -83,6 +83,8 @@ public:
 
 	void setDraggable (Entity entity_, bool value_ = true);
 
+	void setDraggable (std::vector<Entity> entity_, bool value_ = true);
+
 	HitCallback makePixelPerfect (double alphaTolerance_);
 
 	void setHitArea (Entity entity_, Shape hitArea_, HitCallback hitAreaCallback_);
@@ -146,7 +148,7 @@ private:
 
 	std::vector<std::vector<Entity>> drag;
 
-	std::vector<Entity> over;
+	std::vector<std::vector<Entity>> over;
 
 	std::vector<Entity> tempZones;
 
