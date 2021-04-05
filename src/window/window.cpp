@@ -250,66 +250,52 @@ void Window::cleanup<SDL_Renderer*> (SDL_Renderer *ren_)
 	SDL_DestroyRenderer(ren_);
 }
 
-void Window::handleSDLEvents ()
+void Window::handleSDLEvents (SDL_Event event_)
 {
-	SDL_Event event_;
-
-	while (SDL_PollEvent(&event_))
+	switch (event_.window.event)
 	{
-		switch (event_.type)
-		{
-			case SDL_QUIT:
-				emit("quit");
-				break;
+		case SDL_WINDOWEVENT_SIZE_CHANGED:
+			emit("resize", event_.window.data1, event_.window.data2);
+			break;
 
-			case SDL_WINDOWEVENT:
-				switch (event_.window.event)
-				{
-					case SDL_WINDOWEVENT_SIZE_CHANGED:
-						emit("resize", event_.window.data1, event_.window.data2);
-						break;
+		case SDL_WINDOWEVENT_EXPOSED:
+			emit("expose");
+			break;
 
-					case SDL_WINDOWEVENT_EXPOSED:
-						emit("expose");
-						break;
+		case SDL_WINDOWEVENT_ENTER:
+			pointerIn = true;
+			emit("pointerin");
+			break;
 
-					case SDL_WINDOWEVENT_ENTER:
-						pointerIn = true;
-						emit("pointerin");
-						break;
+		case SDL_WINDOWEVENT_LEAVE:
+			pointerIn = false;
+			emit("pointerout");
+			break;
 
-					case SDL_WINDOWEVENT_LEAVE:
-						pointerIn = false;
-						emit("pointerout");
-						break;
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+			focused = true;
+			emit("focus");
+			break;
 
-					case SDL_WINDOWEVENT_FOCUS_GAINED:
-						focused = true;
-						emit("focus");
-						break;
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+			focused = false;
+			emit("blur");
+			break;
 
-					case SDL_WINDOWEVENT_FOCUS_LOST:
-						focused = false;
-						emit("blur");
-						break;
+		case SDL_WINDOWEVENT_MINIMIZED:
+			minimized = true;
+			emit("minimize");
+			break;
 
-					case SDL_WINDOWEVENT_MINIMIZED:
-						minimized = true;
-						emit("minimize");
-						break;
+		case SDL_WINDOWEVENT_MAXIMIZED:
+			minimized = false;
+			emit("maximize");
+			break;
 
-					case SDL_WINDOWEVENT_MAXIMIZED:
-						minimized = false;
-						emit("maximize");
-						break;
-
-					case SDL_WINDOWEVENT_RESTORED:
-						minimized = false;
-						emit("restore");
-						break;
-				}
-				break;
-		}
+		case SDL_WINDOWEVENT_RESTORED:
+			minimized = false;
+			emit("restore");
+			break;
 	}
 }
 

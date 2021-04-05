@@ -13,6 +13,7 @@
 #include "../utils/assert.hpp"
 #include "../utils/vector/contains.hpp"
 #include "../utils/vector/index_of.hpp"
+#include "../utils/vector/remove.hpp"
 #include "events/events.hpp"
 #include "../scene/scene.h"
 #include "../components/input.hpp"
@@ -22,17 +23,20 @@
 #include "../components/scale.hpp"
 #include "../components/origin.hpp"
 #include "../components/container.hpp"
-#include "input_manager.hpp";
-#include "pointer.hpp";
-#include "types/input_configuration.hpp";
+#include "../components/size.hpp"
+#include "../texture/components/frame.hpp"
+#include "input_manager.hpp"
+#include "pointer.hpp"
+#include "types/input_configuration.hpp"
 #include "../geom/rectangle.hpp"
-#include "../geom/circle.hpp"
-#include "../geom/ellipse.hpp"
-#include "../geom/triangle.hpp"
+#include "../geom/types/circle.hpp"
+#include "../geom/types/ellipse.hpp"
+#include "../geom/types/triangle.hpp"
 #include "../geom/types/rectangle.hpp"
 #include "../geom/types/circle.hpp"
 #include "../geom/types/triangle.hpp"
 #include "../cameras/2d/systems/camera.hpp"
+#include "../math/distance/distance_between.hpp"
 
 namespace Zen {
 
@@ -42,24 +46,16 @@ extern entt::registry g_registry;
 extern EventEmitter g_event;
 extern InputManager g_input;
 
-InputPlugin::InputPlugin ()
-{
-}
-
-InputPlugin::~InputPlugin ()
-{
-}
-
-void InputPlugin::onWindowOver ()
+void InputPlugin::onWindowOver (InputEvent event_)
 {
 	if (isActive())
-		emit("windowover",);
+		emit("windowover", event_.timestamp);
 }
 
-void InputPlugin::onWindowOut ()
+void InputPlugin::onWindowOut (InputEvent event_)
 {
 	if (isActive())
-		emit("windowout",);
+		emit("windowout",event_.timestamp);
 }
 
 void InputPlugin::preUpdate ()
@@ -121,21 +117,21 @@ void InputPlugin::clear (Entity entity_, bool skipQueue_)
 	g_registry.remove<Components::Input>(entity_);
 
 	// Clear from draggable, drag and over
-	draggable.erase(std::remove(draggable.begin(), draggable.end(), entity_), draggable.end());
+	Remove(draggable, entity_);
 
-	drag.erase(std::remove(drag.begin(), drag.end(), entity_), drag.end());
+	Remove(drag.at(0), entity_);
 
-	over.erase(std::remove(over.begin(), over.end(), entity_), over.end());
+	Remove(over.at(0), entity_);
 
-	manager->resetCursor(entity_);
+	g_input.resetCursor();
 }
 
 void InputPlugin::disable (Entity entity_)
 {
-	auto input = g_registry.try_get<Components::Input>(entity_);
-	ZEN_ASSERT(input, "The entity has no 'Input' component.");
+	auto input_ = g_registry.try_get<Components::Input>(entity_);
+	ZEN_ASSERT(input_, "The entity has no 'Input' component.");
 
-	input->enabled = false;
+	input_->enabled = false;
 }
 
 void InputPlugin::enable (Entity entity_, Shape hitArea_, HitCallback hitAreaCallback_, bool dropZone_)
@@ -233,7 +229,7 @@ int InputPlugin::processDragThresholdEvent (Pointer *pointer_, Uint32 time_)
 	Uint32 timeTh_ = dragTimeThreshold;
 	double distanceTh_ = dragDistanceThreshold;
 
-	if (distanceTh_ > 0 && DistanceBetween(pointer_->position.x, pointer_->position.y, pointer_->downX, pointer_->downY) >= distanceTh_)
+	if (distanceTh_ > 0 && Math::DistanceBetween(pointer_->position.x, pointer_->position.y, pointer_->downX, pointer_->downY) >= distanceTh_)
 	{
 		//  It has moved far enough to be considered a drag
 		passed_ = true;
@@ -316,7 +312,7 @@ int InputPlugin::processDragDownEvent (Pointer *pointer_)
 	}
 	else if (draglist_.size() > 1)
 	{
-		sortEntities(draglist_, pointer_);
+		sortGameObjects(draglist_, pointer_);
 
 		if (topOnly)
 		{
@@ -510,7 +506,7 @@ int InputPlugin::processMoveEvents (Pointer *pointer_)
 	int total_ = 0;
 	auto& currentlyOver_ = temp;
 
-	resetInputEvent(&tempEvent);
+	tempEvent.reset();
 
 	bool aborted_ = false;
 
@@ -559,7 +555,7 @@ int InputPlugin::processWheelEvents (Pointer *pointer_)
 	int total_ = 0;
 	auto& currentlyOver_ = temp;
 
-	resetInputEvent(&tempEvent);
+	tempEvent.reset();
 
 	bool aborted_ = false;
 
@@ -619,7 +615,7 @@ int InputPlugin::processOverEvents (Pointer *pointer_)
 
 	if (total_ > 0)
 	{
-		resetInputEvent(&tempEvent);
+		tempEvent.reset();
 
 		bool aborted_ = false;
 
@@ -634,7 +630,7 @@ int InputPlugin::processOverEvents (Pointer *pointer_)
 			justOver_.push_back(obj_);
 
 			// TODO check this when done with the input manager
-			g_input.setCursor(input_);
+			//g_input.setCursor(input_);
 
 			tempEvent.pointer = pointer_;
 			tempEvent.gameObject = obj_;
@@ -682,14 +678,14 @@ int InputPlugin::processOutEvents (Pointer *pointer_)
 
 	if (total_ > 0)
 	{
-		resetInputEvent(&tempEvent);
+		tempEvent.reset();
 
 		bool aborted_ = false;
 
-		sortGameObjects(&previouslyOver_, pointer_);
+		sortGameObjects(previouslyOver_, pointer_);
 
 		//  Go through all objects the pointer was over and fire their events / callbacks
-		for (auto obj_ : currentlyOver_)
+		for (auto obj_ : previouslyOver_)
 		{
 			// Call onOut for everything in the previouslyOver_ vector
 			auto input_ = g_registry.try_get<Components::Input>(obj_);
@@ -698,7 +694,7 @@ int InputPlugin::processOutEvents (Pointer *pointer_)
 				continue;
 
 			// TODO check this when done with the input manager
-			g_input.resetCursor(input_);
+			//g_input.resetCursor(input_);
 
 			tempEvent.pointer = pointer_;
 			tempEvent.gameObject = obj_;
@@ -729,7 +725,7 @@ int InputPlugin::processOutEvents (Pointer *pointer_)
 	}
 
 	// Then sort it into display list order
-	over[pointer_->id] = justOver_;
+	over[pointer_->id].clear();
 
 	return totalInteracted_;
 }
@@ -748,7 +744,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 	// Splits the previouslyOver array into two parts: justOut and stillOver
 	for (auto obj_ : previouslyOver_)
 	{
-		if (!contains(currentlyOver_, obj_) && !contains(currentlyDragging_, obj_))
+		if (!Contains(currentlyOver_, obj_) && !Contains(currentlyDragging_, obj_))
 		{
 			// Not in the currentlyOver array, so must be outside of this object now
 			justOut_.push_back(obj_);
@@ -765,7 +761,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 	for (auto obj_ : currentlyOver_)
 	{
 		// Is this newly over?
-		if (!contains(previouslyOver_, obj_))
+		if (!Contains(previouslyOver_, obj_))
 		{
 			justOver_.push_back(obj_);
 		}
@@ -778,13 +774,13 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 
 	int totalInteracted_ = 0;
 
-	resetInputEvent(&tempEvent);
+	tempEvent.reset();
 
 	bool aborted_ = false;
 
 	if (total_ > 0)
 	{
-		sortGameObjects(&justOut_, pointer_);
+		sortGameObjects(justOut_, pointer_);
 
 		//  Call onOut for everything in the justOut_ vector
 		for (auto obj_ : justOut_)
@@ -796,7 +792,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 
 			// Reset cursor before we emit the event, in case they want to change it during the event
 			// TODO check this when done with the input manager
-			g_input.resetCursor(input_);
+			//g_input.resetCursor(input_);
 
 			tempEvent.pointer = pointer_;
 			tempEvent.gameObject = obj_;
@@ -829,13 +825,13 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 	// Process the Just Over objects
 	total_ = justOver_.size();
 
-	resetInputEvent(&tempEvent);
+	tempEvent.reset();
 
 	aborted_ = false;
 
 	if (total_ > 0)
 	{
-		sortGameObjects(&justOver_, pointer_);
+		sortGameObjects(justOver_, pointer_);
 
 		//  Call onOver for everything in the justOver_ vector
 		for (auto obj_ : justOver_)
@@ -847,7 +843,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 
 			// Set cursor before we emit the event, in case they want to change it during the event
 			// TODO check this when done with the input manager
-			g_input.setCursor(input_);
+			//g_input.setCursor(input_);
 
 			tempEvent.pointer = pointer_;
 			tempEvent.gameObject = obj_;
@@ -883,7 +879,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 	previouslyOver_.insert(previouslyOver_.end(), justOver_.begin(), justOver_.end());
 
 	// Then sort it into display list order
-	sortGameObjects(&previouslyOver_, pointer_);
+	sortGameObjects(previouslyOver_, pointer_);
 	over[pointer_->id] = previouslyOver_;
 
 	return totalInteracted_;
@@ -893,7 +889,7 @@ int InputPlugin::processUpEvents (Pointer *pointer_)
 {
 	auto& currentlyOver_ = temp;
 
-	resetInputEvent(&tempEvent);
+	tempEvent.reset();
 
 	bool aborted_ = false;
 
@@ -939,7 +935,7 @@ int InputPlugin::processDownEvents (Pointer *pointer_)
 	int total_ = 0;
 	auto& currentlyOver_ = temp;
 
-	resetInputEvent(&tempEvent);
+	tempEvent.reset();
 
 	bool aborted_ = false;
 
@@ -985,7 +981,7 @@ int InputPlugin::processDownEvents (Pointer *pointer_)
 
 void InputPlugin::queueForInsertion (Entity entity_)
 {
-	if (contains(pendingInsertion, entity_) && contains(list, entity_))
+	if (Contains(pendingInsertion, entity_) && Contains(list, entity_))
 	{
 		pendingInsertion.push_back(entity_);
 	}
@@ -1003,7 +999,7 @@ void InputPlugin::setDraggable (Entity entity_, bool value_)
 
 	input_->draggable = value_;
 
-	bool contained_ = contains(draggable, entity_);
+	bool contained_ = Contains(draggable, entity_);
 
 	if (value_ && !contained_)
 	{
@@ -1040,15 +1036,18 @@ void InputPlugin::setHitArea (std::vector<Entity> entities_, InputConfiguration 
 	}
 
 	// Still no hitArea or callback?
-	if (config_.hitArea == SHAPE::NONE || hitAreaCallback == nullptr)
+	if ((config_.hitArea.shape.type == SHAPE::NONE || config_.hitAreaCallback == nullptr))
 	{
-		setHitAreaFromTexture(entity_);
+		setHitAreaFromTexture(entities_);
 		customHitArea_ = false;
 	}
 
 	for (auto ent_ : entities_)
 	{
-		auto [input_, container_] = g_registry.try_get<Components::Input, Components::Container>(ent_);
+		auto input_ = g_registry.try_get<Components::Input>(ent_);
+
+		auto container_ = g_registry.has<Components::Container>(ent_);
+
 		if (config_.pixelPerfect && container_)
 		{
 			MessageWarning("Cannot pixelPerfect test a Container. Use a custom callback.");
@@ -1056,13 +1055,13 @@ void InputPlugin::setHitArea (std::vector<Entity> entities_, InputConfiguration 
 		}
 
 		if (!input_)
-			input_ = g_registry.emplace<Components::Input>(ent_);
+			input_ = &g_registry.emplace<Components::Input>(ent_);
 
-		input_->customHitArea = config_.customHitArea_;
-		input_->dropZone = config_.dropZone_;
-		input_->cursor = (config_.useHandCursor) ? "pointer" : config_.cursor;
+		input_->customHitArea = customHitArea_;
+		input_->dropZone = config_.dropZone;
+		// TODO input_->cursor = (config_.useHandCursor) ? "pointer" : config_.cursor;
 
-		if (config_.draggable_)
+		if (config_.draggable)
 			setDraggable(ent_);
 
 		queueForInsertion(ent_);
@@ -1071,7 +1070,7 @@ void InputPlugin::setHitArea (std::vector<Entity> entities_, InputConfiguration 
 
 void InputPlugin::setHitArea (Entity entity_, InputConfiguration config_)
 {
-	setHitArea({entity_}, config_);
+	setHitArea(std::vector<Entity> {entity_}, config_);
 }
 
 void InputPlugin::setHitArea (Entity entity_)
@@ -1081,23 +1080,18 @@ void InputPlugin::setHitArea (Entity entity_)
 
 void InputPlugin::setHitArea (std::vector<Entity> entities_)
 {
-	for (ent_ : entities_)
-		setHitAreaFromTexture(entity_);
+	for (auto ent_ : entities_)
+		setHitAreaFromTexture(ent_);
 }
 
 void InputPlugin::setHitArea (std::vector<Entity> entities_, Shape hitArea_, HitCallback hitAreaCallback_)
 {
 	for (auto ent_ : entities_)
 	{
-		auto [input_, container_] = g_registry.try_get<Components::Input, Components::Container>(ent_);
-		if (config_.pixelPerfect && container_)
-		{
-			MessageWarning("Cannot pixelPerfect test a Container. Use a custom callback.");
-			continue;
-		}
+		auto input_ = g_registry.try_get<Components::Input>(ent_);
 
 		if (!input_)
-			input_ = g_registry.emplace<Components::Input>(ent_);
+			input_ = &g_registry.emplace<Components::Input>(ent_);
 
 		input_->hitArea = hitArea_;
 		input_->hitAreaCallback = hitAreaCallback_;
@@ -1108,12 +1102,12 @@ void InputPlugin::setHitArea (std::vector<Entity> entities_, Shape hitArea_, Hit
 
 void InputPlugin::setHitArea (Entity entity_, Shape hitArea_, HitCallback hitAreaCallback_)
 {
-	setHitArea({entity_}, hitArea_, hitAreaCallback_);
+	setHitArea(std::vector<Entity> {entity_}, hitArea_, hitAreaCallback_);
 }
 
 void InputPlugin::setHitAreaCircle (Entity entity_, double x_, double y_, double radius_, HitCallback callback_)
 {
-	Shape shape_ { .circle = {.x = x_, .y = y_, .radius = radius_} };
+	Shape shape_( Circle { .x = x_, .y = y_, .radius = radius_ } );
 
 	if (!callback_)
 		callback_ = CircleContains;
@@ -1123,7 +1117,7 @@ void InputPlugin::setHitAreaCircle (Entity entity_, double x_, double y_, double
 
 void InputPlugin::setHitAreaEllipse (Entity entity_, double x_, double y_, double width_, double height_, HitCallback callback_)
 {
-	Shape shape_ { .ellipse = {.x = x_, .y = y_, .width = width_, .height = height_} };
+	Shape shape_( Ellipse { .x = x_, .y = y_, .width = width_, .height = height_ } );
 
 	if (!callback_)
 		callback_ = EllipseContains;
@@ -1136,7 +1130,7 @@ void InputPlugin::setHitAreaFromTexture (Entity entity_, HitCallback callback_)
 	if (!callback_)
 		callback_ = RectangleContains;
 
-	auto [frame_, size_, container_] = g_registry.try_get<Components::Frame, Components::Size, Components::Container>(entity_);
+	auto [frame_, size_] = g_registry.try_get<Components::Frame, Components::Size>(entity_);
 
 	double width_ = 0.;
 	double height_ = 0.;
@@ -1152,17 +1146,19 @@ void InputPlugin::setHitAreaFromTexture (Entity entity_, HitCallback callback_)
 		height_ = frame_->data.sourceSize.height;
 	}
 
+	bool container_ = g_registry.has<Components::Container>(entity_);
+
 	if (container_ && (width_ == 0. || height_ == 0.))
 	{
 		MessageWarning("Making a container interactive requires a shape or setting its size first.");
-		continue;
+		return;
 	}
 
 	if (width_ != 0. && height_ != 0.)
 	{
 		auto& input_ = g_registry.emplace<Components::Input>(entity_);
 
-		input_.hitArea = Shape { .rectangle = {.x = 0., .y = 0., .width = width_, .height = height_} };
+		input_.hitArea = Shape ( Rectangle { .x = 0., .y = 0., .width = width_, .height = height_ } );
 
 		queueForInsertion(entity_);
 	}
@@ -1178,7 +1174,7 @@ void InputPlugin::setHitAreaFromTexture (std::vector<Entity> entities_, HitCallb
 
 void InputPlugin::setHitAreaRectangle (Entity entity_, double x_, double y_, double width_, double height_, HitCallback callback_)
 {
-	Shape shape_ { .rectangle = {.x = x_, .y = y_, .width = width_, .height = height_} };
+	Shape shape_ ( Rectangle { .x = x_, .y = y_, .width = width_, .height = height_ } );
 
 	if (!callback_)
 		callback_ = RectangleContains;
@@ -1188,7 +1184,7 @@ void InputPlugin::setHitAreaRectangle (Entity entity_, double x_, double y_, dou
 
 void InputPlugin::setHitAreaTriangle (Entity entity_, double x1_, double y1_, double x2_, double y2_, double x3_, double y3_, HitCallback callback_)
 {
-	Shape shape_ { .triangle = {.x1 = x1_, .y1 = y1_, .x2 = x2_, .y2 = y2_, .x3 = x3_, .y3 = y3_} };
+	Shape shape_ ( Triangle { .x1 = x1_, .y1 = y1_, .x2 = x2_, .y2 = y2_, .x3 = x3_, .y3 = y3_ } );
 
 	if (!callback_)
 		callback_ = TriangleContains;
@@ -1216,7 +1212,7 @@ void InputPlugin::setPollOnMove ()
 	setPollRate(-1);
 }
 
-void InputPlugin::setPollRate (Uint32 value_)
+void InputPlugin::setPollRate (int value_)
 {
 	pollRate = value_;
 	pollTimer = 0;
@@ -1232,7 +1228,7 @@ void InputPlugin::setTopOnly (bool value_)
 	topOnly = value_;
 }
 
-std::vector<Entity> InputPlugin::sortEntities (std::vector<Entity> entities_, Pointer *pointer_)
+std::vector<Entity> InputPlugin::sortGameObjects (std::vector<Entity> entities_, Pointer *pointer_)
 {
 	if (entities_.size() < 2)
 		return entities_;
@@ -1240,10 +1236,10 @@ std::vector<Entity> InputPlugin::sortEntities (std::vector<Entity> entities_, Po
 	auto list_ = GetRenderList(pointer_->camera);
 
 	std::stable_sort(
-		entities_->begin(),
-		entities_->end(),
+		entities_.begin(),
+		entities_.end(),
 		[&] (Entity childA_, Entity childB_) -> bool {
-			return IndexOf(list_, childA_) < IndexOf(list_, childB_);
+			return IndexOf(*list_, childA_) < IndexOf(*list_, childB_);
 		}
 	);
 
@@ -1258,9 +1254,9 @@ std::vector<Entity> InputPlugin::sortDropZones (std::vector<Entity> entities_)
 	scene->sys.depthSort();
 
 	std::stable_sort(
-		entities_->begin(),
-		entities_->end(),
-		sortDropZoneHandler
+		entities_.begin(),
+		entities_.end(),
+		&InputPlugin::sortDropZoneHandler
 	);
 
 	return entities_;
@@ -1268,10 +1264,13 @@ std::vector<Entity> InputPlugin::sortDropZones (std::vector<Entity> entities_)
 
 bool InputPlugin::sortDropZoneHandler (Entity childA_, Entity childB_)
 {
+	auto itemA_ = g_registry.try_get<Components::ContainerItem>(childA_);
+	auto itemB_ = g_registry.try_get<Components::ContainerItem>(childB_);
+
 	if (!itemA_ && !itemB_)
 	{
 		// Quick bail when neither child has a container
-		return scene->displayList.getIndex(childA_) < scene->displayList.getIndex(childA_);
+		return scene->children.getIndex(childA_) < scene->children.getIndex(childA_);
 	}
 	/*
 	 * TODO container
@@ -1310,10 +1309,10 @@ std::vector<Pointer*> InputPlugin::addPointer (int quantity_)
 
 void InputPlugin::setDefaultCursor (std::string textureKey_, std::string frameName_)
 {
-	g_input.setDefaultCursor(textureKey_, frameName_);
+	// TODO cursor
+	//g_input.setDefaultCursor(textureKey_, frameName_);
 }
 
-// TODO Move private members here pls
 bool InputPlugin::transitionIn ()
 {
 	enabled = scene->sys.settings.transitionAllowInput;
@@ -1332,25 +1331,6 @@ bool InputPlugin::transitionOut ()
 
 void InputPlugin::shutdown ()
 {
-}
-
-void resetInputEvent (InputEvent* event_)
-{
-	event_->pointer = nullptr;
-
-	event_->gameObject = entt::null;
-
-	event_->gameObjectList.clear();
-
-	event_->target = entt::null;
-
-	event_->stopPropagation = false;
-
-	event_->timestamp = 0;
-
-	event_->x = 0.;
-	event_->y = 0.;
-	event_->z = 0.;
 }
 
 }	// namespace Zen

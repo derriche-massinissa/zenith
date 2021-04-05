@@ -45,12 +45,12 @@ struct Input
 	bool alwaysEnabled = false;
 	bool draggable = false;
 	bool dropZone = false;
-	char cursorTexture[20] = "";
-	char cursorFrame[20] = "";
+	//char cursorTexture[20] = "";
+	//char cursorFrame[20] = "";
 	Entity target = entt::null;
 	Entity camera = entt::null;
 	Shape hitArea;
-	HitCallback hitAreaCallback;
+	HitCallback hitAreaCallback = nullptr;
 	Shape hitAreaDebug;
 	bool customHitArea = false;
 	double localX = 0.;
@@ -62,6 +62,57 @@ struct Input
 	double dragStartYGlobal = 0.;
 	double dragX = 0.;
 	double dragY = 0.;
+
+	Input (const Input& other)
+		: hitArea (other.hitArea)
+		, hitAreaCallback (other.hitAreaCallback)
+	{}
+
+	Input (Input&& other)
+		: hitArea (std::move(other.hitArea))
+		, hitAreaCallback (std::move(other.hitAreaCallback))
+	{}
+
+	void operator = (Input&& other)
+	{
+		enabled = other.enabled;
+
+		alwaysEnabled = other.alwaysEnabled;
+
+		draggable = other.draggable;
+
+		dropZone = other.dropZone;
+
+		target = other.target;
+
+		camera = other.camera;
+
+		hitArea = std::move(other.hitArea);
+
+		hitAreaCallback = other.hitAreaCallback;
+
+		hitAreaDebug = std::move(other.hitAreaDebug);
+
+		customHitArea = other.customHitArea;
+
+		localX = other.localX;
+
+		localY = other.localY;
+
+		dragState = other.dragState;
+
+		dragStartX = other.dragStartX;
+
+		dragStartY = other.dragStartY;
+
+		dragStartXGlobal = other.dragStartXGlobal;
+
+		dragStartYGlobal = other.dragStartYGlobal;
+
+		dragX = other.dragX;
+
+		dragY = other.dragY;
+	}
 };
 
 }	// namespace Components

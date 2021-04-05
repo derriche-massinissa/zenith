@@ -30,6 +30,13 @@ struct Circle
 	double x = 0.,
 		   y = 0.,
 		   radius = 0.;
+
+	void operator = (const Circle& other)
+	{
+		x = other.x;
+		y = other.y;
+		radius = other.radius;
+	}
 };
 
 }	// namespace Zen

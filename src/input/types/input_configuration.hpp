@@ -15,7 +15,7 @@ namespace Zen {
 
 struct InputConfiguration
 {
-	Shape hitArea = { .shape = { .type = SHAPE::NONE } };
+	Shape hitArea;
 
 	HitCallback hitAreaCallback = nullptr;
 

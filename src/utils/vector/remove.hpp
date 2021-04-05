@@ -20,8 +20,6 @@ namespace Zen {
  *
  * @param vector A vector.
  * @param item A possible item of `vector`.
- *
- * @return `true` if `item` exists in `vector`. Otherwise `false`.
  */
 template <typename T>
 void Remove (std::vector<T>& vector, T item)
@@ -38,13 +36,11 @@ void Remove (std::vector<T>& vector, T item)
  *
  * @param vector A vector.
  * @param item A possible item of `vector`.
- *
- * @return `true` if `item` exists in `vector`. Otherwise `false`.
  */
 template <typename T>
-bool Contains (std::vector<T>&& vector, T item)
+bool Remove (std::vector<T>&& vector, T item)
 {
-	return Contains(vector, item);
+	return Remove(vector, item);
 }
 
 }	// namespace Zen

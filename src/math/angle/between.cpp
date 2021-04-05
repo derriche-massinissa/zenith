@@ -5,16 +5,17 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include <entt/entt.hpp>
+#include "between.hpp"
 
-#ifndef ZEN_ENTITY_HPP
-#define ZEN_ENTITY_HPP
+#include <cmath>
 
 namespace Zen {
+namespace Math {
 
-using Entity = entt::entity;
+double AngleBetween (double x1, double y1, double x2, double y2)
+{
+	return std::atan2(y2 - y1, x2 - x1);
+}
 
+}	// namespace Math
 }	// namespace Zen
-
-
-#endif

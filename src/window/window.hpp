@@ -101,7 +101,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	void handleSDLEvents ();
+	void handleSDLEvents (SDL_Event event_);
 
 	/**
 	 * This method initializes SDL2.

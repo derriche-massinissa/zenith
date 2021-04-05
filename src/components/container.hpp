@@ -5,16 +5,16 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include <entt/entt.hpp>
-
-#ifndef ZEN_ENTITY_HPP
-#define ZEN_ENTITY_HPP
+#ifndef ZEN_COMPONENTS_CONTAINER_HPP
+#define ZEN_COMPONENTS_CONTAINER_HPP
 
 namespace Zen {
+namespace Components {
 
-using Entity = entt::entity;
+struct Container
+{};
 
+}	// namespace Components
 }	// namespace Zen
-
 
 #endif

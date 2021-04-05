@@ -28,7 +28,7 @@ namespace Zen {
 template <typename T>
 int IndexOf (std::vector<T>& vector, T item)
 {
-	std::vector<T>::iterator itr = std::find(vector.begin(), vector.end(), item);
+	auto itr = std::find(vector.begin(), vector.end(), item);
 
 	if (itr == vector.end())
 		return -1;

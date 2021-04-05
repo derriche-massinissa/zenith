@@ -20,7 +20,6 @@ enum class SHAPE {
 	ELLIPSE,
 	TRIANGLE,
 	LINE,
-	POINT,
 	POLYGON
 };
 

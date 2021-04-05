@@ -8,6 +8,8 @@
 #include "game.hpp"
 
 #include "../utils/messages.hpp"
+#include "../input/input_manager.hpp"
+#include "../input/mouse/mouse_manager.hpp"
 
 namespace Zen {
 
@@ -18,6 +20,8 @@ Window g_window;
 TextureManager g_texture;
 ScaleManager g_scale;
 Renderer g_renderer;
+InputManager g_input;
+MouseManager g_mouse;
 
 Game::Game (GameConfig& config_)
 	: events (g_event)
@@ -87,7 +91,7 @@ void Game::step (Uint32 time_, Uint32 delta_)
 	}
 
 	// Handle SDL events
-	window.handleSDLEvents();
+	handleSDLEvents();
 
 	// Only run the logic without rendering anything if the window is hidden
 	if (!isVisible)

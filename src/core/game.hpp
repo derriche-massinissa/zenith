@@ -19,7 +19,6 @@
 //#include "../device.h"
 //#include "../animations/animation_manager.h"
 //#include "../data/data_manager.h"
-//#include "../input/input_manager.h"
 #include "../scale/scale_manager.hpp"
 #include "../scene/scene_manager.h"
 #include "../texture/texture_manager.hpp"
@@ -236,6 +235,13 @@ public:
 	 * @param delta The delta time in ms since the last frame.
 	 */
 	void headlessStep (Uint32 time_, Uint32 delta_);
+
+	/**
+	 * Poll all queued SDL events and handle each of them accordingly.
+	 *
+	 * @since 0.0.0
+	 */
+	void handleSDLEvents ();
 
 	/**
 	 * Returns the current game frame.

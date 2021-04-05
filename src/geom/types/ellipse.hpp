@@ -5,34 +5,34 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_GEOM_TYPES_RECTANGLE_HPP
-#define ZEN_GEOM_TYPES_RECTANGLE_HPP
+#ifndef ZEN_GEOM_TYPES_ELLIPSE_HPP
+#define ZEN_GEOM_TYPES_ELLIPSE_HPP
 
 #include "../shapes.hpp"
 
 namespace Zen {
 
 /**
- * Defines a Rectangle.
+ * Defines a Ellipse.
  *
- * @struct Rectangle
+ * @struct Ellipse
  * @since 0.0.0
  */
-struct Rectangle
+struct Ellipse
 {
 	/**
 	 * Used for active type detection for the Shape union;
 	 *
 	 * @since 0.0.0
 	 */
-	const SHAPE type = SHAPE::RECTANGLE;
+	const SHAPE type = SHAPE::ELLIPSE;
 
 	double x = 0.,
 		   y = 0.,
 		   width = 0.,
 		   height = 0.;
 
-	void operator = (const Rectangle& other)
+	void operator = (const Ellipse& other)
 	{
 		x = other.x;
 		y = other.y;

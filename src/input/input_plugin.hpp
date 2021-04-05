@@ -22,18 +22,16 @@
 #include "types/hit_callback.hpp"
 #include "types/event.hpp"
 #include "pointer.fwd.hpp"
+#include "types/input_configuration.hpp"
 
 namespace Zen {
 
 class InputPlugin : public EventEmitter
 {
 public:
-	InputPlugin ();
-	~InputPlugin ();
+	void onWindowOver (InputEvent event_);
 
-	void onWindowOver ();
-
-	void onWindowOut ();
+	void onWindowOut (InputEvent input_);
 
 	void preUpdate ();
 
@@ -87,6 +85,16 @@ public:
 
 	HitCallback makePixelPerfect (double alphaTolerance_);
 
+	void setHitArea (std::vector<Entity> entity_, InputConfiguration config_);
+
+	void setHitArea (Entity entity_, InputConfiguration config_);
+
+	void setHitArea (Entity entity_);
+
+	void setHitArea (std::vector<Entity> entities_);
+
+	void setHitArea (std::vector<Entity> entities_, Shape hitArea_, HitCallback hitAreaCallback_);
+
 	void setHitArea (Entity entity_, Shape hitArea_, HitCallback hitAreaCallback_);
 
 	void setHitAreaCircle (Entity entity_, double x_, double y_, double radius_, HitCallback callback_ = nullptr);
@@ -94,6 +102,8 @@ public:
 	void setHitAreaEllipse (Entity entity_, double x_, double y_, double width_, double height_, HitCallback callback_ = nullptr);
 
 	void setHitAreaFromTexture (Entity entity_, HitCallback callback_ = nullptr);
+
+	void setHitAreaFromTexture (std::vector<Entity> entity_, HitCallback callback_ = nullptr);
 
 	void setHitAreaRectangle (Entity entity_, double x_, double y_, double width_, double height_, HitCallback callback_ = nullptr);
 
@@ -107,25 +117,23 @@ public:
 
 	void setPollOnMove ();
 
-	void setPollRate ();
+	void setPollRate (int value_);
 
 	void setGlobalTopOnly (bool value_);
 
 	void setTopOnly (bool value_);
 
-	std::vector<Entity> sortEntities (std::vector<Entity> entities_, Pointer *pointer_);
+	std::vector<Entity> sortGameObjects (std::vector<Entity> entities_, Pointer *pointer_);
 
 	std::vector<Entity> sortDropZones (std::vector<Entity> entities_);
 
-	int sortDropZoneHandler (Entity childA_, Entity childB_);
+	bool sortDropZoneHandler (Entity childA_, Entity childB_);
 
 	void stopPropagation ();
 
-	std::vector<Pointer> addPointer (int quantity_);
+	std::vector<Pointer*> addPointer (int quantity_);
 
 	void setDefaultCursor (std::string textureKey_, std::string frameName_);
-
-	void resetInputEvent (InputEvent* event_);
 
 private:
 	Scene* scene;
@@ -165,6 +173,10 @@ private:
 	double dragDistanceThreshold = 0.;
 
 	Uint32 dragTimeThreshold = 0.;
+
+	Uint32 pollTimer = 0;
+
+	int pollRate = -1;
 
 	bool transitionIn ();
 
