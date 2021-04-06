@@ -98,12 +98,12 @@ void ScaleManager::updateOffset ()
 
 int ScaleManager::transformX (int windowX_)
 {
-	return (windowX_ - displayOffset.x) * displayScale.x;
+	return (windowX_ - displayOffset.x) / displayScale.x;
 }
 
 int ScaleManager::transformY (int windowY_)
 {
-	return (windowY_ - displayOffset.y) * displayScale.y;
+	return (windowY_ - displayOffset.y) / displayScale.y;
 }
 
 void ScaleManager::startListeners ()

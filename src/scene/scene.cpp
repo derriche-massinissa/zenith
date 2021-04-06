@@ -27,21 +27,22 @@ Scene::Scene (Game& game_)
 	, add (this)
 	, scene (this)
 	, updateList (this)
+	, input (this)
 	, load (this)
 	, scale (game_.scale)
 	, renderer (game_.renderer)
 {}
 
-void Scene::init (Data data_)
+void Scene::init ([[maybe_unused]] Data data_)
 {}
 
 void Scene::preload ()
 {}
 
-void Scene::create (Data data_)
+void Scene::create ([[maybe_unused]] Data data_)
 {}
 
-void Scene::update (Uint32 time_, Uint32 delta_)
+void Scene::update ([[maybe_unused]] Uint32 time_, [[maybe_unused]] Uint32 delta_)
 {}
 
 }	// namespace Zen

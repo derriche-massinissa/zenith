@@ -49,6 +49,39 @@ extern entt::registry g_registry;
 extern EventEmitter g_event;
 extern InputManager g_input;
 
+InputPlugin::InputPlugin (Scene* scene_)
+	: scene (scene_)
+	, sys (&scene_->sys)
+	, settings (&scene_->sys.settings)
+	, displayList (&scene_->children)
+	, cameras (&scene_->cameras)
+{
+	sys->events.on("start", &InputPlugin::start, this);
+
+	for (int i = 0; i < 10; i++)
+	{
+		over.emplace_back();
+		drag.emplace_back();
+	}
+}
+
+void InputPlugin::start ()
+{
+	sys->events.on("transition-start", &InputPlugin::transitionIn, this);
+	sys->events.on("transition-out", &InputPlugin::transitionOut, this);
+	sys->events.on("transition-complete", &InputPlugin::transitionComplete, this);
+
+	sys->events.on("pre-update", &InputPlugin::preUpdate, this);
+	sys->events.on("shutdown", &InputPlugin::shutdown, this);
+
+	enabled = true;
+
+	for (int i = 0; i < 10; i++)
+		dragState.push_back(0);
+
+	emit("start");
+}
+
 void InputPlugin::onWindowOver (InputEvent event_)
 {
 	if (isActive())
@@ -61,7 +94,7 @@ void InputPlugin::onWindowOut (InputEvent event_)
 		emit("windowout",event_.timestamp);
 }
 
-void InputPlugin::preUpdate ()
+void InputPlugin::preUpdate (Uint32 time_, Uint32 delta_)
 {
 	emit("SYS_PRE_UPDATE");
 
@@ -341,7 +374,8 @@ std::vector<Entity> InputPlugin::hitTestPointer (Pointer *pointer_)
 		}
 	}
 
-	pointer_->camera = cameras_.at(0);
+	if (!cameras_.empty())
+		pointer_->camera = cameras_.at(0);
 
 	return {};
 }
@@ -1039,6 +1073,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 		}
 
 		//tempEvent.gameObjectList = justOver_;
+		tempEvent.pointer = pointer_;
 
 		if (!aborted_)
 			emit(ZEN_INPUT_POINTER_OVER, &tempEvent);
@@ -1092,6 +1127,7 @@ int InputPlugin::processUpEvents (Pointer *pointer_)
 	}
 
 	//tempEvent.gameObjectList = currentlyOver_;
+	tempEvent.pointer = pointer_;
 
 	if (!aborted_)
 		emit(ZEN_INPUT_POINTER_UP, &tempEvent);
@@ -1141,6 +1177,7 @@ int InputPlugin::processDownEvents (Pointer *pointer_)
 	}
 
 	//tempEvent.gameObjectList = currentlyOver_;
+	tempEvent.pointer = pointer_;
 
 	if (!aborted_)
 		emit(ZEN_INPUT_POINTER_DOWN, &tempEvent);
@@ -1484,18 +1521,18 @@ void InputPlugin::setDefaultCursor (std::string textureKey_, std::string frameNa
 	//g_input.setDefaultCursor(textureKey_, frameName_);
 }
 
-bool InputPlugin::transitionIn ()
+void InputPlugin::transitionIn ()
 {
 	enabled = scene->sys.settings.transitionAllowInput;
 }
 
-bool InputPlugin::transitionComplete ()
+void InputPlugin::transitionComplete ()
 {
 	if (scene->sys.settings.transitionAllowInput)
 		enabled = true;
 }
 
-bool InputPlugin::transitionOut ()
+void InputPlugin::transitionOut ()
 {
 	enabled = scene->sys.settings.transitionAllowInput;
 }

@@ -368,7 +368,7 @@ std::vector<Scene*> SceneManager::getScenes (bool isActive_, bool inReverse_)
 	}
 	else
 	{
-		for (auto i_ = scenes.size() - 1; i_ != 0; i_--)
+		for (int i_ = scenes.size() - 1; i_ >= 0; i_--)
 		{
 			if (!isActive_ || (isActive_ && scenes.at(i_)->sys.isActive()))
 				out_.emplace_back(scenes.at(i_).get());

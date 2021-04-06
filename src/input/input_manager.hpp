@@ -26,6 +26,8 @@ public:
 
 	bool enabled = true;
 
+	bool booted = false;
+
 	EventEmitter events;
 
 	bool isOver = true;

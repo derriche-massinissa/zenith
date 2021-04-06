@@ -75,7 +75,7 @@ Entity CreateCamera (double x, double y, double width, double height)
 	g_registry.emplace<Components::Rotation>(camera);
 	g_registry.emplace<Components::TransformMatrix>(camera);
 	g_registry.emplace<Components::Viewport>(camera);
-	//g_registry.emplace<Components::Input>(camera);
+	g_registry.emplace<Components::Input>(camera);
 	g_registry.emplace<Components::Follow>(camera);
 	//g_registry.emplace<Components::Deadzone>(camera);
 	g_registry.emplace<Components::Renderable>(camera);

@@ -37,10 +37,7 @@ extern ScaleManager g_scale;
 extern Window g_window;
 
 InputManager::InputManager ()
-{
-	pointers.emplace_back();
-	mousePointer = &pointers.back();
-}
+{}
 
 InputManager::~InputManager ()
 {
@@ -52,12 +49,18 @@ void InputManager::boot (GameConfig* cfg_)
 {
 	config = cfg_;
 
+	mousePointer = addPointer(1)[0];
+
 	g_window.on("pointerin", &InputManager::setWindowOver, this);
 	g_window.on("pointerout", &InputManager::setWindowOut, this);
+
+	booted = true;
 }
 
 void InputManager::setWindowOver ()
 {
+	if (!booted) return;
+
 	isOver = true;
 
 	events.emit(ZEN_INPUT_WINDOW_OVER);
@@ -65,6 +68,8 @@ void InputManager::setWindowOver ()
 
 void InputManager::setWindowOut ()
 {
+	if (!booted) return;
+
 	isOver = false;
 
 	events.emit(ZEN_INPUT_WINDOW_OUT);
@@ -72,6 +77,8 @@ void InputManager::setWindowOut ()
 
 void InputManager::preRender (Uint32 time_, Uint32 delta_)
 {
+	if (!booted) return;
+
 	auto scenes_ = g_scene.getScenes(true, true);
 
 	events.emit("SYS_UPDATE");
@@ -88,16 +95,22 @@ void InputManager::preRender (Uint32 time_, Uint32 delta_)
 
 void InputManager::setDefaultCursor ()
 {
+	if (!booted) return;
+
 	// TODO custom cursor
 }
 
 void InputManager::setCursor ()
 {
+	if (!booted) return;
+
 	// TODO custom cursor
 }
 
 void InputManager::resetCursor ()
 {
+	if (!booted) return;
+
 	// TODO custom cursor
 }
 
@@ -127,6 +140,8 @@ std::vector<Pointer*> InputManager::addPointer (int quantity_)
 
 void InputManager::updateInputPlugins (INPUT type_, std::vector<Pointer*> pointers_)
 {
+	if (!booted) return;
+
 	auto scenes_ = g_scene.getScenes(true, true);
 
 	tempSkip = false;
@@ -156,6 +171,8 @@ void InputManager::onTouchCancel (InputEvent event_)
 
 void InputManager::onMouseDown (InputEvent event_)
 {
+	if (!booted) return;
+
 	mousePointer->down(event_);
 
 	mousePointer->updateMotion();
@@ -167,6 +184,8 @@ void InputManager::onMouseDown (InputEvent event_)
 
 void InputManager::onMouseMove (InputEvent event_)
 {
+	if (!booted) return;
+
 	mousePointer->move(event_);
 
 	mousePointer->updateMotion();
@@ -178,6 +197,8 @@ void InputManager::onMouseMove (InputEvent event_)
 
 void InputManager::onMouseUp (InputEvent event_)
 {
+	if (!booted) return;
+
 	mousePointer->up(event_);
 
 	mousePointer->updateMotion();
@@ -189,6 +210,8 @@ void InputManager::onMouseUp (InputEvent event_)
 
 void InputManager::onMouseWheel (InputEvent event_)
 {
+	if (!booted) return;
+
 	mousePointer->wheel(event_);
 
 	mousePointer->updateMotion();

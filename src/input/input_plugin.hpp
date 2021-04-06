@@ -30,11 +30,15 @@ namespace Zen {
 class InputPlugin : public EventEmitter
 {
 public:
+	InputPlugin (Scene* scene_);
+
+	void start ();
+
 	void onWindowOver (InputEvent event_);
 
 	void onWindowOut (InputEvent input_);
 
-	void preUpdate ();
+	void preUpdate (Uint32 time_, Uint32 delta_);
 
 	bool isActive ();
 
@@ -183,11 +187,11 @@ private:
 
 	bool updatedThisFrame = false;
 
-	bool transitionIn ();
+	void transitionIn ();
 
-	bool transitionComplete ();
+	void transitionComplete ();
 
-	bool transitionOut ();
+	void transitionOut ();
 
 	void shutdown ();
 };

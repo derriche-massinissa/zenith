@@ -201,15 +201,14 @@ Entity CameraManager::getCamera (std::string name_)
 	return entt::null;
 }
 
-std::vector<Entity> CameraManager::getCamerasBelowPointer (
-		Pointer *pointer_)
+std::vector<Entity> CameraManager::getCamerasBelowPointer (Pointer *pointer_)
 {
 	std::vector<Entity> output_;
 	Rectangle camRect_;
 
 	// Inverted search
 	// So the top-most camera is at the top of the search vector
-	for (int i = cameras.size() - 1; i >= 0; i++)
+	for (int i = cameras.size() - 1; i >= 0; i--)
 	{
 		SetTo(
 			&camRect_,
