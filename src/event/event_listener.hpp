@@ -41,6 +41,8 @@ public:
 	ListenerBase (std::string event_, bool once_)
 		: event (event_), once (once_)
 	{}
+
+	virtual ~ListenerBase () = default;
 };
 
 /**

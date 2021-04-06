@@ -23,6 +23,7 @@
 #include "types/event.hpp"
 #include "pointer.fwd.hpp"
 #include "types/input_configuration.hpp"
+#include "const.hpp"
 
 namespace Zen {
 
@@ -37,7 +38,9 @@ public:
 
 	bool isActive ();
 
-	void update ();
+	bool updatePoll (Uint32 time_, Uint32 delta_);
+
+	bool update (INPUT type_, std::vector<Pointer*> pointers_);
 
 	void clear (Entity entity_, bool skipQueue_ = false);
 
@@ -63,7 +66,7 @@ public:
 
 	int processMoveEvents (Pointer *pointer_);
 
-	int processWheelEvents (Pointer *pointer_);
+	int processWheelEvent (Pointer *pointer_);
 
 	int processOverEvents (Pointer *pointer_);
 
@@ -177,6 +180,8 @@ private:
 	Uint32 pollTimer = 0;
 
 	int pollRate = -1;
+
+	bool updatedThisFrame = false;
 
 	bool transitionIn ();
 

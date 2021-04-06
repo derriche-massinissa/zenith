@@ -63,6 +63,9 @@ struct Input
 	double dragX = 0.;
 	double dragY = 0.;
 
+	Input ()
+	{}
+
 	Input (const Input& other)
 		: hitArea (other.hitArea)
 		, hitAreaCallback (other.hitAreaCallback)

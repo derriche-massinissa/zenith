@@ -18,6 +18,9 @@
 
 #include "event_listener.hpp"
 #include "../ecs/entity.hpp"
+#include "../utils/assert.hpp"
+#include "../utils/messages.hpp"
+#include "../utils/pretty_type.hpp"
 
 namespace Zen {
 
@@ -74,7 +77,7 @@ private:
 	 *
 	 * @since 0.0.0
 	 */
-	static std::map<
+	std::map<
 		 Entity, std::map<
 			std::string, std::vector<
 				std::unique_ptr<ListenerBase>
@@ -101,6 +104,27 @@ public:
 			bool once_
 			)
 	{
+#ifndef NDEBUG
+		// Check if the event is already listened to
+		auto it_ = eventMap.find(eventName_);
+		if ( it_ != eventMap.end() )
+		{
+			auto l_ = dynamic_cast<Listener<Args...>*>(it_->second.at(0).get());
+
+			if (l_ == nullptr)
+			{
+				MessageError("Added an incompatible listener to an already existing event of different signature!");
+
+				MessageError("Event is: ", eventName_);
+
+				MessageError("Function signature is: ", PRETTY_TYPE<decltype(callback_)>());
+
+				MessageError("Parameter types are: ");
+				((std::cout << " - " << PRETTY_TYPE<Args>() << std::endl), ...);
+			}
+		}
+#endif
+
 		// Bind function to the given context
 		std::function<void(Args...)> boundCB_ = [context_, callback_]
 			(Args... args_) -> void
@@ -181,6 +205,12 @@ public:
 					// ERASING NATURALLY MOVES LATER ELEMENTS TO THE LEFT!!!
 					l_++;
 				}
+			}
+
+			// Remove the event if no more listeners remain
+			if (iterator_->second.empty())
+			{
+				eventMap.erase(iterator_);
 			}
 
 			foundEvent_ = true;
@@ -304,6 +334,31 @@ public:
 	template <typename T, typename... Args>
 	void addListener (Entity entity_, std::string eventName_, void (T::* callback_)(Args...), T *context_, bool once_)
 	{
+#ifndef NDEBUG
+		// Check if the event is already listened to
+		auto iter_ = globalEventMap.find(entity_);
+		if ( iter_ != globalEventMap.end() )
+		{
+			auto iter2_ = globalEventMap[entity_].find(eventName_);
+			if ( iter2_ != globalEventMap[entity_].end() )
+			{
+				auto l_ = dynamic_cast<Listener<Args...>*>(iter2_->second.at(0).get());
+
+				if (l_ == nullptr)
+				{
+					MessageError("Added an incompatible listener to an already existing event of different signature!");
+
+					MessageError("Event is: ", eventName_);
+
+					MessageError("Function signature is: ", PRETTY_TYPE<decltype(callback_)>());
+
+					MessageError("Parameter types are: ");
+					((std::cout << " - " << PRETTY_TYPE<Args>() << std::endl), ...);
+				}
+			}
+		}
+#endif
+
 		// Bind function to the given context
 		std::function<void(Args...)> boundCB_ = [context_, callback_]
 			(Args... args_) -> void
@@ -357,6 +412,18 @@ public:
 				// ERASING NATURALLY MOVES LATER ELEMENTS TO THE LEFT!!!
 				l_++;
 			}
+		}
+
+		// Remove the event if no more listeners remain
+		if (iterator2_->second.empty())
+		{
+			globalEventMap[entity_].erase(iterator2_);
+		}
+
+		// Remove the entity if no more events
+		if (iterator_->second.empty())
+		{
+			globalEventMap.erase(iterator_);
 		}
 
 		return true;

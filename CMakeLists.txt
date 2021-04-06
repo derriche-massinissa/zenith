@@ -29,6 +29,7 @@ set(zenith_SRCS
 	src/cameras/2d/systems/camera.cpp
 	src/core/config.cpp
 	src/core/game.cpp
+	src/core/handle_sdl_events.cpp
 	src/core/time_step.cpp
 	src/display/color.cpp
 	src/event/event_emitter.cpp
@@ -37,21 +38,32 @@ set(zenith_SRCS
 	#src/gameobjects/image/image.cpp
 	src/gameobjects/update_list.cpp
 	src/geom/line.cpp
+	src/geom/circle.cpp
+	src/geom/ellipse.cpp
 	src/geom/rectangle.cpp
+	src/geom/triangle.cpp
+	src/input/mouse/mouse_manager.cpp
+	src/input/pointer.cpp
+	src/input/input_plugin.cpp
+	src/input/input_manager.cpp
 	src/loader/loader_plugin.cpp
 	src/math/angle/wrap_degrees.cpp
 	src/math/angle/wrap_radians.cpp
+	src/math/angle/between.cpp
 	src/math/clamp.cpp
 	src/math/deg_to_rad.cpp
+	src/math/distance/distance_between.cpp
 	src/math/fuzzy/fuzzy_ceil.cpp
 	src/math/fuzzy/fuzzy_equal.cpp
 	src/math/fuzzy/fuzzy_floor.cpp
 	src/math/fuzzy/fuzzy_greater_than.cpp
 	src/math/fuzzy/fuzzy_less_than.cpp
+	src/math/interpolation/smooth_step_interpolation.cpp
 	src/math/linear.cpp
 	src/math/rad_to_deg.cpp
 	src/math/random_data_generator.cpp
 	src/math/rotate_around.cpp
+	src/math/smooth_step.cpp
 	src/math/snap/snap_ceil.cpp
 	src/math/snap/snap_floor.cpp
 	src/math/snap/snap_to.cpp

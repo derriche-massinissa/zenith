@@ -84,15 +84,25 @@ void MouseManager::onMouseDown (SDL_Event event_)
 	g_input.onMouseDown(tempEvent);
 }
 
+/*
 void MouseManager::onMouseOver ()
 {
-	g_input.setWindowOver();
+	tempEvent.reset();
+
+	tempEvent.timestamp = SDL_GetTicks();
+
+	g_input.setWindowOver(tempEvent);
 }
 
 void MouseManager::onMouseOut ()
 {
-	g_input.setWindowOut();
+	tempEvent.reset();
+
+	tempEvent.timestamp = SDL_GetTicks();
+
+	g_input.setWindowOut(tempEvent);
 }
+*/
 
 void MouseManager::onMouseWheel (SDL_Event event_)
 {

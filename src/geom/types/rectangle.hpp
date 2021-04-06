@@ -32,6 +32,26 @@ struct Rectangle
 		   width = 0.,
 		   height = 0.;
 
+	Rectangle (double x = 0., double y = 0., double width = 0., double height = 0.)
+		: x (x), y (y), width (width), height (height)
+	{}
+
+	Rectangle (const Rectangle& other)
+	{
+		x = other.x;
+		y = other.y;
+		width = other.width;
+		height = other.height;
+	}
+
+	Rectangle (const Rectangle&& other)
+	{
+		x = other.x;
+		y = other.y;
+		width = other.width;
+		height = other.height;
+	}
+
 	void operator = (const Rectangle& other)
 	{
 		x = other.x;

@@ -15,6 +15,7 @@
 #include "../math/rad_to_deg.hpp"
 #include "../math/clamp.hpp"
 #include "../utils/messages.hpp"
+#include "../core/config.hpp"
 
 #include "../systems/position.hpp"
 #include "../systems/size.hpp"

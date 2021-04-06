@@ -67,8 +67,8 @@ void DisplayList::depthSort ()
 }
 
 bool DisplayList::sortByDepth (
-		const Entity childA,
-		const Entity childB)
+		Entity childA,
+		Entity childB)
 {
 	return GetDepth(childA) < GetDepth(childB);
 }

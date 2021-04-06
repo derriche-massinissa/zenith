@@ -54,7 +54,7 @@ public:
 
 	void sceneUpdate (Uint32 time_, Uint32 delta_);
 
-	void shutdown (Data data_ = {});
+	void shutdown ();
 
 	/**
 	 * Add a GameObject instance to this display list.

@@ -20,13 +20,9 @@ bool Contains (Rectangle rectangle, double x, double y)
 			rectangle.y <= y && rectangle.y + rectangle.height >= y);
 }
 
-bool RectangleContains (Shape rectangle, double x, double y)
+bool RectangleContains (Shape shape, double x, double y)
 {
-    if (rectangle.rectangle.width <= 0 || rectangle.rectangle.height <= 0)
-        return false;
-
-    return (rectangle.rectangle.x <= x && rectangle.rectangle.x + rectangle.rectangle.width >= x &&
-			rectangle.rectangle.y <= y && rectangle.rectangle.y + rectangle.rectangle.height >= y);
+	return Contains(shape.rectangle, x, y);
 }
 
 Math::Vector2 GetPoint (Rectangle rectangle, double position)
@@ -167,22 +163,22 @@ bool IsEmpty (Rectangle *rectangle)
 
 Line GetLineA (Rectangle rectangle)
 {
-	return {rectangle.x, rectangle.y, GetRight(rectangle), rectangle.y};
+	return Line(rectangle.x, rectangle.y, GetRight(rectangle), rectangle.y);
 }
 
 Line GetLineB (Rectangle rectangle)
 {
-	return {GetRight(rectangle), rectangle.y, GetRight(rectangle), GetBottom(rectangle)};
+	return Line(GetRight(rectangle), rectangle.y, GetRight(rectangle), GetBottom(rectangle));
 }
 
 Line GetLineC (Rectangle rectangle)
 {
-	return {GetRight(rectangle), GetBottom(rectangle), rectangle.x, GetBottom(rectangle)};
+	return Line(GetRight(rectangle), GetBottom(rectangle), rectangle.x, GetBottom(rectangle));
 }
 
 Line GetLineD (Rectangle rectangle)
 {
-	return {rectangle.x, GetBottom(rectangle), rectangle.x, rectangle.y};
+	return Line(rectangle.x, GetBottom(rectangle), rectangle.x, rectangle.y);
 }
 
 double GetLeft (Rectangle rectangle)

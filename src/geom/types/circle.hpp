@@ -31,6 +31,22 @@ struct Circle
 		   y = 0.,
 		   radius = 0.;
 
+	Circle (double x = 0., double y = 0., double radius = 0.)
+		: x (x), y (y), radius (radius)
+	{}
+
+	Circle (const Circle& other)
+		: x (other.x)
+		, y (other.y)
+		, radius (other.radius)
+	{}
+
+	Circle (const Circle&& other)
+		: x (other.x)
+		, y (other.y)
+		, radius (other.radius)
+	{}
+
 	void operator = (const Circle& other)
 	{
 		x = other.x;

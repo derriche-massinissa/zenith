@@ -32,6 +32,10 @@ struct Line
 		   x2 = 0.,
 		   y2 = 0.;
 
+	Line (double x1 = 0., double y1 = 0., double x2 = 0., double y2 = 0.)
+		: x1 (x1), y1 (y1), x2 (x2), y2 (y2)
+	{}
+
 	void operator = (const Line& other)
 	{
 		x1 = other.x1;

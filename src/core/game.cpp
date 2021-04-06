@@ -8,6 +8,7 @@
 #include "game.hpp"
 
 #include "../utils/messages.hpp"
+#include "config.hpp"
 #include "../input/input_manager.hpp"
 #include "../input/mouse/mouse_manager.hpp"
 
@@ -20,6 +21,7 @@ Window g_window;
 TextureManager g_texture;
 ScaleManager g_scale;
 Renderer g_renderer;
+extern Scenes::SceneManager g_scene;
 InputManager g_input;
 MouseManager g_mouse;
 
@@ -29,7 +31,7 @@ Game::Game (GameConfig& config_)
 	, window (g_window)
 	, renderer (g_renderer)
 	, textures (g_texture)
-	, scene (this, config_.sceneFactory)
+	, scene (g_scene)
 	, scale (g_scale)
 {
 	// Step delta for when the window is minimized/not visible
@@ -54,8 +56,17 @@ void Game::boot ()
 	isBooted = true;
 
 	window.create(&config);
+
 	renderer.start(&config);
+
 	scale.boot(&config);
+
+	scene.boot(this, &config.sceneFactory);
+
+	g_input.boot(&config);
+
+	if (config.inputMouse)
+		g_mouse.boot();
 
 	window.on("minimize", &Game::onMinimize, this);
 	window.on("restore", &Game::onRestore, this);

@@ -366,6 +366,11 @@ public:
 	Color backgroundColor;
 
 	/**
+	 * @const The smoothing factor to apply during Pointer movement.
+	 */
+	double inputSmoothFactor = 0.;
+
+	/**
 	 * A path used to resolve relative paths given to the loader.
 	 *
 	 * @since 0.0.0

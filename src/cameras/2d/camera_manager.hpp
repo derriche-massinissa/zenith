@@ -320,7 +320,7 @@ public:
 	 * @param previousWidth_ The previous base width before resize.
 	 * @param previousHeight_ The previous base height before resize.
 	 */
-	void onResize (Size& gameSize_, Size& displaySize_, int previousWidth_, int previousHeight_);
+	void onResize (Size gameSize_, Size displaySize_, int previousWidth_, int previousHeight_);
 
 	/**
 	 * Resizes all cameras to the given dimensions.

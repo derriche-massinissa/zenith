@@ -49,7 +49,7 @@ void UpdateList::sceneUpdate (Uint32 time_, Uint32 delta_)
 	*/
 }
 
-void UpdateList::shutdown (Data data_)
+void UpdateList::shutdown ()
 {
 	scene->sys.events.off("pre-update", &UpdateList::update, this);
 	scene->sys.events.off("update", &UpdateList::sceneUpdate, this);

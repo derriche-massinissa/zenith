@@ -12,7 +12,7 @@
 
 #include "../event/event_emitter.hpp"
 
-#include "config.hpp"
+#include "config.fwd.hpp"
 #include "../window/window.hpp"
 #include "time_step.hpp"
 //#include "visibility_handler.h"
@@ -142,7 +142,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scenes::SceneManager scene;
+	Scenes::SceneManager& scene;
 
 	/**
 	 * A reference to the Device Inspector.

@@ -17,6 +17,7 @@
 #include "../scene/scene.h"
 #include "../scene/scene_manager.h"
 #include "../cameras/2d/camera_manager.hpp"
+#include "../core/config.hpp"
 
 namespace Zen {
 namespace Loader {
@@ -127,8 +128,6 @@ void LoaderPlugin::reset ()
 
 void LoaderPlugin::shutdown ()
 {
-	reset();
-
 	scene->sys.events.off("shutdown", &LoaderPlugin::shutdown, this);
 }
 

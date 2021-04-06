@@ -90,8 +90,8 @@ public:
 	 * otherwise.
 	 */
 	static bool sortByDepth (
-			const Entity childA,
-			const Entity childB);
+			Entity childA,
+			Entity childB);
 
 	/**
 	 * Returns a vector which contains all objects currently on the DisplayList.

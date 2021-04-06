@@ -34,9 +34,11 @@ public:
 
 	void onMouseDown (SDL_Event event_);
 
+	/*
 	void onMouseOver ();
 
 	void onMouseOut ();
+	*/
 
 	void onMouseWheel (SDL_Event event_);
 

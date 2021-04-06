@@ -21,7 +21,8 @@ public:
 
 	Entity gameObject = entt::null;
 
-	std::vector<Entity> gameObjectList {};
+	//std::vector<Entity> gameObjectList {};
+	Entity* gameObjectList;
 
 	Entity target = entt::null;
 
@@ -54,7 +55,7 @@ public:
 
 		gameObject = entt::null;
 
-		gameObjectList.clear();
+		//gameObjectList.clear();
 
 		target = entt::null;
 

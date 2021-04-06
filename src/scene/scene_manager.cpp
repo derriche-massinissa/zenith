@@ -16,31 +16,6 @@
 namespace Zen {
 namespace Scenes {
 
-SceneManager::SceneManager (
-		Game* game_,
-		std::queue<std::function<std::unique_ptr<Scene>(Game&)>>& sceneFactory_)
-	: game(game_)
-{
-	bool as_ = true;
-	while (!sceneFactory_.empty())
-	{
-		auto sceneMaker_ = sceneFactory_.front();
-
-		pending.emplace_back(
-				"default",				// key
-				sceneMaker_(*game_),	// scene
-				as_						// autoStart
-				);
-
-		sceneFactory_.pop();
-		// Only set the first scene to autoStart, this can change later
-		as_ = false;
-	}
-	// By the end of the loop, the game config's sceneFactory is empty.
-
-	game_->events.once("ready", &SceneManager::bootQueue, this);
-}
-
 SceneManager::~SceneManager ()
 {
 	scenes.clear();
@@ -50,6 +25,32 @@ SceneManager::~SceneManager ()
 	toStart.clear();
 
 	pending.clear();
+}
+
+void SceneManager::boot (
+		Game* game_,
+		std::queue<std::function<std::unique_ptr<Scene>(Game&)>>* sceneFactory_)
+{
+	game = game_;
+
+	bool as_ = true;
+	while (!sceneFactory_->empty())
+	{
+		auto sceneMaker_ = sceneFactory_->front();
+
+		pending.emplace_back(
+				"default",				// key
+				sceneMaker_(*game_),	// scene
+				as_						// autoStart
+				);
+
+		sceneFactory_->pop();
+		// Only set the first scene to autoStart, this can change later
+		as_ = false;
+	}
+	// By the end of the loop, the game config's sceneFactory is empty.
+
+	game_->events.once("ready", &SceneManager::bootQueue, this);
 }
 
 void SceneManager::bootQueue ()
@@ -759,4 +760,7 @@ SceneManager& SceneManager::swapPosition (
 }
 
 }	// namespace Scenes
+
+Scenes::SceneManager g_scene;
+
 }	// namespace Zen

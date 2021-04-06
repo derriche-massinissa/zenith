@@ -36,11 +36,10 @@ extern Scenes::SceneManager g_scene;
 extern ScaleManager g_scale;
 extern Window g_window;
 
-InputManager::InputManager (GameConfig& cfg_)
-	: config (cfg_)
+InputManager::InputManager ()
 {
-	g_window.on("pointerin", &InputManager::setWindowOver, this);
-	g_window.on("pointerout", &InputManager::setWindowOut, this);
+	pointers.emplace_back();
+	mousePointer = &pointers.back();
 }
 
 InputManager::~InputManager ()
@@ -49,18 +48,26 @@ InputManager::~InputManager ()
 	g_window.off("pointerout", &InputManager::setWindowOut, this);
 }
 
-void InputManager::setWindowOver (InputEvent event_)
+void InputManager::boot (GameConfig* cfg_)
+{
+	config = cfg_;
+
+	g_window.on("pointerin", &InputManager::setWindowOver, this);
+	g_window.on("pointerout", &InputManager::setWindowOut, this);
+}
+
+void InputManager::setWindowOver ()
 {
 	isOver = true;
 
-	events.emit(ZEN_INPUT_WINDOW_OVER, event_);
+	events.emit(ZEN_INPUT_WINDOW_OVER);
 }
 
-void InputManager::setWindowOut (InputEvent event_)
+void InputManager::setWindowOut ()
 {
 	isOver = false;
 
-	events.emit(ZEN_INPUT_WINDOW_OUT, event_);
+	events.emit(ZEN_INPUT_WINDOW_OUT);
 }
 
 void InputManager::preRender (Uint32 time_, Uint32 delta_)
@@ -71,7 +78,7 @@ void InputManager::preRender (Uint32 time_, Uint32 delta_)
 
 	for (auto& scene_ : scenes_)
 	{
-		if (scene_->input && scene_->input.updatePoll(time_, delta_) && globalTopOnly)
+		if (scene_->input.updatePoll(time_, delta_) && globalTopOnly)
 		{
 			// If the Scene returns true, it means it captured some input that no other Scene should get, so we bail out
 			return;
@@ -109,7 +116,7 @@ std::vector<Pointer*> InputManager::addPointer (int quantity_)
 
 		auto& pointer_ = pointers.back();
 
-		pointer_.smoothFactor = config.inputSmoothFactor;
+		pointer_.smoothFactor = config->inputSmoothFactor;
 		pointer_.id = id_;
 
 		output_.push_back(&pointer_);
@@ -118,7 +125,7 @@ std::vector<Pointer*> InputManager::addPointer (int quantity_)
 	return output_;
 }
 
-void InputManager::updateInputPlugins (int type_, std::vector<Pointer*> pointers_)
+void InputManager::updateInputPlugins (INPUT type_, std::vector<Pointer*> pointers_)
 {
 	auto scenes_ = g_scene.getScenes(true, true);
 
@@ -283,7 +290,7 @@ std::vector<Entity> InputManager::hitTest (Pointer* pointer_, std::vector<Entity
 	return output_;
 }
 
-bool pointWithinHitArea (Entity gameObject_, double x_, double y_)
+bool InputManager::pointWithinHitArea (Entity gameObject_, double x_, double y_)
 {
 	// Normalize the origin
 	x_ = GetDisplayOriginX(gameObject_);
@@ -291,7 +298,7 @@ bool pointWithinHitArea (Entity gameObject_, double x_, double y_)
 
 	auto input_ = g_registry.try_get<Components::Input>(gameObject_);
 
-	if (input_ && input_->hitAreaCallback(input_->hitArea, x_, y_, gameObject_))
+	if (input_ && input_->hitAreaCallback(input_->hitArea, x_, y_))
 	{
 		input_->localX = x_;
 		input_->localY = y_;
@@ -304,7 +311,7 @@ bool pointWithinHitArea (Entity gameObject_, double x_, double y_)
 	}
 }
 
-void transformPointer (Pointer* pointer_, double windowX_, double windowY_, bool wasMove_)
+void InputManager::transformPointer (Pointer* pointer_, double windowX_, double windowY_, bool wasMove_)
 {
 	auto& p0_ = pointer_->position;
 	auto& p1_ = pointer_->prevPosition;

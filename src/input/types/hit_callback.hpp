@@ -14,7 +14,7 @@
 
 namespace Zen {
 
-using HitCallback = std::function<bool(Shape, double, double, Entity)>;
+using HitCallback = std::function<bool(Shape, double, double)>;
 
 }	// namespace Zen
 

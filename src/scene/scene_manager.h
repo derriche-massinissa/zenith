@@ -20,9 +20,9 @@
 #include "../data.h"
 #include "scene_settings_config.h"
 
-#include "../core/game.fwd.hpp"
 #include "scene.fwd.h"
-#include "scene_config.fwd.h"
+#include "scene_config.h"
+#include "../core/game.fwd.hpp"
 
 namespace Zen {
 namespace Scenes {
@@ -56,17 +56,6 @@ struct SceneOperation
 class SceneManager
 {
 public:
-	/**
-	 * @since 0.0.0
-	 *
-	 * @param game_ A reference to the Game instance this SceneManager belongs to.
-	 * @param sceneFactory_ A vector of functors that build and return
-	 * instances of user defined scene classes (That inherit from Zen::Scene)
-	 */
-	SceneManager (
-		Game* game_,
-		std::queue<std::function<std::unique_ptr<Scene>(Game&)>>& sceneFactory_);
-
 	/**
 	 * @since 0.0.0
 	 */
@@ -144,6 +133,17 @@ public:
 	 * @since 0.0.0
 	 */
 	unsigned int customViewports = 0;
+
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param game_ A reference to the Game instance this SceneManager belongs to.
+	 * @param sceneFactory_ A vector of functors that build and return
+	 * instances of user defined scene classes (That inherit from Zen::Scene)
+	 */
+	void boot (
+		Game* game_,
+		std::queue<std::function<std::unique_ptr<Scene>(Game&)>>* sceneFactory_);
 
 	/**
 	 * Internal first-time Scene boot handler.

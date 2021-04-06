@@ -314,8 +314,8 @@ void CameraManager::update (Uint32 time_, Uint32 delta_)
 }
 
 void CameraManager::onResize (
-		Size& gameSize_,
-		Size& displaySize_,
+		Size gameSize_,
+		Size displaySize_,
 		int previousWidth_,
 		int previousHeight_)
 {

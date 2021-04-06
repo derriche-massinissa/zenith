@@ -19,7 +19,7 @@ bool IsInputEnabled (Entity entity)
 	auto input = g_registry.try_get<Components::Input>(entity);
 	ZEN_ASSERT(input, "The entity has no 'Input' component.");
 
-	return input->value;
+	return input->enabled;
 }
 
 }	// namespace Zen

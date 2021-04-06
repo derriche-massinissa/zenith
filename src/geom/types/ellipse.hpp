@@ -32,6 +32,24 @@ struct Ellipse
 		   width = 0.,
 		   height = 0.;
 
+	Ellipse (double x = 0., double y = 0., double width = 0., double height = 0.)
+		: x (x), y (y), width (width), height (height)
+	{}
+
+	Ellipse (const Ellipse& other)
+		: x (other.x)
+		, y (other.y)
+		, width (other.width)
+		, height (other.height)
+	{}
+
+	Ellipse (const Ellipse&& other)
+		: x (other.x)
+		, y (other.y)
+		, width (other.width)
+		, height (other.height)
+	{}
+
 	void operator = (const Ellipse& other)
 	{
 		x = other.x;

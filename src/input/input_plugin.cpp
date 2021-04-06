@@ -29,6 +29,9 @@
 #include "pointer.hpp"
 #include "types/input_configuration.hpp"
 #include "../geom/rectangle.hpp"
+#include "../geom/circle.hpp"
+#include "../geom/ellipse.hpp"
+#include "../geom/triangle.hpp"
 #include "../geom/types/circle.hpp"
 #include "../geom/types/ellipse.hpp"
 #include "../geom/types/triangle.hpp"
@@ -100,8 +103,174 @@ bool InputPlugin::isActive ()
 	return (enabled && scene->sys.isActive());
 }
 
-void InputPlugin::update ()
+bool InputPlugin::updatePoll (Uint32 time_, Uint32 delta_)
 {
+	if (!isActive())
+		return false;
+
+	//  The plugins should update every frame, regardless if there has been
+	//  any DOM input events or not (such as the Gamepad and Keyboard)
+	emit("SYS_UPDATE", time_, delta_);
+
+	//  We can leave now if we've already updated once this frame via the immediate DOM event handlers
+	if (updatedThisFrame)
+	{
+		updatedThisFrame = false;
+
+		return false;
+	}
+
+	for (auto& pointer_ : g_input.pointers)
+	{
+		pointer_.updateMotion();
+	}
+
+	//  No point going any further if there aren't any interactive objects
+	if (list.empty())
+	{
+		return false;
+	}
+
+	if (pollRate == -1)
+	{
+		return false;
+	}
+	else if (pollRate > 0)
+	{
+		pollTimer -= delta_;
+
+		if (pollTimer < 0)
+		{
+			//  Discard timer diff, we're ready to poll again
+			pollTimer = pollRate;
+		}
+		else
+		{
+			//  Not enough time has elapsed since the last poll, so abort now
+			return false;
+		}
+	}
+
+	//  We got this far? Then we should poll for movement
+	bool captured_ = false;
+
+	for (auto& pointer_ : g_input.pointers)
+	{
+		int total_ = 0;
+
+		// Always reset this array
+		tempZones.clear();
+
+		// _temp contains a hit test and camera culled list of IO objects
+		temp = hitTestPointer(&pointer_);
+
+		sortGameObjects(temp, &pointer_);
+		sortDropZones(tempZones);
+
+		if (topOnly)
+		{
+			// Only the top-most one counts now, so safely ignore the rest
+			if (!temp.empty())
+				temp.erase(temp.begin() + 1, temp.end());
+
+			if (!tempZones.empty())
+				tempZones.erase(tempZones.begin() + 1, tempZones.end());
+		}
+
+		total_ += processOverOutEvents(&pointer_);
+
+		if (getDragState(&pointer_) == 2)
+			processDragThresholdEvent(&pointer_, time_);
+
+		if (total_ > 0)
+		{
+		//  We interacted with an event in this Scene, so block any Scenes below us from doing the same this frame
+			captured_ = true;
+		}
+	}
+
+	return captured_;
+}
+
+bool InputPlugin::update (INPUT type_, std::vector<Pointer*> pointers_)
+{
+	if (!isActive())
+		return false;
+
+	bool captured_ = false;
+
+	for (auto pointer_ : pointers_)
+	{
+		int total_ = 0;
+
+		// Always reset this array
+		tempZones.clear();
+
+		// _temp contains a hit test and camera culled list of IO objects
+		temp = hitTestPointer(pointer_);
+
+		sortGameObjects(temp, pointer_);
+		sortDropZones(tempZones);
+
+		if (topOnly)
+		{
+			// Only the top-most one counts now, so safely ignore the rest
+			if (!temp.empty())
+				temp.erase(temp.begin() + 1, temp.end());
+
+			if (!tempZones.empty())
+				tempZones.erase(tempZones.begin() + 1, tempZones.end());
+		}
+
+		switch (type_)
+		{
+			case INPUT::MOUSE_DOWN:
+				total_ += processDragDownEvent(pointer_);
+				total_ += processDownEvents(pointer_);
+				total_ += processOverOutEvents(pointer_);
+				break;
+
+			case INPUT::MOUSE_UP:
+				total_ += processDragUpEvent(pointer_);
+				total_ += processUpEvents(pointer_);
+				total_ += processOverOutEvents(pointer_);
+				break;
+
+			case INPUT::TOUCH_START:
+				total_ += processDragDownEvent(pointer_);
+				total_ += processDownEvents(pointer_);
+				total_ += processOverEvents(pointer_);
+				break;
+
+			case INPUT::TOUCH_END:
+			case INPUT::TOUCH_CANCEL:
+				total_ += processDragUpEvent(pointer_);
+				total_ += processUpEvents(pointer_);
+				total_ += processOutEvents(pointer_);
+				break;
+
+			case INPUT::MOUSE_MOVE:
+			case INPUT::TOUCH_MOVE:
+				total_ += processDragMoveEvent(pointer_);
+				total_ += processMoveEvents(pointer_);
+				total_ += processOverOutEvents(pointer_);
+				break;
+
+			case INPUT::MOUSE_WHEEL:
+				total_ += processWheelEvent(pointer_);
+				break;
+		}
+
+		if (total_ > 0)
+		{
+		//  We interacted with an event in this Scene, so block any Scenes below us from doing the same this frame
+			captured_ = true;
+		}
+	}
+
+	updatedThisFrame = true;
+
+	return captured_;
 }
 
 void InputPlugin::clear (Entity entity_, bool skipQueue_)
@@ -550,7 +719,7 @@ int InputPlugin::processMoveEvents (Pointer *pointer_)
 	return total_;
 }
 
-int InputPlugin::processWheelEvents (Pointer *pointer_)
+int InputPlugin::processWheelEvent (Pointer *pointer_)
 {
 	int total_ = 0;
 	auto& currentlyOver_ = temp;
@@ -595,7 +764,7 @@ int InputPlugin::processWheelEvents (Pointer *pointer_)
 		}
 	}
 
-	tempEvent.gameObjectList = currentlyOver_;
+	//tempEvent.gameObjectList = currentlyOver_;
 
 	if (!aborted_)
 		emit(ZEN_INPUT_POINTER_WHEEL, &tempEvent);
@@ -656,7 +825,7 @@ int InputPlugin::processOverEvents (Pointer *pointer_)
 			}
 		}
 
-		tempEvent.gameObjectList = justOver_;
+		//tempEvent.gameObjectList = justOver_;
 
 		if (!aborted_)
 			emit(ZEN_INPUT_POINTER_WHEEL, &tempEvent);
@@ -718,7 +887,7 @@ int InputPlugin::processOutEvents (Pointer *pointer_)
 			}
 		}
 
-		tempEvent.gameObjectList = previouslyOver_;
+		//tempEvent.gameObjectList = previouslyOver_;
 
 		if (!aborted_)
 			emit(ZEN_INPUT_POINTER_OUT, &tempEvent);
@@ -816,7 +985,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 			}
 		}
 
-		tempEvent.gameObjectList = justOut_;
+		//tempEvent.gameObjectList = justOut_;
 
 		if (!aborted_)
 			emit(ZEN_INPUT_POINTER_OUT, &tempEvent);
@@ -869,7 +1038,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 			}
 		}
 
-		tempEvent.gameObjectList = justOver_;
+		//tempEvent.gameObjectList = justOver_;
 
 		if (!aborted_)
 			emit(ZEN_INPUT_POINTER_OVER, &tempEvent);
@@ -922,7 +1091,7 @@ int InputPlugin::processUpEvents (Pointer *pointer_)
 		}
 	}
 
-	tempEvent.gameObjectList = currentlyOver_;
+	//tempEvent.gameObjectList = currentlyOver_;
 
 	if (!aborted_)
 		emit(ZEN_INPUT_POINTER_UP, &tempEvent);
@@ -971,7 +1140,7 @@ int InputPlugin::processDownEvents (Pointer *pointer_)
 		}
 	}
 
-	tempEvent.gameObjectList = currentlyOver_;
+	//tempEvent.gameObjectList = currentlyOver_;
 
 	if (!aborted_)
 		emit(ZEN_INPUT_POINTER_DOWN, &tempEvent);
@@ -1107,7 +1276,7 @@ void InputPlugin::setHitArea (Entity entity_, Shape hitArea_, HitCallback hitAre
 
 void InputPlugin::setHitAreaCircle (Entity entity_, double x_, double y_, double radius_, HitCallback callback_)
 {
-	Shape shape_( Circle { .x = x_, .y = y_, .radius = radius_ } );
+	Shape shape_( Circle ( x_, y_, radius_ ) );
 
 	if (!callback_)
 		callback_ = CircleContains;
@@ -1117,7 +1286,7 @@ void InputPlugin::setHitAreaCircle (Entity entity_, double x_, double y_, double
 
 void InputPlugin::setHitAreaEllipse (Entity entity_, double x_, double y_, double width_, double height_, HitCallback callback_)
 {
-	Shape shape_( Ellipse { .x = x_, .y = y_, .width = width_, .height = height_ } );
+	Shape shape_( Ellipse ( x_, y_, width_, height_ ) );
 
 	if (!callback_)
 		callback_ = EllipseContains;
@@ -1158,7 +1327,7 @@ void InputPlugin::setHitAreaFromTexture (Entity entity_, HitCallback callback_)
 	{
 		auto& input_ = g_registry.emplace<Components::Input>(entity_);
 
-		input_.hitArea = Shape ( Rectangle { .x = 0., .y = 0., .width = width_, .height = height_ } );
+		input_.hitArea = Shape ( Rectangle ( 0., 0., width_, height_ ) );
 
 		queueForInsertion(entity_);
 	}
@@ -1174,7 +1343,7 @@ void InputPlugin::setHitAreaFromTexture (std::vector<Entity> entities_, HitCallb
 
 void InputPlugin::setHitAreaRectangle (Entity entity_, double x_, double y_, double width_, double height_, HitCallback callback_)
 {
-	Shape shape_ ( Rectangle { .x = x_, .y = y_, .width = width_, .height = height_ } );
+	Shape shape_ ( Rectangle ( x_, y_, width_, height_ ) );
 
 	if (!callback_)
 		callback_ = RectangleContains;
@@ -1184,7 +1353,7 @@ void InputPlugin::setHitAreaRectangle (Entity entity_, double x_, double y_, dou
 
 void InputPlugin::setHitAreaTriangle (Entity entity_, double x1_, double y1_, double x2_, double y2_, double x3_, double y3_, HitCallback callback_)
 {
-	Shape shape_ ( Triangle { .x1 = x1_, .y1 = y1_, .x2 = x2_, .y2 = y2_, .x3 = x3_, .y3 = y3_ } );
+	Shape shape_ ( Triangle ( x1_, y1_, x2_, y2_, x3_, y3_ ) );
 
 	if (!callback_)
 		callback_ = TriangleContains;
@@ -1256,7 +1425,9 @@ std::vector<Entity> InputPlugin::sortDropZones (std::vector<Entity> entities_)
 	std::stable_sort(
 		entities_.begin(),
 		entities_.end(),
-		&InputPlugin::sortDropZoneHandler
+		[&] (Entity childA_, Entity childB_) -> bool {
+			return sortDropZoneHandler(childA_, childB_);
+		}
 	);
 
 	return entities_;

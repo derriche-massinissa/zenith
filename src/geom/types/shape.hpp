@@ -136,6 +136,42 @@ union Shape
 		}
 	}
 
+	Shape (Rectangle other)
+	{
+		shape.type = SHAPE::RECTANGLE;
+		rectangle = other;
+	}
+
+	Shape (Circle other)
+	{
+		shape.type = SHAPE::CIRCLE;
+		circle = other;
+	}
+
+	Shape (Ellipse other)
+	{
+		shape.type = SHAPE::ELLIPSE;
+		ellipse = other;
+	}
+
+	Shape (Triangle other)
+	{
+		shape.type = SHAPE::TRIANGLE;
+		triangle = other;
+	}
+
+	Shape (Line other)
+	{
+		shape.type = SHAPE::LINE;
+		line = other;
+	}
+
+	Shape (Polygon&& other)
+	{
+		shape.type = SHAPE::POLYGON;
+		polygon = std::move(other);
+	}
+
 	Shape (Shape&& other)
 		: shape (other.shape)
 	{

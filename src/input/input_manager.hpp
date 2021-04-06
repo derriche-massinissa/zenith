@@ -9,7 +9,7 @@
 #define ZEN_INPUT_INPUTMANAGER_HPP
 
 #include "../event/event_emitter.hpp"
-#include "pointer.fwd.hpp"
+#include "pointer.hpp"
 #include <SDL2/SDL_stdinc.h>
 #include "../math/types/vector2.hpp"
 #include "../components/transform_matrix.hpp"
@@ -22,7 +22,7 @@ namespace Zen {
 class InputManager
 {
 public:
-	GameConfig& config;
+	GameConfig* config;
 
 	bool enabled = true;
 
@@ -52,13 +52,15 @@ public:
 
 	bool tempSkip = false;
 
-	InputManager (GameConfig& cfg_);
+	InputManager ();
 
 	~InputManager ();
 
-	void setWindowOver (InputEvent event_);
+	void boot (GameConfig* cfg_);
 
-	void setWindowOut (InputEvent event_);
+	void setWindowOver ();
+
+	void setWindowOut ();
 
 	void preRender (Uint32 time_, Uint32 delta_);
 
