@@ -257,6 +257,7 @@ bool InputManager::inputCandidate (Entity entity_, Entity camera_)
 
 std::vector<Entity> InputManager::hitTest (Pointer* pointer_, std::vector<Entity> gameObjects_, Entity camera_)
 {
+	tempHitTest.clear();
 	auto& output_ = tempHitTest;
 
 	auto scroll_ = g_registry.try_get<Components::Scroll>(camera_);
@@ -294,9 +295,9 @@ std::vector<Entity> InputManager::hitTest (Pointer* pointer_, std::vector<Entity
 		double px_ = tempPoint.x + (csx_ * scrollFactor_->x) - csx_;
 		double py_ = tempPoint.y + (csy_ * scrollFactor_->y) - csy_;
 
-		if (item_)
+		if (item_ != nullptr)
 		{
-			parentMatrix_ = GetWorldTransformMatrix(obj_);
+			matrix_ = GetWorldTransformMatrix(obj_);
 			point_ = ApplyInverse(matrix_, px_, py_);
 		}
 		else
@@ -316,8 +317,8 @@ std::vector<Entity> InputManager::hitTest (Pointer* pointer_, std::vector<Entity
 bool InputManager::pointWithinHitArea (Entity gameObject_, double x_, double y_)
 {
 	// Normalize the origin
-	x_ = GetDisplayOriginX(gameObject_);
-	y_ = GetDisplayOriginY(gameObject_);
+	x_ += GetDisplayOriginX(gameObject_);
+	y_ += GetDisplayOriginY(gameObject_);
 
 	auto input_ = g_registry.try_get<Components::Input>(gameObject_);
 

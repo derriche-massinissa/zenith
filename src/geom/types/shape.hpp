@@ -193,6 +193,8 @@ union Shape
 
 	void operator = (Shape& other)
 	{
+		shape = other.shape;
+
 		switch (other.shape.type)
 		{
 			case SHAPE::NONE:

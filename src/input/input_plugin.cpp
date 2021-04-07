@@ -197,8 +197,8 @@ bool InputPlugin::updatePoll (Uint32 time_, Uint32 delta_)
 		// _temp contains a hit test and camera culled list of IO objects
 		temp = hitTestPointer(&pointer_);
 
-		sortGameObjects(temp, &pointer_);
-		sortDropZones(tempZones);
+		sortGameObjects(&temp, &pointer_);
+		sortDropZones(&tempZones);
 
 		if (topOnly)
 		{
@@ -242,8 +242,8 @@ bool InputPlugin::update (INPUT type_, std::vector<Pointer*> pointers_)
 		// _temp contains a hit test and camera culled list of IO objects
 		temp = hitTestPointer(pointer_);
 
-		sortGameObjects(temp, pointer_);
-		sortDropZones(tempZones);
+		sortGameObjects(&temp, pointer_);
+		sortDropZones(&tempZones);
 
 		if (topOnly)
 		{
@@ -336,12 +336,46 @@ void InputPlugin::disable (Entity entity_)
 	input_->enabled = false;
 }
 
+void InputPlugin::enable (Entity entity_)
+{
+	auto input_ = g_registry.try_get<Components::Input>(entity_);
+
+	if (input_)
+	{
+		input_->enabled = true;
+	}
+	else
+	{
+		setHitArea(entity_);
+	}
+}
+
+void InputPlugin::enable (Entity entity_, InputConfiguration config_)
+{
+	auto input_ = g_registry.try_get<Components::Input>(entity_);
+
+	if (input_)
+	{
+		input_->enabled = true;
+	}
+	else
+	{
+		setHitArea(entity_, config_);
+	}
+}
+
 void InputPlugin::enable (Entity entity_, Shape hitArea_, HitCallback hitAreaCallback_, bool dropZone_)
 {
 	auto input_ = g_registry.try_get<Components::Input>(entity_);
-	ZEN_ASSERT(input_, "The entity has no 'Input' component.");
 
-	setHitArea(entity_, hitArea_, hitAreaCallback_);
+	if (input_)
+	{
+		input_->enabled = true;
+	}
+	else
+	{
+		setHitArea(entity_, hitArea_, hitAreaCallback_);
+	}
 
 	input_->dropZone = dropZone_;
 }
@@ -515,7 +549,7 @@ int InputPlugin::processDragDownEvent (Pointer *pointer_)
 	}
 	else if (draglist_.size() > 1)
 	{
-		sortGameObjects(draglist_, pointer_);
+		sortGameObjects(&draglist_, pointer_);
 
 		if (topOnly)
 		{
@@ -885,7 +919,7 @@ int InputPlugin::processOutEvents (Pointer *pointer_)
 
 		bool aborted_ = false;
 
-		sortGameObjects(previouslyOver_, pointer_);
+		sortGameObjects(&previouslyOver_, pointer_);
 
 		//  Go through all objects the pointer was over and fire their events / callbacks
 		for (auto obj_ : previouslyOver_)
@@ -983,7 +1017,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 
 	if (total_ > 0)
 	{
-		sortGameObjects(justOut_, pointer_);
+		sortGameObjects(&justOut_, pointer_);
 
 		//  Call onOut for everything in the justOut_ vector
 		for (auto obj_ : justOut_)
@@ -994,7 +1028,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 				continue;
 
 			// Reset cursor before we emit the event, in case they want to change it during the event
-			// TODO check this when done with the input manager
+			// TODO custom cursor
 			//g_input.resetCursor(input_);
 
 			tempEvent.pointer = pointer_;
@@ -1034,7 +1068,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 
 	if (total_ > 0)
 	{
-		sortGameObjects(justOver_, pointer_);
+		sortGameObjects(&justOver_, pointer_);
 
 		//  Call onOver for everything in the justOver_ vector
 		for (auto obj_ : justOver_)
@@ -1080,11 +1114,11 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 	}
 
 	// Add the contents of justOver_ to the previously over array
-	previouslyOver_.insert(previouslyOver_.end(), justOver_.begin(), justOver_.end());
+	stillOver_.insert(stillOver_.end(), justOver_.begin(), justOver_.end());
 
 	// Then sort it into display list order
-	sortGameObjects(previouslyOver_, pointer_);
-	over[pointer_->id] = previouslyOver_;
+	sortGameObjects(&stillOver_, pointer_);
+	over[pointer_->id] = stillOver_;
 
 	return totalInteracted_;
 }
@@ -1105,7 +1139,6 @@ int InputPlugin::processUpEvents (Pointer *pointer_)
 			continue;
 
 		tempEvent.pointer = pointer_;
-		tempEvent.gameObject = obj_;
 		tempEvent.x = input_->localX;
 		tempEvent.y = input_->localY;
 
@@ -1117,6 +1150,7 @@ int InputPlugin::processUpEvents (Pointer *pointer_)
 			break;
 		}
 
+		tempEvent.gameObject = obj_;
 		emit(ZEN_INPUT_GAMEOBJECT_UP, &tempEvent);
 
 		if (tempEvent.stopFlag)
@@ -1187,7 +1221,7 @@ int InputPlugin::processDownEvents (Pointer *pointer_)
 
 void InputPlugin::queueForInsertion (Entity entity_)
 {
-	if (Contains(pendingInsertion, entity_) && Contains(list, entity_))
+	if (!Contains(pendingInsertion, entity_) && !Contains(list, entity_))
 	{
 		pendingInsertion.push_back(entity_);
 	}
@@ -1365,6 +1399,7 @@ void InputPlugin::setHitAreaFromTexture (Entity entity_, HitCallback callback_)
 		auto& input_ = g_registry.emplace<Components::Input>(entity_);
 
 		input_.hitArea = Shape ( Rectangle ( 0., 0., width_, height_ ) );
+		input_.hitAreaCallback = callback_;
 
 		queueForInsertion(entity_);
 	}
@@ -1434,40 +1469,36 @@ void InputPlugin::setTopOnly (bool value_)
 	topOnly = value_;
 }
 
-std::vector<Entity> InputPlugin::sortGameObjects (std::vector<Entity> entities_, Pointer *pointer_)
+void InputPlugin::sortGameObjects (std::vector<Entity> *entities_, Pointer *pointer_)
 {
-	if (entities_.size() < 2)
-		return entities_;
+	if (entities_->size() < 2)
+		return;
 
 	auto list_ = GetRenderList(pointer_->camera);
 
 	std::stable_sort(
-		entities_.begin(),
-		entities_.end(),
+		entities_->begin(),
+		entities_->end(),
 		[&] (Entity childA_, Entity childB_) -> bool {
-			return IndexOf(*list_, childA_) < IndexOf(*list_, childB_);
+			return IndexOf(*list_, childA_) > IndexOf(*list_, childB_);
 		}
 	);
-
-	return entities_;
 }
 
-std::vector<Entity> InputPlugin::sortDropZones (std::vector<Entity> entities_)
+void InputPlugin::sortDropZones (std::vector<Entity> *entities_)
 {
-	if (entities_.size() < 2)
-		return entities_;
+	if (entities_->size() < 2)
+		return;
 
 	scene->sys.depthSort();
 
 	std::stable_sort(
-		entities_.begin(),
-		entities_.end(),
+		entities_->begin(),
+		entities_->end(),
 		[&] (Entity childA_, Entity childB_) -> bool {
 			return sortDropZoneHandler(childA_, childB_);
 		}
 	);
-
-	return entities_;
 }
 
 bool InputPlugin::sortDropZoneHandler (Entity childA_, Entity childB_)

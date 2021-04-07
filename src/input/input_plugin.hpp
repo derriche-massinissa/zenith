@@ -50,6 +50,10 @@ public:
 
 	void disable (Entity entity_);
 
+	void enable (Entity entity_);
+
+	void enable (Entity entity_, InputConfiguration config_);
+
 	void enable (Entity entity_, Shape hitArea_, HitCallback hitAreaCallback_, bool dropZone_ = false);
 
 	std::vector<Entity> hitTestPointer (Pointer *pointer_);
@@ -92,17 +96,20 @@ public:
 
 	HitCallback makePixelPerfect (double alphaTolerance_);
 
-	void setHitArea (std::vector<Entity> entity_, InputConfiguration config_);
-
-	void setHitArea (Entity entity_, InputConfiguration config_);
-
+	// Simple +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	void setHitArea (Entity entity_);
 
 	void setHitArea (std::vector<Entity> entities_);
 
-	void setHitArea (std::vector<Entity> entities_, Shape hitArea_, HitCallback hitAreaCallback_);
+	// Config +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	void setHitArea (Entity entity_, InputConfiguration config_);
 
+	void setHitArea (std::vector<Entity> entity_, InputConfiguration config_);
+
+	// Shape + callback +++++++++++++++++++++++++++++++++++++++++++++++
 	void setHitArea (Entity entity_, Shape hitArea_, HitCallback hitAreaCallback_);
+
+	void setHitArea (std::vector<Entity> entities_, Shape hitArea_, HitCallback hitAreaCallback_);
 
 	void setHitAreaCircle (Entity entity_, double x_, double y_, double radius_, HitCallback callback_ = nullptr);
 
@@ -130,9 +137,9 @@ public:
 
 	void setTopOnly (bool value_);
 
-	std::vector<Entity> sortGameObjects (std::vector<Entity> entities_, Pointer *pointer_);
+	void sortGameObjects (std::vector<Entity> *entities_, Pointer *pointer_);
 
-	std::vector<Entity> sortDropZones (std::vector<Entity> entities_);
+	void sortDropZones (std::vector<Entity> *entities_);
 
 	bool sortDropZoneHandler (Entity childA_, Entity childB_);
 
@@ -141,6 +148,8 @@ public:
 	std::vector<Pointer*> addPointer (int quantity_);
 
 	void setDefaultCursor (std::string textureKey_, std::string frameName_);
+
+	bool topOnly = true;
 
 private:
 	Scene* scene;
@@ -172,8 +181,6 @@ private:
 	std::vector<int> dragState;
 
 	bool enabled = true;
-
-	bool topOnly = true;
 
 	InputEvent tempEvent;
 

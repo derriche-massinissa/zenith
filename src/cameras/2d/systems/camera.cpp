@@ -318,7 +318,8 @@ Math::Vector2 GetWorldPoint (Entity entity, int x, int y)
 	// Invert Matrix
 	double determinant = (mva * mvd) - (mvb * mvc);
 
-	if (!determinant) {
+	if (!determinant)
+	{
 		output.x = x;
 		output.y = y;
 
