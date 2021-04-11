@@ -21,7 +21,13 @@ namespace Zen {
  */
 class ListenerBase
 {
-protected:
+public:
+	ListenerBase (std::string event_, bool once_)
+		: event (event_), once (once_)
+	{}
+
+	virtual ~ListenerBase () = default;
+
 	/**
 	 * The event this listener is listening to.
 	 *
@@ -36,13 +42,6 @@ protected:
 	 * @since 0.0.0
 	 */
 	bool once;
-
-public:
-	ListenerBase (std::string event_, bool once_)
-		: event (event_), once (once_)
-	{}
-
-	virtual ~ListenerBase () = default;
 };
 
 /**
@@ -55,14 +54,6 @@ public:
 template <typename... Args>
 class Listener : public ListenerBase
 {
-private:
-	/**
-	 * The callback function to use if the corresponding event is emitted.
-	 *
-	 * @since 0.0.0
-	 */
-	std::function<void(Args...)> callback;
-
 public:
 	/**
 	 * @since 0.0.0
@@ -77,31 +68,11 @@ public:
 	{}
 
 	/**
-	 * Make the listener activate it's callback function.
+	 * The callback function to use if the corresponding event is emitted.
 	 *
 	 * @since 0.0.0
-	 *
-	 * @param args The parameters to pass to the callback function
-	 *
-	 * @return Listener::once member variable, `true` if one time listener, and
-	 * needs to be removed, otherwise `false`.
 	 */
-	bool activate(Args... args_)
-	{
-		callback(args_...);
-
-		return once;
-	}
-
-	/**
-	 * Returns the callback functor of this Listener.
-	 *
-	 * @return The callback of this Listener.
-	 */
-	std::function<void(Args...)> getCallback ()
-	{
-		return callback;
-	}
+	std::function<void(Args...)> callback;
 };
 
 }	// namespace Zen

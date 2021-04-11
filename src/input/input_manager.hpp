@@ -54,6 +54,20 @@ public:
 
 	bool tempSkip = false;
 
+	/**
+	 * A pointer to the "pointerin" event listener, to later remove it.
+	 *
+	 * @since 0.0.0
+	 */
+	ListenerBase* lPointerIn = nullptr;
+
+	/**
+	 * A pointer to the "pointerout" event listener, to later remove it.
+	 *
+	 * @since 0.0.0
+	 */
+	ListenerBase* lPointerOut = nullptr;
+
 	InputManager ();
 
 	~InputManager ();

@@ -21,6 +21,56 @@
 #include "../utils/assert.hpp"
 #include "../utils/messages.hpp"
 #include "../utils/pretty_type.hpp"
+#include "../utils/lambda/lambda_to_functor.hpp"
+
+// Macro to test if any added listener is compatible with the already added
+// callbacks, by having the same signature
+#ifndef NDEBUG
+#define TEST_EVENT() \
+	do \
+	{ \
+		/* Check if the event is already listened to */ \
+		auto it_ = eventMap.find(eventName_); \
+		if ( it_ != eventMap.end() ) \
+		{ \
+			/* Try to cast the first listener to this signature */ \
+			auto l_ = dynamic_cast<Listener<Args...>*>(it_->second.at(0).get()); \
+			if (l_ == nullptr) \
+			{ \
+				MessageError("Added an incompatible listener to an already existing event of different signature!"); \
+				MessageError("Event is: ", eventName_); \
+				MessageError("Function signature is: ", PRETTY_TYPE<decltype(callback_)>()); \
+				MessageError("Parameter types are: "); \
+				((std::cout << " - " << PRETTY_TYPE<Args>() << std::endl), ...); \
+			} \
+		} \
+	} while (false)
+#else
+#define TEST_EVENT() do {} while (false)
+#endif
+
+#ifndef NDEBUG
+#define TEST_EVENT_LAMBDA() \
+	do \
+	{ \
+		/* Check if the event is already listened to */ \
+		auto it_ = eventMap.find(eventName_); \
+		if ( it_ != eventMap.end() ) \
+		{ \
+			/* Try to cast the first listener to this signature */ \
+			auto l_ = dynamic_cast<decltype(functor_)*>(it_->second.at(0).get()); \
+			if (l_ == nullptr) \
+			{ \
+				MessageError("Added an incompatible listener to an already existing event of different signature!"); \
+				MessageError("Event is: ", eventName_); \
+				MessageError("Function signature is: ", PRETTY_TYPE<decltype(callback_)>()); \
+				MessageError("Callback function is a Lambda."); \
+			} \
+		} \
+	} while (false)
+#else
+#define TEST_EVENT_LAMBDA() do {} while (false)
+#endif
 
 namespace Zen {
 
@@ -51,7 +101,7 @@ namespace Zen {
  * events.on("game_step", &MyScene::function3, this);
  * ```
  * Be sure that all the functions take the same number and type of arguments!
- * Because when emitting an event, the given parameters are passed to all the 
+ * Because when emitting an event, the given parameters are passed to all _the_
  * listeners.
  *
  * @class EventEmitter
@@ -69,61 +119,137 @@ private:
 	 */
 	std::map<std::string, std::vector<std::unique_ptr<ListenerBase>>> eventMap;
 
-	/**
-	 * A map of entities and their respective event maps.
-	 *
-	 * This is used with the global event manager. It is static as ALL instances
-	 * of the EventEmitter share the same list.
-	 *
-	 * @since 0.0.0
-	 */
-	std::map<
-		 Entity, std::map<
-			std::string, std::vector<
-				std::unique_ptr<ListenerBase>
-			>
-		>
-	> globalEventMap;
-
 public:
 	/**
-	 * Add a listener for a given event.
+	 * Add a listener for a given event, using a functor as a callback.
 	 *
 	 * @since 0.0.0
+	 *
+	 * @tparam Args The parameter types the functor takes.
+	 *
+	 * @param eventName_ The event name.
+	 * @param callback_ The listener callback function.
+	 * @param once_ If `true`, makes the listener one timed.
+	 *
+	 * @return A pointer to the created event listener.
+	 */
+	template <typename... Args>
+	auto addListener (
+			bool once_,
+			std::string eventName_,
+			const std::function<void(Args...)>& callback_
+			)
+	{
+		TEST_EVENT();
+
+		eventMap[eventName_].emplace_back(
+				std::make_unique<Listener<Args...>> (eventName_, callback_, once_)
+				);
+
+		return eventMap[eventName_].back().get();
+	}
+
+	/**
+	 * Add a listener for a given event, using a lambda function as a callback.
+	 *
+	 * This takes an L-Value reference.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @tparam Lambda The type of the lambda callback function.
+	 *
+	 * @param eventName_ The event name.
+	 * @param callback_ The listener callback function.
+	 * @param once_ If `true`, makes the listener one timed.
+	 *
+	 * @return A pointer to the created event listener.
+	 */
+	template <typename Lambda>
+	auto addListener (bool once_, std::string eventName_, const Lambda& callback_)
+	{
+		typename lambda_to_functor<Lambda>::type functor_ = callback_;
+
+		TEST_EVENT_LAMBDA();
+
+		return addListener(once_, eventName_, functor_);
+	}
+
+	/**
+	 * Add a listener for a given event, using a lambda function as a callback.
+	 *
+	 * This takes an R-Value reference.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @tparam Lambda The type of the lambda callback function.
+	 *
+	 * @param eventName_ The event name.
+	 * @param callback_ The listener callback function.
+	 * @param once_ If `true`, makes the listener one timed.
+	 *
+	 * @return A pointer to the created event listener.
+	 */
+	template <typename Lambda>
+	auto addListener (bool once_, std::string eventName_, const Lambda&& callback_)
+	{
+		typename lambda_to_functor<Lambda>::type functor_ = callback_;
+
+		TEST_EVENT_LAMBDA();
+
+		return addListener(once_, eventName_, functor_);
+	}
+
+	/**
+	 * Add a listener for a given event, using a free function as a callback.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @tparam Args The parameter types the free function takes.
+	 *
+	 * @param eventName_ The event name.
+	 * @param callback_ The listener callback function.
+	 * @param once_ If `true`, makes the listener one timed.
+	 *
+	 * @return A pointer to the created event listener.
+	 */
+	template <typename... Args>
+	auto addListener (bool once_, std::string eventName_, void (*callback_)(Args...))
+	{
+		TEST_EVENT();
+
+		std::function<void(Args...)> functor_ = callback_;
+
+		eventMap[eventName_].emplace_back(
+				std::make_unique<Listener<Args...>> (eventName_, functor_, once_)
+				);
+
+		return eventMap[eventName_].back().get();
+	}
+
+	/**
+	 * Add a listener for a given event, using a member function as a callback.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @tparam T The type of the context of the member function.
+	 * @tparam Args The parameter types the member function takes.
 	 *
 	 * @param eventName_ The event name.
 	 * @param callback_ The listener callback function.
 	 * @param context_ The context to invoke the listener with.
 	 * @param once_ If `true`, makes the listener one timed.
+	 *
+	 * @return A pointer to the created event listener.
 	 */
 	template <typename T, typename... Args>
-	void addListener (
+	auto addListener (
+			bool once_,
 			std::string eventName_,
 			void (T::* callback_)(Args...),
-			T *context_,
-			bool once_
+			T *context_
 			)
 	{
-#ifndef NDEBUG
-		// Check if the event is already listened to
-		auto it_ = eventMap.find(eventName_);
-		if ( it_ != eventMap.end() )
-		{
-			auto l_ = dynamic_cast<Listener<Args...>*>(it_->second.at(0).get());
-
-			if (l_ == nullptr)
-			{
-				MessageError("Added an incompatible listener to an already existing event of different signature!");
-
-				MessageError("Event is: ", eventName_);
-
-				MessageError("Function signature is: ", PRETTY_TYPE<decltype(callback_)>());
-
-				MessageError("Parameter types are: ");
-				((std::cout << " - " << PRETTY_TYPE<Args>() << std::endl), ...);
-			}
-		}
-#endif
+		TEST_EVENT();
 
 		// Bind function to the given context
 		std::function<void(Args...)> boundCB_ = [context_, callback_]
@@ -136,6 +262,8 @@ public:
 		eventMap[eventName_].emplace_back(
 				std::make_unique<Listener<Args...>> (eventName_, boundCB_, once_)
 				);
+
+		return eventMap[eventName_].back().get();
 	}
 
 	/**
@@ -143,15 +271,17 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param eventName_ The event name.
-	 * @param callback_ The listener callback function.
-	 * @param context_ The context to invoke the listener with.
+	 * @tparam Args The parameter types to pass to `addListener`.
+	 *
+	 * @param args The parameters to pass to `addListener`.
+	 *
+	 * @return A pointer to the created event listener.
 	 */
-	template <typename T, typename... Args>
-	void on (std::string eventName_, void (T::* callback_)(Args...), T *context_)
+	template <typename... Args>
+	auto on (Args&&... args_)
 	{
 		// Add the listener to this EventEmitter
-		addListener(eventName_, callback_, context_, false);
+		return addListener(false, std::forward<Args>(args_)...);
 	}
 
 	/**
@@ -159,15 +289,17 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param eventName_ The event name.
-	 * @param callback_ The listener callback function.
-	 * @param context_ The context to invoke the listener with.
+	 * @tparam Args The parameter types to pass to `addListener`.
+	 *
+	 * @param args The parameters to pass to `addListener`.
+	 *
+	 * @return A pointer to the created event listener.
 	 */
-	template <typename T, typename... Args>
-	void once (std::string eventName_, void (T::* callback_)(Args...), T *context_)
+	template <typename... Args>
+	auto once (Args&&... args_)
 	{
 		// Add the listener to this EventEmitter
-		addListener(eventName_, callback_, context_, true);
+		return addListener(true, std::forward<Args>(args_)...);
 	}
 
 	/**
@@ -195,7 +327,9 @@ public:
 			// Activate the listeners
 			for (auto l_ = iterator_->second.begin(); l_ != iterator_->second.end();)
 			{
-				if ( static_cast<Listener<Args...>*>(l_->get())->activate(args_...) )
+				static_cast<Listener<Args...>*>(l_->get())->callback(args_...);
+
+				if (l_->get()->once)
 				{
 					iterator_->second.erase(l_);
 				}
@@ -252,58 +386,22 @@ public:
 	std::vector<ListenerBase*> getListeners (std::string event_);
 
 	/**
-	 * Remove a listener from a given event.
+	 * Remove a listener.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param event_ The event name.
-	 *
-	 * @param listener_ Only remove this particular listener.
+	 * @param listener_ A pointer to the listener to remove.
 	 */
-	void removeListener (std::string event_, ListenerBase* listener_);
+	void removeListener (ListenerBase*& listener_);
 
 	/**
-	 * Remove the listeners of a given event.
-	 *
-	 * This method takes a method and a context, unlike the removeListener()
-	 * method that takes a pointer to a listener.
+	 * Remove a listener.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param event_ The event name.
-	 * @param function_ Only remove the listener that has this function as a callback.
-	 * @param context_ Only remove the listener that has this context as a callback context.
+	 * @param listener_ A pointer to the listener to remove.
 	 */
-	template <typename T, typename... Args>
-	void off (std::string eventName_, void (T::* function_)(Args...), T *context_)
-	{
-		// Check if the event exists
-		auto it_ = eventMap.find(eventName_);
-		if (it_ != eventMap.end())
-		{
-			// Bind the function to the given context
-			std::function<void(Args...)> boundFunc_ = [context_, function_]
-				(Args... args_) -> void
-				{
-					(context_->*function_)(args_...);
-				};
-
-			// Get a pointer to the target function
-			auto target_ = boundFunc_.template target<void(*)(Args...)>();
-
-			// Find Listener by comparing functor targets
-			for (auto l_ = it_->second.begin(); l_ != it_->second.end(); l_++)
-			{
-				auto listenerTarget_ = static_cast<Listener<Args...>*>(l_->get())->getCallback().template target<void(*)(Args...)>();
-
-				if (target_ == listenerTarget_)
-				{
-					it_->second.erase(l_);
-					break;
-				}
-			}
-		}
-	}
+	void off (ListenerBase*& listener_);
 
 	/**
 	 * Remove all listeners, or those of the specified events.
@@ -330,7 +428,9 @@ public:
 	void shutdown ();
 
 	// GLOBAL VERSION METHODS
+	// TODO Remove globals
 
+	/*
 	template <typename T, typename... Args>
 	void addListener (Entity entity_, std::string eventName_, void (T::* callback_)(Args...), T *context_, bool once_)
 	{
@@ -476,6 +576,7 @@ public:
 	void removeAllListeners (Entity entity_, std::vector<std::string> eventNames_ = {});
 
 	void removeAllListeners (Entity entity_, std::string eventName_);
+	*/
 };
 
 }	// namespace Zen

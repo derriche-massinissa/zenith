@@ -14,6 +14,7 @@
 #include "../ecs/entity.hpp"
 #include "../scene/scene.fwd.h"
 #include "../data.h"
+#include "../event/event_listener.hpp"
 
 namespace Zen {
 namespace GameObjects {
@@ -49,6 +50,11 @@ public:
 	std::vector<Entity> destroy;
 
 	int toProcess = 0;
+
+	ListenerBase* lStart = nullptr;
+	ListenerBase* lPreUpdate = nullptr;
+	ListenerBase* lUpdate = nullptr;
+	ListenerBase* lShutdown = nullptr;
 
 	void start ();
 

@@ -45,22 +45,30 @@ std::vector<ListenerBase*> EventEmitter::getListeners (std::string event_)
 	return vec_;
 }
 
-void EventEmitter::removeListener (std::string event_, ListenerBase* listener_)
+void EventEmitter::removeListener (ListenerBase*& listener_)
 {
+	if (listener_ == nullptr) return;
+
 	// Check if event exists
-	auto iterator_ = eventMap.find(event_);
+	auto iterator_ = eventMap.find(listener_->event);
 	if (iterator_ != eventMap.end())
 	{
 		// Find listener
-		for (size_t l_ = 0; l_ < iterator_->second.size(); l_++)
+		for (size_t i_ = 0; i_ < iterator_->second.size(); i_++)
 		{
-			if (listener_ == iterator_->second[l_].get())
+			if (listener_ == iterator_->second[i_].get())
 			{
-				iterator_->second.erase(iterator_->second.begin() + l_);
+				iterator_->second.erase(iterator_->second.begin() + i_);
+				listener_ = nullptr;
 				break;
 			}
 		}
 	}
+}
+
+void EventEmitter::off (ListenerBase*& listener_)
+{
+	removeListener(listener_);
 }
 
 void EventEmitter::removeAllListeners (std::vector<std::string> eventNames_)
@@ -94,9 +102,9 @@ void EventEmitter::removeAllListeners (std::string eventName_)
 void EventEmitter::shutdown ()
 {
 	eventMap.clear();
-	globalEventMap.clear();
 }
 
+/*
 std::vector<std::string> EventEmitter::getEventNames (Entity entity_)
 {
 	std::vector<std::string> names_;
@@ -193,5 +201,6 @@ void EventEmitter::removeAllListeners (Entity entity_, std::string eventName_)
 
 	removeAllListeners(entity_, events_);
 }
+*/
 
 }	// namespace Zen

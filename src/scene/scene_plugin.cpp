@@ -95,7 +95,7 @@ bool ScenePlugin::transition (SceneTransitionConfig config_)
 
 	systems->events.emit("transition-out", key_, duration_);
 
-	systems->events.on("update", &ScenePlugin::step, this);
+	lUpdate = systems->events.on("update", &ScenePlugin::step, this);
 
 	return true;
 }
@@ -114,7 +114,7 @@ bool ScenePlugin::checkValidTransition (Scene* target_)
 	return true;
 }
 
-void ScenePlugin::step (Uint32 time_, Uint32 delta_)
+void ScenePlugin::step ([[maybe_unused]] Uint32 time_, Uint32 delta_)
 {
 	transitionElapsed += delta_;
 
@@ -130,7 +130,7 @@ void ScenePlugin::step (Uint32 time_, Uint32 delta_)
 void ScenePlugin::transitionComplete ()
 {
 	// Stop the step
-	systems->events.off("update", &ScenePlugin::step, this);
+	systems->events.off(lUpdate);
 
 	// Notify the target scene
 	transitionTarget->sys.events.emit("transition-complete", key);

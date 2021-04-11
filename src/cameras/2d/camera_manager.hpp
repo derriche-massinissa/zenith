@@ -116,14 +116,42 @@ public:
 	Entity main;
 
 	/**
-	 * A default un-transformed Camera that doesn't exist on the camera list and doesn't
-	 * count towards the total number of cameras being managed. It exists for other
-	 * systems, as well as your own code, should they require a basic un-transformed
-	 * camera instance from which to calculate a view matrix.
+	 * A default un-transformed Camera that doesn't exist on the camera list and
+	 * doesn't count towards the total number of cameras being managed. It exists
+	 * for other systems, as well as your own code, should they require a basic
+	 * un-transformed camera instance from which to calculate a view matrix.
 	 *
 	 * @since 0.0.0
 	 */
 	Entity def;
+
+	/**
+	 * A pointer to the "start" event listener, to later remove it.
+	 *
+	 * @since 0.0.0
+	 */
+	ListenerBase* lStart = nullptr;
+
+	/**
+	 * A pointer to the "update" event listener, to later remove it.
+	 *
+	 * @since 0.0.0
+	 */
+	ListenerBase* lUpdate = nullptr;
+
+	/**
+	 * A pointer to the "shutdown" event listener, to later remove it.
+	 *
+	 * @since 0.0.0
+	 */
+	ListenerBase* lShutdown = nullptr;
+
+	/**
+	 * A pointer to the "resize" event listener, to later remove it.
+	 *
+	 * @since 0.0.0
+	 */
+	ListenerBase* lResize = nullptr;
 
 	/**
 	 * This method is called automatically, only once, when the Scene is first 

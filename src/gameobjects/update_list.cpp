@@ -18,24 +18,24 @@ namespace GameObjects {
 UpdateList::UpdateList (Scene* scene_)
 	: scene (scene_)
 {
-	scene_->sys.events.on("start", &UpdateList::start, this);
+	lStart = scene_->sys.events.on("start", &UpdateList::start, this);
 }
 
 UpdateList::~UpdateList ()
 {
 	shutdown();
 
-	scene->sys.events.off("start", &UpdateList::start, this);
+	scene->sys.events.off(lStart);
 }
 
 void UpdateList::start ()
 {
-	scene->sys.events.on("pre-update", &UpdateList::update, this);
-	scene->sys.events.on("update", &UpdateList::sceneUpdate, this);
-	scene->sys.events.once("shutdown", &UpdateList::shutdown, this);
+	lPreUpdate = scene->sys.events.on("pre-update", &UpdateList::update, this);
+	lUpdate = scene->sys.events.on("update", &UpdateList::sceneUpdate, this);
+	lShutdown = scene->sys.events.once("shutdown", &UpdateList::shutdown, this);
 }
 
-void UpdateList::sceneUpdate (Uint32 time_, Uint32 delta_)
+void UpdateList::sceneUpdate ([[maybe_unused]] Uint32 time_, [[maybe_unused]] Uint32 delta_)
 {
 	/*
 	 * TODO entity update
@@ -51,9 +51,9 @@ void UpdateList::sceneUpdate (Uint32 time_, Uint32 delta_)
 
 void UpdateList::shutdown ()
 {
-	scene->sys.events.off("pre-update", &UpdateList::update, this);
-	scene->sys.events.off("update", &UpdateList::sceneUpdate, this);
-	scene->sys.events.off("shutdown", &UpdateList::shutdown, this);
+	scene->sys.events.off(lPreUpdate);
+	scene->sys.events.off(lUpdate);
+	scene->sys.events.off(lShutdown);
 }
 
 void UpdateList::add (Entity gameObject_)
@@ -82,7 +82,7 @@ void UpdateList::removeAll ()
 	active.clear();
 }
 
-void UpdateList::update (Uint32 time_, Uint32 delta_)
+void UpdateList::update ([[maybe_unused]] Uint32 time_, [[maybe_unused]] Uint32 delta_)
 {
 	if (toProcess == 0)
 		return;

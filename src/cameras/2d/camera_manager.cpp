@@ -40,14 +40,15 @@ CameraManager::CameraManager (Scene* scene_)
 {
 	scene_->sys.events.once("boot", &CameraManager::boot, this);
 
-	scene_->sys.events.on("start", &CameraManager::start, this);
+	lStart = scene_->sys.events.on("start", &CameraManager::start, this);
 }
 
 CameraManager::~CameraManager ()
 {
 	shutdown();
 
-	systems.events.off("start", &CameraManager::start, this);
+	systems.events.off(lStart);
+	g_scale.off(lResize);
 }
 
 void CameraManager::boot ()
@@ -70,7 +71,7 @@ void CameraManager::boot ()
 	//SetScene(def, scene);
 	//TODO SetDefaultCamera();
 
-	g_scale.on("resize", &CameraManager::onResize, this);
+	lResize = g_scale.on("resize", &CameraManager::onResize, this);
 }
 
 void CameraManager::start ()
@@ -91,15 +92,18 @@ void CameraManager::start ()
 		main = cameras[0];
 	}
 
-	systems.events.on("update", &CameraManager::update, this);
-	systems.events.on("shutdown", &CameraManager::shutdown, this);
+	lUpdate = systems.events.on("update", &CameraManager::update, this);
+	lShutdown = systems.events.on("shutdown", &CameraManager::shutdown, this);
 }
 
 Entity CameraManager::add (
 		int x_, int y_, int width_, int height_, bool makeMain_, std::string name_)
 {
-	if (width_ == 0)	width_ = g_scale.getWidth();
-	if (height_ == 0)	height_ = g_scale.getHeight();
+	if (width_ == 0)
+		width_ = g_scale.getWidth();
+
+	if (height_ == 0)
+		height_ = g_scale.getHeight();
 
 	auto camera_ = CreateCamera(x_, y_, width_, height_);
 	cameras.emplace_back(camera_);
@@ -314,7 +318,7 @@ void CameraManager::update (Uint32 time_, Uint32 delta_)
 
 void CameraManager::onResize (
 		Size gameSize_,
-		Size displaySize_,
+		[[maybe_unused]] Size displaySize_,
 		int previousWidth_,
 		int previousHeight_)
 {
@@ -342,8 +346,8 @@ void CameraManager::shutdown ()
 
 	cameras.clear();
 
-	systems.events.off("update", &CameraManager::update, this);
-	systems.events.off("shutdown", &CameraManager::shutdown, this);
+	systems.events.off(lUpdate);
+	systems.events.off(lShutdown);
 }
 
 }	// namespace Zen

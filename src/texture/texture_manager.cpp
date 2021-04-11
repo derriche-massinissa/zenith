@@ -27,7 +27,6 @@
 
 namespace Zen {
 
-extern EventEmitter g_event;
 extern entt::registry g_registry;
 extern Window g_window;
 

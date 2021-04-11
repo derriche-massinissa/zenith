@@ -41,8 +41,8 @@ InputManager::InputManager ()
 
 InputManager::~InputManager ()
 {
-	g_window.off("pointerin", &InputManager::setWindowOver, this);
-	g_window.off("pointerout", &InputManager::setWindowOut, this);
+	g_window.off(lPointerIn);
+	g_window.off(lPointerOut);
 }
 
 void InputManager::boot (GameConfig* cfg_)
@@ -51,8 +51,8 @@ void InputManager::boot (GameConfig* cfg_)
 
 	mousePointer = addPointer(1)[0];
 
-	g_window.on("pointerin", &InputManager::setWindowOver, this);
-	g_window.on("pointerout", &InputManager::setWindowOut, this);
+	lPointerIn = g_window.on("pointerin", &InputManager::setWindowOver, this);
+	lPointerOut = g_window.on("pointerout", &InputManager::setWindowOut, this);
 
 	booted = true;
 }

@@ -112,6 +112,8 @@ public:
 	 */
 	bool dirty = false;
 
+	ListenerBase* lResize = nullptr;
+
 	/**
 	 * Called _before_ the window object is initialized and opened.
 	 *

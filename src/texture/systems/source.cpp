@@ -10,7 +10,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "../../utils/assert.hpp"
-#include "../../utils/base64_decode.hpp"
+#include "../../utils/base64/base64_decode.hpp"
 #include "../../utils/messages.hpp"
 #include "../components/source.hpp"
 #include "../../window/window.hpp"

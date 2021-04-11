@@ -37,7 +37,7 @@ LoaderPlugin::~LoaderPlugin ()
 
 void LoaderPlugin::pluginStart ()
 {
-	scene->sys.events.once("shutdown", &LoaderPlugin::shutdown, this);
+	lShutdown = scene->sys.events.once("shutdown", &LoaderPlugin::shutdown, this);
 }
 
 LoaderPlugin& LoaderPlugin::setPath (std::string path_)
@@ -128,7 +128,7 @@ void LoaderPlugin::reset ()
 
 void LoaderPlugin::shutdown ()
 {
-	scene->sys.events.off("shutdown", &LoaderPlugin::shutdown, this);
+	scene->sys.events.off(lShutdown);
 }
 
 }	// namespace Loader

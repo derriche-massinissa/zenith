@@ -46,7 +46,6 @@ namespace Zen {
 class InputManager;
 
 extern entt::registry g_registry;
-extern EventEmitter g_event;
 extern InputManager g_input;
 
 InputPlugin::InputPlugin (Scene* scene_)
@@ -511,9 +510,7 @@ int InputPlugin::processDragStartList (Pointer *pointer_)
 		input_->dragX = input_->dragStartXGlobal - input_->dragStartX;
 		input_->dragY = input_->dragStartYGlobal - input_->dragStartY;
 
-		g_event.emit(ent_, "dragstart", pointer_, input_->dragX, input_->dragY);
-
-		emit("dragstart", pointer_, ent_);
+		emit(ZEN_INPUT_DRAG_START, pointer_, ent_);
 	}
 
 	setDragState(pointer_, 4);
@@ -596,38 +593,32 @@ int InputPlugin::processDragMoveEvent (Pointer *pointer_)
 		auto& input_ = g_registry.get<Components::Input>(obj_);
 		Entity target_ = input_.target;
 
-		//  If this GO has a target then let's check it
+		// If this GO has a target then let's check it
 		if (target_ != entt::null)
 		{
 			auto it_ = std::find(dropZones_.begin(), dropZones_.end(), target_);
 
-			//  Got a target, are we still over it?
+			// Got a target, are we still over it?
 			if (it_ == dropZones_.begin())
 			{
-				//  We're still over it, and it's still the top of the display list, phew ...
-				g_event.emit(obj_, "dragover", pointer_, target_);
-				emit("dragover", pointer_, obj_, target_);
+				// We're still over it, and it's still the top of the display list
+				emit(ZEN_INPUT_DRAG_OVER, pointer_, obj_, target_);
 			}
 			else if (it_ != dropZones_.end())
 			{
-				//  Still over it but it's no longer top of the display list (targets must always be at the top)
-				g_event.emit(obj_, "dragleave", pointer_, target_);
-
-				emit("dragleave", pointer_, obj_, target_);
+				// Still over it but it's no longer top of the display list
+				// (targets must always be at the top)
+				emit(ZEN_INPUT_DRAG_LEAVE, pointer_, obj_, target_);
 
 				input_.target = dropZones_.at(0);
 
 				target_ = input_.target;
 
-				g_event.emit(obj_, "dragenter", pointer_, target_);
-
-				emit("dragenter", pointer_, obj_, target_);
+				emit(ZEN_INPUT_DRAG_ENTER, pointer_, obj_, target_);
 			}
 			else {
 				//  Nope, we've moved on (or the target has!), leave the old target
-				g_event.emit(obj_, "dragleave", pointer_, target_);
-
-				emit("dragleave", pointer_, obj_, target_);
+				emit(ZEN_INPUT_DRAG_LEAVE, pointer_, obj_, target_);
 
 				//  Anything new to replace it?
 				if (dropZones_.size())
@@ -637,9 +628,7 @@ int InputPlugin::processDragMoveEvent (Pointer *pointer_)
 
 					target_ = input_.target;
 
-					g_event.emit(obj_, "dragenter", pointer_, target_);
-
-					emit("dragenter", pointer_, obj_, target_);
+					emit(ZEN_INPUT_DRAG_ENTER, pointer_, obj_, target_);
 				}
 				else {
 					// Nope
@@ -653,9 +642,7 @@ int InputPlugin::processDragMoveEvent (Pointer *pointer_)
 
 			target_ = input_.target;
 
-			g_event.emit(obj_, "dragenter", pointer_, target_);
-
-			emit("dragenter", pointer_, obj_, target_);
+			emit(ZEN_INPUT_DRAG_ENTER, pointer_, obj_, target_);
 		}
 
 		double dragX_, dragY_;
@@ -686,9 +673,7 @@ int InputPlugin::processDragMoveEvent (Pointer *pointer_)
 			}
 		}
 
-		g_event.emit(obj_, "drag", pointer_, dragX_, dragY_);
-
-		emit("drag", pointer_, obj_, dragX_, dragY_);
+		emit(ZEN_INPUT_DRAG, pointer_, obj_, dragX_, dragY_);
 	}
 
 	return list_.size();
@@ -715,9 +700,7 @@ int InputPlugin::processDragUpEvent (Pointer *pointer_)
 
 			if (target_ != entt::null)
 			{
-				g_event.emit(obj_, "drop", pointer_, target_);
-
-				emit("drop", pointer_, obj_, target_);
+				emit(ZEN_INPUT_DROP, pointer_, obj_, target_);
 
 				input_->target = entt::null;
 
@@ -725,9 +708,7 @@ int InputPlugin::processDragUpEvent (Pointer *pointer_)
 			}
 
 			//  And finally the dragend event
-			g_event.emit(obj_, "dragend", pointer_, input_->dragX, input_->dragY, dropped_);
-
-			emit("dragend", pointer_, obj_, target_);
+			emit(ZEN_INPUT_DRAG_END, pointer_, obj_, dropped_);
 		}
 	}
 
@@ -760,14 +741,6 @@ int InputPlugin::processMoveEvents (Pointer *pointer_)
 		tempEvent.gameObject = obj_;
 		tempEvent.x = input_->localX;
 		tempEvent.y = input_->localY;
-
-		g_event.emit(obj_, ZEN_INPUT_POINTER_MOVE, &tempEvent);
-
-		if (tempEvent.stopFlag)
-		{
-			aborted_ = true;
-			break;
-		}
 
 		emit(ZEN_INPUT_GAMEOBJECT_MOVE, &tempEvent);
 
@@ -815,14 +788,6 @@ int InputPlugin::processWheelEvent (Pointer *pointer_)
 		tempEvent.y = dy_;
 		tempEvent.z = dz_;
 
-		g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_WHEEL, &tempEvent);
-
-		if (tempEvent.stopFlag)
-		{
-			aborted_ = true;
-			break;
-		}
-
 		emit(ZEN_INPUT_GAMEOBJECT_WHEEL, &tempEvent);
 
 		if (tempEvent.stopFlag)
@@ -869,20 +834,12 @@ int InputPlugin::processOverEvents (Pointer *pointer_)
 			// TODO check this when done with the input manager
 			//g_input.setCursor(input_);
 
+			totalInteracted_++;
+
 			tempEvent.pointer = pointer_;
 			tempEvent.gameObject = obj_;
 			tempEvent.x = input_->localX;
 			tempEvent.y = input_->localY;
-
-			g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_OVER, &tempEvent);
-
-			totalInteracted_++;
-
-			if (tempEvent.stopFlag)
-			{
-				aborted_ = true;
-				break;
-			}
 
 			emit(ZEN_INPUT_GAMEOBJECT_OVER, &tempEvent);
 
@@ -933,18 +890,10 @@ int InputPlugin::processOutEvents (Pointer *pointer_)
 			// TODO check this when done with the input manager
 			//g_input.resetCursor(input_);
 
-			tempEvent.pointer = pointer_;
-			tempEvent.gameObject = obj_;
-
-			g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_OUT, &tempEvent);
-
 			totalInteracted_++;
 
-			if (tempEvent.stopFlag)
-			{
-				aborted_ = true;
-				break;
-			}
+			tempEvent.pointer = pointer_;
+			tempEvent.gameObject = obj_;
 
 			emit(ZEN_INPUT_GAMEOBJECT_OUT, &tempEvent);
 
@@ -1034,15 +983,7 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 			tempEvent.pointer = pointer_;
 			tempEvent.gameObject = obj_;
 
-			g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_OUT, &tempEvent);
-
 			totalInteracted_++;
-
-			if (tempEvent.stopFlag)
-			{
-				aborted_ = true;
-				break;
-			}
 
 			emit(ZEN_INPUT_GAMEOBJECT_OUT, &tempEvent);
 
@@ -1082,20 +1023,12 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 			// TODO check this when done with the input manager
 			//g_input.setCursor(input_);
 
+			totalInteracted_++;
+
 			tempEvent.pointer = pointer_;
 			tempEvent.gameObject = obj_;
 			tempEvent.x = input_->localX;
 			tempEvent.x = input_->localY;
-
-			g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_OVER, &tempEvent);
-
-			totalInteracted_++;
-
-			if (tempEvent.stopFlag)
-			{
-				aborted_ = true;
-				break;
-			}
 
 			emit(ZEN_INPUT_GAMEOBJECT_OVER, &tempEvent);
 
@@ -1141,16 +1074,8 @@ int InputPlugin::processUpEvents (Pointer *pointer_)
 		tempEvent.pointer = pointer_;
 		tempEvent.x = input_->localX;
 		tempEvent.y = input_->localY;
-
-		g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_UP, &tempEvent);
-
-		if (tempEvent.stopFlag)
-		{
-			aborted_ = true;
-			break;
-		}
-
 		tempEvent.gameObject = obj_;
+
 		emit(ZEN_INPUT_GAMEOBJECT_UP, &tempEvent);
 
 		if (tempEvent.stopFlag)
@@ -1192,14 +1117,6 @@ int InputPlugin::processDownEvents (Pointer *pointer_)
 		tempEvent.gameObject = obj_;
 		tempEvent.x = input_->localX;
 		tempEvent.y = input_->localY;
-
-		g_event.emit(obj_, ZEN_INPUT_GAMEOBJECT_POINTER_DOWN, &tempEvent);
-
-		if (tempEvent.stopFlag)
-		{
-			aborted_ = true;
-			break;
-		}
 
 		emit(ZEN_INPUT_GAMEOBJECT_DOWN, &tempEvent);
 

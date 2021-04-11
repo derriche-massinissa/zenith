@@ -127,6 +127,8 @@ public:
 	 */
 	bool transitionWillRemove = false;
 
+	ListenerBase* lUpdate = nullptr;
+
     /**
      * This method is called automatically by the Scene when it is starting up.
      * It is responsible for creating local systems, properties and listening for 

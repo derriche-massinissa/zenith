@@ -14,7 +14,6 @@
 
 namespace Zen {
 
-extern EventEmitter g_event;
 extern Window g_window;
 
 ScaleManager::~ScaleManager()
@@ -108,12 +107,12 @@ int ScaleManager::transformY (int windowY_)
 
 void ScaleManager::startListeners ()
 {
-	g_window.on("resize", &ScaleManager::onResize, this);
+	lResize = g_window.on("resize", &ScaleManager::onResize, this);
 }
 
 void ScaleManager::stopListeners ()
 {
-	g_window.off("resize", &ScaleManager::onResize, this);
+	g_window.off(lResize);
 }
 
 void ScaleManager::onResize (int width_, int height_)

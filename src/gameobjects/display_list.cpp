@@ -14,7 +14,6 @@
 #include "../event/event_emitter.hpp"
 
 namespace Zen {
-extern EventEmitter g_event;
 
 namespace GameObjects {
 
@@ -22,7 +21,8 @@ void DisplayList::add (Entity gameObject_)
 {
 	list.emplace_back(gameObject_);
 
-	g_event.emit(gameObject_, "removed-from-scene");
+	// TODO Handle removal from scene
+	//g _event.emit(gameObject_, "removed-from-scene");
 
 	/*
 	 * TODO FIXME
@@ -34,7 +34,8 @@ void DisplayList::add (Entity gameObject_)
 
 	queueDepthSort();
 
-	g_event.emit(gameObject_, "added-to-scene");
+	// TODO Handle addition to scene
+	// g _event.emit(gameObject_, "added-to-scene");
 }
 
 void DisplayList::remove (Entity gameObject_)

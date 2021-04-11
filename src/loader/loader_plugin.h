@@ -17,6 +17,7 @@
 #include "../scene/scene.fwd.h"
 #include "../scene/scene_manager.fwd.h"
 #include "../cameras/2d/camera_manager.fwd.hpp"
+#include "../event/event_listener.hpp"
 
 namespace Zen {
 namespace Loader {
@@ -87,6 +88,8 @@ public:
 	 * @since 0.0.0
 	 */
 	std::string path = "";
+
+	ListenerBase* lShutdown = nullptr;
 
 	/**
 	 * This method is called automatically by the Scene when it is starting up.

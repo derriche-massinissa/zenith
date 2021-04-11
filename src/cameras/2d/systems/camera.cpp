@@ -55,7 +55,6 @@
 namespace Zen {
 
 extern entt::registry g_registry;
-extern EventEmitter g_event;
 extern ScaleManager g_scale;
 
 // Temporary vector, to not recreate a new one each culling pass
@@ -180,12 +179,11 @@ Entity CreateCamera (double x, double y, double width, double height)
 	 *
 	 * The mid-point of the Camera in 'world' coordinates.
 	 *
-	 * Use it to obtain exactly where in the world the center of the camera is 
+	 * Use it to obtain exactly where in the world the center of the camera is
 	 * currently looking.
 	 *
-	 * This value is updated in the preRender method, after the scroll values 
-	 * and follower
-	 * have been processed.
+	 * This value is updated in the preRender method, after the scroll values
+	 * and follower have been processed.
 	 *
 	 * @since 0.0.0
 	 * Math::Vector2 midPoint;
@@ -194,11 +192,12 @@ Entity CreateCamera (double x, double y, double width, double height)
 
 void DestroyCamera (Entity entity)
 {
+	// TODO reset FX
 	//ResetFX(entity);
 
-	g_event.emit(entity, "destroy");
+	//g _event.emit(entity, "destroy");
 
-	g_event.removeAllListeners(entity);
+	//g _event.removeAllListeners(entity);
 
 	culledObjects.clear();
 
@@ -413,7 +412,7 @@ void PreRender (Entity entity)
 		CenterOn(&deadzone->zone, midPoint->x, midPoint->y);
 	}
 
-	bool emitFollowEvent = false;
+	// FIXME bool emitFollowEvent = false;
 
 	if (follow->target != entt::null) // TODO && !panEffect.isRunning) {
 	{
@@ -451,7 +450,7 @@ void PreRender (Entity entity)
 			sy = Math::Linear(sy, fy - originY, follow->lerp.y);
 		}
 
-		emitFollowEvent = true;
+		// FIXME emitFollowEvent = true;
 	}
 
 	if (bounds)
@@ -488,8 +487,10 @@ void PreRender (Entity entity)
 	// TODO
 	//shakeEffect.preRender();
 
+	/* FIXME
 	if (emitFollowEvent)
-		g_event.emit(entity, "follow-update");
+		g _event.emit(entity, "follow-update");
+		*/
 }
 
 ////void FadeIn (
