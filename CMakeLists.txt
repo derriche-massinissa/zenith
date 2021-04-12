@@ -25,6 +25,10 @@ project(
 
 # Source files
 set(zenith_SRCS
+	src/input/keyboard/keyboard_plugin.cpp
+	src/input/keyboard/combo/key_combo.cpp
+	src/input/keyboard/keys/key.cpp
+	src/input/keyboard/keyboard_manager.cpp
 	src/cameras/2d/camera_manager.cpp
 	src/cameras/2d/systems/camera.cpp
 	src/core/config.cpp
@@ -35,7 +39,6 @@ set(zenith_SRCS
 	src/event/event_emitter.cpp
 	src/gameobjects/display_list.cpp
 	src/gameobjects/gameobject_factory.cpp
-	#src/gameobjects/image/image.cpp
 	src/gameobjects/update_list.cpp
 	src/geom/line.cpp
 	src/geom/circle.cpp

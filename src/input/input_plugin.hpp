@@ -24,6 +24,7 @@
 #include "pointer.fwd.hpp"
 #include "types/input_configuration.hpp"
 #include "const.hpp"
+#include "keyboard/keyboard_plugin.hpp"
 
 namespace Zen {
 
@@ -149,7 +150,11 @@ public:
 
 	void setDefaultCursor (std::string textureKey_, std::string frameName_);
 
+	EventEmitter pluginEvents;
+
 	bool topOnly = true;
+
+	KeyboardPlugin keyboard;
 
 private:
 	Scene* scene;

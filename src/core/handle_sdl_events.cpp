@@ -8,11 +8,13 @@
 #include "game.hpp"
 
 #include "../input/mouse/mouse_manager.hpp"
+#include "../input/keyboard/keyboard_manager.hpp"
 
 namespace Zen {
 
 extern Window g_window;
 extern MouseManager g_mouse;
+extern KeyboardManager g_keyboard;
 
 void Game::handleSDLEvents ()
 {
@@ -35,25 +37,34 @@ void Game::handleSDLEvents ()
 			// Mouse
 			case SDL_MOUSEMOTION:
 				if (g_mouse.enabled)
-					g_mouse.onMouseMove(event_);
+					g_mouse.onMouseMove(&event_);
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
 				if (g_mouse.enabled)
-					g_mouse.onMouseDown(event_);
+					g_mouse.onMouseDown(&event_);
 				break;
 
 			case SDL_MOUSEBUTTONUP:
 				if (g_mouse.enabled)
-					g_mouse.onMouseUp(event_);
+					g_mouse.onMouseUp(&event_);
 				break;
 
 			case SDL_MOUSEWHEEL:
 				if (g_mouse.enabled)
-					g_mouse.onMouseWheel(event_);
+					g_mouse.onMouseWheel(&event_);
 				break;
 
 			// Keyboard
+			case SDL_KEYDOWN:
+				if (g_keyboard.enabled)
+					g_keyboard.onKeyDown(&event_);
+				break;
+
+			case SDL_KEYUP:
+				if (g_keyboard.enabled)
+					g_keyboard.onKeyUp(&event_);
+				break;
 		}
 	}
 }

@@ -11,6 +11,7 @@
 #include "config.hpp"
 #include "../input/input_manager.hpp"
 #include "../input/mouse/mouse_manager.hpp"
+#include "../input/keyboard/keyboard_manager.hpp"
 
 namespace Zen {
 
@@ -23,7 +24,8 @@ ScaleManager g_scale;
 Renderer g_renderer;
 extern Scenes::SceneManager g_scene;
 InputManager g_input;
-MouseManager g_mouse;
+extern MouseManager g_mouse;
+extern KeyboardManager g_keyboard;
 
 Game::Game (GameConfig& config_)
 	: events (g_event)
@@ -67,6 +69,9 @@ void Game::boot ()
 
 	if (config.inputMouse)
 		g_mouse.boot();
+
+	if (config.inputKeyboard)
+		g_keyboard.boot();
 
 	window.on("minimize", &Game::onMinimize, this);
 	window.on("restore", &Game::onRestore, this);

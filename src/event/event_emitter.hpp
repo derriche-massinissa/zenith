@@ -305,9 +305,6 @@ public:
 	/**
 	 * Calls each of the listeners registered for a given event.
 	 *
-	 * Note that the event isn't executed immediatly, but added to the
-	 * internal event queue to be polled in a future game step.
-	 *
 	 * @since 0.0.0
 	 *
 	 * @param eventName_ The event name.

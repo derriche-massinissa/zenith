@@ -49,7 +49,8 @@ extern entt::registry g_registry;
 extern InputManager g_input;
 
 InputPlugin::InputPlugin (Scene* scene_)
-	: scene (scene_)
+	: keyboard (scene_)
+	, scene (scene_)
 	, sys (&scene_->sys)
 	, settings (&scene_->sys.settings)
 	, displayList (&scene_->children)
@@ -78,7 +79,7 @@ void InputPlugin::start ()
 	for (int i = 0; i < 10; i++)
 		dragState.push_back(0);
 
-	emit("start");
+	pluginEvents.emit("start");
 }
 
 void InputPlugin::onWindowOver (InputEvent event_)
@@ -93,9 +94,9 @@ void InputPlugin::onWindowOut (InputEvent event_)
 		emit("windowout",event_.timestamp);
 }
 
-void InputPlugin::preUpdate (Uint32 time_, Uint32 delta_)
+void InputPlugin::preUpdate ([[maybe_unused]] Uint32 time_, [[maybe_unused]] Uint32 delta_)
 {
-	emit("SYS_PRE_UPDATE");
+	pluginEvents.emit("pre-update");
 
 	size_t toRemove_ = pendingRemoval.size();
 	size_t toInsert_ = pendingInsertion.size();
@@ -142,7 +143,7 @@ bool InputPlugin::updatePoll (Uint32 time_, Uint32 delta_)
 
 	//  The plugins should update every frame, regardless if there has been
 	//  any DOM input events or not (such as the Gamepad and Keyboard)
-	emit("SYS_UPDATE", time_, delta_);
+	pluginEvents.emit("update", time_, delta_);
 
 	//  We can leave now if we've already updated once this frame via the immediate DOM event handlers
 	if (updatedThisFrame)
@@ -755,7 +756,7 @@ int InputPlugin::processMoveEvents (Pointer *pointer_)
 	}
 
 	if (!aborted_)
-		emit("pointermove", &tempEvent);
+		emit(ZEN_INPUT_POINTER_MOVE, &tempEvent);
 
 	return total_;
 }

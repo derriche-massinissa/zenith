@@ -40,46 +40,46 @@ void MouseManager::releasePointer ()
 	SDL_ShowCursor(1);
 }
 
-void MouseManager::onMouseMove (SDL_Event event_)
+void MouseManager::onMouseMove (SDL_Event * const event_)
 {
 	tempEvent.reset();
 
 	// Relative to window
-	tempEvent.x = event_.motion.x;
+	tempEvent.x = event_->motion.x;
 	// Relative to window
-	tempEvent.y = event_.motion.y;
+	tempEvent.y = event_->motion.y;
 	// Delta (Relative to last x)
-	tempEvent.deltaX = event_.motion.xrel;
+	tempEvent.deltaX = event_->motion.xrel;
 	// Delta (Relative to last y)
-	tempEvent.deltaY = event_.motion.yrel;
+	tempEvent.deltaY = event_->motion.yrel;
 
 	g_input.onMouseMove(tempEvent);
 }
 
-void MouseManager::onMouseUp (SDL_Event event_)
+void MouseManager::onMouseUp (SDL_Event * const event_)
 {
 	tempEvent.reset();
 
 	// Relative to window
-	tempEvent.x = event_.button.x;
+	tempEvent.x = event_->button.x;
 	// Relative to window
-	tempEvent.y = event_.button.y;
+	tempEvent.y = event_->button.y;
 	// 1 (single-click), 2 (double-click)...
-	tempEvent.clicks = event_.button.clicks;
+	tempEvent.clicks = event_->button.clicks;
 
 	g_input.onMouseUp(tempEvent);
 }
 
-void MouseManager::onMouseDown (SDL_Event event_)
+void MouseManager::onMouseDown (SDL_Event * const event_)
 {
 	tempEvent.reset();
 
 	// Relative to window
-	tempEvent.x = event_.button.x;
+	tempEvent.x = event_->button.x;
 	// Relative to window
-	tempEvent.y = event_.button.y;
+	tempEvent.y = event_->button.y;
 	// 1 (single-click), 2 (double-click)...
-	tempEvent.clicks = event_.button.clicks;
+	tempEvent.clicks = event_->button.clicks;
 
 	g_input.onMouseDown(tempEvent);
 }
@@ -104,14 +104,14 @@ void MouseManager::onMouseOut ()
 }
 */
 
-void MouseManager::onMouseWheel (SDL_Event event_)
+void MouseManager::onMouseWheel (SDL_Event * const event_)
 {
 	tempEvent.reset();
 
 	// Horizontal(???) scroll ([+] right : [-] left)
-	tempEvent.x = event_.button.x;
+	tempEvent.x = event_->button.x;
 	// Vertical scroll ([+] up : [-] down)
-	tempEvent.y = event_.button.y;
+	tempEvent.y = event_->button.y;
 
 	g_input.onMouseWheel(tempEvent);
 }
@@ -135,5 +135,7 @@ void MouseManager::update ()
 		// TODO reset mouse pointer object in g_input too
 	}
 }
+
+MouseManager g_mouse;
 
 }	// namespace Zen

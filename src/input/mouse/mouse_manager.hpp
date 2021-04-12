@@ -28,11 +28,11 @@ public:
 
 	void releasePointer ();
 
-	void onMouseMove (SDL_Event event_);
+	void onMouseMove (SDL_Event * const event_);
 
-	void onMouseUp (SDL_Event event_);
+	void onMouseUp (SDL_Event * const event_);
 
-	void onMouseDown (SDL_Event event_);
+	void onMouseDown (SDL_Event * const event_);
 
 	/*
 	void onMouseOver ();
@@ -40,7 +40,7 @@ public:
 	void onMouseOut ();
 	*/
 
-	void onMouseWheel (SDL_Event event_);
+	void onMouseWheel (SDL_Event * const event_);
 
 	void onPointerLockChange ();
 
