@@ -15,43 +15,49 @@
 
 namespace Zen {
 
-KeyCombo::KeyCombo (std::string keys, KeyComboConfig config)
+KeyCombo::KeyCombo (const char * keys_, KeyComboConfig config_)
 {
-	ZEN_ASSERT((keys.size() < 2), "A combo cannot have a zero or single length \
+	std::string sKeys_ (keys_);
+
+	ZEN_ASSERT((sKeys_.size() > 2), "A combo cannot have a zero or single length \
 			combo");
 	
-	// Keys
-	for (const char& key : keys)
-	{
-		SDL_Keycode k = SDL_GetKeyFromName(&key);
+	std::string temp_;
 
-		if (k == SDLK_UNKNOWN)
+	// Keys
+	for (const char& key_ : sKeys_)
+	{
+		temp_ = key_;
+		SDL_Keycode k_ = SDL_GetKeyFromName(temp_.c_str());
+
+		if (k_ == SDLK_UNKNOWN)
 		{
-			MessageError("Key '", k, "' is not recognized, and couldn't be used \
-					for combo creation");
-		}
+			MessageError("Key '", k_, "' is not recognized, and couldn't be \
+					used for combo creation"); }
 		else
 		{
-			keyCodes.emplace_back(k);
+			keyCodes.emplace_back(k_);
 		}
 	}
 
 	// Config
-	resetOnWrongKey = config.resetOnWrongKey;
-	maxKeyDelay = config.maxKeyDelay;
-	resetOnMatch = config.resetOnMatch;
-	deleteOnMatch = config.deleteOnMatch;
+	resetOnWrongKey = config_.resetOnWrongKey;
+	maxKeyDelay = config_.maxKeyDelay;
+	resetOnMatch = config_.resetOnMatch;
+	deleteOnMatch = config_.deleteOnMatch;
+
+	size = keyCodes.size();
 }
 
-KeyCombo::KeyCombo (std::vector<std::string> keys, KeyComboConfig config)
+KeyCombo::KeyCombo (std::vector<const char*> keys, KeyComboConfig config)
 {
-	ZEN_ASSERT((keys.size() < 2), "A combo cannot have a zero or single length \
+	ZEN_ASSERT((keys.size() > 2), "A combo cannot have a zero or single length \
 			combo");
 	
 	// Keys
 	for (const auto& key : keys)
 	{
-		SDL_Keycode k = SDL_GetKeyFromName(key.c_str());
+		SDL_Keycode k = SDL_GetKeyFromName(key);
 
 		if (k == SDLK_UNKNOWN)
 		{
@@ -69,12 +75,14 @@ KeyCombo::KeyCombo (std::vector<std::string> keys, KeyComboConfig config)
 	maxKeyDelay = config.maxKeyDelay;
 	resetOnMatch = config.resetOnMatch;
 	deleteOnMatch = config.deleteOnMatch;
+
+	size = keyCodes.size();
 }
 
 KeyCombo::KeyCombo (std::vector<SDL_Keycode> keys, KeyComboConfig config)
 	: keyCodes (keys)
 {
-	ZEN_ASSERT((keys.size() < 2), "A combo cannot have a zero or single length \
+	ZEN_ASSERT((keys.size() > 2), "A combo cannot have a zero or single length \
 			combo");
 	
 	// Keys
@@ -85,6 +93,8 @@ KeyCombo::KeyCombo (std::vector<SDL_Keycode> keys, KeyComboConfig config)
 	maxKeyDelay = config.maxKeyDelay;
 	resetOnMatch = config.resetOnMatch;
 	deleteOnMatch = config.deleteOnMatch;
+
+	size = keyCodes.size();
 }
 
 double KeyCombo::getProgress ()
@@ -101,7 +111,7 @@ bool KeyCombo::onKeyDown (KeyboardPlugin* kbPlugin_, const SDL_Event * const eve
 
 	if (matched)
 	{
-		emit("keycombomatch", event_);
+		emit("match", event_);
 		kbPlugin_->emit("keycombomatch", this, event_);
 
 		if (resetOnMatch)
@@ -121,7 +131,7 @@ bool KeyCombo::process (const SDL_Event * const event_)
 	bool comboMatched = false;
 	bool keyMatched = false;
 
-	if (event_->key.keysym.sym == current)
+	if (event_->key.keysym.sym == keyCodes[index])
 	{
 		// Key was correct
 		if (index > 0 && maxKeyDelay > 0)
@@ -150,7 +160,6 @@ bool KeyCombo::process (const SDL_Event * const event_)
 	{
 		// Wrong key was pressed
 		index = 0;
-		current = keyCodes[0];
 	}
 
 	if (comboMatched)
@@ -174,14 +183,12 @@ bool KeyCombo::advance (const SDL_Event * const event_)
 	}
 	else
 	{
-		current = keyCodes[index];
 		return false;
 	}
 }
 
 void KeyCombo::reset ()
 {
-	current = keyCodes[0];
 	index = 0;
 	timeLastMatched = 0;
 	matched = false;

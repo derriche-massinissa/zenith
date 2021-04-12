@@ -85,9 +85,7 @@ Key* KeyboardPlugin::addKey (SDL_Keycode key_, bool emitOnRepeat_)
 			return &k_;
 	}
 
-	keys.emplace_back(key_, emitOnRepeat_);
-
-	return &keys.back();
+	return &keys.emplace_back(key_, emitOnRepeat_);
 }
 
 Key* KeyboardPlugin::addKey (std::string key_, bool emitOnRepeat_)
@@ -141,36 +139,48 @@ void KeyboardPlugin::removeAllKeys ()
 }
 
 KeyCombo* KeyboardPlugin::createCombo (
-	std::string keys_,
+	const char * keys_,
 	KeyComboConfig config_)
 {
+	/*
 	combos.emplace_back(
 		std::make_unique<KeyCombo>(keys_, config_)
 	);
 
 	return combos.back().get();
+	*/
+
+	return &combos.emplace_back(keys_, config_);
 }
 
 KeyCombo* KeyboardPlugin::createCombo (
-	std::vector<std::string> keys_,
+	std::vector<const char *> keys_,
 	KeyComboConfig config_)
 {
+	/*
 	combos.emplace_back(
 		std::make_unique<KeyCombo>(keys_, config_)
 	);
 
 	return combos.back().get();
+	*/
+
+	return &combos.emplace_back(keys_, config_);
 }
 
 KeyCombo* KeyboardPlugin::createCombo (
 	std::vector<SDL_Keycode> keys_,
 	KeyComboConfig config_)
 {
+	/*
 	combos.emplace_back(
 		std::make_unique<KeyCombo>(keys_, config_)
 	);
 
 	return combos.back().get();
+	*/
+
+	return &combos.emplace_back(keys_, config_);
 }
 
 void KeyboardPlugin::processKeyDown (const SDL_Event * const event_)
@@ -189,7 +199,7 @@ void KeyboardPlugin::processKeyDown (const SDL_Event * const event_)
 	// Combos
 	for (auto c_ = combos.begin(); c_ != combos.end();)
 	{
-		if (c_->get()->onKeyDown(this, event_))
+		if (c_->onKeyDown(this, event_))
 		{
 			combos.erase(c_);
 		}

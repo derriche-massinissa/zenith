@@ -347,6 +347,8 @@ public:
 	 * `false`.
      */
 	bool checkDown (Uint32 duration = 0);
+
+	bool operator == (const Key& rhs);
 };
 
 }	// namespace Zen

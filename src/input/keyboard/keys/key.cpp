@@ -201,4 +201,9 @@ bool Key::rMetaKey ()
 	return (keyMod & KMOD_RGUI) != KMOD_NONE;
 }
 
+bool Key::operator == (const Key& rhs)
+{
+	return (keyCode == rhs.keyCode);
+}
+
 }	// namespace Zen

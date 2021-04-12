@@ -17,6 +17,7 @@
 #include "combo/key_combo.hpp"
 #include "../../event/event_listener.fwd.hpp"
 #include <memory>
+#include <deque>
 
 namespace Zen {
 
@@ -79,9 +80,9 @@ public:
 
 	void removeAllKeys ();
 
-	KeyCombo* createCombo (std::string keys_, KeyComboConfig config_ = {});
+	KeyCombo* createCombo (const char * keys_, KeyComboConfig config_ = {});
 
-	KeyCombo* createCombo (std::vector<std::string> keys_, KeyComboConfig config_ = {});
+	KeyCombo* createCombo (std::vector<const char *> keys_, KeyComboConfig config_ = {});
 
 	KeyCombo* createCombo (std::vector<SDL_Keycode> keys_, KeyComboConfig config_ = {});
 
@@ -97,9 +98,9 @@ public:
 
 	bool enabled = true;
 
-	std::vector<Key> keys;
+	std::deque<Key> keys;
 
-	std::vector<std::unique_ptr<KeyCombo>> combos;
+	std::deque<KeyCombo> combos;
 
 	/**
 	 * Internal repeat key flag.

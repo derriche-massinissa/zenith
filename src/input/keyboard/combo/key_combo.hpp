@@ -89,13 +89,6 @@ public:
 	std::vector<SDL_Keycode> keyCodes;
 
 	/**
-	 * The current key code the combo is waiting for.
-	 *
-	 * @since 0.0.0
-	 */
-	SDL_Keycode current;
-
-	/**
 	 * The current index of the key code the combo is waiting for.
 	 *
 	 * @since 0.0.0
@@ -164,14 +157,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	KeyCombo (std::string keys_, KeyComboConfig config_ = {});
+	KeyCombo (const char * keys_, KeyComboConfig config_ = {});
 
 	/**
 	 * Construct the KeyCombo using a vector of key names.
 	 *
 	 * @since 0.0.0
 	 */
-	KeyCombo (std::vector<std::string> keys_, KeyComboConfig config_ = {});
+	KeyCombo (std::vector<const char*> keys_, KeyComboConfig config_ = {});
 
 	/**
 	 * Construct the KeyCombo using a vector of keycodes.
