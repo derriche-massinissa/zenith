@@ -18,8 +18,12 @@
 #include "../scene/scene_manager.h"
 #include "../cameras/2d/camera_manager.hpp"
 #include "../core/config.hpp"
+#include "../input/input_manager.hpp"
 
 namespace Zen {
+
+extern InputManager g_input;
+
 namespace Loader {
 
 LoaderPlugin::LoaderPlugin (Scene* scene_)
@@ -63,6 +67,13 @@ LoaderPlugin& LoaderPlugin::image (std::string key_, std::string path_, bool alp
 
 	if (alphaCache_)
 		textureManager.createAlphaCache(key_);
+
+	return *this;
+}
+
+LoaderPlugin& LoaderPlugin::cursor (std::string key_, std::string path_, int hotX_, int hotY_)
+{
+	g_input.createColorCursor(key_, path_, hotX_, hotY_);
 
 	return *this;
 }

@@ -8,6 +8,7 @@
 #ifndef ZEN_INPUT_INPUTCONFIGURATION_HPP
 #define ZEN_INPUT_INPUTCONFIGURATION_HPP
 
+#include <string>
 #include "../../geom/types/shape.hpp"
 #include "hit_callback.hpp"
 
@@ -25,7 +26,7 @@ struct InputConfiguration
 
 	bool useHandCursor = false;
 
-	const char* cursor = "";
+	std::string cursor;
 
 	bool pixelPerfect = false;
 

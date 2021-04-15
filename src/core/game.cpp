@@ -129,6 +129,7 @@ void Game::step (Uint32 time_, Uint32 delta_)
 	events.emit("post-step", time_, delta_);
 
 	// Run the Pre-Renderer (Clearing the window, setting background colors, etc...)
+	g_input.preRender(time_, delta_);
 	renderer.preRender();
 	events.emit("pre-render", time_, delta_);
 

@@ -148,7 +148,7 @@ public:
 
 	std::vector<Pointer*> addPointer (int quantity_);
 
-	void setDefaultCursor (std::string textureKey_, std::string frameName_);
+	void setDefaultCursor (std::string cursor);
 
 	EventEmitter pluginEvents;
 

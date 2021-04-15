@@ -838,8 +838,8 @@ int InputPlugin::processOverEvents (Pointer *pointer_)
 
 			justOver_.push_back(obj_);
 
-			// TODO check this when done with the input manager
-			//g_input.setCursor(input_);
+			if (!input_->cursor.empty())
+				g_input.setCursor(input_->cursor);
 
 			totalInteracted_++;
 
@@ -894,8 +894,7 @@ int InputPlugin::processOutEvents (Pointer *pointer_)
 			if (!input_)
 				continue;
 
-			// TODO check this when done with the input manager
-			//g_input.resetCursor(input_);
+			g_input.resetCursor();
 
 			totalInteracted_++;
 
@@ -983,16 +982,17 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 			if (!input_)
 				continue;
 
-			// Reset cursor before we emit the event, in case they want to change it during the event
-			// TODO custom cursor
-			//g_input.resetCursor(input_);
+			// Reset cursor before we emit the event, in case they want to change
+			// it during the event
+			if (!input_->cursor.empty())
+				g_input.resetCursor();
 
 			tempEvent.pointer = pointer_;
 			tempEvent.gameObject = obj_;
 
-			totalInteracted_++;
-
 			emit(ZEN_INPUT_GAMEOBJECT_OUT, &tempEvent);
+
+			totalInteracted_++;
 
 			if (tempEvent.stopFlag)
 			{
@@ -1026,9 +1026,10 @@ int InputPlugin::processOverOutEvents (Pointer *pointer_)
 			if (!input_)
 				continue;
 
-			// Set cursor before we emit the event, in case they want to change it during the event
-			// TODO check this when done with the input manager
-			//g_input.setCursor(input_);
+			// Set cursor before we emit the event, in case they want to change it
+			// during the event
+			if (!input_->cursor.empty())
+				g_input.setCursor(input_->cursor);
 
 			totalInteracted_++;
 
@@ -1234,7 +1235,7 @@ void InputPlugin::setHitArea (std::vector<Entity> entities_, InputConfiguration 
 
 		input_->customHitArea = customHitArea_;
 		input_->dropZone = config_.dropZone;
-		// TODO input_->cursor = (config_.useHandCursor) ? "pointer" : config_.cursor;
+		input_->cursor = (config_.useHandCursor) ? "_hand" : config_.cursor;
 
 		if (config_.draggable)
 			setDraggable(ent_);
@@ -1516,10 +1517,9 @@ std::vector<Pointer*> InputPlugin::addPointer (int quantity_)
 	return g_input.addPointer(quantity_);
 }
 
-void InputPlugin::setDefaultCursor (std::string textureKey_, std::string frameName_)
+void InputPlugin::setDefaultCursor (std::string cursor_)
 {
-	// TODO cursor
-	//g_input.setDefaultCursor(textureKey_, frameName_);
+	g_input.setDefaultCursor(cursor_);
 }
 
 void InputPlugin::transitionIn ()

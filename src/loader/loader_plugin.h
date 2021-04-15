@@ -130,6 +130,8 @@ public:
 	 * @since 0.0.0
 	 */
 	LoaderPlugin& image (std::string key_, std::string path_, bool alphaCache_ = false);
+	
+	LoaderPlugin& cursor (std::string key, std::string path, int hotX = 0, int hotY = 0);
 
 	/**
 	 * Load an atlas texture.

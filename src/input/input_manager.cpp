@@ -7,13 +7,14 @@
 
 #include "input_manager.hpp"
 
+#include <SDL2/SDL_timer.h>
+#include <SDL2/SDL_image.h>
 #include "events/events.hpp"
 #include "../utils/assert.hpp"
 #include "../scene/scene_manager.h"
 #include "../scene/scene.h"
 #include "../scale/scale_manager.hpp"
 #include "../window/window.hpp"
-#include <SDL2/SDL_timer.h>
 #include "../core/config.hpp"
 #include "../components/container_item.hpp"
 #include "../components/scroll.hpp"
@@ -43,6 +44,12 @@ InputManager::~InputManager ()
 {
 	g_window.off(lPointerIn);
 	g_window.off(lPointerOut);
+
+	// Free cursors
+	for (auto& cur_ : cursors)
+	{
+		SDL_FreeCursor(cur_.second);
+	}
 }
 
 void InputManager::boot (GameConfig* cfg_)
@@ -81,7 +88,7 @@ void InputManager::preRender (Uint32 time_, Uint32 delta_)
 
 	auto scenes_ = g_scene.getScenes(true, true);
 
-	events.emit("SYS_UPDATE");
+	events.emit("update");
 
 	for (auto& scene_ : scenes_)
 	{
@@ -93,25 +100,147 @@ void InputManager::preRender (Uint32 time_, Uint32 delta_)
 	}
 }
 
-void InputManager::setDefaultCursor ()
+void InputManager::createColorCursor (std::string key_, std::string path_, int hotX_, int hotY_)
 {
-	if (!booted) return;
+	if (cursors.find(key_) != cursors.end())
+	{
+		MessageError("There is already a cursor with the requested key: ", key_);
+		return;
+	}
 
-	// TODO custom cursor
+	SDL_Surface * cursorImage_ = IMG_Load(path_.c_str());
+	if (cursorImage_ == nullptr)
+	{
+		MessageError("The image couldn't be loaded for cursor creation: ", path_);
+		return;
+	}
+
+	cursors[key_] = SDL_CreateColorCursor(cursorImage_, hotX_, hotY_);
+	SDL_FreeSurface(cursorImage_);
+	if (cursors[key_] == nullptr)
+	{
+		MessageError("The cursor couldn't be created: ", path_);
+	}
 }
 
-void InputManager::setCursor ()
+void InputManager::createSystemCursor (std::string key_, SDL_SystemCursor cursor_)
+{
+	if (cursors.find(key_) != cursors.end())
+	{
+		MessageError("There is already a cursor with the requested key: ", key_);
+		return;
+	}
+
+	cursors[key_] = SDL_CreateSystemCursor(cursor_);
+	if (cursors[key_] == nullptr)
+	{
+		MessageError("The cursor couldn't be created: ", key_);
+	}
+}
+
+void InputManager::showCursor (bool toggle_)
+{
+	int state_ = 0;
+
+	if (toggle_)
+		state_ = SDL_ShowCursor(SDL_ENABLE);
+	else
+		state_ = SDL_ShowCursor(SDL_DISABLE);
+
+	if (state_ < 0)
+	{
+		MessageError("SDL_ShowCursor failed: ", SDL_GetError());
+	}
+}
+
+bool InputManager::isCursorHidden ()
+{
+	int state_ = SDL_ShowCursor(SDL_QUERY);
+
+	if (state_ < 0)
+	{
+		MessageError("SDL_ShowCursor failed: ", SDL_GetError());
+	}
+
+	if (state_ == SDL_ENABLE)
+		return false;
+	else
+		return true;
+}
+
+void InputManager::setDefaultCursor (std::string cursor_)
 {
 	if (!booted) return;
 
-	// TODO custom cursor
+	setCursor(cursor_);
+
+	if (cursors.find(cursor_) == cursors.end())
+	{
+		MessageError("There are no cursors with the requested key: ", cursor_);
+		return;
+	}
+
+	defaultCursor = cursor_;
+}
+
+void InputManager::setCursor (std::string cursor_)
+{
+	if (cursors.find(cursor_) == cursors.end())
+	{
+		// Check if system cursor
+		if (!cursor_.empty() && cursor_.at(0) == '_')
+		{
+			if (cursor_ == "_arrow")
+				createSystemCursor("_arrow", SDL_SYSTEM_CURSOR_ARROW);
+
+			else if (cursor_ == "_ibeam")
+				createSystemCursor("_ibeam", SDL_SYSTEM_CURSOR_IBEAM);
+
+			else if (cursor_ == "_wait")
+				createSystemCursor("_wait", SDL_SYSTEM_CURSOR_WAIT);
+
+			else if (cursor_ == "_crosshair")
+				createSystemCursor("_crosshair", SDL_SYSTEM_CURSOR_CROSSHAIR);
+
+			else if (cursor_ == "_waitarrow")
+				createSystemCursor("_waitarrow", SDL_SYSTEM_CURSOR_WAITARROW);
+
+			else if (cursor_ == "_sizenwse")
+				createSystemCursor("_sizenwse", SDL_SYSTEM_CURSOR_SIZENWSE);
+
+			else if (cursor_ == "_sizenesw")
+				createSystemCursor("_sizenesw", SDL_SYSTEM_CURSOR_SIZENESW);
+
+			else if (cursor_ == "_sizewe")
+				createSystemCursor("_sizewe", SDL_SYSTEM_CURSOR_SIZEWE);
+
+			else if (cursor_ == "_sizens")
+				createSystemCursor("_sizens", SDL_SYSTEM_CURSOR_SIZENS);
+
+			else if (cursor_ == "_sizeall")
+				createSystemCursor("_sizeall", SDL_SYSTEM_CURSOR_SIZEALL);
+
+			else if (cursor_ == "_no")
+				createSystemCursor("_no", SDL_SYSTEM_CURSOR_NO);
+
+			else if (cursor_ == "_hand")
+				createSystemCursor("_hand", SDL_SYSTEM_CURSOR_HAND);
+		}
+		else
+		{
+			MessageError("There are no cursors with the requested key: ", cursor_);
+			return;
+		}
+	}
+
+	SDL_SetCursor(cursors[cursor_]);
 }
 
 void InputManager::resetCursor ()
 {
 	if (!booted) return;
 
-	// TODO custom cursor
+	setCursor(defaultCursor);
 }
 
 std::vector<Pointer*> InputManager::addPointer (int quantity_)

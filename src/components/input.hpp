@@ -11,6 +11,7 @@
 #include "../ecs/entity.hpp"
 #include "../geom/types/shape.hpp"
 #include "../input/types/hit_callback.hpp"
+#include <string>
 
 namespace Zen {
 namespace Components {
@@ -45,8 +46,7 @@ struct Input
 	bool alwaysEnabled = false;
 	bool draggable = false;
 	bool dropZone = false;
-	//char cursorTexture[20] = "";
-	//char cursorFrame[20] = "";
+	std::string cursor;
 	Entity target = entt::null;
 	Entity camera = entt::null;
 	Shape hitArea;
@@ -71,6 +71,7 @@ struct Input
 		, alwaysEnabled (other.alwaysEnabled)
 		, draggable (other.draggable)
 		, dropZone (other.dropZone)
+		, cursor (other.cursor)
 		, target (other.target)
 		, camera (other.camera)
 		, hitArea (other.hitArea)
@@ -93,6 +94,7 @@ struct Input
 		, alwaysEnabled (other.alwaysEnabled)
 		, draggable (other.draggable)
 		, dropZone (other.dropZone)
+		, cursor (other.cursor)
 		, target (other.target)
 		, camera (other.camera)
 		, hitArea (std::move(other.hitArea))
@@ -119,6 +121,8 @@ struct Input
 		draggable = other.draggable;
 
 		dropZone = other.dropZone;
+
+		cursor = other.cursor;
 
 		target = other.target;
 
