@@ -9,6 +9,7 @@
 #define ZEN_TEXTURES_COMPONENTS_TEXTURE_HPP
 
 #include "../../ecs/entity.hpp"
+#include <string>
 
 namespace Zen {
 namespace Components {
@@ -21,7 +22,7 @@ struct Texture
 	 * @property
 	 * @since 0.0.0
 	 */
-	const char* key;
+	std::string key;
 
 	/**
 	 * The total number of Frames in this Texture, including the `__BASE` frame.

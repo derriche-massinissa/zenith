@@ -115,9 +115,9 @@ void Pointer::down (InputEvent event_)
 	// 0: Main button pressed, usually the left button or the un-initialized state
 	if (event_.button == 0)
 	{
-		primaryDown = false;
-		upX = position.x;
-		upY = position.y;
+		primaryDown = true;
+		downX = position.x;
+		downY = position.y;
 	}
 
 	if (!isDown)

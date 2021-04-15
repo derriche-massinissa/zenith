@@ -37,6 +37,8 @@ namespace Zen {
 class TextureManager : public EventEmitter
 {
 public:
+	~TextureManager ();
+
 	/**
 	 * The boot handler called by the Game instance when it first starts up.
 	 *
@@ -367,12 +369,23 @@ public:
 	Color getPixel (int x_, int y_, std::string key_, int frameIndex_);
 
 	/**
-	 * Given a Texture and an `x` and `y` coordinates, this method will
+	 * Given a frame and an `x` and `y` coordinates, this method will
 	 * return a value between 0 and 255 corresponding to the alpha value
 	 * of the pixel at that location in the Texture.
 	 *
 	 * This will return `-1` in case the coordinates are out of bounds.
 	 *
+	 * @since 0.0.0
+	 *
+	 * @param x_ The x coordinate of the pixel.
+	 * @param y_ The y coordinate of the pixel.
+	 * @param textureFrame_ The frame entity.
+	 *
+	 * @return Alpha value (0-255) of the given pixel, or `-1` if the coordinates were out of bounds.
+	 */
+	int getPixelAlpha (int x_, int y_, Entity textureFrame_);
+	/**
+	 * @overload
 	 * @since 0.0.0
 	 *
 	 * @param x_ The x coordinate of the pixel.
@@ -395,6 +408,8 @@ public:
 	 * @return Alpha value (0-255) of the given pixel, or `-1` if the coordinates were out of bounds.
 	 */
 	int getPixelAlpha (int x_, int y_, std::string key_, int frameIndex_);
+
+	void createAlphaCache (std::string key_);
 
 	/*
 	 * Changes the key being used by a Texture to the new key provided.
@@ -451,13 +466,22 @@ public:
 	 */
 	GameConfig *config;
 
+private:
 	/**
-	 * Avector that has all the textures that the TextureManager creates.
-	 * Textures are assigned to keys so we can access to any texture that this object has directly by key value without iteration.
+	 * Avector holding all the textures that the TextureManager creates.
+	 * Textures are assigned to keys so we can access to any texture that this
+	 * object has directly by key value without iteration.
 	 *
 	 * @since 0.0.0
 	 */
 	std::map<std::string, Entity> list;
+
+	/**
+	 * TextureSource - Pixel array
+	 *
+	 * @since 0.0.0
+	 */
+	std::map<Entity, SDL_Surface*> alphaCache;
 };
 
 }	// namespace Zen

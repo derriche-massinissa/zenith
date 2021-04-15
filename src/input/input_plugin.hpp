@@ -95,7 +95,7 @@ public:
 
 	void setDraggable (std::vector<Entity> entity_, bool value_ = true);
 
-	HitCallback makePixelPerfect (double alphaTolerance_);
+	HitCallback makePixelPerfect (int alphaTolerance_);
 
 	// Simple +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	void setHitArea (Entity entity_);
@@ -156,6 +156,10 @@ public:
 
 	KeyboardPlugin keyboard;
 
+	double dragDistanceThreshold = 0.;
+
+	Uint32 dragTimeThreshold = 0;
+
 private:
 	Scene* scene;
 
@@ -188,10 +192,6 @@ private:
 	bool enabled = true;
 
 	InputEvent tempEvent;
-
-	double dragDistanceThreshold = 0.;
-
-	Uint32 dragTimeThreshold = 0.;
 
 	Uint32 pollTimer = 0;
 

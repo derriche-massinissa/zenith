@@ -9,10 +9,15 @@
 #define ZEN_SYSTEMS_INPUT_HPP
 
 #include "../ecs/entity.hpp"
+#include "../components/input.hpp"
 
 namespace Zen {
 
 bool IsInputEnabled (Entity entity);
+
+void MakeDropZone (Entity entity, bool value = true);
+
+Components::Input* GetInput (Entity entity);
 
 }	// namespace Zen
 

@@ -178,6 +178,28 @@ std::vector<Entity> GetFramesFromSource (Entity source, bool includeBase = false
  */
 std::vector<std::string> GetFrameNames (Entity texture, bool includeBase = false);
 
+/**
+ * Returns a vector with all the sources of the given texture.
+ *
+ * @since 0.0.0
+ *
+ * @param texture The texture to get the sources of.
+ *
+ * @return A vector of sources.
+ */
+std::vector<Entity> GetTextureSources (Entity texture);
+
+/**
+ * Returns a vector with all the source files of the given texture.
+ *
+ * @since 0.0.0
+ *
+ * @param texture The texture to get the sources of.
+ *
+ * @return A vector of source files.
+ */
+std::vector<std::string> GetTextureSourceFiles (Entity texture);
+
 }	// namespace Zen
 
 #endif

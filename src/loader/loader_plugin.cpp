@@ -57,9 +57,12 @@ LoaderPlugin& LoaderPlugin::setPrefix (std::string prefix_)
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::image (std::string key_, std::string path_)
+LoaderPlugin& LoaderPlugin::image (std::string key_, std::string path_, bool alphaCache_)
 {
 	textureManager.addImage(key_, path_);
+
+	if (alphaCache_)
+		textureManager.createAlphaCache(key_);
 
 	return *this;
 }

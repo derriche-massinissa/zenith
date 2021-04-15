@@ -9,6 +9,7 @@
 #define ZEN_TEXTURES_COMPONENTS_SOURCE_HPP
 
 #include <SDL2/SDL_render.h>
+#include <string>
 #include "../../ecs/entity.hpp"
 
 namespace Zen {
@@ -32,7 +33,7 @@ struct TextureSource
 	 * @property
 	 * @since 0.0.0
 	 */
-	const char* source;
+	std::string source;
 
 	/**
 	 * The index of this source in the owning Texture.

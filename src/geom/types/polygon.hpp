@@ -62,7 +62,8 @@ struct Polygon
 
 	~Polygon ()
 	{
-		delete points;
+		if (points)
+			delete[] points;
 	}
 
 	void operator = (const Polygon& other)

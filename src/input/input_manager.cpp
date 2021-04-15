@@ -322,7 +322,7 @@ bool InputManager::pointWithinHitArea (Entity gameObject_, double x_, double y_)
 
 	auto input_ = g_registry.try_get<Components::Input>(gameObject_);
 
-	if (input_ && input_->hitAreaCallback(input_->hitArea, x_, y_))
+	if (input_ && input_->hitAreaCallback(input_->hitArea, x_, y_, gameObject_))
 	{
 		input_->localX = x_;
 		input_->localY = y_;

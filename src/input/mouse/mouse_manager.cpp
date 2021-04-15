@@ -62,10 +62,14 @@ void MouseManager::onMouseUp (SDL_Event * const event_)
 
 	// Relative to window
 	tempEvent.x = event_->button.x;
+
 	// Relative to window
 	tempEvent.y = event_->button.y;
+
 	// 1 (single-click), 2 (double-click)...
 	tempEvent.clicks = event_->button.clicks;
+
+	tempEvent.timestamp = event_->button.timestamp;
 
 	g_input.onMouseUp(tempEvent);
 }
@@ -76,10 +80,14 @@ void MouseManager::onMouseDown (SDL_Event * const event_)
 
 	// Relative to window
 	tempEvent.x = event_->button.x;
+
 	// Relative to window
 	tempEvent.y = event_->button.y;
+
 	// 1 (single-click), 2 (double-click)...
 	tempEvent.clicks = event_->button.clicks;
+
+	tempEvent.timestamp = event_->button.timestamp;
 
 	g_input.onMouseDown(tempEvent);
 }

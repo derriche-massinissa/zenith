@@ -129,7 +129,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& image (std::string key_, std::string path_);
+	LoaderPlugin& image (std::string key_, std::string path_, bool alphaCache_ = false);
 
 	/**
 	 * Load an atlas texture.

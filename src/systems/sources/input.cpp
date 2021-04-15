@@ -8,7 +8,6 @@
 #include "../input.hpp"
 
 #include "../../utils/assert.hpp"
-#include "../../components/input.hpp"
 
 namespace Zen {
 
@@ -20,6 +19,22 @@ bool IsInputEnabled (Entity entity)
 	ZEN_ASSERT(input, "The entity has no 'Input' component.");
 
 	return input->enabled;
+}
+
+void MakeDropZone (Entity entity, bool value)
+{
+	auto input = g_registry.try_get<Components::Input>(entity);
+	ZEN_ASSERT(input, "The entity has no 'Input' component.");
+
+	input->dropZone = value;
+}
+
+Components::Input* GetInput (Entity entity)
+{
+	auto input = g_registry.try_get<Components::Input>(entity);
+	ZEN_ASSERT(input, "The entity has no 'Input' component.");
+
+	return input;
 }
 
 }	// namespace Zen

@@ -212,22 +212,22 @@ std::vector<Entity> CameraManager::getCamerasBelowPointer (Pointer *pointer_)
 
 	// Inverted search
 	// So the top-most camera is at the top of the search vector
-	for (int i = cameras.size() - 1; i >= 0; i--)
+	for (auto c_ = cameras.rbegin(); c_ != cameras.rend(); c_++)
 	{
 		SetTo(
 			&camRect_,
-			GetX(cameras[i]),
-			GetY(cameras[i]),
-			GetWidth(cameras[i]),
-			GetHeight(cameras[i])
+			GetX(*c_),
+			GetY(*c_),
+			GetWidth(*c_),
+			GetHeight(*c_)
 			);
 
-		if (GetVisible(cameras[i]) &&
-			IsInputEnabled(cameras[i]) &&
+		if (GetVisible(*c_) &&
+			IsInputEnabled(*c_) &&
 			Contains(camRect_, pointer_->position.x, pointer_->position.y)
 		   )
 		{
-			output_.emplace_back(cameras[i]);
+			output_.emplace_back(*c_);
 		}
 	}
 

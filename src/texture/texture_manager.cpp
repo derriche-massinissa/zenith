@@ -30,6 +30,15 @@ namespace Zen {
 extern entt::registry g_registry;
 extern Window g_window;
 
+TextureManager::~TextureManager ()
+{
+	// Free surfaces
+	for (auto surface_ = alphaCache.begin(); surface_ != alphaCache.end(); surface_++)
+	{
+		SDL_FreeSurface(surface_->second);
+	}
+}
+
 void TextureManager::boot (GameConfig *config_)
 {
 	config = config_;
@@ -529,10 +538,66 @@ Color TextureManager::getPixel (int x_, int y_, std::string key_, int frameIndex
 		return Color ();
 }
 
-int TextureManager::getPixelAlpha (int x_, int y_, std::string key_, std::string frameName_)
+int TextureManager::getPixelAlpha (int x_, int y_, Entity textureFrame_)
 {
-	Entity textureFrame_ = getFrame(key_, frameName_);
+	int out_ = -1;
 
+	if (textureFrame_ != entt::null)
+	{
+		auto& frame_ = g_registry.get<Components::Frame>(textureFrame_);
+
+		auto cache_ = alphaCache.find(frame_.source);
+
+		if (cache_ == alphaCache.end())
+		{
+			auto& src_ = g_registry.get<Components::TextureSource>(frame_.source);
+			auto& txt_ = g_registry.get<Components::Texture>(src_.texture);
+
+			MessageError("Reading pixel alpha values can only be done for cached textures! Load the texture \"", txt_.key, "\" with `true` as the last parameter to cache it.");
+			return -1;
+		}
+
+		if (alphaCache[frame_.source] == nullptr)
+		{
+			MessageError("No surface is present in the requested alpha cache.");
+			return -1;
+		}
+
+		// Adjust for trim (if not trimmed x and y are just zero)
+		x_ -= frame_.x;
+		y_ -= frame_.y;
+
+		auto data_ = frame_.data.cut;
+
+		x_ += data_.x;
+		y_ += data_.y;
+
+		if (x_ >= data_.x && x_ < GetRight(data_) && y_ >= data_.y && y_ < GetBottom(data_))
+		{
+			// Get pixels in unsigned int of 32 bits
+			Uint32 *upixels_ = static_cast<Uint32*>(cache_->second->pixels);
+
+			// Read the pixel in `x` and `y`
+			Uint32 pixel_ = upixels_[y_ * (cache_->second->pitch/4) + x_];
+
+			// Get the color components of the pixel
+			Uint8 r_ = 0;
+			Uint8 g_ = 0;
+			Uint8 b_ = 0;
+			Uint8 a_ = 0;
+			SDL_GetRGBA(pixel_, cache_->second->format, &r_, &g_, &b_, &a_);
+
+			// Save the color components to the output variable
+			out_ = a_;
+		}
+	}
+
+	return out_;
+}
+
+/*
+int TextureManager::getPixelAlpha (int x_, int y_, Entity textureFrame_)
+{
 	int out_ = -1;
 
 	if (textureFrame_ != entt::null)
@@ -603,19 +668,43 @@ int TextureManager::getPixelAlpha (int x_, int y_, std::string key_, std::string
 
 	return out_;
 }
+ */
+
+int TextureManager::getPixelAlpha (int x_, int y_, std::string key_, std::string frameName_)
+{
+	Entity frame_ = getFrame(key_, frameName_);
+
+	return getPixelAlpha(x_, y_, frame_);
+}
 
 int TextureManager::getPixelAlpha (int x_, int y_, std::string key_, int frameIndex_)
 {
-	// Get the frame's name
-	Entity f_ = getFrame(key_, frameIndex_);
-	if (f_ != entt::null)
+	Entity frame_ = getFrame(key_, frameIndex_);
+
+	return getPixelAlpha(x_, y_, frame_);
+}
+
+void TextureManager::createAlphaCache (std::string key_)
+{
+	// Get texture entity
+	Entity texture_ = get(key_);
+
+	// Get _ALL_ image files (Multi Atlases have many sources)
+	std::vector<Entity> sources_ = GetTextureSources(texture_);
+
+	// For each image:
+	for (auto& source_ : sources_)
 	{
-		auto& frame_ = g_registry.get<Components::Frame>(f_);
-		return getPixelAlpha(x_, y_, key_, frame_.name);
-	}
-	else
-	{
-		return -1;
+		auto& src_ = g_registry.get<Components::TextureSource>(source_);
+
+		// Create a surface
+		alphaCache[source_] = IMG_Load(src_.source.c_str());
+
+		if (alphaCache[source_] == nullptr)
+		{
+			MessageError("Unable to load image ", src_.source.c_str(), ": ", IMG_GetError());
+			return;
+		}
 	}
 }
 

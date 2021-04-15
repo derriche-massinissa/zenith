@@ -24,7 +24,10 @@
 #include "../components/origin.hpp"
 #include "../components/container.hpp"
 #include "../components/size.hpp"
+#include "../systems/textured.hpp"
+#include "../systems/input.hpp"
 #include "../texture/components/frame.hpp"
+#include "../texture/texture_manager.hpp"
 #include "input_manager.hpp"
 #include "pointer.hpp"
 #include "types/input_configuration.hpp"
@@ -47,6 +50,7 @@ class InputManager;
 
 extern entt::registry g_registry;
 extern InputManager g_input;
+extern TextureManager g_texture;
 
 InputPlugin::InputPlugin (Scene* scene_)
 	: keyboard (scene_)
@@ -493,7 +497,7 @@ int InputPlugin::processDragStartList (Pointer *pointer_)
 	if (getDragState(pointer_) != 3)
 		return 0;
 
-	auto list_ = drag[pointer_->id];
+	std::vector<Entity>& list_ = drag[pointer_->id];
 
 	for (auto ent_ : list_)
 	{
@@ -536,7 +540,7 @@ int InputPlugin::processDragDownEvent (Pointer *pointer_)
 	{
 		auto input_ = g_registry.try_get<Components::Input>(ent_);
 
-		if (input_ && input_->draggable && !input_->dragState)
+		if (input_ && input_->draggable && input_->dragState == 0)
 			draglist_.push_back(ent_);
 	}
 
@@ -597,15 +601,15 @@ int InputPlugin::processDragMoveEvent (Pointer *pointer_)
 		// If this GO has a target then let's check it
 		if (target_ != entt::null)
 		{
-			auto it_ = std::find(dropZones_.begin(), dropZones_.end(), target_);
+			int index_ = IndexOf(dropZones_, target_);
 
 			// Got a target, are we still over it?
-			if (it_ == dropZones_.begin())
+			if (index_ == 0)
 			{
 				// We're still over it, and it's still the top of the display list
 				emit(ZEN_INPUT_DRAG_OVER, pointer_, obj_, target_);
 			}
-			else if (it_ != dropZones_.end())
+			else if (index_ > 0)
 			{
 				// Still over it but it's no longer top of the display list
 				// (targets must always be at the top)
@@ -617,7 +621,8 @@ int InputPlugin::processDragMoveEvent (Pointer *pointer_)
 
 				emit(ZEN_INPUT_DRAG_ENTER, pointer_, obj_, target_);
 			}
-			else {
+			else
+			{
 				//  Nope, we've moved on (or the target has!), leave the old target
 				emit(ZEN_INPUT_DRAG_LEAVE, pointer_, obj_, target_);
 
@@ -631,7 +636,8 @@ int InputPlugin::processDragMoveEvent (Pointer *pointer_)
 
 					emit(ZEN_INPUT_DRAG_ENTER, pointer_, obj_, target_);
 				}
-				else {
+				else
+				{
 					// Nope
 					input_.target = entt::null;
 				}
@@ -1153,7 +1159,7 @@ void InputPlugin::queueForRemoval (Entity entity_)
 void InputPlugin::setDraggable (Entity entity_, bool value_)
 {
 	auto input_ = g_registry.try_get<Components::Input>(entity_);
-	ZEN_ASSERT(input_, "The entity has no ''Input' component.");
+	ZEN_ASSERT(input_, "The entity has no 'Input' component.");
 
 	input_->draggable = value_;
 
@@ -1165,7 +1171,7 @@ void InputPlugin::setDraggable (Entity entity_, bool value_)
 	}
 	else if (!value_ && contained_)
 	{
-		draggable.erase(std::find(draggable.begin(), draggable.end(), entity_));
+		Remove(draggable, entity_);
 	}
 }
 
@@ -1177,10 +1183,17 @@ void InputPlugin::setDraggable (std::vector<Entity> entities_, bool value_)
 	}
 }
 
-HitCallback InputPlugin::makePixelPerfect (double alphaTolerance_)
+HitCallback InputPlugin::makePixelPerfect (int alphaTolerance_)
 {
-	// TODO pixel perfect
-	return {};
+	return std::function<bool(Shape, double, double, Entity)>
+	(
+		[alphaTolerance_] (Shape shape, double x, double y, Entity entity)
+		{
+			int alpha = g_texture.getPixelAlpha(x, y, GetFrame(entity));
+
+			return (alpha && alpha >= alphaTolerance_);
+		}
+	);
 }
 
 void InputPlugin::setHitArea (std::vector<Entity> entities_, InputConfiguration config_)
@@ -1193,8 +1206,8 @@ void InputPlugin::setHitArea (std::vector<Entity> entities_, InputConfiguration 
 		config_.hitAreaCallback = makePixelPerfect(config_.alphaTolerance);
 	}
 
-	// Still no hitArea or callback?
-	if ((config_.hitArea.shape.type == SHAPE::NONE || config_.hitAreaCallback == nullptr))
+	// Still no callback?
+	if (config_.hitAreaCallback == nullptr)
 	{
 		setHitAreaFromTexture(entities_);
 		customHitArea_ = false;
@@ -1213,7 +1226,11 @@ void InputPlugin::setHitArea (std::vector<Entity> entities_, InputConfiguration 
 		}
 
 		if (!input_)
+		{
 			input_ = &g_registry.emplace<Components::Input>(ent_);
+			input_->hitArea = config_.hitArea;
+			input_->hitAreaCallback = config_.hitAreaCallback;
+		}
 
 		input_->customHitArea = customHitArea_;
 		input_->dropZone = config_.dropZone;
@@ -1268,7 +1285,14 @@ void InputPlugin::setHitAreaCircle (Entity entity_, double x_, double y_, double
 	Shape shape_( Circle ( x_, y_, radius_ ) );
 
 	if (!callback_)
-		callback_ = CircleContains;
+	{
+		callback_ = std::function<bool(Shape, double, double, Entity)> (
+			[] (Shape shape, double x, double y, Entity entity)
+			{
+				return CircleContains(shape, x, y);
+			}
+		);
+	}
 
 	setHitArea(entity_, shape_, callback_);
 }
@@ -1278,7 +1302,14 @@ void InputPlugin::setHitAreaEllipse (Entity entity_, double x_, double y_, doubl
 	Shape shape_( Ellipse ( x_, y_, width_, height_ ) );
 
 	if (!callback_)
-		callback_ = EllipseContains;
+	{
+		callback_ = std::function<bool(Shape, double, double, Entity)> (
+			[] (Shape shape, double x, double y, Entity entity)
+			{
+				return EllipseContains(shape, x, y);
+			}
+		);
+	}
 
 	setHitArea(entity_, shape_, callback_);
 }
@@ -1286,7 +1317,14 @@ void InputPlugin::setHitAreaEllipse (Entity entity_, double x_, double y_, doubl
 void InputPlugin::setHitAreaFromTexture (Entity entity_, HitCallback callback_)
 {
 	if (!callback_)
-		callback_ = RectangleContains;
+	{
+		callback_ = std::function<bool(Shape, double, double, Entity)> (
+			[] (Shape shape, double x, double y, Entity entity)
+			{
+				return RectangleContains(shape, x, y);
+			}
+		);
+	}
 
 	auto [frame_, size_] = g_registry.try_get<Components::Frame, Components::Size>(entity_);
 
@@ -1336,7 +1374,14 @@ void InputPlugin::setHitAreaRectangle (Entity entity_, double x_, double y_, dou
 	Shape shape_ ( Rectangle ( x_, y_, width_, height_ ) );
 
 	if (!callback_)
-		callback_ = RectangleContains;
+	{
+		callback_ = std::function<bool(Shape, double, double, Entity)> (
+			[] (Shape shape, double x, double y, Entity entity)
+			{
+				return RectangleContains(shape, x, y);
+			}
+		);
+	}
 
 	setHitArea(entity_, shape_, callback_);
 }
@@ -1346,7 +1391,14 @@ void InputPlugin::setHitAreaTriangle (Entity entity_, double x1_, double y1_, do
 	Shape shape_ ( Triangle ( x1_, y1_, x2_, y2_, x3_, y3_ ) );
 
 	if (!callback_)
-		callback_ = TriangleContains;
+	{
+		callback_ = std::function<bool(Shape, double, double, Entity)> (
+			[] (Shape shape, double x, double y, Entity entity)
+			{
+				return TriangleContains(shape, x, y);
+			}
+		);
+	}
 
 	setHitArea(entity_, shape_, callback_);
 }

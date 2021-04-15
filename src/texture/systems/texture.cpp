@@ -237,7 +237,7 @@ std::vector<Entity> GetFramesFromSource (Entity source, bool includeBase)
 std::vector<std::string> GetFrameNames (Entity texture, bool includeBase)
 {
 	auto tx = g_registry.try_get<Components::TextureSource>(texture);
-	ZEN_ASSERT(tx, "The entity has no 'Texture' component.");
+	ZEN_ASSERT(tx, "The entity has no 'TextureSource' component.");
 
 	std::vector<std::string> output;
 
@@ -254,6 +254,50 @@ std::vector<std::string> GetFrameNames (Entity texture, bool includeBase)
 	}
 
 	return output;
+}
+
+std::vector<Entity> GetTextureSources (Entity texture)
+{
+	std::vector<Entity> out_;
+
+	auto tx = g_registry.try_get<Components::Texture>(texture);
+	ZEN_ASSERT(tx, "The entity has no 'Texture' component.");
+
+	auto sources_ = g_registry.view<Components::TextureSource>();
+
+	for (auto source_ : sources_)
+	{
+		auto& src_ = g_registry.get<Components::TextureSource>(source_);
+
+		if (src_.sdlTexture)
+		{
+			out_.push_back(source_);
+		}
+	}
+
+	return out_;
+}
+
+std::vector<std::string> GetTextureSourceFiles (Entity texture)
+{
+	std::vector<std::string> out_;
+
+	auto tx = g_registry.try_get<Components::Texture>(texture);
+	ZEN_ASSERT(tx, "The entity has no 'Texture' component.");
+
+	auto sources_ = g_registry.view<Components::TextureSource>();
+
+	for (auto source_ : sources_)
+	{
+		auto& src_ = g_registry.get<Components::TextureSource>(source_);
+
+		if (src_.sdlTexture)
+		{
+			out_.push_back(src_.source);
+		}
+	}
+
+	return out_;
 }
 
 }	// namespace Zen
