@@ -7,9 +7,11 @@
 
 #include "audio_manager.hpp"
 
+#include <algorithm>
 #include "tools/al_utility.hpp"
 #include "tools/alc_utility.hpp"
 #include "tools/ogg.hpp"
+#include "events/events.hpp"
 #include "entt/entt.hpp"
 #include "../components/audio.hpp"
 #include "../components/audio_stream.hpp"
@@ -24,14 +26,6 @@ AudioManager::AudioManager ()
 
 AudioManager::~AudioManager ()
 {
-	// Delete buffers
-	/*
-	for (auto it_ : buffers)
-	{
-		ZEN_AL_CALL(alDeleteBuffers, 1, &it_.second.buffer);
-	}
-	*/
-
 	// Clear streams
 	for (auto& sd_ : streams)
 	{
@@ -172,6 +166,7 @@ Entity AudioManager::add (std::string key_)
 void AudioManager::play (Entity entity_)
 {
 	ZEN_ASSERT((entity_ != entt::null), "Can't play a null audio");
+
 	auto [audio_,  stream_] = g_registry.try_get<Components::Audio, Components::AudioStream>(entity_);
 	ZEN_ASSERT((audio_ || stream_), "The entity has no 'Audio' nor 'AudioStream' component.");
 
@@ -179,109 +174,184 @@ void AudioManager::play (Entity entity_)
 	{
 		ZEN_AL_CALL(alSourceRewind, audio_->source);
 		ZEN_AL_CALL(alSourcePlay, audio_->source);
+		audio_->stopped = false;
+		audio_->completed = false;
+
+		emit(entity_, ZEN_AUDIO_EVENTS_PLAY);
 	}
 	else if (stream_ != nullptr)
 	{
 		rewind_stream_ogg(&streams[stream_->index]);
 		ZEN_AL_CALL(alSourcePlay, streams[stream_->index].source);
+
+		emit(entity_, ZEN_AUDIO_EVENTS_PLAY);
 	}
 }
 
 void AudioManager::play (Entity entity_, AudioConfig config_)
 {
-	auto audio_ = g_registry.try_get<Components::Audio>(entity_);
-	ZEN_ASSERT(audio_, "The entity has no 'Audio' component.");
-
-	ZEN_AL_CALL(alSourceRewind, audio_->source);
-	ZEN_AL_CALL(alSourcePlay, audio_->source);
 }
 
 void AudioManager::play (Entity entity_, AudioMarker marker_)
 {
-	auto audio_ = g_registry.try_get<Components::Audio>(entity_);
-	ZEN_ASSERT(audio_, "The entity has no 'Audio' component.");
-
-	ZEN_AL_CALL(alSourceRewind, audio_->source);
-	ZEN_AL_CALL(alSourcePlay, audio_->source);
 }
 
 void AudioManager::pause (Entity entity_)
 {
-	auto audio_ = g_registry.try_get<Components::Audio>(entity_);
-	ZEN_ASSERT(audio_, "The entity has no 'Audio' component.");
+	ZEN_ASSERT((entity_ != entt::null), "Can't pause a null audio");
 
-	ZEN_AL_CALL(alSourcePause, audio_->source);
+	auto [audio_,  stream_] = g_registry.try_get<Components::Audio, Components::AudioStream>(entity_);
+	ZEN_ASSERT((audio_ || stream_), "The entity has no 'Audio' nor 'AudioStream' component.");
+
+	if (audio_ != nullptr)
+	{
+		ZEN_AL_CALL(alSourcePause, audio_->source);
+
+		emit(entity_, ZEN_AUDIO_EVENTS_PAUSE);
+	}
+	else if (stream_ != nullptr)
+	{
+		ZEN_AL_CALL(alSourcePause, streams[stream_->index].source);
+
+		emit(entity_, ZEN_AUDIO_EVENTS_PAUSE);
+	}
 }
 
 void AudioManager::resume (Entity entity_)
 {
-	auto audio_ = g_registry.try_get<Components::Audio>(entity_);
-	ZEN_ASSERT(audio_, "The entity has no 'Audio' component.");
+	ZEN_ASSERT((entity_ != entt::null), "Can't resume a null audio");
 
-	ZEN_AL_CALL(alSourcePlay, audio_->source);
+	auto [audio_,  stream_] = g_registry.try_get<Components::Audio, Components::AudioStream>(entity_);
+	ZEN_ASSERT((audio_ || stream_), "The entity has no 'Audio' nor 'AudioStream' component.");
+
+	if (audio_ != nullptr && !audio_->stopped)
+	{
+		ZEN_AL_CALL(alSourcePlay, audio_->source);
+		emit(entity_, ZEN_AUDIO_EVENTS_RESUME);
+	}
+	else if (stream_ != nullptr)
+	{
+		ZEN_AL_CALL(alSourcePlay, streams[stream_->index].source);
+		emit(entity_, ZEN_AUDIO_EVENTS_RESUME);
+	}
 }
 
 void AudioManager::stop (Entity entity_)
 {
-	auto audio_ = g_registry.try_get<Components::Audio>(entity_);
-	ZEN_ASSERT(audio_, "The entity has no 'Audio' component.");
+	ZEN_ASSERT((entity_ != entt::null), "Can't stop a null audio");
 
-	ZEN_AL_CALL(alSourceStop, audio_->source);
+	auto [audio_,  stream_] = g_registry.try_get<Components::Audio, Components::AudioStream>(entity_);
+	ZEN_ASSERT((audio_ || stream_), "The entity has no 'Audio' nor 'AudioStream' component.");
+
+	if (audio_ != nullptr)
+	{
+		ZEN_AL_CALL(alSourceStop, audio_->source);
+		audio_->stopped = true;
+	}
+	else if (stream_ != nullptr)
+	{
+		ZEN_AL_CALL(alSourceStop, streams[stream_->index].source);
+	}
+
+	emit(entity_, ZEN_AUDIO_EVENTS_STOP);
 }
 
 void AudioManager::remove (Entity entity_)
 {
+	ZEN_ASSERT((entity_ != entt::null), "Can't remove a null audio");
+
+	auto [audio_,  stream_] = g_registry.try_get<Components::Audio, Components::AudioStream>(entity_);
+	ZEN_ASSERT((audio_ || stream_), "The entity has no 'Audio' nor 'AudioStream' component.");
+
+	if (audio_ != nullptr)
+	{
+		emit(entity_, ZEN_AUDIO_EVENTS_REMOVE);
+
+		ZEN_AL_CALL(alSourceStop, audio_->source);
+		ZEN_AL_CALL(alDeleteSources, 1, &audio_->source);
+	}
+	else if (stream_ != nullptr)
+	{
+		emit(entity_, ZEN_AUDIO_EVENTS_REMOVE);
+
+		ZEN_AL_CALL(alSourceStop, streams[stream_->index].source);
+		close_stream_ogg(&streams[stream_->index]);
+	}
+
 	g_registry.destroy(entity_);
 }
 
-void AudioManager::loop (Entity entity_, bool loop_)
+void AudioManager::setLoop (Entity entity_, bool loop_)
 {
-	auto audio_ = g_registry.try_get<Components::Audio>(entity_);
-	ZEN_ASSERT(audio_, "The entity has no 'Audio' component.");
+	ZEN_ASSERT((entity_ != entt::null), "Can't loop a null audio");
 
-	if (loop_)
-		ZEN_AL_CALL(alSourcei, audio_->source, AL_LOOPING, AL_TRUE);
-	else
-		ZEN_AL_CALL(alSourcei, audio_->source, AL_LOOPING, AL_FALSE);
+	auto [audio_,  stream_] = g_registry.try_get<Components::Audio, Components::AudioStream>(entity_);
+	ZEN_ASSERT((audio_ || stream_), "The entity has no 'Audio' nor 'AudioStream' component.");
+
+	if (audio_ != nullptr)
+	{
+		audio_->loop = loop_;
+
+		emit(entity_, ZEN_AUDIO_EVENTS_LOOP, loop_);
+	}
+	else if (stream_ != nullptr)
+	{
+		streams[stream_->index].loop = loop_;
+
+		emit(entity_, ZEN_AUDIO_EVENTS_LOOP, loop_);
+	}
 }
 
 void AudioManager::removeAll ()
 {
-	auto view_ = g_registry.view<Components::Audio>();
-	for (auto& audio_ : view_)
-	{
-		g_registry.destroy(audio_);
-	}
+	emit(ZEN_AUDIO_EVENTS_REMOVE_ALL);
+
+	auto viewSh_ = g_registry.view<Components::Audio>();
+	for (auto& audio_ : viewSh_)
+		remove(audio_);
+
+	auto viewSt_ = g_registry.view<Components::AudioStream>();
+	for (auto& audio_ : viewSt_)
+		remove(audio_);
 }
 
 void AudioManager::pauseAll ()
 {
-	auto view_ = g_registry.view<Components::Audio>();
-	for (auto& ent_ : view_)
-	{
-		auto& audio_ = g_registry.get<Components::Audio>(ent_);
-		ZEN_AL_CALL(alSourcePause, audio_.source);
-	}
+	auto viewSh_ = g_registry.view<Components::Audio>();
+	for (auto& audio_ : viewSh_)
+		pause(audio_);
+
+	auto viewSt_ = g_registry.view<Components::AudioStream>();
+	for (auto& audio_ : viewSt_)
+		pause(audio_);
+
+	emit(ZEN_AUDIO_EVENTS_PAUSE_ALL);
 }
 
 void AudioManager::resumeAll ()
 {
-	auto view_ = g_registry.view<Components::Audio>();
-	for (auto& ent_ : view_)
-	{
-		auto& audio_ = g_registry.get<Components::Audio>(ent_);
-		ZEN_AL_CALL(alSourcePlay, audio_.source);
-	}
+	auto viewSh_ = g_registry.view<Components::Audio>();
+	for (auto& audio_ : viewSh_)
+		resume(audio_);
+
+	auto viewSt_ = g_registry.view<Components::AudioStream>();
+	for (auto& audio_ : viewSt_)
+		resume(audio_);
+
+	emit(ZEN_AUDIO_EVENTS_RESUME_ALL);
 }
 
 void AudioManager::stopAll ()
 {
-	auto view_ = g_registry.view<Components::Audio>();
-	for (auto& ent_ : view_)
-	{
-		auto& audio_ = g_registry.get<Components::Audio>(ent_);
-		ZEN_AL_CALL(alSourceStop, audio_.source);
-	}
+	auto viewSh_ = g_registry.view<Components::Audio>();
+	for (auto& audio_ : viewSh_)
+		stop(audio_);
+
+	auto viewSt_ = g_registry.view<Components::AudioStream>();
+	for (auto& audio_ : viewSt_)
+		stop(audio_);
+
+	emit(ZEN_AUDIO_EVENTS_STOP_ALL);
 }
 
 void AudioManager::onWindowBlur ()
@@ -296,48 +366,190 @@ void AudioManager::update (Uint32 time_, Uint32 delta_)
 {
 	auto streamsView_ = g_registry.view<Components::AudioStream>();
 
-	for (auto& stream_ : streamsView_)
-	{
+	for (auto& stream_ : streamsView_) {
 		auto& strCmp_ = g_registry.get<Components::AudioStream>(stream_);
-
-		update_stream_ogg(&streams[strCmp_.index]);
+		switch ( update_stream_ogg(&streams[strCmp_.index]) )
+		{
+			case 1:
+				emit(stream_, ZEN_AUDIO_EVENTS_COMPLETE);
+				break;
+			case 2:
+				emit(stream_, ZEN_AUDIO_EVENTS_LOOPED);
+				break;
+			default:
+				break;
+		}
 	}
 
-	// Emit events?
+	auto shortView_ = g_registry.view<Components::Audio>();
+
+	for (auto& short_ : shortView_) {
+		auto& shCmp_ = g_registry.get<Components::Audio>(short_);
+
+		ALint state;
+		ZEN_AL_CALL(alGetSourcei, shCmp_.source, AL_SOURCE_STATE, &state);
+
+		if (state == AL_PLAYING)
+			continue;
+
+		if (shCmp_.stopped)
+			continue;
+
+		if (shCmp_.loop) {
+			ZEN_AL_CALL(alSourcePlay, shCmp_.source);
+			emit(short_, ZEN_AUDIO_EVENTS_LOOPED);
+		}
+		else if (!shCmp_.loop && !shCmp_.completed) {
+			shCmp_.completed = true;
+			emit(short_, ZEN_AUDIO_EVENTS_COMPLETE);
+		}
+	}
 }
 
 void AudioManager::forEachActiveSound ()
 {
 }
 
-void AudioManager::setPosition (Entity entity_, float x_, float y_, float z_)
+void AudioManager::setPosition (ALfloat x_, ALfloat y_, ALfloat z_)
 {
-	auto audio_ = g_registry.try_get<Components::Audio>(entity_);
-	ZEN_ASSERT(audio_, "The entity has no 'Audio' component.");
+	ZEN_AL_CALL(alListener3f, AL_POSITION, x_, y_, z_);
 
-	ZEN_AL_CALL(alSource3f, audio_->source, AL_POSITION, x_, y_, z_);
+	emit(ZEN_AUDIO_EVENTS_GLOBAL_POSITION, x_, y_, z_);
 }
 
-void AudioManager::setVelocity (Entity entity_, float x_, float y_, float z_)
+void AudioManager::setPosition (Entity entity_, ALfloat x_, ALfloat y_, ALfloat z_)
 {
-	auto audio_ = g_registry.try_get<Components::Audio>(entity_);
-	ZEN_ASSERT(audio_, "The entity has no 'Audio' component.");
+	ZEN_ASSERT((entity_ != entt::null), "Can't set the position of a null audio");
 
-	ZEN_AL_CALL(alSource3f, audio_->source, AL_VELOCITY, x_, y_, z_);
+	auto [audio_,  stream_] = g_registry.try_get<Components::Audio, Components::AudioStream>(entity_);
+	ZEN_ASSERT((audio_ || stream_), "The entity has no 'Audio' nor 'AudioStream' component.");
+
+	if (audio_ != nullptr)
+	{
+		ZEN_AL_CALL(alSource3f, audio_->source, AL_POSITION, x_, y_, z_);
+
+		emit(entity_, ZEN_AUDIO_EVENTS_POSITION, x_, y_, z_);
+	}
+	else if (stream_ != nullptr)
+	{
+		ZEN_AL_CALL(alSource3f, streams[stream_->index].source, AL_POSITION, x_, y_, z_);
+
+		emit(entity_, ZEN_AUDIO_EVENTS_POSITION, x_, y_, z_);
+	}
 }
 
-void AudioManager::setVolume (double volume_)
+void AudioManager::setVelocity (ALfloat x_, ALfloat y_, ALfloat z_)
 {
+	ZEN_AL_CALL(alListener3f, AL_VELOCITY, x_, y_, z_);
+
+	emit(ZEN_AUDIO_EVENTS_GLOBAL_VELOCITY, x_, y_, z_);
 }
 
-void AudioManager::mute ()
+void AudioManager::setVelocity (Entity entity_, ALfloat x_, ALfloat y_, ALfloat z_)
 {
+	ZEN_ASSERT((entity_ != entt::null), "Can't set the position of a null audio");
+
+	auto [audio_,  stream_] = g_registry.try_get<Components::Audio, Components::AudioStream>(entity_);
+	ZEN_ASSERT((audio_ || stream_), "The entity has no 'Audio' nor 'AudioStream' component.");
+
+	if (audio_ != nullptr)
+	{
+		ZEN_AL_CALL(alSource3f, audio_->source, AL_VELOCITY, x_, y_, z_);
+
+		emit(entity_, ZEN_AUDIO_EVENTS_VELOCITY, x_, y_, z_);
+	}
+	else if (stream_ != nullptr)
+	{
+		ZEN_AL_CALL(alSource3f, streams[stream_->index].source, AL_VELOCITY, x_, y_, z_);
+
+		emit(entity_, ZEN_AUDIO_EVENTS_VELOCITY, x_, y_, z_);
+	}
 }
 
-void AudioManager::unmute ()
+void AudioManager::setVolume (ALfloat volume_)
 {
+	volume = std::clamp(volume_, 0.f, 1.f);
+
+	ZEN_AL_CALL(alListenerf, AL_GAIN, volume);
+
+	emit(ZEN_AUDIO_EVENTS_GLOBAL_VOLUME, volume_);
 }
 
+void AudioManager::setVolume (Entity entity_, ALfloat volume_)
+{
+	ZEN_ASSERT((entity_ != entt::null), "Can't set the volume of a null audio");
+
+	auto [audio_,  stream_] = g_registry.try_get<Components::Audio, Components::AudioStream>(entity_);
+	ZEN_ASSERT((audio_ || stream_), "The entity has no 'Audio' nor 'AudioStream' component.");
+
+	if (audio_ != nullptr)
+	{
+		ZEN_AL_CALL(alSourcef, audio_->source, AL_GAIN, volume_);
+
+		emit(entity_, ZEN_AUDIO_EVENTS_VOLUME, volume_);
+	}
+	else if (stream_ != nullptr)
+	{
+		ZEN_AL_CALL(alSourcef, streams[stream_->index].source, AL_GAIN, volume_);
+
+		emit(entity_, ZEN_AUDIO_EVENTS_VOLUME, volume_);
+	}
+}
+
+void AudioManager::setMute (bool mute_)
+{
+	if (mute_)
+	{
+		muted = true;
+		ZEN_AL_CALL(alListenerf, AL_GAIN, 0.f);
+	}
+	else
+	{
+		muted = false;
+		ZEN_AL_CALL(alListenerf, AL_GAIN, volume);
+	}
+
+	emit(ZEN_AUDIO_EVENTS_GLOBAL_MUTE, mute_);
+}
+
+void AudioManager::setMute (Entity entity_, bool mute_)
+{
+	ZEN_ASSERT((entity_ != entt::null), "Can't mute a null audio");
+
+	auto [audio_,  stream_] = g_registry.try_get<Components::Audio, Components::AudioStream>(entity_);
+	ZEN_ASSERT((audio_ || stream_), "The entity has no 'Audio' nor 'AudioStream' component.");
+
+	if (audio_ != nullptr) {
+		if (mute_) {
+			audio_->muted = true;
+			ZEN_AL_CALL(alSourcef, audio_->source, AL_GAIN, 0.f);
+		}
+		else {
+			audio_->muted = false;
+			ZEN_AL_CALL(alSourcef, audio_->source, AL_GAIN, audio_->volume);
+		}
+
+		emit(entity_, ZEN_AUDIO_EVENTS_MUTE, mute_);
+	}
+	else if (stream_ != nullptr) {
+		if (mute_) {
+			streams[stream_->index].muted = true;
+			ZEN_AL_CALL(alSourcef, streams[stream_->index].source, AL_GAIN, 0.f);
+		}
+		else {
+			streams[stream_->index].muted = false;
+			ZEN_AL_CALL(
+					alSourcef,
+					streams[stream_->index].source,
+					AL_GAIN,
+					streams[stream_->index].volume);
+		}
+
+		emit(entity_, ZEN_AUDIO_EVENTS_MUTE, mute_);
+	}
+}
+
+// Global instance
 AudioManager g_audio;
 
 }	// namespace Zen

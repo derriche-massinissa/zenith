@@ -293,7 +293,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	unsigned int hiddenDelta = 100;
+	unsigned int hiddenDelta = 20;
 
 	/**
 	 * A queue of functors responsible for making and returning a 

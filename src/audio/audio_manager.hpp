@@ -40,7 +40,7 @@ class AudioManager : public EventEmitter
 
 	bool muted = false;
 
-	double volume = 1.;
+	ALfloat volume = 1.f;
 
 	bool pauseOnBlur = false;
 
@@ -71,7 +71,7 @@ public:
 
 	void remove (Entity entity);
 
-	void loop (Entity entity, bool loop);
+	void setLoop (Entity entity, bool loop);
 
 	void removeAll ();
 
@@ -89,15 +89,21 @@ public:
 
 	void forEachActiveSound ();
 
-	void setPosition (Entity entity, float x, float y, float z);
+	void setPosition (ALfloat x, ALfloat y, ALfloat z);
 
-	void setVelocity (Entity entity, float x, float y, float z);
+	void setPosition (Entity entity, ALfloat x, ALfloat y, ALfloat z);
 
-	void setVolume (double volume);
+	void setVelocity (ALfloat x, ALfloat y, ALfloat z);
 
-	void mute ();
+	void setVelocity (Entity entity, ALfloat x, ALfloat y, ALfloat z);
 
-	void unmute ();
+	void setVolume (ALfloat volume);
+
+	void setVolume (Entity entity, ALfloat volume);
+
+	void setMute (bool mute);
+
+	void setMute (Entity entity, bool mute);
 
 	/// TODO unload buffer
 	void unloadBufferDataPlsImplementThis();

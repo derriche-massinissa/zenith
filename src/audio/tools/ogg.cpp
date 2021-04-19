@@ -249,7 +249,7 @@ int setup_stream_ogg (const std::string& filename, AudioStreamData *audioStream)
 	return 0;
 }
 
-void update_stream_ogg (AudioStreamData *audioStream)
+int update_stream_ogg (AudioStreamData *audioStream)
 {
 	ALint buffersProcessed = 0;
 	ZEN_AL_CALL(alGetSourcei, audioStream->source, AL_BUFFERS_PROCESSED, &buffersProcessed);
@@ -258,7 +258,9 @@ void update_stream_ogg (AudioStreamData *audioStream)
 	ZEN_AL_CALL(alGetSourcei, audioStream->source, AL_SOURCE_STATE, &state);
 
 	if (buffersProcessed <= 0 || state != AL_PLAYING)
-		return;
+		return 0;
+
+	int retValue = 0;
 
 	while (buffersProcessed--)
 	{
@@ -297,6 +299,8 @@ void update_stream_ogg (AudioStreamData *audioStream)
 					std::int32_t seekResult =
 						ov_raw_seek(&audioStream->oggVorbisFile, 0);
 
+					retValue = 2;
+
 					switch (seekResult)
 					{
 						case OV_ENOSEEK:
@@ -320,7 +324,7 @@ void update_stream_ogg (AudioStreamData *audioStream)
 
 						if (seekResult != 0) {
 							MessageError("Unknown error in ov_raw_seek");
-							return;
+							return -1;
 						}
 					}
 				}
@@ -328,6 +332,7 @@ void update_stream_ogg (AudioStreamData *audioStream)
 				else
 				{
 					sizeRead = 0;
+					retValue = 1;
 					break;
 				}
 			}
@@ -350,6 +355,8 @@ void update_stream_ogg (AudioStreamData *audioStream)
 			ZEN_AL_CALL(alSourceQueueBuffers, audioStream->source, 1, &buffer);
 		}
 	}
+
+	return retValue;
 }
 
 int load_ogg (const std::string& filename, AudioBuffer *audioBuffer)

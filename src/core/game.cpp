@@ -152,12 +152,11 @@ void Game::step (Uint32 time_, Uint32 delta_)
 
 void Game::headlessStep (Uint32 time_, Uint32 delta_)
 {
-	if (hiddenDelta)
-		SDL_Delay(hiddenDelta);
-
 	// Managers
 	events.emit("pre-step", time_, delta_);
 	events.emit("step", time_, delta_);
+	scene.update(time_, delta_);
+	g_audio.update(time_, delta_);
 
 	// Scenes
 	scene.update(time_, delta_);
@@ -166,6 +165,11 @@ void Game::headlessStep (Uint32 time_, Uint32 delta_)
 	// Render
 	events.emit("pre-render", time_, delta_);
 	events.emit("post-render", time_, delta_);
+
+	if (hiddenDelta)
+		SDL_Delay(hiddenDelta);
+	else
+		SDL_Delay(20);
 }
 
 Uint32 Game::getFrame ()

@@ -39,7 +39,10 @@ int load_ogg (const std::string& filename, AudioBuffer *audioData);
 
 int setup_stream_ogg (const std::string& filename, AudioStreamData *audioStream);
 
-void update_stream_ogg (AudioStreamData *audioStream);
+/**
+ * @return 1 if stream completed, 2 if it looped, 0 otherwise.
+ */
+int update_stream_ogg (AudioStreamData *audioStream);
 
 int rewind_stream_ogg (AudioStreamData *audioStream);
 
