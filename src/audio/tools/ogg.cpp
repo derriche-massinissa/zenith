@@ -452,6 +452,9 @@ int load_ogg (const std::string& filename, AudioBuffer *audioBuffer)
 		dataSoFar += result;
 	}
 
+	ov_clear(&oggVorbisFile);
+	audioFile.close();
+
 	ALenum format;
 	if (channels == 1 && bitsPerSample == 8)
 		format = AL_FORMAT_MONO8;
