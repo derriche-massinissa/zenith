@@ -8,7 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "" FORCE)
 set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
 
 # Debug mode (GDB) + Disable optimization (for debugging) + Warnings
-set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -Og -Wall -Wpedantic -Wextra" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -O0 -Wall -Wpedantic -Wextra" CACHE STRING "" FORCE)
 
 # Release mode
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
@@ -25,6 +25,11 @@ project(
 
 # Source files
 set(zenith_SRCS
+	src/audio/audio_manager.cpp
+	src/audio/tools/ogg.cpp
+	src/audio/tools/al_utility.cpp
+	src/audio/tools/alc_utility.cpp
+
 	src/input/keyboard/keyboard_plugin.cpp
 	src/input/keyboard/combo/key_combo.cpp
 	src/input/keyboard/keys/key.cpp
@@ -153,6 +158,11 @@ set_target_properties(${PROJECT_NAME}
 # External includes
 target_include_directories(${PROJECT_NAME} PRIVATE
 	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/includes"
+	)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC
+	"${CMAKE_SOURCE_DIR}/lib/libvorbisfile.so"
+	"${CMAKE_SOURCE_DIR}/lib/libopenal.so"
 	)
 
 # External includes

@@ -18,10 +18,12 @@
 #include "../scene/scene_manager.h"
 #include "../cameras/2d/camera_manager.hpp"
 #include "../core/config.hpp"
+#include "../audio/audio_manager.hpp"
 #include "../input/input_manager.hpp"
 
 namespace Zen {
 
+extern AudioManager g_audio;
 extern InputManager g_input;
 
 namespace Loader {
@@ -120,9 +122,16 @@ LoaderPlugin& LoaderPlugin::spritesheet (std::string key_, std::string path_, Sp
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::audio (std::string key_, std::string path_)
+LoaderPlugin& LoaderPlugin::audioShort (std::string key_, std::string path_)
 {
-	MessageWarning("Audio is not yet implemented!");
+	g_audio.addAudioShort(key_, path_);
+
+	return *this;
+}
+
+LoaderPlugin& LoaderPlugin::audioStream (std::string key_, std::string path_)
+{
+	g_audio.addAudioStream(key_, path_);
 
 	return *this;
 }

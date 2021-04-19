@@ -19,9 +19,12 @@
 
 namespace Zen {
 
+extern AudioManager g_audio;
+
 Scene::Scene (Game& game_)
 	: sys (this)
 	, game (game_)
+	, audio (g_audio)
 	, textures (game_.textures)
 	, cameras (this)
 	, add (this)

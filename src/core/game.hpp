@@ -15,7 +15,6 @@
 #include "config.fwd.hpp"
 #include "../window/window.hpp"
 #include "time_step.hpp"
-//#include "visibility_handler.h"
 //#include "../device.h"
 //#include "../animations/animation_manager.h"
 //#include "../data/data_manager.h"
@@ -23,7 +22,6 @@
 #include "../scene/scene_manager.h"
 #include "../texture/texture_manager.hpp"
 #include "../renderer/renderer.hpp"
-//#include "../audio/audio_manager.h"
 
 /**
  * @namespace Zen
@@ -165,16 +163,6 @@ public:
 	 * @since 0.0.0
 	 */
 	ScaleManager& scale;
-
-	/**
-	 * An instance of the base Audio Manager.
-	 *
-	 * The Audio Manager is a system responsible for the playback and
-	 * updating of all audio in the game.
-	 *
-	 * @since 0.0.0
-	 */
-	//AudioManager audio(this);
 
 	/**
 	 * An instance of the Time Step.

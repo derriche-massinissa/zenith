@@ -157,11 +157,21 @@ public:
 	LoaderPlugin& spritesheet (std::string key_, std::string path_, SpriteSheetConfig config_);
 
 	/**
-	 * Load an audio file.
+	 * Load an audio file. Used for short sound effects.
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& audio (std::string key_, std::string path_);
+	LoaderPlugin& audioShort (std::string key_, std::string path_);
+
+	/**
+	 * Add a file for audio streaming without loading it into memory.
+	 *
+	 * This is used for large files that would occupy too much RAM if copied,
+	 * so they are read from directly from the disk.
+	 *
+	 * @since 0.0.0
+	 */
+	LoaderPlugin& audioStream (std::string key_, std::string path_);
 
 	/**
 	 * Load a font file.

@@ -100,7 +100,6 @@ int Window::initSdlImg ()
 int Window::initSdlMixer ()
 {
 	// Initialize SDL_mixer
-	// TODO Set these constants from the game.config object
 	const int frequency_ = 44100;
 	Uint16 format_ = MIX_DEFAULT_FORMAT;
 	int channels_ = 2;

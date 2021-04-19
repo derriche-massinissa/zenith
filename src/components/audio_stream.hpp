@@ -5,13 +5,18 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_EVENTS_EVENT_LISTENER_FWD_HPP
-#define ZEN_EVENTS_EVENT_LISTENER_FWD_HPP
+#ifndef ZEN_COMPONENTS_AUDIOSTREAM_HPP
+#define ZEN_COMPONENTS_AUDIOSTREAM_HPP
 
 namespace Zen {
+namespace Components {
 
-class ListenerBase;
+struct AudioStream
+{
+	int index = -1;
+};
 
+}	// namespace Components
 }	// namespace Zen
 
 #endif

@@ -12,6 +12,7 @@
 #include "../input/input_manager.hpp"
 #include "../input/mouse/mouse_manager.hpp"
 #include "../input/keyboard/keyboard_manager.hpp"
+#include "../audio/audio_manager.hpp"
 
 namespace Zen {
 
@@ -26,6 +27,7 @@ extern Scenes::SceneManager g_scene;
 InputManager g_input;
 extern MouseManager g_mouse;
 extern KeyboardManager g_keyboard;
+extern AudioManager g_audio;
 
 Game::Game (GameConfig& config_)
 	: events (g_event)
@@ -72,6 +74,8 @@ void Game::boot ()
 
 	if (config.inputKeyboard)
 		g_keyboard.boot();
+
+	g_audio.boot();
 
 	window.on("minimize", &Game::onMinimize, this);
 	window.on("restore", &Game::onRestore, this);
@@ -124,6 +128,7 @@ void Game::step (Uint32 time_, Uint32 delta_)
 
 	// Update the Scene Manager and all active Scenes
 	scene.update(time_, delta_);
+	g_audio.update(time_, delta_);
 
 	// Final event before rendering starts
 	events.emit("post-step", time_, delta_);

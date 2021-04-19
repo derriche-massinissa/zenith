@@ -10,6 +10,7 @@
 
 #include <string>
 #include <functional>
+#include "../ecs/entity.hpp"
 
 namespace Zen {
 
@@ -22,8 +23,8 @@ namespace Zen {
 class ListenerBase
 {
 public:
-	ListenerBase (std::string event_, bool once_)
-		: event (event_), once (once_)
+	ListenerBase (std::string event_, bool once_, Entity entity_)
+		: event (event_), once (once_), entity (entity_)
 	{}
 
 	virtual ~ListenerBase () = default;
@@ -42,6 +43,11 @@ public:
 	 * @since 0.0.0
 	 */
 	bool once;
+
+	/**
+	 * The entity this listener was called for.
+	 */
+	Entity entity = entt::null;
 };
 
 /**
@@ -62,8 +68,8 @@ public:
 	 * @param cb_ The callback function to activate when an event happens.
 	 * @param flag_ Whether this listener is one timed or not.
 	 */
-	Listener (std::string event_, std::function<void(Args...)> cb_, bool flag_)
-		: ListenerBase(event_, flag_)
+	Listener (std::string event_, std::function<void(Args...)> cb_, bool flag_, Entity entity_)
+		: ListenerBase(event_, flag_, entity_)
 		, callback(cb_)
 	{}
 

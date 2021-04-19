@@ -15,7 +15,6 @@
 #include "types/key_combo_config.hpp"
 #include "keys/key.hpp"
 #include "combo/key_combo.hpp"
-#include "../../event/event_listener.fwd.hpp"
 #include <memory>
 #include <deque>
 

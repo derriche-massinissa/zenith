@@ -9,49 +9,78 @@
 
 namespace Zen {
 
-std::vector<std::string> EventEmitter::getEventNames ()
+std::vector<std::string> EventEmitter::getEventNames (Entity entity_)
 {
+	auto iterator_ = eventMap.find(entity_);
+	if (iterator_ == eventMap.end())
+		return {};
+
 	std::vector<std::string> names_;
 
-	for (const auto& it_ : eventMap)
+	for (const auto& it_ : eventMap[entity_])
 		names_.emplace_back(it_.first);
 
 	return names_;
 }
 
-int EventEmitter::getListenerCount (std::string event_)
+int EventEmitter::getListenerCount (Entity entity_, std::string event_)
 {
-	auto iterator_ = eventMap.find(event_);
+	auto iteratorE_ = eventMap.find(entity_);
+	if (iteratorE_ == eventMap.end())
+		return 0;
+
+	auto iterator_ = eventMap[entity_].find(event_);
 	int count_ = 0;
 
-	if (iterator_ != eventMap.end())
+	if (iterator_ != eventMap[entity_].end())
 		count_ = iterator_->second.size();
 
 	return count_;
 }
 
-std::vector<ListenerBase*> EventEmitter::getListeners (std::string event_)
+int EventEmitter::getListenerCount (std::string event_)
 {
-	std::vector<ListenerBase*> vec_ {};
+	return getListenerCount(entt::null, event_);
+}
+
+std::vector<ListenerBase*> EventEmitter::getListeners (Entity entity_, std::string event_)
+{
+	auto iteratorE_ = eventMap.find(entity_);
+	if (iteratorE_ == eventMap.end())
+		return {};
+
+	std::vector<ListenerBase*> vec_;
 
 	// Check if event exists
-	auto iterator_ = eventMap.find(event_);
-	if (iterator_ != eventMap.end())
+	auto iterator_ = eventMap[entity_].find(event_);
+	if (iterator_ != eventMap[entity_].end())
 	{
-		for (size_t i_ = 0; i_ < iterator_->second.size(); i_++)
-			vec_.emplace_back(iterator_->second[i_].get());
+		for (auto& l_ : iterator_->second)
+			vec_.push_back(l_.get());
 	}
 
 	return vec_;
 }
 
-void EventEmitter::removeListener (ListenerBase*& listener_)
+std::vector<ListenerBase*> EventEmitter::getListeners (std::string event_)
 {
-	if (listener_ == nullptr) return;
+	return getListeners(entt::null, event_);
+}
+
+void EventEmitter::removeListener (ListenerBase* listener_)
+{
+	if (listener_ == nullptr)
+		return;
+
+	auto entity_ = listener_->entity;
+
+	auto iteratorE_ = eventMap.find(entity_);
+	if (iteratorE_ == eventMap.end())
+		return;
 
 	// Check if event exists
-	auto iterator_ = eventMap.find(listener_->event);
-	if (iterator_ != eventMap.end())
+	auto iterator_ = eventMap[entity_].find(listener_->event);
+	if (iterator_ != eventMap[entity_].end())
 	{
 		// Find listener
 		for (size_t i_ = 0; i_ < iterator_->second.size(); i_++)
@@ -66,121 +95,22 @@ void EventEmitter::removeListener (ListenerBase*& listener_)
 	}
 }
 
-void EventEmitter::off (ListenerBase*& listener_)
+void EventEmitter::off (ListenerBase* listener_)
 {
 	removeListener(listener_);
 }
 
-void EventEmitter::removeAllListeners (std::vector<std::string> eventNames_)
-{
-	// Check if events were sent
-	if (eventNames_.empty())
-	{
-		// If no event was sent, remove all events and their listeners
-		eventMap.clear();
-	}
-	else
-	{
-		// If events were sent, remove them with their listeners
-		for (auto& event_ : eventNames_)
-		{
-			// Check if event exists
-			auto iterator_ = eventMap.find(event_);
-			if (iterator_ != eventMap.end())
-				eventMap.erase(iterator_);
-		}
-	}
-}
-
-void EventEmitter::removeAllListeners (std::string eventName_)
-{
-	std::vector<std::string> events_ {eventName_};
-
-	removeAllListeners(events_);
-}
-
-void EventEmitter::shutdown ()
-{
-	eventMap.clear();
-}
-
-/*
-std::vector<std::string> EventEmitter::getEventNames (Entity entity_)
-{
-	std::vector<std::string> names_;
-
-	if (globalEventMap.find(entity_) != globalEventMap.end())
-	{
-		for (const auto& it_ : globalEventMap[entity_])
-			names_.emplace_back(it_.first);
-	}
-
-	return names_;
-}
-
-int EventEmitter::getListenerCount (Entity entity_, std::string event_)
-{
-	if (globalEventMap.find(entity_) == globalEventMap.end())
-		return 0;
-
-	auto iterator_ = globalEventMap[entity_].find(event_);
-	int count_ = 0;
-
-	if (iterator_ != globalEventMap[entity_].end())
-		count_ = iterator_->second.size();
-
-	return count_;
-}
-
-std::vector<ListenerBase*> EventEmitter::getListeners (Entity entity_, std::string event_)
-{
-	std::vector<ListenerBase*> vec_ {};
-
-	if (globalEventMap.find(entity_) == globalEventMap.end())
-		return vec_;
-
-	// Check if event exists
-	auto iterator_ = globalEventMap[entity_].find(event_);
-	if (iterator_ != globalEventMap[entity_].end())
-	{
-		for (size_t i_ = 0; i_ < iterator_->second.size(); i_++)
-			vec_.emplace_back(iterator_->second[i_].get());
-	}
-
-	return vec_;
-}
-
-void EventEmitter::removeListener (Entity entity_, std::string event_, ListenerBase* listener_)
-{
-	if (globalEventMap.find(entity_) == globalEventMap.end())
-		return;
-
-	// Check if event exists
-	auto iterator_ = globalEventMap[entity_].find(event_);
-	if (iterator_ != globalEventMap[entity_].end())
-	{
-		// Find listener
-		for (size_t l_ = 0; l_ < iterator_->second.size(); l_++)
-		{
-			if (listener_ == iterator_->second[l_].get())
-			{
-				iterator_->second.erase(iterator_->second.begin() + l_);
-				break;
-			}
-		}
-	}
-}
-
 void EventEmitter::removeAllListeners (Entity entity_, std::vector<std::string> eventNames_)
 {
-	if (globalEventMap.find(entity_) == globalEventMap.end())
+	auto iteratorE_ = eventMap.find(entity_);
+	if (iteratorE_ == eventMap.end())
 		return;
 
 	// Check if events were sent
 	if (eventNames_.empty())
 	{
 		// If no event was sent, remove all events and their listeners
-		globalEventMap[entity_].clear();
+		eventMap[entity_].clear();
 	}
 	else
 	{
@@ -188,19 +118,38 @@ void EventEmitter::removeAllListeners (Entity entity_, std::vector<std::string> 
 		for (auto& event_ : eventNames_)
 		{
 			// Check if event exists
-			auto iterator_ = globalEventMap[entity_].find(event_);
-			if (iterator_ != globalEventMap[entity_].end())
-				globalEventMap[entity_].erase(iterator_);
+			auto iterator_ = eventMap[entity_].find(event_);
+			if (iterator_ != eventMap[entity_].end())
+				eventMap[entity_].erase(iterator_);
 		}
 	}
+}
+
+void EventEmitter::removeAllListeners (std::vector<std::string> eventNames_)
+{
+	removeAllListeners(entt::null, eventNames_);
 }
 
 void EventEmitter::removeAllListeners (Entity entity_, std::string eventName_)
 {
 	std::vector<std::string> events_ {eventName_};
-
 	removeAllListeners(entity_, events_);
 }
-*/
+
+void EventEmitter::removeAllListeners (std::string eventName_)
+{
+	std::vector<std::string> events_ {eventName_};
+	removeAllListeners(entt::null, events_);
+}
+
+void EventEmitter::clear ()
+{
+	eventMap.clear();
+}
+
+void EventEmitter::shutdown ()
+{
+	clear();
+}
 
 }	// namespace Zen

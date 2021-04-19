@@ -25,8 +25,11 @@
 #include "../gameobjects/update_list.h"
 #include "../gameobjects/gameobject_factory.h"
 #include "../input/input_plugin.hpp"
+#include "../audio/audio_manager.hpp"
 
 namespace Zen {
+
+class AudioManager;
 
 /**
  * A base Scene class which can be extended for your own use.
@@ -90,7 +93,7 @@ public:
 	 * @since 0.0.0
 	 * @todo TODO
 	 */
-	//Audio::AudioManager& audio;
+	AudioManager& audio;
 
 	/**
 	 * A reference to the game Texture Manager.
