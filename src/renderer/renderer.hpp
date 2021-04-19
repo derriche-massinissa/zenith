@@ -183,13 +183,6 @@ public:
 	int height = 0;
 
 	/**
-	 * The pixel format of the SDL_Window.
-	 *
-	 * @since 0.0.0
-	 */
-	SDL_PixelFormat pixelFormat;
-
-	/**
 	 * A temporary Transform Matrix, re-used internally during batching.
 	 *
 	 * @since 0.0.0

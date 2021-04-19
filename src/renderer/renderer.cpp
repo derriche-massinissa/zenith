@@ -73,20 +73,6 @@ void Renderer::start (GameConfig *cfg_)
 
 	g_scale.on("resize", &Renderer::onResize, this);
 
-	// Get the pixel format of the window
-	SDL_Surface *infoSurface_ = nullptr;
-	infoSurface_ = SDL_GetWindowSurface(g_window.window);
-
-	if (!infoSurface_)
-	{
-		MessageError("Failed to create info surface from window: ", SDL_GetError());
-		return;
-	}
-
-	pixelFormat = *infoSurface_->format;
-
-	SDL_FreeSurface(infoSurface_);
-
 	// Set the mask texture blend mode
 	maskBlendMode = SDL_ComposeCustomBlendMode(
 			SDL_BLENDFACTOR_ZERO,			// Zero out the mask color
@@ -376,6 +362,21 @@ void Renderer::takeSnapshot ()
 		snapshotState.surface = nullptr;
 	}
 
+	// Get the pixel format of the window
+	SDL_Surface *infoSurface_ = nullptr;
+
+	infoSurface_ = SDL_GetWindowSurface(g_window.window);
+
+	if (!infoSurface_) {
+		MessageError("Failed to create info surface from window: ", SDL_GetError());
+		return;
+	}
+
+	SDL_PixelFormat pixelFormat_ = *infoSurface_->format;
+
+	SDL_FreeSurface(infoSurface_);
+
+
 	if (snapshotState.getPixel) {
 		// Pixel grab
 		Uint32 pixel_;
@@ -389,7 +390,7 @@ void Renderer::takeSnapshot ()
 		if (SDL_RenderReadPixels(
 					g_window.renderer,
 					&rect_,
-					pixelFormat.format,
+					pixelFormat_.format,
 					&pixel_,
 					pitch_
 					))
@@ -400,7 +401,7 @@ void Renderer::takeSnapshot ()
 
 		// Get the color components of the pixel
 		Uint8 r_ = 0, g_ = 0, b_ = 0, a_ = 0;
-		SDL_GetRGBA(pixel_, &pixelFormat, &r_, &g_, &b_, &a_);
+		SDL_GetRGBA(pixel_, &pixelFormat_, &r_, &g_, &b_, &a_);
 
 		// Save the color components to the output color object
 		Color out_;
@@ -426,22 +427,22 @@ void Renderer::takeSnapshot ()
 					0,
 					snapshotState.width,
 					snapshotState.height,
-					pixelFormat.BitsPerPixel,
-					pixelFormat.Rmask,
-					pixelFormat.Gmask,
-					pixelFormat.Bmask,
-					pixelFormat.Amask
+					pixelFormat_.BitsPerPixel,
+					pixelFormat_.Rmask,
+					pixelFormat_.Gmask,
+					pixelFormat_.Bmask,
+					pixelFormat_.Amask
 					);
 		} else {
 			snapshotState.surface = SDL_CreateRGBSurface(
 					0,
-					width,
-					height,
-					pixelFormat.BitsPerPixel,
-					pixelFormat.Rmask,
-					pixelFormat.Gmask,
-					pixelFormat.Bmask,
-					pixelFormat.Amask
+					g_window.width(),
+					g_window.height(),
+					pixelFormat_.BitsPerPixel,
+					pixelFormat_.Rmask,
+					pixelFormat_.Gmask,
+					pixelFormat_.Bmask,
+					pixelFormat_.Amask
 					);
 		}
 		if (!snapshotState.surface) {
@@ -465,7 +466,7 @@ void Renderer::takeSnapshot ()
 			readFailed_ = SDL_RenderReadPixels(
 					g_window.renderer,
 					&rect_,
-					pixelFormat.format,
+					pixelFormat_.format,
 					snapshotState.surface->pixels,
 					snapshotState.surface->pitch);
 		} else {
@@ -473,7 +474,7 @@ void Renderer::takeSnapshot ()
 			readFailed_ = SDL_RenderReadPixels(
 					g_window.renderer,
 					nullptr,
-					pixelFormat.format,
+					pixelFormat_.format,
 					snapshotState.surface->pixels,
 					snapshotState.surface->pitch);
 		}
