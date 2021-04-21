@@ -30,7 +30,6 @@ enum class WINDOW_STATE {
 enum class WINDOW_CLEANUP {
 	SDL,
 	IMG,
-	MIX,
 	TTF
 };
 

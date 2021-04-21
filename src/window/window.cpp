@@ -17,7 +17,7 @@ Window::~Window ()
 {
 	removeAllListeners();
 
-	// close called from the Game destructorr cuz calling it here crashes the program. Fix later, pls...
+	// close called from the Game object destructor 'cuz calling it here crashes the program. Fix later, pls...
 	//close();
 }
 
@@ -48,17 +48,14 @@ int Window::create (GameConfig *cfg)
 	} else if (initSdlImg()) {
 		cleanup(WINDOW_CLEANUP::SDL);
 		return 1;
-	} else if (initSdlMixer()) {
+	} else if (initSdlTtf()) {
 		cleanup(WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
-	} else if (initSdlTtf()) {
-		cleanup(WINDOW_CLEANUP::MIX, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
-		return 1;
 	} else if (createWindow()) {
-		cleanup(WINDOW_CLEANUP::TTF, WINDOW_CLEANUP::MIX, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
+		cleanup(WINDOW_CLEANUP::TTF, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
 	} else if (createRenderer()) {
-		cleanup(window, WINDOW_CLEANUP::TTF, WINDOW_CLEANUP::MIX, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
+		cleanup(window, WINDOW_CLEANUP::TTF, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
 	} else {
 		// Everything has gone well
@@ -91,21 +88,6 @@ int Window::initSdlImg ()
 	int imgFlags_ = IMG_INIT_PNG;
 	if (!(IMG_Init(imgFlags_) & imgFlags_)) {
 		MessageError("Could not initialize SDL_image: %s\n", IMG_GetError());
-		return 1;
-	}
-
-	return 0;
-}
-
-int Window::initSdlMixer ()
-{
-	// Initialize SDL_mixer
-	const int frequency_ = 44100;
-	Uint16 format_ = MIX_DEFAULT_FORMAT;
-	int channels_ = 2;
-	int chunksize_ = 2048;
-	if (Mix_OpenAudio(frequency_, format_, channels_, chunksize_) < 0) {
-		MessageError("Could not initialize SDL_mixer: %s\n", Mix_GetError());
 		return 1;
 	}
 
@@ -185,7 +167,6 @@ int Window::close ()
 			renderer,
 			window,
 			WINDOW_CLEANUP::TTF,
-			WINDOW_CLEANUP::MIX,
 			WINDOW_CLEANUP::IMG,
 			WINDOW_CLEANUP::SDL
 		   );
@@ -194,13 +175,6 @@ int Window::close ()
 
 	return 0;
 }
-
-// Clean up template
-//template<typename T>
-//void Window::cleanup (T t)
-//{
-//	return;
-//}
 
 template<typename T, typename... Args>
 void Window::cleanup (T t_, Args&&... args_)
@@ -221,10 +195,6 @@ void Window::cleanup<WINDOW_CLEANUP> (WINDOW_CLEANUP c_)
 
 		case WINDOW_CLEANUP::IMG:
 			IMG_Quit();
-			break;
-
-		case WINDOW_CLEANUP::MIX:
-			Mix_Quit();
 			break;
 
 		case WINDOW_CLEANUP::TTF:
