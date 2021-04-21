@@ -46,6 +46,13 @@ public:
 	std::function<bool(T, T)> sortCallback = nullptr;
 
 	/**
+	 * Should the items in this List be unique? (No duplicates)
+	 *
+	 * @since 0.0.0
+	 */
+	bool unique = false;
+
+	/**
 	 * Adds the given item to the end of this vector. Each item is unique.
 	 *
 	 * @since 0.0.0

@@ -20,6 +20,9 @@ namespace Zen {
 template <typename T>
 void List<T>::add (T item_, bool skipCallback_)
 {
+	if (unique && exists(item_))
+		return;
+
 	list.emplace_back(item_);
 
 	if (!skipCallback_ && addCallback)

@@ -15,6 +15,8 @@ namespace Zen {
 
 DisplayList::DisplayList ()
 {
+	unique = true;
+
 	addCallback = [this] ([[maybe_unused]] Entity gameObject) {
 		queueDepthSort();
 	};
