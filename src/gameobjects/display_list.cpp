@@ -22,6 +22,10 @@ DisplayList::DisplayList ()
 	removeCallback = [this] ([[maybe_unused]] Entity gameObject) {
 		queueDepthSort();
 	};
+
+	sortCallback = [] (Entity childA,  Entity childB) {
+		return sortByDepth(childA, childB);
+	};
 }
 
 void DisplayList::queueDepthSort ()
