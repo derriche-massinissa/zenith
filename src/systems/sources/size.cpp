@@ -9,6 +9,7 @@
 
 #include <cmath>
 #include "../../utils/assert.hpp"
+#include "../../utils/messages.hpp"
 
 #include "../../components/size.hpp"
 #include "../../components/scale.hpp"
@@ -90,6 +91,12 @@ void SetSizeToFrame (Entity entity, Entity frame)
 	ZEN_ASSERT(size && textured, "The entity has no 'Size' or 'Textured' component.");
 
 	Components::Frame *fr;
+
+	if (frame == entt::null && textured->frame == entt::null)
+	{
+		MessageError("Cannot set size to frame, no frame given or current");
+		return;
+	}
 
 	if (frame == entt::null)
 	{

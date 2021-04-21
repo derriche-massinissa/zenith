@@ -18,7 +18,7 @@ namespace Zen {
 
 extern entt::registry g_registry;
 
-Entity CreateFrame (Entity source, const char* name, int x, int y, int width, int height)
+Entity CreateFrame (Entity source, std::string name, int x, int y, int width, int height)
 {
 	auto frame = g_registry.create();
 	g_registry.emplace<Components::Frame>(
@@ -107,9 +107,9 @@ void SetFrameTrim (Entity entity, int actualWidth, int actualHeight, int destX, 
 	frame->centerY = destHeight / 2.0;
 }
 
-CropData SetFrameCropUVs (Entity entity, CropData crop, int x, int y, int width, int height, bool flipX, bool flipY)
+void SetFrameCropUVs (Entity frm, CropData *crop, int x, int y, int width, int height, bool flipX, bool flipY)
 {
-	auto frame = g_registry.try_get<Components::Frame>(entity);
+	auto frame = g_registry.try_get<Components::Frame>(frm);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
 
 	//  Clamp the input values
@@ -207,31 +207,29 @@ CropData SetFrameCropUVs (Entity entity, CropData crop, int x, int y, int width,
 
 	//  Map the given coordinates into UV space, clamping to the 0-1 range.
 
-	crop.u0 = std::max(0, ox / tw);
-	crop.v0 = std::max(0, oy / th);
-	crop.u1 = std::min(1, (ox + ow) / tw);
-	crop.v1 = std::min(1, (oy + oh) / th);
+	crop->u0 = std::max(0, ox / tw);
+	crop->v0 = std::max(0, oy / th);
+	crop->u1 = std::min(1, (ox + ow) / tw);
+	crop->v1 = std::min(1, (oy + oh) / th);
 
-	crop.x = x;
-	crop.y = y;
+	crop->x = x;
+	crop->y = y;
 
-	crop.cx = ox;
-	crop.cy = oy;
-	crop.cw = ow;
-	crop.ch = oh;
+	crop->cx = ox;
+	crop->cy = oy;
+	crop->cw = ow;
+	crop->ch = oh;
 
-	crop.width = width;
-	crop.height = height;
+	crop->width = width;
+	crop->height = height;
 
-	crop.flipX = flipX;
-	crop.flipY = flipY;
-
-	return crop;
+	crop->flipX = flipX;
+	crop->flipY = flipY;
 }
 
-CropData UpdateFrameCropUVs (Entity frame, CropData crop, bool flipX, bool flipY)
+void UpdateFrameCropUVs (Entity frame, CropData *crop, bool flipX, bool flipY)
 {
-	return SetFrameCropUVs(frame, crop, crop.x, crop.y, crop.width, crop.height, flipX, flipY);
+	SetFrameCropUVs(frame, crop, crop->x, crop->y, crop->width, crop->height, flipX, flipY);
 }
 
 void SetFrameUVs (Entity entity, int width, int height, double u0, double v0, double u1, double v1)

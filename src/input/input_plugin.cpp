@@ -728,6 +728,9 @@ int InputPlugin::processDragUpEvent (Pointer *pointer_)
 
 int InputPlugin::processMoveEvents (Pointer *pointer_)
 {
+	if (!pointer_)
+		return 0;
+
 	int total_ = 0;
 	auto& currentlyOver_ = temp;
 
@@ -761,8 +764,12 @@ int InputPlugin::processMoveEvents (Pointer *pointer_)
 			break;
 	}
 
+
 	if (!aborted_)
+	{
+		tempEvent.pointer = pointer_;
 		emit(ZEN_INPUT_POINTER_MOVE, &tempEvent);
+	}
 
 	return total_;
 }
@@ -804,10 +811,13 @@ int InputPlugin::processWheelEvent (Pointer *pointer_)
 		}
 	}
 
-	//tempEvent.gameObjectList = currentlyOver_;
 
 	if (!aborted_)
+	{
+		//tempEvent.gameObjectList = currentlyOver_;
+		tempEvent.pointer = pointer_;
 		emit(ZEN_INPUT_POINTER_WHEEL, &tempEvent);
+	}
 
 	return total_;
 }
@@ -857,10 +867,13 @@ int InputPlugin::processOverEvents (Pointer *pointer_)
 			}
 		}
 
-		//tempEvent.gameObjectList = justOver_;
 
 		if (!aborted_)
+		{
+			//tempEvent.gameObjectList = justOver_;
+			tempEvent.pointer = pointer_;
 			emit(ZEN_INPUT_POINTER_WHEEL, &tempEvent);
+		}
 	}
 
 	// Then sort it into display list order
@@ -1093,17 +1106,22 @@ int InputPlugin::processUpEvents (Pointer *pointer_)
 		}
 	}
 
-	//tempEvent.gameObjectList = currentlyOver_;
-	tempEvent.pointer = pointer_;
 
 	if (!aborted_)
+	{
+		//tempEvent.gameObjectList = currentlyOver_;
+		tempEvent.pointer = pointer_;
 		emit(ZEN_INPUT_POINTER_UP, &tempEvent);
+	}
 
 	return currentlyOver_.size();
 }
 
 int InputPlugin::processDownEvents (Pointer *pointer_)
 {
+	if (!pointer_)
+		return 0;
+
 	int total_ = 0;
 	auto& currentlyOver_ = temp;
 
@@ -1135,11 +1153,12 @@ int InputPlugin::processDownEvents (Pointer *pointer_)
 		}
 	}
 
-	//tempEvent.gameObjectList = currentlyOver_;
-	tempEvent.pointer = pointer_;
-
 	if (!aborted_)
+	{
+		//tempEvent.gameObjectList = currentlyOver_;
+		tempEvent.pointer = pointer_;
 		emit(ZEN_INPUT_POINTER_DOWN, &tempEvent);
+	}
 
 	return total_;
 }

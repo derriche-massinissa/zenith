@@ -19,19 +19,19 @@ namespace Zen {
 
 extern entt::registry g_registry;
 
-void ParseSpriteSheet (
+int ParseSpriteSheet (
 		Entity texture,
 		int sourceIndex,
 		int x,
 		int y,
-		int height,
 		int width,
+		int height,
 		SpriteSheetConfig config)
 {
 	if (config.frameWidth <= 0)
 	{
 		MessageError("SpriteSheet: Invalid frameWidth given!");
-		return;
+		return -1;
 	}
 
 	// Get the source component
@@ -106,6 +106,8 @@ void ParseSpriteSheet (
 			fy += config.frameHeight + spacing;
 		}
 	}
+
+	return 0;
 }
 
 }	// namespace Zen

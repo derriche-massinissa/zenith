@@ -18,12 +18,12 @@ namespace Zen {
 
 extern entt::registry g_registry;
 
-void ParseSpriteSheetFromAtlas (Entity texture, Entity frame, SpriteSheetConfig config)
+int ParseSpriteSheetFromAtlas (Entity texture, Entity frame, SpriteSheetConfig config)
 {
 	if (config.frameWidth <= 0)
 	{
 		MessageError("SpriteSheet: Invalid frameWidth given!");
-		return;
+		return -1;
 	}
 
 	// Get the source component
@@ -54,7 +54,7 @@ void ParseSpriteSheetFromAtlas (Entity texture, Entity frame, SpriteSheetConfig 
 
 	int cutWidth = fr.cutWidth;
 	int cutHeight = fr.cutHeight;
-	int sheetWidth = GetFrameRealHeight(frame);
+	int sheetWidth = GetFrameRealWidth(frame);
 	int sheetHeight = GetFrameRealHeight(frame);
 
 	int row = std::floor((sheetWidth - margin + spacing) / (config.frameWidth + spacing));
@@ -155,6 +155,8 @@ void ParseSpriteSheetFromAtlas (Entity texture, Entity frame, SpriteSheetConfig 
 		else
 			frameY += config.frameHeight;
 	}
+
+	return 0;
 }
 
 }	// namespace Zen

@@ -11,6 +11,7 @@
 #include <string>
 #include "../../ecs/entity.hpp"
 #include "../../utils/assert.hpp"
+#include "../../utils/messages.hpp"
 #include "frame.hpp"
 #include "source.hpp"
 #include "../components/texture.hpp"
@@ -21,7 +22,7 @@ namespace Zen {
 
 extern entt::registry g_registry;
 
-Entity CreateTexture (const char* key, std::vector<const char*> sources)
+Entity CreateTexture (std::string key, std::vector<std::string> sources)
 {
 	std::vector<Entity> sourceEntities;
 
@@ -50,25 +51,12 @@ Entity CreateTexture (const char* key, std::vector<const char*> sources)
 	return texture;
 }
 
-Entity CreateTexture (std::string key, std::vector<std::string> sources)
-{
-	std::vector<const char*> cSources;
-	cSources.reserve(sources.size());
-
-	for (auto& source : sources)
-	{
-		cSources.emplace_back(source.c_str());
-	}
-
-	return CreateTexture(key.c_str(), cSources);
-}
-
 void DestroyTexture (Entity texture)
 {
 	g_registry.destroy(texture);
 }
 
-Entity AddFrame (Entity texture, const char* name, int sourceIndex, int x, int y, int width, int height)
+Entity AddFrame (Entity texture, std::string name, int sourceIndex, int x, int y, int width, int height)
 {
 	if (HasFrame(texture, name))
 		return entt::null;

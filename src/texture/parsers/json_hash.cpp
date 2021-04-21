@@ -18,13 +18,13 @@ namespace Zen {
 
 extern entt::registry g_registry;
 
-void ParseJsonHash (Entity texture, int sourceIndex, nlohmann::json json)
+int ParseJsonHash (Entity texture, int sourceIndex, nlohmann::json json)
 {
 	// Malformed?
 	if (json.find("frames") == json.end())
 	{
 		MessageError("Invalid Texture Atlas JSON Hash. Missing 'frames' object");
-		return;
+		return -1;
 	}
 
 	// Get the source component
@@ -92,6 +92,8 @@ void ParseJsonHash (Entity texture, int sourceIndex, nlohmann::json json)
 			frame.pivotY = pivot["y"];
 		}
 	}
+	
+	return 0;
 }
 
 }	// namespace Zen

@@ -154,18 +154,6 @@ public:
 	 * is already in use.
 	 */
 	Entity addAtlasJSONArray (std::string key_, std::vector<std::string> sources_, nlohmann::json data_);
-	/**
-	 * @overload
-	 * @since 0.0.0
-	 *
-	 * @param key_ The unique key of the Texture.
-	 * @param sources_ A path to the image file.
-	 * @param data_ A vector of Texture Atlas data.
-	 *
-	 * @return A pointer to the newly created Texture, or `nullptr` if the key
-	 * is already in use.
-	 */
-	Entity addAtlasJSONArray (std::string key_, std::vector<std::string> sources_, std::vector<nlohmann::json> data_);
 
 	/**
 	 * Adds a Texture Atlas to this TextureManager.

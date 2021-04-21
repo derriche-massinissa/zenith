@@ -13,7 +13,7 @@
 
 namespace Zen {
 
-void ParseSpriteSheet (Entity texture, int sourceIndex, int x, int y, int height, int width, SpriteSheetConfig config);
+int ParseSpriteSheet (Entity texture, int sourceIndex, int x, int y, int width, int height, SpriteSheetConfig config);
 
 }	// namespace Zen
 

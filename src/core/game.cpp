@@ -20,7 +20,7 @@ namespace Zen {
 entt::registry g_registry;
 EventEmitter g_event;
 Window g_window;
-TextureManager g_texture;
+extern TextureManager g_texture;
 ScaleManager g_scale;
 Renderer g_renderer;
 extern Scenes::SceneManager g_scene;
@@ -61,9 +61,11 @@ void Game::boot ()
 
 	window.create(&config);
 
-	renderer.start(&config);
+	g_texture.boot(&config);
 
 	scale.boot(&config);
+
+	renderer.start(&config);
 
 	scene.boot(this, &config.sceneFactory);
 

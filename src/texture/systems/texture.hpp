@@ -10,6 +10,7 @@
 
 #include "../../ecs/entity.hpp"
 #include <vector>
+#include <string>
 
 namespace Zen {
 
@@ -20,7 +21,6 @@ namespace Zen {
  * @param sources_ A vector of paths to the files that are used to create
  * the texture.
  */
-Entity CreateTexture (const char* key, std::vector<const char*> sources);
 Entity CreateTexture (std::string key, std::vector<std::string> sources);
 
 void DestroyTexture (Entity texture);
@@ -46,7 +46,7 @@ void DestroyTexture (Entity texture);
  * @return A pointer to the Frame that was added to this Texture, or `null`
  * if the given name already exists.
  */
-Entity AddFrame (Entity texture, const char* name, int sourceIndex, int x, int y, int width, int height);
+Entity AddFrame (Entity texture, std::string name, int sourceIndex, int x, int y, int width, int height);
 
 /**
  * @overload

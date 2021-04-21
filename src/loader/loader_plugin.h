@@ -28,9 +28,9 @@ public:
 	/**
 	 * @since 0.0.0
 	 *
-	 * @param scene_ The Scene this LoaderPlugin belongs to.
+	 * @param scene The Scene this LoaderPlugin belongs to.
 	 */
-	LoaderPlugin (Scene* scene_);
+	LoaderPlugin (Scene* scene);
 
 	/**
 	 * @since 0.0.0
@@ -107,29 +107,29 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param path_ The path to use. Leave empty to reset.
+	 * @param path The path to use. Leave empty to reset.
 	 *
 	 * @return This LoaderPlugin object.
 	 */
-    LoaderPlugin& setPath (std::string path_ = "");
+    LoaderPlugin& setPath (std::string path = "");
 
 	/**
 	 * Sets the prefix member.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param prefix_ The prefix to use. Leave empty to reset.
+	 * @param prefix The prefix to use. Leave empty to reset.
 	 *
 	 * @return This LoaderPlugin object.
 	 */
-    LoaderPlugin& setPrefix (std::string prefix_ = "");
+    LoaderPlugin& setPrefix (std::string prefix = "");
 
 	/**
 	 * Load an image file.
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& image (std::string key_, std::string path_, bool alphaCache_ = false);
+	LoaderPlugin& image (std::string key, std::string path, bool alphaCache = false);
 	
 	LoaderPlugin& cursor (std::string key, std::string path, int hotX = 0, int hotY = 0);
 
@@ -138,7 +138,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& atlas (std::string key_, std::string texturePath_, std::string atlasPath_);
+	LoaderPlugin& atlas (std::string key, std::string texturePath, std::string atlasPath);
 
 	/**
 	 * Load a multi-atlas texture.
@@ -147,21 +147,21 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& multiatlas (std::string key_, std::string atlasPath_, std::string path_);
+	LoaderPlugin& multiatlas (std::string key, std::string atlasPath, std::string path = "");
 
 	/**
 	 * Load a spritesheet.
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& spritesheet (std::string key_, std::string path_, SpriteSheetConfig config_);
+	LoaderPlugin& spritesheet (std::string key, std::string path, SpriteSheetConfig config = {});
 
 	/**
 	 * Load an audio file. Used for short sound effects.
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& audioShort (std::string key_, std::string path_);
+	LoaderPlugin& audioShort (std::string key, std::string path);
 
 	/**
 	 * Add a file for audio streaming without loading it into memory.
@@ -171,14 +171,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& audioStream (std::string key_, std::string path_);
+	LoaderPlugin& audioStream (std::string key, std::string path);
 
 	/**
 	 * Load a font file.
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& font (std::string key_, std::string path_);
+	LoaderPlugin& font (std::string key, std::string path);
 
 	/**
 	 * Resets the loader, reseting it's path and prefix too.

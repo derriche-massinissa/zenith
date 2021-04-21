@@ -18,14 +18,13 @@ namespace Zen {
 
 extern entt::registry g_registry;
 
-void ParseJsonArray (Entity texture, int sourceIndex, nlohmann::json json)
+int ParseJsonArray (Entity texture, int sourceIndex, nlohmann::json json)
 {
 	// Malformed?
-	if (json.find("frames") == json.end() ||
-		json.find("textures") == json.end())
+	if ( json.find("frames") == json.end() )
 	{
 		MessageError("Invalid Texture Atlas JSON Array");
-		return;
+		return -1;
 	}
 
 	// Get the source component
@@ -45,14 +44,11 @@ void ParseJsonArray (Entity texture, int sourceIndex, nlohmann::json json)
 	AddFrame(texture, "__BASE", sourceIndex, 0, 0, source->width, source->height);
 
 	// By this stage frames is a fully parsed array
-	auto& frames =
-		(json["textures"] != nullptr && json["textures"].is_array())
-		? json["textures"][sourceIndex]["frames"]
-		: json["frames"];
+	auto& frames = json["frames"];
 
 	Entity newFrame = entt::null;
 
-	for (int i = 0; i < frames.size(); i++)
+	for (std::size_t i = 0; i < frames.size(); i++)
 	{
 		auto& src = frames[i];
 
@@ -99,6 +95,8 @@ void ParseJsonArray (Entity texture, int sourceIndex, nlohmann::json json)
 			frame.pivotY = pivot["y"];
 		}
 	}
+
+	return 0;
 }
 
 }	// namespace Zen

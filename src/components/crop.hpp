@@ -15,6 +15,8 @@ namespace Components {
 
 struct Crop
 {
+	bool isCropped = false;
+
 	CropData data;
 };
 

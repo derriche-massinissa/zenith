@@ -65,6 +65,8 @@ LoaderPlugin& LoaderPlugin::setPrefix (std::string prefix_)
 
 LoaderPlugin& LoaderPlugin::image (std::string key_, std::string path_, bool alphaCache_)
 {
+	path_ = path + path_;
+
 	textureManager.addImage(key_, path_);
 
 	if (alphaCache_)
@@ -75,6 +77,8 @@ LoaderPlugin& LoaderPlugin::image (std::string key_, std::string path_, bool alp
 
 LoaderPlugin& LoaderPlugin::cursor (std::string key_, std::string path_, int hotX_, int hotY_)
 {
+	path_ = path + path_;
+
 	g_input.createColorCursor(key_, path_, hotX_, hotY_);
 
 	return *this;
@@ -82,6 +86,9 @@ LoaderPlugin& LoaderPlugin::cursor (std::string key_, std::string path_, int hot
 
 LoaderPlugin& LoaderPlugin::atlas (std::string key_, std::string texturePath_, std::string atlasPath_)
 {
+	texturePath_ = path + texturePath_;
+	atlasPath_ = path + atlasPath_;
+
 	textureManager.addAtlas(key_, texturePath_, atlasPath_);
 
 	return *this;
@@ -89,13 +96,15 @@ LoaderPlugin& LoaderPlugin::atlas (std::string key_, std::string texturePath_, s
 
 LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_, std::string path_)
 {
+	atlasPath_ = path + atlasPath_;
+	path_ = path + path_;
+
 	std::vector<std::string> sources_;
 
 	// Open data file
-	std::fstream file_ (atlasPath_, std::ios::in);
+	std::ifstream file_ (atlasPath_);
 
-	if (!file_)
-	{
+	if (!file_.is_open()) {
 		MessageError("Atlas file failed to open: ", atlasPath_);
 		return *this;
 	}
@@ -117,6 +126,8 @@ LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_
 
 LoaderPlugin& LoaderPlugin::spritesheet (std::string key_, std::string path_, SpriteSheetConfig config_)
 {
+	path_ = path + path_;
+
 	textureManager.addSpriteSheet(key_, path_, config_);
 
 	return *this;
@@ -124,6 +135,8 @@ LoaderPlugin& LoaderPlugin::spritesheet (std::string key_, std::string path_, Sp
 
 LoaderPlugin& LoaderPlugin::audioShort (std::string key_, std::string path_)
 {
+	path_ = path + path_;
+
 	g_audio.addAudioShort(key_, path_);
 
 	return *this;
@@ -131,6 +144,8 @@ LoaderPlugin& LoaderPlugin::audioShort (std::string key_, std::string path_)
 
 LoaderPlugin& LoaderPlugin::audioStream (std::string key_, std::string path_)
 {
+	path_ = path + path_;
+
 	g_audio.addAudioStream(key_, path_);
 
 	return *this;
@@ -138,6 +153,8 @@ LoaderPlugin& LoaderPlugin::audioStream (std::string key_, std::string path_)
 
 LoaderPlugin& LoaderPlugin::font (std::string key_, std::string path_)
 {
+	path_ = path + path_;
+
 	MessageWarning("Fonts and text are not yet implemented!");
 
 	return *this;

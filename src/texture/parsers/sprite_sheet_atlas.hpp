@@ -14,7 +14,7 @@
 
 namespace Zen {
 
-void ParseSpriteSheetFromAtlas (Entity texture, Entity frame, SpriteSheetConfig config);
+int ParseSpriteSheetFromAtlas (Entity texture, Entity frame, SpriteSheetConfig config);
 
 }	// namespace Zen
 

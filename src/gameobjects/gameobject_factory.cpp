@@ -26,6 +26,7 @@
 #include "../components/visible.hpp"
 #include "../components/renderable.hpp"
 #include "../components/actor.hpp"
+#include "../components/crop.hpp"
 #include "../systems/size.hpp"
 #include "../systems/origin.hpp"
 #include "../systems/textured.hpp"
@@ -71,6 +72,7 @@ Entity GameObjectFactory::image (double x, double y, std::string key, std::strin
 	g_registry.emplace<Components::Scale>(img);
 	g_registry.emplace<Components::Visible>(img);
 	g_registry.emplace<Components::Renderable>(img);
+	g_registry.emplace<Components::Crop>(img);
 	g_registry.emplace<Components::Actor>(img);
 
 	SetTexture(img, key, frame);

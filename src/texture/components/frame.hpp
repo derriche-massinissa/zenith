@@ -8,6 +8,7 @@
 #ifndef ZEN_TEXTURES_COMPONENTS_FRAME_HPP
 #define ZEN_TEXTURES_COMPONENTS_FRAME_HPP
 
+#include <string>
 #include "../../ecs/entity.hpp"
 #include "../frame_data.hpp"
 
@@ -22,7 +23,7 @@ struct Frame
 	 *
 	 * @since 0.0.0
 	 */
-	const char* name = "";
+	std::string name;
 
 	/**
 	 * The TextureSource this Frame is part of.
@@ -122,14 +123,14 @@ struct Frame
 	 *
 	 * @since 0.0.0
 	 */
-	int pivotX = 0;
+	double pivotX = 0;
 
 	/**
 	 * The vertical pivot point of this Frame.
 	 *
 	 * @since 0.0.0
 	 */
-	int pivotY = 0;
+	double pivotY = 0;
 
 	/**
 	 * Does this Frame have a custom pivot point?
@@ -139,8 +140,6 @@ struct Frame
 	bool customPivot = false;
 
 	/**
-	 * @todo TODO frame rotation when packing
-	 *
 	 * Is this frame rotated or not in the Texture?
 	 * Rotation allows you to use rotated frames in texture atlas packing.
 	 * It has nothing to do with Sprite rotation.

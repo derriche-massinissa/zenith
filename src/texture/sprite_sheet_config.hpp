@@ -8,6 +8,8 @@
 #ifndef ZEN_TEXTURES_SPRITE_SHEET_CONFIG_HPP
 #define ZEN_TEXTURES_SPRITE_SHEET_CONFIG_HPP
 
+#include <string>
+
 namespace Zen {
 
 /**
@@ -32,9 +34,9 @@ namespace Zen {
  */
 struct SpriteSheetConfig
 {
-	const char* atlas = "";
+	std::string atlas = "";
 
-	const char* frame = "";
+	std::string frame = "";
 
 	int frameWidth = 0;
 

@@ -94,38 +94,38 @@ Entity TextureManager::addImage (std::string key_, std::string path_)
 {
 	Entity texture_ = entt::null;
 
-	if (checkKey(key_))
+	if (!checkKey(key_))
+		return texture_;
+
+	texture_ = create(key_, path_);
+
+	if (texture_ != entt::null)
 	{
-		texture_ = create(key_, path_);
+		int sourceIndex_ = 0;
 
-		if (texture_ != entt::null)
+		// Get the source
+		Components::TextureSource *source_ = nullptr;
+		for (auto entity_ : g_registry.view<Components::TextureSource>())
 		{
-			int sourceIndex_ = 0;
+			auto& src_ = g_registry.get<Components::TextureSource>(entity_);
 
-			// Get the source
-			Components::TextureSource *source_ = nullptr;
-			for (auto entity_ : g_registry.view<Components::TextureSource>())
+			if (src_.texture == texture_ && src_.index == sourceIndex_)
 			{
-				auto& src_ = g_registry.get<Components::TextureSource>(entity_);
-
-				if (src_.texture == texture_ && src_.index == sourceIndex_)
-				{
-					source_ = &src_;
-					break;
-				}
+				source_ = &src_;
+				break;
 			}
-
-			AddFrame(
-					texture_,
-					"__BASE",
-					sourceIndex_,
-					0,
-					0,
-					source_->width,
-					source_->height);
-
-			emit("add", key_);
 		}
+
+		AddFrame(
+				texture_,
+				"__BASE",
+				sourceIndex_,
+				0,
+				0,
+				source_->width,
+				source_->height);
+
+		emit("add", key_);
 	}
 
 	return texture_;
@@ -162,7 +162,7 @@ Entity TextureManager::addAtlas (
 		std::string key_, std::vector<std::string> sources_, std::string dataPath_)
 {
 	// Open file
-	std::fstream file_ (dataPath_, std::ios::in);
+	std::ifstream file_ (dataPath_);
 
 	if (!file_)
 	{
@@ -181,7 +181,7 @@ Entity TextureManager::addAtlas (
 	auto framesIt_ = data_.find("frames");
 
 	if ((texturesIt_ != data_.end() && texturesIt_->is_array()) ||
-			(framesIt_ != data_.end() && framesIt_->is_array()))
+		(framesIt_ != data_.end() && framesIt_->is_array()))
 	{
 		return addAtlasJSONArray(key_, sources_, data_);
 	}
@@ -194,8 +194,7 @@ Entity TextureManager::addAtlas (
 Entity TextureManager::addAtlas (
 		std::string key_, std::string source_, std::string dataPath_)
 {
-	std::vector<std::string> sources_;
-	sources_.emplace_back(source_);
+	std::vector<std::string> sources_ { source_ };
 
 	return addAtlas(key_, sources_, dataPath_);
 }
@@ -203,54 +202,32 @@ Entity TextureManager::addAtlas (
 Entity TextureManager::addAtlasJSONArray (
 		std::string key_, std::vector<std::string> sources_, nlohmann::json data_)
 {
-	Entity texture_ = entt::null;
+	if (!checkKey(key_))
+		return entt::null;
 
-	if (checkKey(key_))
-	{
-		texture_ = create(key_, sources_);
+	Entity texture_ = create(key_, sources_);
 
-		ParseJsonArray(texture_, 0, data_);
-
-		emit("add", key_);
-	}
-
-	return texture_;
-}
-
-Entity TextureManager::addAtlasJSONArray (
-		std::string key_, std::vector<std::string> sources_, std::vector<nlohmann::json> data_)
-{
-	// Multi-Atlas
-
-	Entity texture_ = entt::null;
-
-	if (checkKey(key_))
-	{
-		texture_ = create(key_, sources_);
-
-		// Multi-pack with on atlas file for all images
-		bool singleAtlasFile_ = (data_.size() == 1);
+	auto texturesIt_ = data_.find("textures");
+	if ( texturesIt_ != data_.end() ) {
+		// Multi-Atlas if more than one texture
 
 		// Count the sources
-		int size_ = 0;
-		for (auto entity_ : g_registry.view<Components::TextureSource>())
+		std::size_t size_ = data_["textures"].size();
+
+		// Assumes the textures are in the same order in the source array as in the
+		// json data
+		for (std::size_t i_ = 0; i_ < size_; i_++)
 		{
-			auto& src_ = g_registry.get<Components::TextureSource>(entity_);
-
-			if (src_.texture == texture_)
-				size_++;
+			if ( ParseJsonArray(texture_, i_, data_["textures"][i_]) )
+				return entt::null;
 		}
-
-		// Assumes the textures are in the same order in the source array as in the json data
-		for (int i_ = 0; i_ < size_; i_++)
-		{
-			auto atlasData_ = singleAtlasFile_ ? data_[0] : data_[i_];
-
-			ParseJsonArray(texture_, i_, atlasData_);
-		}
-
-		emit("add", key_);
 	}
+	else { // frames
+		if ( ParseJsonArray(texture_, 0, data_) )
+			return entt::null;
+	}
+
+	emit("add", key_);
 
 	return texture_;
 }
@@ -264,7 +241,8 @@ Entity TextureManager::addAtlasJSONHash (
 	{
 		texture_ = create(key_, sources_);
 
-		ParseJsonHash(texture_, 0, data_);
+		if ( ParseJsonHash(texture_, 0, data_) )
+			return entt::null;
 
 		emit("add", key_);
 	}
@@ -281,9 +259,10 @@ Entity TextureManager::addAtlasJSONHash (
 	{
 		texture_ = create(key_, sources_);
 
-		for (int i_ = 0; i_ < data_.size(); i_++)
+		for (std::size_t i_ = 0; i_ < data_.size(); i_++)
 		{
-			ParseJsonHash(texture_, i_, data_[i_]);
+			if ( ParseJsonHash(texture_, i_, data_[i_]) )
+				return entt::null;
 		}
 
 		emit("add", key_);
@@ -296,30 +275,31 @@ Entity TextureManager::addSpriteSheet (std::string key_, std::string path_, Spri
 {
 	Entity texture_ = entt::null;
 
-	if (checkKey(key_))
+	if (!checkKey(key_))
+		return entt::null;
+
+	texture_ = create(key_, path_);
+
+	// Get the source
+	Components::TextureSource *source_ = nullptr;
+	for (auto entity_ : g_registry.view<Components::TextureSource>())
 	{
-		texture_ = create(key_, path_);
+		auto& src_ = g_registry.get<Components::TextureSource>(entity_);
 
-		// Get the source
-		Components::TextureSource *source_ = nullptr;
-		for (auto entity_ : g_registry.view<Components::TextureSource>())
+		if (src_.texture == texture_)
 		{
-			auto& src_ = g_registry.get<Components::TextureSource>(entity_);
-
-			if (src_.texture == texture_)
-			{
-				source_ = &src_;
-				break;
-			}
+			source_ = &src_;
+			break;
 		}
-
-		int width_ = source_->width;
-		int height_ = source_->height;
-
-		ParseSpriteSheet(texture_, 0, 0, 0, width_, height_, config_);
-
-		emit("add", key_);
 	}
+
+	int width_ = source_->width;
+	int height_ = source_->height;
+
+	if ( ParseSpriteSheet(texture_, 0, 0, 0, width_, height_, config_) )
+		return entt::null;
+
+	emit("add", key_);
 
 	return texture_;
 }
@@ -333,35 +313,40 @@ Entity TextureManager::addSpriteSheetFromAtlas (std::string key_, SpriteSheetCon
 	std::string atlasFrame_ = config_.frame;
 
 	if (atlasKey_ == "" || atlasFrame_ == "")
+	{
+		MessageError("The spritsheet \"", key_, "\" cannot be created from no atlas texture or frame.");
 		return entt::null;
+	}
 
 	Entity atlas_ = get(atlasKey_);
 	Entity sheet_ = GetFrame(atlas_, atlasFrame_);
 
-
-	if (sheet_ != entt::null)
+	if (sheet_ == entt::null)
 	{
-		auto& spritesheet_ = g_registry.get<Components::Frame>(sheet_);
-		auto& source_ = g_registry.get<Components::TextureSource>(spritesheet_.source);
-
-		Entity texture_ = create(key_, source_.source);
-
-		if (IsFrameTrimmed(sheet_))
-		{
-			// If trimmed, we need to help the parser adjust
-			ParseSpriteSheetFromAtlas(texture_, sheet_, config_);
-		}
-		else
-		{
-			ParseSpriteSheet(texture_, 0, spritesheet_.cutX, spritesheet_.cutY, spritesheet_.cutWidth, spritesheet_.cutHeight, config_);
-		}
-
-		emit("add", key_);
-
-		return texture_;
+		MessageError("In atlas \"", atlasKey_, "\"", "frame \"", atlasFrame_, "\" do not exist.");
+		return entt::null;
 	}
 
-	return entt::null;
+	auto& spritesheet_ = g_registry.get<Components::Frame>(sheet_);
+	auto& source_ = g_registry.get<Components::TextureSource>(spritesheet_.source);
+
+	Entity texture_ = create(key_, source_.source);
+
+	if (IsFrameTrimmed(sheet_))
+	{
+		// If trimmed, we need to help the parser adjust
+		if ( ParseSpriteSheetFromAtlas(texture_, sheet_, config_) )
+			return entt::null;
+	}
+	else
+	{
+		if ( ParseSpriteSheet(texture_, 0, spritesheet_.cutX, spritesheet_.cutY, spritesheet_.cutWidth, spritesheet_.cutHeight, config_) )
+			return entt::null;
+	}
+
+	emit("add", key_);
+
+	return texture_;
 }
 
 Entity TextureManager::create (std::string key_, std::vector<std::string> sources_)
@@ -370,12 +355,6 @@ Entity TextureManager::create (std::string key_, std::vector<std::string> source
 
 	if (checkKey(key_))
 	{
-		/*
-		Texture tex_ (*this, key_, sources_);
-
-		list.emplace(key_, tex_);
-		*/
-
 		auto [it, _] = list.emplace(
 				key_,
 				CreateTexture(key_, sources_)
@@ -410,14 +389,13 @@ bool TextureManager::exists (std::string key_)
 Entity TextureManager::get (std::string key_)
 {
 	auto textureIterator_ = list.find(key_);
-
 	if (textureIterator_ != list.end())
 	{
-		return list.find(key_)->second;
+		return list[key_];
 	}
 	else
 	{
-		return list.find("__MISSING")->second;
+		return list["__MISSING"];
 	}
 }
 
@@ -728,5 +706,7 @@ bool TextureManager::renameTexture (std::string currentKey_, std::string newKey_
 	return false;
 }
 */
+
+TextureManager g_texture;
 
 }	// namespace Zen

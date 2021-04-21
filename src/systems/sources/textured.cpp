@@ -35,7 +35,7 @@ extern TextureManager g_texture;
 void SetCrop (Entity entity, int x, int y, int width, int height)
 {
 	auto [textured, flip, crop] = g_registry.try_get<Components::Textured, Components::Flip, Components::Crop>(entity);
-	ZEN_ASSERT(textured, "Entity has no 'Textured' component.");
+	ZEN_ASSERT(textured && flip && crop, "Entity has no 'Textured', 'Flip' and 'Crop' component.");
 
 	auto frame = g_registry.try_get<Components::Frame>(textured->frame);
 
@@ -46,9 +46,9 @@ void SetCrop (Entity entity, int x, int y, int width, int height)
 	else if (frame)
 	{
 		if (flip)
-			SetFrameCropUVs(textured->frame, crop->data, x, y, width, height, flip->y, flip->y);
+			SetFrameCropUVs(textured->frame, &crop->data, x, y, width, height, flip->y, flip->y);
 		else
-			SetFrameCropUVs(textured->frame, crop->data, x, y, width, height, false, false);
+			SetFrameCropUVs(textured->frame, &crop->data, x, y, width, height, false, false);
 
 		textured->isCropped = true;
 	}
@@ -79,13 +79,27 @@ void SetTexture (Entity entity, std::string key, std::string frame)
 
 void SetFrame (Entity entity, std::string frameName, bool updateSize, bool updateOrigin)
 {
-	auto [textured, renderable, size, origin, crop, flip] = g_registry.try_get<Components::Textured, Components::Renderable, Components::Size, Components::Origin, Components::Crop, Components::Flip>(entity);
+	auto [textured, renderable, size, origin, crop, flip] =
+		g_registry.try_get<
+			Components::Textured,
+			Components::Renderable,
+			Components::Size,
+			Components::Origin,
+			Components::Crop,
+			Components::Flip>(entity);
+
 	ZEN_ASSERT(textured && renderable, "The entity has no 'Textured' or 'Renderable' component.");
 
 	textured->frame = GetFrame(textured->texture, frameName);
 
-	auto frame = g_registry.try_get<Components::Frame>(textured->frame);
-	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
+	Components::Frame *frame;
+	if (textured->frame == entt::null)
+	{
+		MessageError("Frame \"", frameName, "\" not found in texture");
+		return;
+	}
+
+	frame = g_registry.try_get<Components::Frame>(textured->frame);
 
 	if (!frame->cutWidth || !frame->cutHeight)
 		renderable->flags &= ~FLAG;
@@ -114,7 +128,7 @@ void SetFrame (Entity entity, std::string frameName, bool updateSize, bool updat
 	}
 
 	if (textured->isCropped)
-		UpdateFrameCropUVs(textured->frame, crop->data, flip->x, flip->y);
+		UpdateFrameCropUVs(textured->frame, &crop->data, flip->x, flip->y);
 }
 
 Entity GetFrame (Entity entity)
@@ -127,8 +141,10 @@ Entity GetFrame (Entity entity)
 
 void ResetCropObject (Entity entity)
 {
-	auto crop = g_registry.try_get<Components::Crop>(entity);
-	ZEN_ASSERT(crop, "Entity has no 'Crop' component.");
+	auto [crop, textured] = g_registry.try_get<Components::Crop, Components::Textured>(entity);
+	ZEN_ASSERT(crop, "Entity has no 'Crop' and 'Textured' component.");
+
+	textured->isCropped = false;
 
 	crop->data.u0 = 0.;
 	crop->data.v0 = 0.;

@@ -12,10 +12,11 @@
 #include "../../geom/types/rectangle.hpp"
 #include "../frame_data.hpp"
 #include "../crop_data.hpp"
+#include <string>
 
 namespace Zen {
 
-Entity CreateFrame (Entity source, const char* name, int x, int y, int width, int height);
+Entity CreateFrame (Entity source, std::string name, int x, int y, int width, int height);
 
 /**
  * Sets the width, height, x and y of this Frame.
@@ -73,7 +74,7 @@ void SetFrameTrim (Entity frame, int actualWidth, int actualHeight, int destX, i
  *
  * @return The updated crop data object.
  */
-CropData SetFrameCropUVs (Entity frame, CropData crop, int x, int y, int width, int height, bool flipX, bool flipY);
+void SetFrameCropUVs (Entity frame, CropData *crop, int x, int y, int width, int height, bool flipX, bool flipY);
 
 /**
  * Takes a crop data object and recalculates the UVs based on the dimensions
@@ -88,7 +89,7 @@ CropData SetFrameCropUVs (Entity frame, CropData crop, int x, int y, int width, 
  *
  * @return The updated crop data object.
  */
-CropData UpdateFrameCropUVs (Entity frame, CropData crop, bool flipX, bool flipY);
+void UpdateFrameCropUVs (Entity frame, CropData *crop, bool flipX, bool flipY);
 
 /**
  * Directly sets UV data for this frame.

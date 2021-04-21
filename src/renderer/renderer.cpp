@@ -13,6 +13,7 @@
 
 #include "../structs/types/size.hpp"
 #include "../math/rad_to_deg.hpp"
+#include "../math/deg_to_rad.hpp"
 #include "../math/clamp.hpp"
 #include "../utils/messages.hpp"
 #include "../core/config.hpp"
@@ -563,9 +564,19 @@ void Renderer::batchSprite (
 
 	double frameX_ = dd_.x;
 	double frameY_ = dd_.y;
-	double frameWidth_ = cut.width;
-	double frameHeight_ = cut.height;
-	bool customPivot_ = frameCheat___.customPivot;
+	double frameWidth_;
+	double frameHeight_;
+
+	if (frameCheat___.rotated)
+	{
+		frameWidth_ = cut.height;
+		frameHeight_ = cut.width;
+	}
+	else
+	{
+		frameWidth_ = cut.width;
+		frameHeight_ = cut.height;
+	}
 
 	// FIXME AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 	double res_ = 1.0; // frame___.source->resolution;
@@ -573,15 +584,15 @@ void Renderer::batchSprite (
 	double displayOriginX_ = GetDisplayOriginX(sprite_);
 	double displayOriginY_ = GetDisplayOriginY(sprite_);
 
-	double x_ = (-1. * displayOriginX_) + frameCheat___.x;
-	double y_ = (-1. * displayOriginY_) + frameCheat___.y;
+	double x_ = (-1. * displayOriginX_) + frameCheat___.data.spriteSourceSize.x;
+	double y_ = (-1. * displayOriginY_) + frameCheat___.data.spriteSourceSize.y;
 
 	if (IsCropped(sprite_))
 	{
 		auto crop_ = GetCrop(sprite_);
 
 		if (crop_.flipX != GetFlipX(sprite_) || crop_.flipY != GetFlipY(sprite_))
-			UpdateFrameCropUVs(frame_, crop_, GetFlipX(sprite_), GetFlipY(sprite_));
+			UpdateFrameCropUVs(frame_, &crop_, GetFlipX(sprite_), GetFlipY(sprite_));
 
 		frameWidth_ = crop_.cw;
 		frameHeight_ = crop_.ch;
@@ -610,7 +621,33 @@ void Renderer::batchSprite (
 	bool flipX_ = GetFlipX(sprite_);
 	bool flipY_ = GetFlipY(sprite_);
 
-	ApplyITRS(&spriteMatrix_, GetX(sprite_) + x_, GetY(sprite_) + y_, GetRotation(sprite_), GetScaleX(sprite_), GetScaleY(sprite_));
+	if (!frameCheat___.rotated) {
+		ApplyITRS(&spriteMatrix_,
+			GetX(sprite_) + x_, GetY(sprite_) + y_,
+			GetRotation(sprite_),
+			GetScaleX(sprite_), GetScaleY(sprite_)
+		);
+	}
+	else {
+		ApplyITRS(&spriteMatrix_,
+			GetX(sprite_) + x_, GetY(sprite_) + y_ + frameCheat___.height,
+			GetRotation(sprite_) + Math::DegToRad(-90),
+			GetScaleX(sprite_), GetScaleY(sprite_)
+		);
+	}
+
+	/*
+	LoadIdentity(&spriteMatrix_);
+	Translate(&spriteMatrix_, GetX(sprite_) + x_, GetY(sprite_) + y_);
+
+	if (frameCheat___.rotated) {
+		Translate(&spriteMatrix_, 0, frameCheat___.height);
+		Rotate(&spriteMatrix_, Math::DegToRad(-90));
+	}
+
+	Rotate(&spriteMatrix_, GetRotation(sprite_));
+	Scale(&spriteMatrix_, GetScaleX(sprite_), GetScaleY(sprite_));
+	*/
 
 	camMatrix_ = GetTransformMatrix(camera_);
 

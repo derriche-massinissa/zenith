@@ -13,7 +13,7 @@
 
 namespace Zen {
 
-void ParseJsonHash (Entity texture, int sourceIndex, nlohmann::json json);
+int ParseJsonHash (Entity texture, int sourceIndex, nlohmann::json json);
 
 }	// namespace Zen
 
