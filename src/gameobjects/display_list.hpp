@@ -12,9 +12,9 @@
 #include <vector>
 
 #include "../ecs/entity.hpp"
+#include "../structs/list.hpp"
 
 namespace Zen {
-namespace GameObjects {
 
 /**
  * The Display List plugin.
@@ -28,16 +28,9 @@ namespace GameObjects {
  * @class DisplayList
  * @since 0.0.0
  */
-class DisplayList
+class DisplayList : public List<Entity>
 {
 public:
-	/**
-	 * The list owning the GameObject instances.
-	 *
-	 * @since 0.0.0
-	 */
-	std::vector<Entity> list;
-
 	/**
 	 * The flag the determines whether GameObjects should be sorted when
 	 * `depthSort()` is called.
@@ -47,22 +40,9 @@ public:
 	bool sortChildrenFlag = false;
 
 	/**
-	 * Add a GameObject instance to this display list.
-	 *
 	 * @since 0.0.0
-	 *
-	 * @param gameObject_ A unique pointer to a GameObject instance.
 	 */
-	void add (Entity gameObject_);
-
-	/**
-	 * Remove a GameObject instance from the list.
-	 *
-	 * @since 0.0.0
-	 *
-	 * @param gameObject_ A pointer to the GameObject instance.
-	 */
-	void remove (Entity gameObject_);
+	DisplayList ();
 
 	/**
 	 * Force a sort of the display list on the next call to depthSort.
@@ -89,9 +69,7 @@ public:
 	 * @return `true` if childA has a smaller depth than childB, and `false`
 	 * otherwise.
 	 */
-	static bool sortByDepth (
-			Entity childA,
-			Entity childB);
+	static bool sortByDepth (Entity childA, Entity childB);
 
 	/**
 	 * Returns a vector which contains all objects currently on the DisplayList.
@@ -102,10 +80,25 @@ public:
 	 */
 	std::vector<Entity> getChildren ();
 
-	int getIndex (Entity child_);
+	int getIndex (Entity child);
+
+	/**
+     * The depth of this Game Object within the Scene.
+     *
+     * The depth is also known as the 'z-index' in some environments, and allow
+	 * you to change the rendering order of Game Objects, without actually
+	 * moving their position in the display list.
+     *
+     * The default depth is zero. A Game Object with a higher depth
+     * value will always render in front of one with a lower value.
+     *
+     * Setting the depth will queue a depth sort event within the Scene.
+     *
+	 * @since 0.0.0
+	 */
+	void setDepth (Entity entity, int depth);
 };
 
-}	// namespace Input
 }	// namespace Zen
 
 #endif

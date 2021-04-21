@@ -25,11 +25,11 @@ project(
 
 # Source files
 set(zenith_SRCS
+	src/structs/list.cpp
 	src/audio/audio_manager.cpp
 	src/audio/tools/ogg.cpp
 	src/audio/tools/al_utility.cpp
 	src/audio/tools/alc_utility.cpp
-
 	src/input/keyboard/keyboard_plugin.cpp
 	src/input/keyboard/combo/key_combo.cpp
 	src/input/keyboard/keys/key.cpp

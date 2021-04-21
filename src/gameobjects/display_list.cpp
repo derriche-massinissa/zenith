@@ -5,51 +5,23 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "display_list.h"
-
-#include <algorithm>
-#include <iterator>
+#include "display_list.hpp"
 
 #include "../systems/depth.hpp"
 #include "../event/event_emitter.hpp"
+#include "../utils/vector/index_of.hpp"
 
 namespace Zen {
 
-namespace GameObjects {
-
-void DisplayList::add (Entity gameObject_)
+DisplayList::DisplayList ()
 {
-	list.emplace_back(gameObject_);
+	addCallback = [this] ([[maybe_unused]] Entity gameObject) {
+		queueDepthSort();
+	};
 
-	// TODO Handle removal from scene
-	//g _event.emit(gameObject_, "removed-from-scene");
-
-	/*
-	 * TODO FIXME
-	if (obj_->displayList)
-		obj_->displayList->remove(obj_);
-		*/
-
-	//obj_->displayList = this;
-
-	queueDepthSort();
-
-	// TODO Handle addition to scene
-	// g _event.emit(gameObject_, "added-to-scene");
-}
-
-void DisplayList::remove (Entity gameObject_)
-{
-	for (auto it = list.begin(); it != list.end(); it++)
-	{
-		if (gameObject_ == *it)
-		{
-			list.erase(it);
-			break;
-		}
-	}
-
-	queueDepthSort();
+	removeCallback = [this] ([[maybe_unused]] Entity gameObject) {
+		queueDepthSort();
+	};
 }
 
 void DisplayList::queueDepthSort ()
@@ -59,45 +31,33 @@ void DisplayList::queueDepthSort ()
 
 void DisplayList::depthSort ()
 {
-	if (sortChildrenFlag)
-	{
+	if (sortChildrenFlag) {
 		std::stable_sort(list.begin(), list.end(), sortByDepth);
 
 		sortChildrenFlag = false;
 	}
 }
 
-bool DisplayList::sortByDepth (
-		Entity childA,
-		Entity childB)
+bool DisplayList::sortByDepth (Entity childA, Entity childB)
 {
 	return GetDepth(childA) < GetDepth(childB);
 }
 
 std::vector<Entity> DisplayList::getChildren ()
 {
-	std::vector<Entity> out_;
-
-	for (const auto& obj_ : list)
-	{
-		out_.emplace_back(obj_);
-	}
-
-	return out_;
+	return list;
 }
 
 int DisplayList::getIndex (Entity child_)
 {
-	for (int i = 0; i < list.size(); i++)
-	{
-		if (child_ == list[i])
-		{
-			return i;
-		}
-	}
-
-	return -1;
+	return IndexOf(list, child_);
 }
 
-}	// namespace Input
+void DisplayList::setDepth (Entity entity_, int depth_)
+{
+	SetDepth(entity_, depth_);
+
+	queueDepthSort();
+}
+
 }	// namespace Zen

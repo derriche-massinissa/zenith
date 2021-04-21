@@ -18,7 +18,7 @@
 #include "../scene/scene_systems.fwd.h"
 #include "../scene/scene_settings.fwd.h"
 #include "../cameras/2d/camera_manager.fwd.hpp"
-#include "../gameobjects/display_list.fwd.h"
+#include "../gameobjects/display_list.fwd.hpp"
 #include "types/hit_callback.hpp"
 #include "types/event.hpp"
 #include "pointer.fwd.hpp"
@@ -167,7 +167,7 @@ private:
 
 	Scenes::SceneSettings *settings;
 
-	GameObjects::DisplayList *displayList;
+	DisplayList *displayList;
 
 	CameraManager *cameras;
 

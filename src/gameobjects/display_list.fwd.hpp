@@ -9,11 +9,9 @@
 #define ZEN_GAMEOBJECTS_DISPLAYLIST_FWD_H
 
 namespace Zen {
-namespace GameObjects {
 
 class DisplayList;
 
-}	// namespace GameObjects
 }	// namespace Zen
 
 #endif

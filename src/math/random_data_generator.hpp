@@ -111,13 +111,18 @@ public:
 	 * @since 0.0.0
 	 *
 	 * @param vector_ The vector to pick a random element from.
+	 * @param start_ The start of the range to select from.
+	 * @param length_ The number of elements to select from.
 	 *
 	 * @return A random member of the vector.
 	 */
 	template <typename T>
-	T& pick (const std::vector<T>& vector_)
+	T& pick (std::vector<T>& vector_, std::size_t start_ = 0, std::size_t length_ = 0)
 	{
-		return vector_.at(integer(0, vector_.size() - 1));
+		if (length_)
+			return vector_.at( integer(start_, start_ + length_) );
+		else
+			return vector_.at( integer(start_, vector_.size() - 1) );
 	}
 
     /**
@@ -130,7 +135,7 @@ public:
 	int sign ();
 
     /**
-     * Returns a reference to a random element from within the given vector, 
+     * Returns a reference to a random element from within the given vector,
 	 * favoring the earlier entries.
      *
      * @since 0.0.0
@@ -167,7 +172,6 @@ public:
      */
 	double rotation ();
 
-
     /**
      * Shuffles the given vector, using the current seed.
      *
@@ -179,6 +183,21 @@ public:
 	void shuffle (std::vector<T> *vector_)
 	{
 		std::shuffle(vector_->begin(), vector_->end(), engine);
+	}
+
+    /**
+     * Shuffles the given range of vector, using the current seed.
+     *
+     * @since 0.0.0
+     *
+     * @param vector_ A pointer to the vector to be shuffled.
+     * @param begin_ The start index of the range to shuffle.
+     * @param length_ A end index of the range to shuffle.
+     */
+	template <typename T>
+	void shuffle (std::vector<T> *vector_, std::size_t begin_, std::size_t length_)
+	{
+		std::shuffle(vector_->begin() + begin_, vector_->begin() + begin_ + length_, engine);
 	}
 
 	/**

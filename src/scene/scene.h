@@ -21,7 +21,7 @@
 #include "../cameras/2d/camera_manager.hpp"
 #include "../loader/loader_plugin.h"
 #include "../texture/texture_manager.hpp"
-#include "../gameobjects/display_list.h"
+#include "../gameobjects/display_list.hpp"
 #include "../gameobjects/update_list.h"
 #include "../gameobjects/gameobject_factory.h"
 #include "../input/input_plugin.hpp"
@@ -144,7 +144,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	GameObjects::DisplayList children;
+	DisplayList children;
 
 	/**
 	 * A scene level GameObject update list.

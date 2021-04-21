@@ -13,7 +13,6 @@
 #include "../../scene/scene.h"
 #include "../../scale/scale_manager.hpp"
 #include "../../geom/rectangle.hpp"
-#include "../../gameobjects/display_list.h"
 #include "../../renderer/renderer.hpp"
 #include "../../systems/actor.hpp"
 #include "../../systems/name.hpp"
@@ -271,7 +270,7 @@ int CameraManager::remove (Entity cameraToRemove_)
 
 void CameraManager::render (
 		Renderer& renderer_,
-		GameObjects::DisplayList& displayList_)
+		DisplayList& displayList_)
 {
 	for (auto camera_ : cameras)
 	{

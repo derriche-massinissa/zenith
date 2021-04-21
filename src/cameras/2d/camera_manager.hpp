@@ -19,7 +19,7 @@
 #include "../../geom/types/rectangle.hpp"
 #include "../../structs/types/size.hpp"
 #include "../../input/pointer.hpp"
-#include "../../gameobjects/display_list.h"
+#include "../../gameobjects/display_list.hpp"
 #include "../../renderer/renderer.fwd.hpp"
 
 namespace Zen {
@@ -295,7 +295,7 @@ public:
 	 * @param renderer_ The renderer that will render the children to this camera.
 	 * @param displayList_ The Display List for the Scene.
 	 */
-	void render (Renderer& renderer_, GameObjects::DisplayList& displayList_);
+	void render (Renderer& renderer_, DisplayList& displayList_);
 
 	/**
 	 * Takes an array of Game Objects and a Camera and returns a new array
