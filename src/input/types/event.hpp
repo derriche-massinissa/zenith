@@ -21,8 +21,7 @@ public:
 
 	Entity gameObject = entt::null;
 
-	//std::vector<Entity> gameObjectList {};
-	Entity* gameObjectList;
+	std::vector<Entity> gameObjectList;
 
 	Entity target = entt::null;
 
