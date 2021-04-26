@@ -8,7 +8,7 @@
 #ifndef ZEN_SCENE_TRANSITION_CONFIG_HPP
 #define ZEN_SCENE_TRANSITION_CONFIG_HPP
 
-#include <SDL2/SDL_types.h>
+#include <SDL2/SDL_stdinc.h>
 #include <string>
 #include "../data.h"
 #include "scene.fwd.hpp"

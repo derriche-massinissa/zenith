@@ -8,7 +8,6 @@
 #ifndef ZEN_SCALE_SCALE_MANAGER_HPP
 #define ZEN_SCALE_SCALE_MANAGER_HPP
 
-#include "../const.h"
 #include "../structs/types/size.hpp"
 #include "../event/event_emitter.hpp"
 #include "../math/types/vector2.hpp"

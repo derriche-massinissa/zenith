@@ -14,8 +14,8 @@
 #include "../texture/sprite_sheet_config.hpp"
 
 #include "../texture/texture_manager.fwd.hpp"
-#include "../scene/scene.fwd.h"
-#include "../scene/scene_manager.fwd.h"
+#include "../scene/scene.fwd.hpp"
+#include "../scene/scene_manager.fwd.hpp"
 #include "../cameras/2d/camera_manager.fwd.hpp"
 #include "../event/event_listener.hpp"
 
@@ -56,7 +56,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scenes::SceneManager& sceneManager;
+	SceneManager& sceneManager;
 
 	/**
 	 * An optional prefix that is automatically prepended to the start of every 

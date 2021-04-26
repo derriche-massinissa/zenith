@@ -11,7 +11,7 @@
 #include <SDL2/SDL_stdinc.h>
 #include <string>
 #include "../data.h"
-#include "../const.h"
+#include "const.hpp"
 
 #include "scene.fwd.hpp"
 
@@ -43,7 +43,7 @@ struct SceneSettings
 
 	bool transitionAllowInput = true;
 
-	Data data = {};
+	Data data;
 };
 
 }	// namespace Zen

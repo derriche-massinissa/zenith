@@ -14,8 +14,8 @@
 
 #include "../../ecs/entity.hpp"
 #include "camera_config.hpp"
-#include "../../scene/scene.fwd.h"
-#include "../../scene/scene_systems.h"
+#include "../../scene/scene.fwd.hpp"
+#include "../../scene/systems.hpp"
 #include "../../geom/types/rectangle.hpp"
 #include "../../structs/types/size.hpp"
 #include "../../input/pointer.hpp"
@@ -85,7 +85,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scenes::SceneSystems& systems;
+	SceneSystems& systems;
 
 	/**
 	 * A vector of the Camera objects being managed by this Camera Manager.

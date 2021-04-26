@@ -16,12 +16,11 @@
 #include <string>
 #include <vector>
 
-#include "../const.h"
 #include "../data.h"
-#include "scene_settings_config.hpp"
+#include "settings_config.hpp"
 
 #include "scene.fwd.hpp"
-#include "scene_config.hpp"
+#include "config.hpp"
 #include "../core/game.fwd.hpp"
 #include "const.hpp"
 

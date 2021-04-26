@@ -8,9 +8,9 @@
 #ifndef ZEN_INPUT_KEYBOARD_PLUGIN_HPP
 #define ZEN_INPUT_KEYBOARD_PLUGIN_HPP
 
-#include "../../event/event_emitter.hpp"
 #include <SDL2/SDL_keycode.h>
-#include "../../scene/scene.fwd.h"
+#include "../../event/event_emitter.hpp"
+#include "../../scene/scene.fwd.hpp"
 #include "types/cursor_keys.hpp"
 #include "types/key_combo_config.hpp"
 #include "keys/key.hpp"

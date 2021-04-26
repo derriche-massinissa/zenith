@@ -15,8 +15,8 @@
 #include "../ecs/entity.hpp"
 #include "../display/types/color.hpp"
 #include "../scene/scene.fwd.hpp"
-#include "../scene/scene_systems.fwd.h"
-#include "../scene/scene_settings.fwd.h"
+#include "../scene/systems.fwd.hpp"
+#include "../scene/settings.fwd.hpp"
 #include "../cameras/2d/camera_manager.fwd.hpp"
 #include "../gameobjects/display_list.fwd.hpp"
 #include "types/hit_callback.hpp"
@@ -163,9 +163,9 @@ public:
 private:
 	Scene* scene;
 
-	Scenes::SceneSystems *sys;
+	SceneSystems *sys;
 
-	Scenes::SceneSettings *settings;
+	SceneSettings *settings;
 
 	DisplayList *displayList;
 

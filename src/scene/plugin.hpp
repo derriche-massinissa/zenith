@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SCENES_SCENE_PLUGIN_H
-#define ZEN_SCENES_SCENE_PLUGIN_H
+#ifndef ZEN_SCENES_SCENE_PLUGIN_HPP
+#define ZEN_SCENES_SCENE_PLUGIN_HPP
 
 #include <SDL2/SDL.h>
 #include <functional>
@@ -15,14 +15,12 @@
 
 #include "../data.h"
 #include "../event/event_listener.hpp"
-#include "scene_transition_config.h"
+#include "transition_config.hpp"
 
-#include "scene.fwd.h"
-#include "scene_systems.fwd.h"
-#include "scene_manager.fwd.h"
+#include "scene.fwd.hpp"
+#include "systems.fwd.hpp"
 
 namespace Zen {
-namespace Scenes {
 
 /**
  * The Scene Plugin is the main interface to the Scene Manager and allows
@@ -61,13 +59,6 @@ public:
 	 * @since 0.0.0
 	 */
 	SceneSystems* systems;
-
-	/**
-	 * A reference to the Game's SceneManager.
-	 *
-	 * @since 0.0.0
-	 */
-	SceneManager* manager;
 
 	/**
 	 * The unique key of the Scene that ownd this ScenePlugin.
@@ -607,19 +598,9 @@ public:
 	 * @return The index of the Scene.
 	 */
 	int getIndex (std::string key_ = "");
-
-	/**
-	 * The Scene that owns this plugin is shutting down.
-	 *
-	 * We need to kill and reset all internal properties as well as stop
-	 * listening to Scene events.
-	 *
-	 * @since 0.0.0
-	 */
-	void shutdown ();
 };
 
-}	// namespace Scenes
+
 }	// namespace Zen
 
 #endif

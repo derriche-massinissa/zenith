@@ -10,6 +10,20 @@
 
 namespace Zen {
 
+enum class SCENE
+{
+	PENDING = 0,
+	INIT,
+	START,
+	LOADING,
+	CREATING,
+	RUNNING,
+	PAUSED,
+	SLEEPING,
+	SHUTDOWN,
+	DESTROYED
+};
+
 enum class SCENE_OP
 {
 	NONE = 0,

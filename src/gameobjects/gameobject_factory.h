@@ -9,7 +9,7 @@
 #define ZEN_GAMEOBJECTS_GAMEOBJECTFACTORY_H
 
 #include <string>
-#include "../scene/scene.fwd.h"
+#include "../scene/scene.fwd.hpp"
 #include "../ecs/entity.hpp"
 //#include "image/image.fwd.h"
 
@@ -24,7 +24,6 @@ public:
 
 	void boot ();
 
-	//Image& image (int x, int y, std::string key, std::string frame = "");
 	Entity image (double x, double y, std::string key, std::string frame = "");
 };
 

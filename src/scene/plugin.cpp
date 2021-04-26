@@ -5,29 +5,24 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "scene_plugin.h"
+#include "plugin.hpp"
 
-#include "scene.h"
-#include "scene_systems.fwd.h"
-#include "scene_manager.h"
+#include "scene.hpp"
+#include "systems.fwd.hpp"
+#include "scene_manager.hpp"
 #include "const.hpp"
-#include "../math/clamp.hpp"
+#include <algorithm>
 
 namespace Zen {
-namespace Scenes {
+
+extern SceneManager g_scene;
 
 ScenePlugin::ScenePlugin (Scene* scene_)
 	: scene(scene_)
 	, systems (&scene_->sys)
-	, manager(&scene_->game.scene)
 	, key (scene_->sys.settings.key)
 {
 	scene_->sys.events.on("start", &ScenePlugin::pluginStart, this);
-}
-
-void ScenePlugin::pluginStart ()
-{
-	systems->events.once("shutdown", &ScenePlugin::shutdown, this);
 }
 
 ScenePlugin& ScenePlugin::start (std::string key_, Data data_)
@@ -35,16 +30,16 @@ ScenePlugin& ScenePlugin::start (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp(SCENE_OP::STOP, key);
-	manager->queueOp(SCENE_OP::START, key_, "", data_);
+	g_scene.queueOp(SCENE_OP::STOP, key);
+	g_scene.queueOp(SCENE_OP::START, key_, "", data_);
 
 	return *this;
 }
 
 ScenePlugin& ScenePlugin::restart (Data data_)
 {
-	manager->queueOp(SCENE_OP::STOP, key);
-	manager->queueOp(SCENE_OP::START, key, "", data_);
+	g_scene.queueOp(SCENE_OP::STOP, key);
+	g_scene.queueOp(SCENE_OP::START, key, "", data_);
 
 	return *this;
 }
@@ -52,7 +47,7 @@ ScenePlugin& ScenePlugin::restart (Data data_)
 bool ScenePlugin::transition (SceneTransitionConfig config_)
 {
 	std::string key_ = config_.target;
-	Scene* target_ = manager->getScene(key_);
+	Scene* target_ = g_scene.getScene(key_);
 
 	if (!checkValidTransition(target_))
 		return false;
@@ -85,14 +80,14 @@ bool ScenePlugin::transition (SceneTransitionConfig config_)
 	targetSettings_.transitionAllowInput = config_.allowInput;
 
 	if (config_.moveAbove)
-		manager->moveAbove(key, key_);
+		g_scene.moveAbove(key, key_);
 	else if (config_.moveBelow)
-		manager->moveBelow(key, key_);
+		g_scene.moveBelow(key, key_);
 
 	if (target_->sys.isSleeping())
 		target_->sys.wake(config_.data);
 	else
-		manager->start(key_, config_.data);
+		g_scene.start(key_, config_.data);
 
 	systems->events.emit("transition-out", key_, duration_);
 
@@ -119,7 +114,7 @@ void ScenePlugin::step ([[maybe_unused]] Uint32 time_, Uint32 delta_)
 {
 	transitionElapsed += delta_;
 
-	transitionProgress = Math::Clamp(static_cast<double>(transitionElapsed) / transitionDuration, 0.f, 1.f);
+	transitionProgress = std::clamp(static_cast<double>(transitionElapsed) / transitionDuration, 0., 1.);
 
 	if (transitionCallback)
 		transitionCallback(transitionProgress);
@@ -147,11 +142,11 @@ void ScenePlugin::transitionComplete ()
 
 	// Now everything is clear we can handle what happens to this Scene
 	if (transitionWillRemove)
-		manager->remove(key);
+		g_scene.remove(key);
 	else if (transitionWillSleep)
 		systems->sleep();
 	else
-		manager->stop(key);
+		g_scene.stop(key);
 }
 
 Scene& ScenePlugin::add (
@@ -161,13 +156,13 @@ Scene& ScenePlugin::add (
 		Data data_
 		)
 {
-	return *manager->add(key_, std::move(sceneToAdd_), autoStart_, data_);
+	return *g_scene.add(key_, std::move(sceneToAdd_), autoStart_, data_);
 }
 
 ScenePlugin& ScenePlugin::launch (std::string key_, Data data_)
 {
 	if (key_ != key)
-		manager->queueOp(SCENE_OP::START, key_, "", data_);
+		g_scene.queueOp(SCENE_OP::START, key_, "", data_);
 
 	return *this;
 }
@@ -175,7 +170,7 @@ ScenePlugin& ScenePlugin::launch (std::string key_, Data data_)
 ScenePlugin& ScenePlugin::run (std::string key_, Data data_)
 {
 	if (key_ != key)
-		manager->queueOp(SCENE_OP::RUN, key_, "", data_);
+		g_scene.queueOp(SCENE_OP::RUN, key_, "", data_);
 
 	return *this;
 }
@@ -185,7 +180,7 @@ ScenePlugin& ScenePlugin::pause (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp(SCENE_OP::PAUSE, key_, "", data_);
+	g_scene.queueOp(SCENE_OP::PAUSE, key_, "", data_);
 
 	return *this;
 }
@@ -195,7 +190,7 @@ ScenePlugin& ScenePlugin::resume (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp(SCENE_OP::RESUME, key_, "", data_);
+	g_scene.queueOp(SCENE_OP::RESUME, key_, "", data_);
 
 	return *this;
 }
@@ -205,7 +200,7 @@ ScenePlugin& ScenePlugin::sleep (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp(SCENE_OP::SLEEP, key_, "", data_);
+	g_scene.queueOp(SCENE_OP::SLEEP, key_, "", data_);
 
 	return *this;
 }
@@ -215,7 +210,7 @@ ScenePlugin& ScenePlugin::wake (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp(SCENE_OP::WAKE, key_, "", data_);
+	g_scene.queueOp(SCENE_OP::WAKE, key_, "", data_);
 
 	return *this;
 }
@@ -223,7 +218,7 @@ ScenePlugin& ScenePlugin::wake (std::string key_, Data data_)
 ScenePlugin& ScenePlugin::swap (std::string key_)
 {
 	if (key_ != key)
-		manager->queueOp(SCENE_OP::SWAP, key, key_);
+		g_scene.queueOp(SCENE_OP::SWAP, key, key_);
 
 	return *this;
 }
@@ -233,7 +228,7 @@ ScenePlugin& ScenePlugin::stop (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp(SCENE_OP::STOP, key_, "", data_);
+	g_scene.queueOp(SCENE_OP::STOP, key_, "", data_);
 
 	return *this;
 }
@@ -243,7 +238,7 @@ ScenePlugin& ScenePlugin::setVisible (bool value_, std::string key_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->getScene(key_)->sys.setVisible(value_);
+	g_scene.getScene(key_)->sys.setVisible(value_);
 
 	return *this;
 }
@@ -253,7 +248,7 @@ ScenePlugin& ScenePlugin::setActive (bool value_, std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->getScene(key_)->sys.setActive(value_, data_);
+	g_scene.getScene(key_)->sys.setActive(value_, data_);
 
 	return *this;
 }
@@ -263,7 +258,7 @@ bool ScenePlugin::isSleeping (std::string key_)
 	if (key_ == "")
 		key_ = key;
 
-	return manager->isSleeping(key_);
+	return g_scene.isSleeping(key_);
 }
 
 bool ScenePlugin::isActive (std::string key_)
@@ -271,7 +266,7 @@ bool ScenePlugin::isActive (std::string key_)
 	if (key_ == "")
 		key_ = key;
 
-	return manager->isActive(key_);
+	return g_scene.isActive(key_);
 }
 
 bool ScenePlugin::isPaused (std::string key_)
@@ -279,7 +274,7 @@ bool ScenePlugin::isPaused (std::string key_)
 	if (key_ == "")
 		key_ = key;
 
-	return manager->isActive(key_);
+	return g_scene.isActive(key_);
 }
 
 bool ScenePlugin::isVisible (std::string key_)
@@ -287,7 +282,7 @@ bool ScenePlugin::isVisible (std::string key_)
 	if (key_ == "")
 		key_ = key;
 
-	return manager->isVisible(key_);
+	return g_scene.isVisible(key_);
 }
 
 ScenePlugin& ScenePlugin::swapPosition (std::string keyA_, std::string keyB_)
@@ -296,7 +291,7 @@ ScenePlugin& ScenePlugin::swapPosition (std::string keyA_, std::string keyB_)
 		keyB_ = key;
 
 	if (keyA_ != keyB_)
-		manager->swapPosition(keyA_, keyB_);
+		g_scene.swapPosition(keyA_, keyB_);
 
 	return *this;
 }
@@ -307,7 +302,7 @@ ScenePlugin& ScenePlugin::moveAbove (std::string keyA_, std::string keyB_)
 		keyB_ = key;
 
 	if (keyA_ != keyB_)
-		manager->moveAbove(keyA_, keyB_);
+		g_scene.moveAbove(keyA_, keyB_);
 
 	return *this;
 }
@@ -318,7 +313,7 @@ ScenePlugin& ScenePlugin::moveBelow (std::string keyA_, std::string keyB_)
 		keyB_ = key;
 
 	if (keyA_ != keyB_)
-		manager->moveBelow(keyA_, keyB_);
+		g_scene.moveBelow(keyA_, keyB_);
 
 	return *this;
 }
@@ -328,7 +323,7 @@ ScenePlugin& ScenePlugin::remove (std::string key_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->remove(key_);
+	g_scene.remove(key_);
 
 	return *this;
 }
@@ -338,7 +333,7 @@ ScenePlugin& ScenePlugin::moveUp (std::string key_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->moveUp(key_);
+	g_scene.moveUp(key_);
 
 	return *this;
 }
@@ -348,7 +343,7 @@ ScenePlugin& ScenePlugin::moveDown (std::string key_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->moveDown(key_);
+	g_scene.moveDown(key_);
 
 	return *this;
 }
@@ -358,7 +353,7 @@ ScenePlugin& ScenePlugin::bringToTop (std::string key_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->bringToTop(key_);
+	g_scene.bringToTop(key_);
 
 	return *this;
 }
@@ -368,14 +363,14 @@ ScenePlugin& ScenePlugin::sendToBack (std::string key_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->sendToBack(key_);
+	g_scene.sendToBack(key_);
 
 	return *this;
 }
 
 Scene& ScenePlugin::get (std::string key_)
 {
-	return *manager->getScene(key_);
+	return *g_scene.getScene(key_);
 }
 
 int ScenePlugin::getIndex (std::string key_)
@@ -383,13 +378,7 @@ int ScenePlugin::getIndex (std::string key_)
 	if (key_ == "")
 		key_ = key;
 
-	return manager->getIndex(key_);
+	return g_scene.getIndex(key_);
 }
 
-void ScenePlugin::shutdown ()
-{
-
-}
-
-}	// namespace Scenes
 }	// namespace Zen

@@ -62,7 +62,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scenes::SceneSystems sys;
+	SceneSystems sys;
 
 	/**
 	 * A reference to the Zenith Game instance.
@@ -137,7 +137,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Scenes::ScenePlugin scene;
+	ScenePlugin scene;
 
 	/**
 	 * A scene level GameObject display list.

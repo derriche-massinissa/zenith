@@ -28,12 +28,7 @@ public:
 	SceneSystems (Scene* scene_);
 
 	/**
-	 * @since 0.0.0
-	 */
-	~SceneSystems ();
-
-	/**
-	 * A reference to the scene these Systems belong to.
+	 * A pointer to the scene these Systems belong to.
 	 *
 	 * @since 0.0.0
 	 */
@@ -64,7 +59,8 @@ public:
 	void init ();
 
 	/**
-	 * A single game step. Called automatically by the Scene Manager as a result of a game loop call.
+	 * A single game step. Called automatically by the Scene Manager as a result of
+	 * a game loop call.
 	 *
 	 * @since 0.0.0
 	 *
@@ -78,7 +74,6 @@ public:
 	 * Instructs the Scene to render itself via its Camera Manager.
 	 *
 	 * @since 0.0.0
-	 *
 	 */
 	void render ();
 
@@ -86,7 +81,6 @@ public:
 	 * Force a sort of the display list on the next render.
 	 *
 	 * @since 0.0.0
-	 *
 	 */
 	void queueDepthSort ();
 
@@ -94,7 +88,6 @@ public:
 	 * Immediately sorts the display list if the flag is set.
 	 *
 	 * @since 0.0.0
-	 *
 	 */
 	void depthSort ();
 
@@ -105,18 +98,18 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param data_ An event data that will be passed in the "pause" event.
+	 * @param data An event data that will be passed in the "pause" event.
 	 */
-	SceneSystems& pause (Data data_ = {});
+	SceneSystems& pause (Data data = {});
 
 	/**
 	 * Resume this Scene from a paused state.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param data_ An event data that will be passed in the "resume" event.
+	 * @param data An event data that will be passed in the "resume" event.
 	 */
-	SceneSystems& resume (Data data_ = {});
+	SceneSystems& resume (Data data = {});
 
 	/**
 	 * Send this Scene to sleep.
@@ -130,18 +123,18 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param data_ An event data that will be passed in the "sleep" event.
+	 * @param data An event data that will be passed in the "sleep" event.
 	 */
-	SceneSystems& sleep (Data data_ = {});
+	SceneSystems& sleep (Data data = {});
 
 	/**
 	 * Wake up this Scene if it was previously asleep.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param data_ An event data that will be passed in the "wake" event.
+	 * @param data An event data that will be passed in the "wake" event.
 	 */
-	SceneSystems& wake (Data data_ = {});
+	SceneSystems& wake (Data data = {});
 
     /**
      * Returns any data that was sent to this Scene by another Scene.
@@ -229,11 +222,11 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param value_ `true` to render this Scene, otherwise `false`.
+	 * @param value `true` to render this Scene, otherwise `false`.
 	 *
 	 * @return A reference to this Systems object.
 	 */
-	SceneSystems& setVisible (bool value_);
+	SceneSystems& setVisible (bool value);
 
 	/**
 	 * Sets the active state of this Scene.
@@ -242,14 +235,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
-	 * @param value_ If `true` the Scene will be resumed, if previously paused. If 
+	 * @param value If `true` the Scene will be resumed, if previously paused. If 
 	 * `false` it will be paused.
-	 * @param data_ A data object that will be passed in the "resume" or
+	 * @param data A data object that will be passed in the "resume" or
 	 * "pause" events.
 	 *
 	 * @return A reference to this Systems object.
 	 */
-	SceneSystems& setActive (bool value_, Data data_);
+	SceneSystems& setActive (bool value, Data data);
 
 	/**
 	 * Start this Scene running and rendering.
@@ -257,21 +250,9 @@ public:
 	 *
 	 * @since 0.0.0
 	 *
+	 * @param data A data object that will be passed in the "start" event.
 	 */
-	void start (Data data_ = {});
-
-	/**
-	 * Shutdown this Scene and send a shutdown event to all of its systems.
-	 * A Scene that has been shutdown will not run its update loop or
-	 * render, but it does not destroy its references. It is put into
-	 * hibernation for later use.
-	 * If you don't ever plan to use this Scene again, then it should be
-	 * destroyed instead to free-up resources.
-	 *
-	 * @since 0.0.0
-	 *
-	 */
-	void shutdown (Data data = {});
+	void start (Data data = {});
 };
 
 }	// namespace Zen

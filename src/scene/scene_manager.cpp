@@ -9,10 +9,12 @@
 
 #include "../utils/messages.hpp"
 #include "../core/game.hpp"
-#include "scene.h"
+#include "scene.hpp"
 #include "scene_config.h"
 
 namespace Zen {
+
+extern EventEmitter g_events;
 
 SceneManager::~SceneManager ()
 {
@@ -48,7 +50,7 @@ void SceneManager::boot (
 	}
 	// By the end of the loop, the game config's sceneFactory is empty.
 
-	game_->events.once("ready", &SceneManager::bootQueue, this);
+	g_events.once("ready", &SceneManager::bootQueue, this);
 }
 
 void SceneManager::bootQueue ()
@@ -501,7 +503,8 @@ SceneManager& SceneManager::run (std::string key_, Data data_)
 
 SceneManager& SceneManager::start (std::string key_, Data data_)
 {
-	// If the Scene Manager is not running, then put the Scene into a holding pattern
+	// If the Scene Manager is not running, then put the Scene into a holding
+	// pattern
 	if (!isBooted)
 	{
 		auto d_ = bootData.find(key_);
@@ -518,8 +521,8 @@ SceneManager& SceneManager::start (std::string key_, Data data_)
 
 	if (scene_ != nullptr)
 	{
-		// If the Scene is already running (perhaps they called start from a launched sub-Scene?)
-		// then we close it down before starting it again.
+		// If the Scene is already running (perhaps they called start from a
+		// launched sub-Scene?) then we close it down before starting it again.
 		if (scene_->sys.isActive() || scene_->sys.isPaused())
 		{
 			scene_->sys.shutdown();
@@ -571,6 +574,7 @@ Scene* SceneManager::getAt (int index_)
 
 int SceneManager::getIndex (std::string key_)
 {
+	/*
 	auto scene_ = getScene(key_);
 
 	if (scene_ == nullptr)
@@ -579,6 +583,13 @@ int SceneManager::getIndex (std::string key_)
 	for (size_t i_ = 0; i_ < scenes.size(); i_++)
 	{
 		if (scene_ == scenes.at(i_).get())
+			return i_;
+	}
+	*/
+
+	for (size_t i_ = 0; i_ < scenes.size(); i_++)
+	{
+		if (key_ == scenes[i_]->key)
 			return i_;
 	}
 

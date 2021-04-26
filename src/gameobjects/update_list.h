@@ -12,7 +12,7 @@
 #include <SDL2/SDL_types.h>
 
 #include "../ecs/entity.hpp"
-#include "../scene/scene.fwd.h"
+#include "../scene/scene.fwd.hpp"
 #include "../data.h"
 #include "../event/event_listener.hpp"
 

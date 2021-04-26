@@ -24,7 +24,7 @@
 #include "../structs/types/size.hpp"
 #include "../components/transform_matrix.hpp"
 
-#include "../scene/scene.fwd.h"
+#include "../scene/scene.fwd.hpp"
 #include "../core/config.fwd.hpp"
 
 namespace Zen {

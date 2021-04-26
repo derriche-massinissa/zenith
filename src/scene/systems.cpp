@@ -8,9 +8,10 @@
 #include "systems.hpp"
 #include "../renderer/renderer.hpp"
 
-#include "scene_config.h"
+#include "config.hpp"
 #include "scene.hpp"
 #include "../core/game.hpp"
+#include "scene_manager.hpp"
 
 namespace Zen {
 
@@ -21,16 +22,6 @@ SceneSystems::SceneSystems (Scene* scene_)
 	: scene(scene_)
 	, settings(scene_->key)
 {}
-
-SceneSystems::~SceneSystems ()
-{
-	settings.status = SCENE::DESTROYED;
-
-	events.emit("destroy");
-
-	events.removeAllListeners();
-	scene->events.removeAllListeners();
-}
 
 void SceneSystems::init ()
 {
@@ -120,8 +111,7 @@ SceneSystems& SceneSystems::wake (Data data_)
 
 	events.emit("wake", data_);
 
-	if (settings.isTransition)
-	{
+	if (settings.isTransition) {
 		events.emit(
 				"transition-wake",
 				settings.transitionFrom->sys.settings.key,
@@ -197,24 +187,11 @@ void SceneSystems::start (Data data_)
 	settings.active = true;
 	settings.visible = true;
 
+	// For plugins to listen to
 	events.emit("start");
 
+	// For user-land code to listen out to
 	events.emit("ready", data_);
-}
-
-void SceneSystems::shutdown (Data data_)
-{
-	events.removeAllListeners("transition-init");
-	events.removeAllListeners("transition-start");
-	events.removeAllListeners("transition-complete");
-	events.removeAllListeners("transition-out");
-
-	settings.status = SCENE::SHUTDOWN;
-
-	settings.active = false;
-	settings.visible = false;
-
-	events.emit("shutdown", data_);
 }
 
 }	// namespace Zen
