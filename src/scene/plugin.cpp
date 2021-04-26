@@ -10,6 +10,7 @@
 #include "scene.h"
 #include "scene_systems.fwd.h"
 #include "scene_manager.h"
+#include "const.hpp"
 #include "../math/clamp.hpp"
 
 namespace Zen {
@@ -34,16 +35,16 @@ ScenePlugin& ScenePlugin::start (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp("stop", key);
-	manager->queueOp("stop", key_, "", data_);
+	manager->queueOp(SCENE_OP::STOP, key);
+	manager->queueOp(SCENE_OP::START, key_, "", data_);
 
 	return *this;
 }
 
 ScenePlugin& ScenePlugin::restart (Data data_)
 {
-	manager->queueOp("stop", key);
-	manager->queueOp("start", key, "", data_);
+	manager->queueOp(SCENE_OP::STOP, key);
+	manager->queueOp(SCENE_OP::START, key, "", data_);
 
 	return *this;
 }
@@ -166,7 +167,7 @@ Scene& ScenePlugin::add (
 ScenePlugin& ScenePlugin::launch (std::string key_, Data data_)
 {
 	if (key_ != key)
-		manager->queueOp("start", key_, "", data_);
+		manager->queueOp(SCENE_OP::START, key_, "", data_);
 
 	return *this;
 }
@@ -174,7 +175,7 @@ ScenePlugin& ScenePlugin::launch (std::string key_, Data data_)
 ScenePlugin& ScenePlugin::run (std::string key_, Data data_)
 {
 	if (key_ != key)
-		manager->queueOp("run", key_, "", data_);
+		manager->queueOp(SCENE_OP::RUN, key_, "", data_);
 
 	return *this;
 }
@@ -184,7 +185,7 @@ ScenePlugin& ScenePlugin::pause (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp("pause", key_, "", data_);
+	manager->queueOp(SCENE_OP::PAUSE, key_, "", data_);
 
 	return *this;
 }
@@ -194,7 +195,7 @@ ScenePlugin& ScenePlugin::resume (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp("resume", key_, "", data_);
+	manager->queueOp(SCENE_OP::RESUME, key_, "", data_);
 
 	return *this;
 }
@@ -204,7 +205,7 @@ ScenePlugin& ScenePlugin::sleep (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp("sleep", key_, "", data_);
+	manager->queueOp(SCENE_OP::SLEEP, key_, "", data_);
 
 	return *this;
 }
@@ -214,7 +215,7 @@ ScenePlugin& ScenePlugin::wake (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp("wake", key_, "", data_);
+	manager->queueOp(SCENE_OP::WAKE, key_, "", data_);
 
 	return *this;
 }
@@ -222,7 +223,7 @@ ScenePlugin& ScenePlugin::wake (std::string key_, Data data_)
 ScenePlugin& ScenePlugin::swap (std::string key_)
 {
 	if (key_ != key)
-		manager->queueOp("swap", key, key_);
+		manager->queueOp(SCENE_OP::SWAP, key, key_);
 
 	return *this;
 }
@@ -232,7 +233,7 @@ ScenePlugin& ScenePlugin::stop (std::string key_, Data data_)
 	if (key_ == "")
 		key_ = key;
 
-	manager->queueOp("stop", key_, "", data_);
+	manager->queueOp(SCENE_OP::STOP, key_, "", data_);
 
 	return *this;
 }

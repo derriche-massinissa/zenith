@@ -7,6 +7,7 @@
 
 #include "game.hpp"
 
+#include "../window/window.hpp"
 #include "../input/mouse/mouse_manager.hpp"
 #include "../input/keyboard/keyboard_manager.hpp"
 
@@ -26,7 +27,7 @@ void Game::handleSDLEvents ()
 		{
 			// Misc
 			case SDL_QUIT:
-				g_window.emit("quit");
+				shutdown();
 				break;
 
 			// Window

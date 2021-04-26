@@ -5,35 +5,28 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "scene.h"
-
-/*
-#include "scene_systems.h"
-#include "scene_plugin.h"
-#include "../core/game.h"
-#include "../scale/scale_manager.h"
-#include "../cameras/2d/camera_manager.h"
-#include "../loader/loader_plugin.h"
-#include "../texture/texture_manager.h"
-*/
+#include "scene.hpp"
 
 namespace Zen {
 
+extern TextureManager g_texture;
+extern ScaleManager g_scale;
+extern Renderer g_renderer;
 extern AudioManager g_audio;
 
 Scene::Scene (Game& game_)
 	: sys (this)
 	, game (game_)
 	, audio (g_audio)
-	, textures (game_.textures)
+	, textures (g_texture)
 	, cameras (this)
 	, add (this)
 	, scene (this)
 	, updateList (this)
 	, input (this)
 	, load (this)
-	, scale (game_.scale)
-	, renderer (game_.renderer)
+	, scale (g_scale)
+	, renderer (g_renderer)
 {}
 
 void Scene::init ([[maybe_unused]] Data data_)

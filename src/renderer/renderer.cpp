@@ -881,4 +881,6 @@ void Renderer::postRenderMask (
 	}
 }
 
+Renderer renderer;
+
 }	// namespace Zen

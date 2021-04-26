@@ -5,18 +5,15 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SCENES_SCENE_CONFIG_H
-#define ZEN_SCENES_SCENE_CONFIG_H
+#ifndef ZEN_SCENE_CONFIG_HPP
+#define ZEN_SCENE_CONFIG_HPP
 
 #include <string>
 #include <memory>
-
 #include "../data.h"
-
-#include "scene.fwd.h"
+#include "scene.fwd.hpp"
 
 namespace Zen {
-namespace Scenes {
 
 /**
  * A structure to store scenes and data about them, before adding them to
@@ -45,7 +42,6 @@ struct SceneConfig
 			Data data_ = {});
 };
 
-}	// namespace Scenes
 }	// namespace Zen
 
 #endif

@@ -5,22 +5,19 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SCENES_SCENE_SYSTEMS_H
-#define ZEN_SCENES_SCENE_SYSTEMS_H
+#ifndef ZEN_SCENE_SYSTEMS_HPP
+#define ZEN_SCENE_SYSTEMS_HPP
 
 #include <SDL2/SDL.h>
 
 #include "../data.h"
 #include "../event/event_emitter.hpp"
-
-#include "scene_settings.h"
-
-#include "scene_config.fwd.h"
-#include "scene.fwd.h"
+#include "settings.hpp"
+#include "config.fwd.hpp"
+#include "scene.fwd.hpp"
 #include "../core/game.fwd.hpp"
 
 namespace Zen {
-namespace Scenes {
 
 class SceneSystems
 {
@@ -274,10 +271,9 @@ public:
 	 * @since 0.0.0
 	 *
 	 */
-	void shutdown (Data data_ = {});
+	void shutdown (Data data = {});
 };
 
-}	// namespace Scenes
 }	// namespace Zen
 
 #endif

@@ -13,6 +13,8 @@
 
 namespace Zen {
 
+Window g_window;
+
 Window::~Window ()
 {
 	removeAllListeners();

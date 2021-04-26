@@ -8,20 +8,8 @@
 #ifndef ZEN_GAME_HPP
 #define ZEN_GAME_HPP
 
-#include <SDL2/SDL.h>
-
-#include "../event/event_emitter.hpp"
-
 #include "config.fwd.hpp"
-#include "../window/window.hpp"
 #include "time_step.hpp"
-//#include "../device.h"
-//#include "../animations/animation_manager.h"
-//#include "../data/data_manager.h"
-#include "../scale/scale_manager.hpp"
-#include "../scene/scene_manager.h"
-#include "../texture/texture_manager.hpp"
-#include "../renderer/renderer.hpp"
 
 /**
  * @namespace Zen
@@ -65,104 +53,11 @@ public:
 	~Game ();
 
 	/**
-	 * An Event Emitter which is used to broadcast game-level events from
-	 * the global system.
-	 *
-	 * @since 0.0.0
-	 */
-	EventEmitter& events;
-
-	/**
 	 * The Game Configuration structure.
 	 *
 	 * @since 0.0.0
 	 */
 	GameConfig& config;
-
-	/**
-	 * A reference to the window object.
-	 *
-	 * @since 0.0.0
-	 */
-	Window& window;
-
-	/**
-	 * The renderer is responsible for displaying contents on the screen.
-	 *
-	 * @since 0.0.0
-	 */
-	Renderer& renderer;
-
-	/**
-	 * An instance of the Animation Manager.
-	 *
-	 * The Animation Manager is a system responsible for managing all
-	 * animations used within the game.
-	 *
-	 * @since 0.0.0
-	 */
-	//AnimationManager anims(this);
-
-	/**
-	 * An instance of the Texture Manager.
-	 *
-	 * The Texture Manager is a system responsible for managing all textures
-	 * used within the game.
-	 *
-	 * @since 0.0.0
-	 */
-	TextureManager& textures;
-
-	/**
-	 * An instance of the Data Manager.
-	 *
-	 * The Data Manager is a system responsible for storing data in multiple
-	 * objects for later use.
-	 *
-	 * @since 0.0.0
-	 */
-	//DataManager registry(this);
-
-	/**
-	 * An instance of the Input Manager.
-	 *
-	 * The Input Manager is a system responsible for user input events.
-	 *
-	 * @since 0.0.0
-	 */
-	//InputManager input(this, config);
-
-	/**
-	 * An instance of the Scene Manager.
-	 *
-	 * The Scene Manager is a system responsible for creating, modifying and
-	 * updating the scenes of the game.
-	 *
-	 * @since 0.0.0
-	 */
-	Scenes::SceneManager& scene;
-
-	/**
-	 * A reference to the Device Inspector.
-	 *
-	 * Contains information about the device running this game, such as
-	 * OS, browser vendor and feature support.
-	 * Used by various systems to determine capabilities and
-	 * code paths.
-	 *
-	 * @since 0.0.0
-	 */
-	//Device device;
-
-	/**
-	 * An instance of the Scale Manager.
-	 *
-	 * The Scale Manager is a system responsible for handling scaling of
-	 * the game.
-	 *
-	 * @since 0.0.0
-	 */
-	ScaleManager& scale;
 
 	/**
 	 * An instance of the Time Step.

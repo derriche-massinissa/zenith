@@ -93,10 +93,11 @@ public:
 	 * Add a scene to the scenes vector.
 	 *
 	 * @since 0.0.0
-	 * @param t A single scene instance.
+	 *
+	 * @tparam T A single scene class.
 	 */
 	template <typename T>
-	GameConfig& addScene ()
+	GameConfig& addScenes ()
 	{
 		sceneFactory.emplace(
 			[] (Game& g) -> std::unique_ptr<T>
@@ -112,13 +113,16 @@ public:
 	 * Add one or more scene to the scenes vector.
 	 *
 	 * @since 0.0.0
-	 * @param t A scene instance.
+	 *
+	 * @tparam T A scene class.
+	 * @tparam O A second scene class.
+	 * @tparam Args 0 or more scene classes.
 	 */
-	template <typename T, typename... Args>
+	template <typename T, typename O, typename... Args>
 	GameConfig& addScenes ()
 	{
-		addScene<T>();
-		addScenes<Args...>();
+		addScenes<T>();
+		addScenes<O, Args...>();
 
 		return *this;
 	}

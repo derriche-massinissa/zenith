@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SCENE_FWD_H
-#define ZEN_SCENE_FWD_H
+#ifndef ZEN_SCENE_FWD_HPP
+#define ZEN_SCENE_FWD_HPP
 
 namespace Zen {
 

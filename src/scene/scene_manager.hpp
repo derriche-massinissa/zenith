@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SCENES_SCENE_MANAGER_H
-#define ZEN_SCENES_SCENE_MANAGER_H
+#ifndef ZEN_SCENES_SCENE_MANAGER_HPP
+#define ZEN_SCENES_SCENE_MANAGER_HPP
 
 #include <SDL2/SDL_types.h>
 #include <functional>
@@ -18,14 +18,14 @@
 
 #include "../const.h"
 #include "../data.h"
-#include "scene_settings_config.h"
+#include "scene_settings_config.hpp"
 
-#include "scene.fwd.h"
-#include "scene_config.h"
+#include "scene.fwd.hpp"
+#include "scene_config.hpp"
 #include "../core/game.fwd.hpp"
+#include "const.hpp"
 
 namespace Zen {
-namespace Scenes {
 
 /**
  * The operations on Scenes to be queued if the Manager is busy when the
@@ -35,13 +35,13 @@ namespace Scenes {
  */
 struct SceneOperation
 {
-	std::string operation;
+	SCENE_OP operation;
 	std::string keyA;
 	std::string keyB;
 	Data data;
 
 	SceneOperation (
-		std::string o_ = "", std::string a_ = "", std::string b_ = "", Data d_ = {})
+		SCENE_OP o_, std::string a_ = "", std::string b_ = "", Data d_ = {})
 		: operation(o_), keyA(a_), keyB(b_), data(d_)
 	{}
 };
@@ -541,7 +541,7 @@ public:
 	 * @return A reference to this SceneManager instance.
 	 */
 	SceneManager& queueOp (
-			std::string operation_,
+			SCENE_OP operation_,
 			std::string keyA_,
 			std::string keyB_ = "",
 			Data data_ = {});
@@ -559,7 +559,6 @@ public:
 	SceneManager& swapPosition (std::string keyA_, std::string keyB_);
 };
 
-}	// namespace Scenes
 }	// namespace Zen
 
 #endif

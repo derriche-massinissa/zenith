@@ -5,15 +5,13 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SCENES_SCENE_SYSTEMS_FWD_H
-#define ZEN_SCENES_SCENE_SYSTEMS_FWD_H
+#ifndef ZEN_SCENES_SCENE_CONFIG_FWD_HPP
+#define ZEN_SCENES_SCENE_CONFIG_FWD_HPP
 
 namespace Zen {
-namespace Scenes {
 
-class SceneSystems;
+struct SceneConfig;
 
-}	// namespace Scenes
 }	// namespace Zen
 
 #endif

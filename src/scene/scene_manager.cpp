@@ -5,16 +5,14 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "scene_manager.h"
+#include "scene_manager.hpp"
 
 #include "../utils/messages.hpp"
-
 #include "../core/game.hpp"
 #include "scene.h"
 #include "scene_config.h"
 
 namespace Zen {
-namespace Scenes {
 
 SceneManager::~SceneManager ()
 {
@@ -146,23 +144,26 @@ void SceneManager::processQueue ()
 		auto keyB_ = entry_.keyB;
 		auto data_ = entry_.data;
 
-		if		(op_ == "start")		start(keyA_, data_);
-		else if (op_ == "run")			run(keyA_, data_);
-		else if (op_ == "pause")		pause(keyA_, data_);
-		else if (op_ == "resume")		resume(keyA_, data_);
-		else if (op_ == "sleep")		sleep(keyA_, data_);
-		else if (op_ == "wake")			wake(keyA_, data_);
-		else if (op_ == "swap")			swap(keyA_, keyB_);
-		else if (op_ == "stop")			stop(keyA_, data_);
-		else if (op_ == "remove")		remove(keyA_);
-		else if (op_ == "bringToTop")	bringToTop(keyA_);
-		else if (op_ == "sendToBack")	sendToBack(keyA_);
-		else if (op_ == "moveDown")		moveDown(keyA_);
-		else if (op_ == "moveUp")		moveUp(keyA_);
-		else if (op_ == "moveAbove")	moveAbove(keyA_, keyB_);
-		else if (op_ == "moveBelow")	moveBelow(keyA_, keyB_);
-		else if (op_ == "swapPosition")	swapPosition(keyA_, keyB_);
-		else	MessageWarning("Scene operation unknown: ", op_);
+		switch (op_)
+		{
+			case SCENE_OP::NONE:											break;
+			case SCENE_OP::START:			start(keyA_, data_);			break;
+			case SCENE_OP::RUN:				run(keyA_, data_);				break;
+			case SCENE_OP::PAUSE:			pause(keyA_, data_);			break;
+			case SCENE_OP::RESUME:			resume(keyA_, data_);			break;
+			case SCENE_OP::SLEEP:			sleep(keyA_, data_);			break;
+			case SCENE_OP::WAKE:			wake(keyA_, data_);				break;
+			case SCENE_OP::SWAP:			swap(keyA_, keyB_);				break;
+			case SCENE_OP::STOP:			stop(keyA_, data_);				break;
+			case SCENE_OP::REMOVE:			remove(keyA_);					break;
+			case SCENE_OP::BRING_TO_TOP:	bringToTop(keyA_);				break;
+			case SCENE_OP::SEND_TO_BACK:	sendToBack(keyA_);				break;
+			case SCENE_OP::MOVE_DOWN:		moveDown(keyA_);				break;
+			case SCENE_OP::MOVE_UP:			moveUp(keyA_);					break;
+			case SCENE_OP::MOVE_ABOVE:		moveAbove(keyA_, keyB_);		break;
+			case SCENE_OP::MOVE_BELOW:		moveBelow(keyA_, keyB_);		break;
+			case SCENE_OP::SWAP_POSITIONS:	swapPosition(keyA_, keyB_);		break;
+		}
 
 		operationsQueue.pop();
 	}
@@ -179,7 +180,7 @@ Scene* SceneManager::add (
 	{
 		pending.emplace_back(key_, std::move(scene_), autoStart_, data_);
 
-		bootData.emplace(key_, SceneConfig{"", nullptr, false, data_});
+		bootData.emplace(key_, SceneConfig{0, nullptr, false, data_});
 
 		return nullptr;
 	}
@@ -477,7 +478,7 @@ SceneManager& SceneManager::run (std::string key_, Data data_)
 		{
 			if (pending.at(i_).key == key_)
 			{
-				queueOp("start", key_, "", data_);
+				queueOp(SCENE_OP::START, key_, "", data_);
 				break;
 			}
 		}
@@ -724,7 +725,7 @@ SceneManager& SceneManager::moveBelow (std::string keyA_, std::string keyB_)
 }
 
 SceneManager& SceneManager::queueOp (
-		std::string operation_,
+		SCENE_OP operation_,
 		std::string keyA_,
 		std::string keyB_,
 		Data data_)
@@ -758,8 +759,6 @@ SceneManager& SceneManager::swapPosition (
 
 	return *this;
 }
-
-}	// namespace Scenes
 
 Scenes::SceneManager g_scene;
 

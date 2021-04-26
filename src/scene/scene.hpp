@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SCENE_H
-#define ZEN_SCENE_H
+#ifndef ZEN_SCENE_HPP
+#define ZEN_SCENE_HPP
 
 #include <string>
 #include <SDL2/SDL_types.h>
@@ -14,8 +14,8 @@
 #include "../data.h"
 #include "../event/event_emitter.hpp"
 
-#include "scene_systems.h"
-#include "scene_plugin.h"
+#include "systems.hpp"
+#include "plugin.hpp"
 #include "../core/game.hpp"
 #include "../scale/scale_manager.hpp"
 #include "../cameras/2d/camera_manager.hpp"
@@ -44,7 +44,7 @@ public:
 	/**
 	 * @since 0.0.0
 	 */
-	Scene (Game& game_);
+	Scene (Game& game);
 
 	/**
 	 * The key of the Scene. You have to override it with the key of your
@@ -103,7 +103,7 @@ public:
 	TextureManager& textures;
 
 	/**
-	 * A scene level Event Emitter.
+	 * A scene level EventEmitter.
 	 *
 	 * @since 0.0.0
 	 */
@@ -225,7 +225,7 @@ public:
 	 * @param data Any data passed via `ScenePlugin::add` or
 	 * `ScenePlugin::start`. Same as Scene.sys.settings.data.
 	 */
-	virtual void init (Data data_ = {});
+	virtual void init (Data data = {});
 
 	/**
 	 * Can be defined on your own Scenes. Use it to load assets.
@@ -253,17 +253,18 @@ public:
 	 * @param data Any data passed via `ScenePlugin::add` or
 	 * `ScenePlugin::start`. Same as Scene.sys.settings.data.
 	 */
-	virtual void create (Data data_ = {});
+	virtual void create (Data data = {});
 
 	/**
 	 * Should be overridden by your own Scenes.
 	 * This method is called once per game step while the scene is running.
 	 *
 	 * @since 0.0.0
+	 *
 	 * @param time The time in ms since SDL started.
 	 * @param delta The delta time in ms since the last frame.
 	 */
-	virtual void update (Uint32 time_, Uint32 delta_);
+	virtual void update (Uint32 time, Uint32 delta);
 };
 
 }	// namespace Zen

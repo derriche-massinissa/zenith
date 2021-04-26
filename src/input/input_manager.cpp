@@ -493,4 +493,6 @@ void InputManager::transformPointer (Pointer* pointer_, double windowX_, double 
 	}
 }
 
+InputManager g_input;
+
 }	// namespace Zen

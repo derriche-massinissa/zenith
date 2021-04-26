@@ -5,14 +5,17 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "scene_systems.h"
+#include "systems.hpp"
+#include "../renderer/renderer.hpp"
 
 #include "scene_config.h"
-#include "scene.h"
+#include "scene.hpp"
 #include "../core/game.hpp"
 
 namespace Zen {
-namespace Scenes {
+
+extern SceneManager g_scene;
+extern Renderer g_renderer;
 
 SceneSystems::SceneSystems (Scene* scene_)
 	: scene(scene_)
@@ -55,7 +58,7 @@ void SceneSystems::render ()
 
 	events.emit("pre-render");
 
-	scene->cameras.render(scene->renderer, scene->children);
+	scene->cameras.render(g_renderer, scene->children);
 
 	events.emit("render");
 }
@@ -214,5 +217,4 @@ void SceneSystems::shutdown (Data data_)
 	events.emit("shutdown", data_);
 }
 
-}	// namespace Scenes
 }	// namespace Zen

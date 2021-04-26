@@ -5,21 +5,17 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_SCENES_SCENE_SETTINGS_H
-#define ZEN_SCENES_SCENE_SETTINGS_H
+#ifndef ZEN_SCENES_SCENE_SETTINGS_HPP
+#define ZEN_SCENES_SCENE_SETTINGS_HPP
 
-#include <SDL2/SDL.h>
+#include <SDL2/SDL_stdinc.h>
 #include <string>
-#include <vector>
-
 #include "../data.h"
 #include "../const.h"
-#include "../cameras/2d/camera_config.hpp"
 
-#include "scene.fwd.h"
+#include "scene.fwd.hpp"
 
 namespace Zen {
-namespace Scenes {
 
 /**
  * The settings of a SceneSystems object.
@@ -27,14 +23,8 @@ namespace Scenes {
  * @class SceneSettings
  * @since 0.0.0
  */
-class SceneSettings
+struct SceneSettings
 {
-public:
-	/**
-	 * @since 0.0.0
-	 */
-	SceneSettings (std::string key_, bool active_ = false, bool visible_ = true);
-
 	SCENE status = SCENE::PENDING;
 
 	std::string key;
@@ -54,11 +44,8 @@ public:
 	bool transitionAllowInput = true;
 
 	Data data = {};
-
-	std::vector<CameraConfig> cameras;
 };
 
-}	// namespace Scenes
 }	// namespace Zen
 
 #endif
