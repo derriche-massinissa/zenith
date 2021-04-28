@@ -140,13 +140,6 @@ public:
 	ListenerBase* lUpdate = nullptr;
 
 	/**
-	 * A pointer to the "shutdown" event listener, to later remove it.
-	 *
-	 * @since 0.0.0
-	 */
-	ListenerBase* lShutdown = nullptr;
-
-	/**
 	 * A pointer to the "resize" event listener, to later remove it.
 	 *
 	 * @since 0.0.0
@@ -359,14 +352,6 @@ public:
 	 * @param height_ The new height of the camera.
 	 */
 	void resize (int width_, int height_);
-
-	/**
-	 * The Scene that owns this plugin is shutting down.
-	 * We need to kill and reset all internal properties as well as stop listening to Scene events.
-	 *
-	 * @since 0.0.0
-	 */
-	void shutdown ();
 
 private:
 	/**

@@ -9,7 +9,7 @@
 
 #include "../window/window.hpp"
 #include "../scale/scale_manager.hpp"
-#include "../scene/scene.h"
+#include "../scene/scene.hpp"
 
 #include "../structs/types/size.hpp"
 #include "../math/rad_to_deg.hpp"
@@ -880,7 +880,5 @@ void Renderer::postRenderMask (
 				);
 	}
 }
-
-Renderer renderer;
 
 }	// namespace Zen

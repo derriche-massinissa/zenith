@@ -204,8 +204,6 @@ private:
 	void transitionComplete ();
 
 	void transitionOut ();
-
-	void shutdown ();
 };
 
 }	// namespace Zen

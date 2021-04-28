@@ -19,9 +19,8 @@
 #include "../data.h"
 #include "settings_config.hpp"
 
-#include "scene.fwd.hpp"
+#include "scene.hpp"
 #include "config.hpp"
-#include "../core/game.fwd.hpp"
 #include "const.hpp"
 
 namespace Zen {
@@ -55,18 +54,6 @@ struct SceneOperation
 class SceneManager
 {
 public:
-	/**
-	 * @since 0.0.0
-	 */
-	~SceneManager ();
-
-	/**
-	 * The Game that this SceneManager belongs to.
-	 *
-	 * @since 0.0.0
-	 */
-	Game* game;
-
 	/**
 	 * A map of keys and scenes to quickly get a scene from a key without
 	 * iteration.
@@ -141,8 +128,7 @@ public:
 	 * instances of user defined scene classes (That inherit from Zen::Scene)
 	 */
 	void boot (
-		Game* game_,
-		std::queue<std::function<std::unique_ptr<Scene>(Game&)>>* sceneFactory_);
+		std::queue<std::function<std::unique_ptr<Scene>()>>* sceneFactory_);
 
 	/**
 	 * Internal first-time Scene boot handler.
@@ -179,6 +165,29 @@ public:
 		std::unique_ptr<Scene> scene_,
 		bool autoStart_ = false,
 		Data data_ = {});
+
+	/**
+	 * Adds a new Scene into the SceneManager.
+	 * You must give each Scene a unique key by which you'll identify it.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @tparam T The scene to add.
+	 *
+	 * @param key_ A unique key used to reference the Scene.
+	 * @param autoStart_ If `true` the Scene will be started immediately after
+	 * being added.
+	 * @param data_ Optional data object. This will be set as
+	 * `Scene.sys.settings.data` and passed to `Scene.init` and `Scene.create`;
+	 *
+	 * @return A pointer to the added Scene if it was added immediately,
+	 * otherwise `nullptr`.
+	 */
+	template <typename T>
+	Scene* add (std::string key_, bool autoStart_, Data data_)
+	{
+		return add(key_, std::move(std::make_unique<T>()), autoStart_, data_);
+	}
 
 	/**
 	 * Removes a Scene from the SceneManager.
@@ -398,18 +407,6 @@ public:
 	 * @return A reference to this SceneManager.
 	 */
 	SceneManager& start (std::string key_, Data data_ = {});
-
-	/**
-	 * Stops the given Scene.
-	 *
-	 * @since 0.0.0
-	 *
-	 * @param key_ The Scene to put to stop.
-	 * @param data_ An optional data object to pass to Scene.shutdown.
-	 *
-	 * @return A reference to this SceneManager.
-	 */
-	SceneManager& stop (std::string key_, Data data_ = {});
 
 	/**
 	 * Put to sleep one Scene and starts the other.

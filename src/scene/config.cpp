@@ -5,12 +5,18 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "scene_config.h"
+#include "config.hpp"
 
-#include "scene.h"
+#include "scene.hpp"
 
 namespace Zen {
-namespace Scenes {
+
+SceneConfig::SceneConfig ()
+	: key ("")
+	, scene (nullptr)
+	, autoStart (false)
+	, data ({})
+	{}
 
 SceneConfig::SceneConfig (
 		std::string key_,
@@ -34,5 +40,4 @@ SceneConfig::SceneConfig (
 	, data (data_)
 	{}
 
-}	// namespace Scenes
 }	// namespace Zen

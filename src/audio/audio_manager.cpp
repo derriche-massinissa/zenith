@@ -549,7 +549,4 @@ void AudioManager::setMute (Entity entity_, bool mute_)
 	}
 }
 
-// Global instance
-AudioManager g_audio;
-
 }	// namespace Zen

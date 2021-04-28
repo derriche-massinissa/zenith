@@ -5,8 +5,8 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_LOADER_LOADER_PLUGIN_H
-#define ZEN_LOADER_LOADER_PLUGIN_H
+#ifndef ZEN_LOADER_LOADER_PLUGIN_HPP
+#define ZEN_LOADER_LOADER_PLUGIN_HPP
 
 #include <vector>
 #include <string>
@@ -20,7 +20,6 @@
 #include "../event/event_listener.hpp"
 
 namespace Zen {
-namespace Loader {
 
 class LoaderPlugin
 {
@@ -33,30 +32,11 @@ public:
 	LoaderPlugin (Scene* scene);
 
 	/**
-	 * @since 0.0.0
-	 */
-	~LoaderPlugin ();
-
-	/**
 	 * The Scene which owns this Loader instance.
 	 *
 	 * @since 0.0.0
 	 */
 	Scene* scene;
-
-	/**
-	 * A reference to the global Texture Manager.
-	 *
-	 * @since 0.0.0
-	 */
-	TextureManager& textureManager;
-
-	/**
-	 * A reference to the global Scene Manager.
-	 *
-	 * @since 0.0.0
-	 */
-	SceneManager& sceneManager;
 
 	/**
 	 * An optional prefix that is automatically prepended to the start of every 
@@ -88,8 +68,6 @@ public:
 	 * @since 0.0.0
 	 */
 	std::string path = "";
-
-	ListenerBase* lShutdown = nullptr;
 
 	/**
 	 * This method is called automatically by the Scene when it is starting up.
@@ -186,16 +164,8 @@ public:
 	 * @since 0.0.0
 	 */
 	void reset ();
-
-	/**
-	 * Cleans up when the owning scene is shutting down.
-	 *
-	 * @since 0.0.0
-	 */
-	void shutdown ();
 };
 
-}	// namespace Loader
 }	// namespace Zen
 
 #endif

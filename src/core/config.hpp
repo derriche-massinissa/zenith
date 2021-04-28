@@ -16,7 +16,6 @@
 #include "../scale/scale_modes.hpp"
 #include "../display/types/color.hpp"
 
-#include "../core/game.fwd.hpp"
 #include "../scene/scene.fwd.hpp"
 
 namespace Zen {
@@ -100,9 +99,9 @@ public:
 	GameConfig& addScenes ()
 	{
 		sceneFactory.emplace(
-			[] (Game& g) -> std::unique_ptr<T>
+			[] () -> std::unique_ptr<T>
 				{
-					return std::make_unique<T> (g);
+					return std::make_unique<T> ();
 				}
 			);
 
@@ -305,7 +304,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::queue<std::function<std::unique_ptr<Scene>(Game&)>> sceneFactory;
+	std::queue<std::function<std::unique_ptr<Scene>()>> sceneFactory;
 
 	/**
 	 * The title of the window.

@@ -571,13 +571,6 @@ public:
 	 * @since 0.0.0
 	 */
 	void clear ();
-
-	/**
-	 * Shuts down this EventEmitter.
-	 *
-	 * @since 0.0.0
-	 */
-	void shutdown ();
 };
 
 }	// namespace Zen

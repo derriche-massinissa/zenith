@@ -707,6 +707,4 @@ bool TextureManager::renameTexture (std::string currentKey_, std::string newKey_
 }
 */
 
-TextureManager g_texture;
-
 }	// namespace Zen

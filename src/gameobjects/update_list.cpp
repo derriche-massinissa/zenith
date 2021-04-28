@@ -9,7 +9,7 @@
 
 #include <algorithm>
 #include <vector>
-#include "../scene/scene.h"
+#include "../scene/scene.hpp"
 #include "../event/event_emitter.hpp"
 
 namespace Zen {
@@ -18,21 +18,13 @@ namespace GameObjects {
 UpdateList::UpdateList (Scene* scene_)
 	: scene (scene_)
 {
-	lStart = scene_->sys.events.on("start", &UpdateList::start, this);
-}
-
-UpdateList::~UpdateList ()
-{
-	shutdown();
-
-	scene->sys.events.off(lStart);
+	scene_->sys.events.on("start", &UpdateList::start, this);
 }
 
 void UpdateList::start ()
 {
-	lPreUpdate = scene->sys.events.on("pre-update", &UpdateList::update, this);
-	lUpdate = scene->sys.events.on("update", &UpdateList::sceneUpdate, this);
-	lShutdown = scene->sys.events.once("shutdown", &UpdateList::shutdown, this);
+	scene->sys.events.on("pre-update", &UpdateList::update, this);
+	scene->sys.events.on("update", &UpdateList::sceneUpdate, this);
 }
 
 void UpdateList::sceneUpdate ([[maybe_unused]] Uint32 time_, [[maybe_unused]] Uint32 delta_)
@@ -47,13 +39,6 @@ void UpdateList::sceneUpdate ([[maybe_unused]] Uint32 time_, [[maybe_unused]] Ui
 		}
 	}
 	*/
-}
-
-void UpdateList::shutdown ()
-{
-	scene->sys.events.off(lPreUpdate);
-	scene->sys.events.off(lUpdate);
-	scene->sys.events.off(lShutdown);
 }
 
 void UpdateList::add (Entity gameObject_)

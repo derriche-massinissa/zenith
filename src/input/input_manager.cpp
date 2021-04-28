@@ -11,8 +11,8 @@
 #include <SDL2/SDL_image.h>
 #include "events/events.hpp"
 #include "../utils/assert.hpp"
-#include "../scene/scene_manager.h"
-#include "../scene/scene.h"
+#include "../scene/scene_manager.hpp"
+#include "../scene/scene.hpp"
 #include "../scale/scale_manager.hpp"
 #include "../window/window.hpp"
 #include "../core/config.hpp"
@@ -33,7 +33,7 @@
 namespace Zen {
 
 extern entt::registry g_registry;
-extern Scenes::SceneManager g_scene;
+extern SceneManager g_scene;
 extern ScaleManager g_scale;
 extern Window g_window;
 
@@ -42,9 +42,6 @@ InputManager::InputManager ()
 
 InputManager::~InputManager ()
 {
-	g_window.off(lPointerIn);
-	g_window.off(lPointerOut);
-
 	// Free cursors
 	for (auto& cur_ : cursors)
 	{
@@ -492,7 +489,5 @@ void InputManager::transformPointer (Pointer* pointer_, double windowX_, double 
 		p0_.y = y_ * a_ + p1_.x * (1. - a_);
 	}
 }
-
-InputManager g_input;
 
 }	// namespace Zen

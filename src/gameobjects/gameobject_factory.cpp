@@ -6,7 +6,7 @@
  */
 
 #include "gameobject_factory.h"
-#include "../scene/scene.h"
+#include "../scene/scene.hpp"
 
 #include <memory>
 #include "../components/alpha.hpp"

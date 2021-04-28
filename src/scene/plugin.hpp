@@ -120,18 +120,8 @@ public:
 
 	ListenerBase* lUpdate = nullptr;
 
-    /**
-     * This method is called automatically by the Scene when it is starting up.
-     * It is responsible for creating local systems, properties and listening for 
-	 * Scene events.
-     * Do not invoke it directly.
-     *
-     * @since 0.0.0
-     */
-	void pluginStart ();
-
 	/**
-	 * Shutdown this Scene and run the given one.
+	 * Remove this Scene and run the given one.
 	 *
 	 * This will happen at the next Scene Manager update, not immediately.
 	 *
@@ -143,19 +133,6 @@ public:
 	 * @return A reference to this Scene Plugin instance.
 	 */
 	ScenePlugin& start (std::string key_ = "", Data data_ = {});
-
-	/**
-	 * Restarts this Scene.
-	 *
-	 * This will happen at the next Scene Manager update, not
-	 * immediately.
-	 *
-	 * @since 0.0.0
-	 *
-	 *
-	 * @return A reference to this Scene Plugin instance.
-	 */
-	ScenePlugin& restart (Data data_ = {});
 
 	/**
 	 * This will start a transition from the current Scene to the target
@@ -318,8 +295,7 @@ public:
 	/**
 	 * Resume the Scene, starting the update loop again.
 	 *
-	 * This will happen at the next Scene Manager update, not
-	 * immediately.
+	 * This will happen at the next Scene Manager update, not immediately.
 	 *
 	 * @since 0.0.0
 	 *
@@ -331,11 +307,9 @@ public:
 	ScenePlugin& resume (std::string key_ = "", Data data_ = {});
 
 	/**
-	 * Make the Scene sleep (no update, no render) but doesn't
-	 * shutdown.
+	 * Make the Scene sleep (no update, no render) but do not remove it.
 	 *
-	 * This will happen at the next Scene Manager update, not
-	 * immediately.
+	 * This will happen at the next Scene Manager update, not immediately.
 	 *
 	 * @since 0.0.0
 	 *
@@ -348,7 +322,6 @@ public:
 
 	/**
 	 * Make the Scene wake-up (starts update and render).
-	 * shutdown.
 	 *
 	 * This will happen at the next Scene Manager update, not
 	 * immediately.
@@ -375,21 +348,6 @@ public:
 	 * @return A reference to this Scene Plugin instance.
 	 */
 	ScenePlugin& swap (std::string key_);
-
-	/**
-	 * Shutdown the Scene, clearing display list, timers, etc.
-	 *
-	 * This will happen at the next Scene Manager update, not
-	 * immediately.
-	 *
-	 * @since 0.0.0
-	 *
-	 * @param key_ The Scene to stop.
-	 * @param data_ The Scene data.
-	 *
-	 * @return A reference to this Scene Plugin instance.
-	 */
-	ScenePlugin& stop (std::string key_ = "", Data data_ = {});
 
 	/**
 	 * Sets the active state of this Scene.

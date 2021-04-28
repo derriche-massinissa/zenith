@@ -93,6 +93,14 @@ void EventEmitter::removeListener (ListenerBase* listener_)
 			}
 		}
 	}
+
+	// Remove the event if no more listeners remain
+	if (iterator_->second.empty())
+		eventMap[entity_].erase(iterator_);
+
+	// Remove the entity if no more events remain
+	if (iteratorE_->second.empty())
+		eventMap.erase(iteratorE_);
 }
 
 void EventEmitter::off (ListenerBase* listener_)
@@ -145,11 +153,6 @@ void EventEmitter::removeAllListeners (std::string eventName_)
 void EventEmitter::clear ()
 {
 	eventMap.clear();
-}
-
-void EventEmitter::shutdown ()
-{
-	clear();
 }
 
 }	// namespace Zen

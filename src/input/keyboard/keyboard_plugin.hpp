@@ -57,8 +57,6 @@ public:
 
 	void start ();
 
-	void shutdown ();
-
 	bool isActive ();
 
 	CursorKeys createCursorKeys ();

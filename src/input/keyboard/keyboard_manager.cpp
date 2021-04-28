@@ -33,6 +33,4 @@ void KeyboardManager::onKeyUp (SDL_Event * const event_)
 	g_input.events.emit("keyup", event_);
 }
 
-KeyboardManager g_keyboard;
-
 }	// namespace Zen

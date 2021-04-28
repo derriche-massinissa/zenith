@@ -15,7 +15,7 @@
 #include "../utils/vector/index_of.hpp"
 #include "../utils/vector/remove.hpp"
 #include "events/events.hpp"
-#include "../scene/scene.h"
+#include "../scene/scene.hpp"
 #include "../components/input.hpp"
 #include "../components/position.hpp"
 #include "../components/container_item.hpp"
@@ -76,7 +76,6 @@ void InputPlugin::start ()
 	sys->events.on("transition-complete", &InputPlugin::transitionComplete, this);
 
 	sys->events.on("pre-update", &InputPlugin::preUpdate, this);
-	sys->events.on("shutdown", &InputPlugin::shutdown, this);
 
 	enabled = true;
 
@@ -1650,10 +1649,6 @@ void InputPlugin::transitionComplete ()
 void InputPlugin::transitionOut ()
 {
 	enabled = scene->sys.settings.transitionAllowInput;
-}
-
-void InputPlugin::shutdown ()
-{
 }
 
 }	// namespace Zen

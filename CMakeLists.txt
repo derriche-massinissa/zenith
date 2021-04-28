@@ -81,12 +81,11 @@ set(zenith_SRCS
 	src/renderer/blend_modes.cpp
 	src/renderer/renderer.cpp
 	src/scale/scale_manager.cpp
-	src/scene/scene_config.cpp
+	src/scene/config.cpp
 	src/scene/scene.cpp
 	src/scene/scene_manager.cpp
-	src/scene/scene_plugin.cpp
-	src/scene/scene_settings.cpp
-	src/scene/scene_systems.cpp
+	src/scene/plugin.cpp
+	src/scene/systems.cpp
 	src/structs/size.cpp
 	src/systems/sources/actor.cpp
 	src/systems/sources/alpha.cpp

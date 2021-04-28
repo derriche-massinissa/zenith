@@ -15,12 +15,6 @@
 namespace Zen {
 
 extern Window g_window;
-ScaleManager g_scale;
-
-ScaleManager::~ScaleManager()
-{
-	stopListeners();
-}
 
 void ScaleManager::boot (GameConfig *cfg)
 {

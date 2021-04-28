@@ -25,7 +25,7 @@ public:
 	/**
 	 * @since 0.0.0
 	 */
-	SceneSystems (Scene* scene_);
+	SceneSystems (Scene* scene_, std::string key);
 
 	/**
 	 * A pointer to the scene these Systems belong to.

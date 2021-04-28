@@ -8,31 +8,15 @@
 #include "scene_manager.hpp"
 
 #include "../utils/messages.hpp"
-#include "../core/game.hpp"
-#include "scene.hpp"
-#include "scene_config.h"
+#include "config.hpp"
 
 namespace Zen {
 
-extern EventEmitter g_events;
-
-SceneManager::~SceneManager ()
-{
-	scenes.clear();
-
-	keys.clear();
-
-	toStart.clear();
-
-	pending.clear();
-}
+extern EventEmitter g_event;
 
 void SceneManager::boot (
-		Game* game_,
-		std::queue<std::function<std::unique_ptr<Scene>(Game&)>>* sceneFactory_)
+		std::queue<std::function<std::unique_ptr<Scene>()>>* sceneFactory_)
 {
-	game = game_;
-
 	bool as_ = true;
 	while (!sceneFactory_->empty())
 	{
@@ -40,7 +24,7 @@ void SceneManager::boot (
 
 		pending.emplace_back(
 				"default",				// key
-				sceneMaker_(*game_),	// scene
+				sceneMaker_(),			// scene
 				as_						// autoStart
 				);
 
@@ -50,7 +34,7 @@ void SceneManager::boot (
 	}
 	// By the end of the loop, the game config's sceneFactory is empty.
 
-	g_events.once("ready", &SceneManager::bootQueue, this);
+	g_event.once("ready", &SceneManager::bootQueue, this);
 }
 
 void SceneManager::bootQueue ()
@@ -58,42 +42,39 @@ void SceneManager::bootQueue ()
 	if (isBooted)
 		return;
 
-	SceneConfig* entry_;
 	std::string key_;
 
-	for (size_t i_ = 0; i_ < pending.size(); i_++)
+	for (SceneConfig& entry_ : pending)
 	{
-		entry_ = &pending.at(i_);
-
-		key_ = entry_->key;
+		key_ = entry_.key;
 
 		// Check if the scene has a key
-		if (entry_->scene->sys.settings.key == "")
-			entry_->scene->sys.settings.key = key_;
+		if (entry_.scene->sys.settings.key == "")
+			entry_.scene->sys.settings.key = key_;
 
-		entry_->scene->sys.init();
+		entry_.scene->sys.init();
 
 		// Replace key in case the scene had one
-		key_ = entry_->scene->sys.settings.key;
+		key_ = entry_.scene->sys.settings.key;
 
 		// Any data to inject?
 		if (bootData.find(key_) != bootData.end())
 		{
-			entry_->scene->sys.settings.data = bootData.find(key_)->second.data;
+			entry_.scene->sys.settings.data = bootData[key_].data;
 
-			if (bootData.find(key_)->second.autoStart)
-				entry_->autoStart = true;
+			if (bootData[key_].autoStart)
+				entry_.autoStart = true;
 		}
 
 		// Check if there are scenes to start up
-		if (entry_->autoStart || entry_->scene->sys.settings.active)
+		if (entry_.autoStart || entry_.scene->sys.settings.active)
 			toStart.emplace_back(key_);
 
 		// Store a reference to the Scene in `keys`
-		keys.emplace(key_, *entry_->scene);
+		keys.emplace(key_, *entry_.scene);
 
 		// Move the unique pointer to the `scenes` vector
-		scenes.emplace_back(std::move(entry_->scene));
+		scenes.emplace_back(std::move(entry_.scene));
 	}
 
 	// Clear the pending lists
@@ -104,7 +85,7 @@ void SceneManager::bootQueue ()
 	isBooted = true;
 
 	// Start might have been populated by the above
-	for (const auto& s_ : toStart)
+	for (const std::string& s_ : toStart)
 		start(s_);
 
 	toStart.clear();
@@ -120,12 +101,10 @@ void SceneManager::processQueue ()
 
 	if (pendingLength_)
 	{
-		SceneConfig* entry_;
-
-		for (size_t i_ = 0; i_ < pendingLength_; i_++)
+		for (auto entry_ = pending.begin(); entry_ != pending.end(); entry_++)
 		{
-			entry_ = &pending[i_];
-			add(entry_->key, std::move(entry_->scene), entry_->autoStart, entry_->data);
+			add(entry_->key, std::move(entry_->scene), entry_->autoStart,
+					entry_->data);
 		}
 
 		// `toStart` might have been populated by `add`
@@ -156,7 +135,6 @@ void SceneManager::processQueue ()
 			case SCENE_OP::SLEEP:			sleep(keyA_, data_);			break;
 			case SCENE_OP::WAKE:			wake(keyA_, data_);				break;
 			case SCENE_OP::SWAP:			swap(keyA_, keyB_);				break;
-			case SCENE_OP::STOP:			stop(keyA_, data_);				break;
 			case SCENE_OP::REMOVE:			remove(keyA_);					break;
 			case SCENE_OP::BRING_TO_TOP:	bringToTop(keyA_);				break;
 			case SCENE_OP::SEND_TO_BACK:	sendToBack(keyA_);				break;
@@ -189,6 +167,8 @@ Scene* SceneManager::add (
 
 	key_ = (scene_->sys.settings.key != "") ? scene_->sys.settings.key : key_;
 
+	scene_->sys.settings.key = key_;
+
 	// Any data to inject?
 	scene_->sys.settings.data = data_;
 
@@ -215,7 +195,7 @@ SceneManager& SceneManager::remove (std::string key_)
 {
 	if (isProcessing)
 	{
-		operationsQueue.emplace("remove", key_);
+		operationsQueue.emplace(SCENE_OP::REMOVE, key_);
 	}
 	else
 	{
@@ -228,25 +208,27 @@ SceneManager& SceneManager::remove (std::string key_)
 		// Remove from the key map
 		auto mapI_ = keys.find(key_);
 		if (mapI_ != keys.end())
+		{
 			keys.erase(mapI_);
 
-		// Remove from the scene vector
-		for (size_t i_ = 0; i_ < scenes.size(); i_++)
-		{
-			if (sceneToRemove_ == scenes.at(i_).get())
+			// Remove from the scene vector
+			for (auto s_ = scenes.begin(); s_ != scenes.end(); s_++)
 			{
-				scenes.erase(scenes.begin() + i_);
-				break;
+				if (s_->get() == sceneToRemove_)
+				{
+					scenes.erase(s_);
+					break;
+				}
 			}
-		}
 
-		// Remove from the toStart list if there too
-		for (size_t i_ = 0; i_ < toStart.size(); i_++)
-		{
-			if (key_ == toStart.at(i_))
+			// Remove from the toStart list if there too
+			for (auto s_ = toStart.begin(); s_ != toStart.end(); s_++)
 			{
-				toStart.erase(toStart.begin() + i_);
-				break;
+				if (*s_ == key_)
+				{
+					toStart.erase(s_);
+					break;
+				}
 			}
 		}
 	}
@@ -265,7 +247,7 @@ void SceneManager::bootScene (Scene *scene_)
 	if (settings_.isTransition)
 		sys_.events.emit(
 				"transition_init",
-				settings_.transitionFrom->sys.settings.key,
+				settings_.transitionFrom,
 				settings_.transitionDuration
 				);
 
@@ -311,7 +293,7 @@ void SceneManager::update (Uint32 time_, Uint32 delta_)
 
 		if (sys_.settings.status > SCENE::START &&
 			sys_.settings.status <= SCENE::RUNNING
-		   )
+			)
 			sys_.step(time_, delta_);
 	}
 }
@@ -342,13 +324,10 @@ void SceneManager::create (Scene *scene_)
 
 	scene_->create(settings_.data);
 
-	if (settings_.status == SCENE::DESTROYED)
-		return;
-
 	if (settings_.isTransition)
 		sys_.events.emit(
 				"transition-start",
-				settings_.transitionFrom->sys.settings.key,
+				settings_.transitionFrom,
 				settings_.transitionDuration
 				);
 
@@ -523,28 +502,11 @@ SceneManager& SceneManager::start (std::string key_, Data data_)
 	{
 		// If the Scene is already running (perhaps they called start from a
 		// launched sub-Scene?) then we close it down before starting it again.
-		if (scene_->sys.isActive() || scene_->sys.isPaused())
-		{
-			scene_->sys.shutdown();
+		if (!scene_->sys.isActive() && !scene_->sys.isPaused())
 			scene_->sys.start(data_);
-		}
-		else
-		{
-			scene_->sys.start(data_);
-		}
 
 		bootScene(scene_);
 	}
-
-	return *this;
-}
-
-SceneManager& SceneManager::stop (std::string key_, Data data_)
-{
-	auto scene_ = getScene(key_);
-
-	if (scene_ != nullptr && !scene_->sys.isTransitioning())
-		scene_->sys.shutdown(data_);
 
 	return *this;
 }
@@ -574,22 +536,9 @@ Scene* SceneManager::getAt (int index_)
 
 int SceneManager::getIndex (std::string key_)
 {
-	/*
-	auto scene_ = getScene(key_);
-
-	if (scene_ == nullptr)
-		return -1;
-
 	for (size_t i_ = 0; i_ < scenes.size(); i_++)
 	{
-		if (scene_ == scenes.at(i_).get())
-			return i_;
-	}
-	*/
-
-	for (size_t i_ = 0; i_ < scenes.size(); i_++)
-	{
-		if (key_ == scenes[i_]->key)
+		if (key_ == scenes[i_]->sys.settings.key)
 			return i_;
 	}
 
@@ -600,7 +549,7 @@ SceneManager& SceneManager::bringToTop (std::string key_)
 {
 	if (isProcessing)
 	{
-		operationsQueue.emplace("bringToTop", key_, "");
+		operationsQueue.emplace(SCENE_OP::BRING_TO_TOP, key_, "");
 	}
 	else
 	{
@@ -621,7 +570,7 @@ SceneManager& SceneManager::sendToBack (std::string key_)
 {
 	if (isProcessing)
 	{
-		operationsQueue.emplace("sendToBack", key_, "");
+		operationsQueue.emplace(SCENE_OP::SEND_TO_BACK, key_, "");
 	}
 	else
 	{
@@ -642,7 +591,7 @@ SceneManager& SceneManager::moveDown (std::string key_)
 {
 	if (isProcessing)
 	{
-		operationsQueue.emplace("moveDown", key_, "");
+		operationsQueue.emplace(SCENE_OP::MOVE_DOWN, key_, "");
 	}
 	else
 	{
@@ -661,7 +610,7 @@ SceneManager& SceneManager::moveUp (std::string key_)
 {
 	if (isProcessing)
 	{
-		operationsQueue.emplace("moveUp", key_, "");
+		operationsQueue.emplace(SCENE_OP::MOVE_UP, key_, "");
 	}
 	else
 	{
@@ -683,7 +632,7 @@ SceneManager& SceneManager::moveAbove (std::string keyA_, std::string keyB_)
 
 	if (isProcessing)
 	{
-		operationsQueue.emplace("moveAbove", keyA_, keyB_);
+		operationsQueue.emplace(SCENE_OP::MOVE_ABOVE, keyA_, keyB_);
 	}
 	else
 	{
@@ -716,7 +665,7 @@ SceneManager& SceneManager::moveBelow (std::string keyA_, std::string keyB_)
 
 	if (isProcessing)
 	{
-		operationsQueue.emplace("moveBelow", keyA_, keyB_);
+		operationsQueue.emplace(SCENE_OP::MOVE_BELOW, keyA_, keyB_);
 	}
 	else
 	{
@@ -755,7 +704,7 @@ SceneManager& SceneManager::swapPosition (
 
 	if (isProcessing)
 	{
-		operationsQueue.emplace("swapPosition", keyA_, keyB_);
+		operationsQueue.emplace(SCENE_OP::SWAP_POSITIONS, keyA_, keyB_);
 	}
 	else
 	{
@@ -770,7 +719,5 @@ SceneManager& SceneManager::swapPosition (
 
 	return *this;
 }
-
-Scenes::SceneManager g_scene;
 
 }	// namespace Zen

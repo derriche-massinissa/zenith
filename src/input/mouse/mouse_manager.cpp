@@ -144,6 +144,4 @@ void MouseManager::update ()
 	}
 }
 
-MouseManager g_mouse;
-
 }	// namespace Zen

@@ -5,7 +5,7 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#include "loader_plugin.h"
+#include "loader_plugin.hpp"
 
 #include <fstream>
 #include "json/json.hpp"
@@ -14,8 +14,8 @@
 #include "../event/event_emitter.hpp"
 
 #include "../texture/texture_manager.hpp"
-#include "../scene/scene.h"
-#include "../scene/scene_manager.h"
+#include "../scene/scene.hpp"
+#include "../scene/scene_manager.hpp"
 #include "../cameras/2d/camera_manager.hpp"
 #include "../core/config.hpp"
 #include "../audio/audio_manager.hpp"
@@ -23,28 +23,17 @@
 
 namespace Zen {
 
+extern GameConfig *g_config;
 extern AudioManager g_audio;
 extern InputManager g_input;
-
-namespace Loader {
+extern TextureManager g_texture;
+extern SceneManager g_scene;
 
 LoaderPlugin::LoaderPlugin (Scene* scene_)
 	: scene (scene_)
-	, textureManager (scene_->textures)
-	, sceneManager (scene_->game.scene)
-	, prefix (scene_->game.config.loaderPrefix)
-	, path (scene_->game.config.loaderPath)
+	, prefix (g_config->loaderPrefix)
+	, path (g_config->loaderPath)
 {}
-
-LoaderPlugin::~LoaderPlugin ()
-{
-	shutdown();
-}
-
-void LoaderPlugin::pluginStart ()
-{
-	lShutdown = scene->sys.events.once("shutdown", &LoaderPlugin::shutdown, this);
-}
 
 LoaderPlugin& LoaderPlugin::setPath (std::string path_)
 {
@@ -67,10 +56,10 @@ LoaderPlugin& LoaderPlugin::image (std::string key_, std::string path_, bool alp
 {
 	path_ = path + path_;
 
-	textureManager.addImage(key_, path_);
+	g_texture.addImage(key_, path_);
 
 	if (alphaCache_)
-		textureManager.createAlphaCache(key_);
+		g_texture.createAlphaCache(key_);
 
 	return *this;
 }
@@ -89,7 +78,7 @@ LoaderPlugin& LoaderPlugin::atlas (std::string key_, std::string texturePath_, s
 	texturePath_ = path + texturePath_;
 	atlasPath_ = path + atlasPath_;
 
-	textureManager.addAtlas(key_, texturePath_, atlasPath_);
+	g_texture.addAtlas(key_, texturePath_, atlasPath_);
 
 	return *this;
 }
@@ -119,7 +108,7 @@ LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_
 	for (const auto& textureFile_ : data_["textures"])
 		sources_.emplace_back(path_ + textureFile_["image"].get<std::string>());
 
-	textureManager.addAtlas(key_, sources_, atlasPath_);
+	g_texture.addAtlas(key_, sources_, atlasPath_);
 
 	return *this;
 }
@@ -128,7 +117,7 @@ LoaderPlugin& LoaderPlugin::spritesheet (std::string key_, std::string path_, Sp
 {
 	path_ = path + path_;
 
-	textureManager.addSpriteSheet(key_, path_, config_);
+	g_texture.addSpriteSheet(key_, path_, config_);
 
 	return *this;
 }
@@ -151,7 +140,7 @@ LoaderPlugin& LoaderPlugin::audioStream (std::string key_, std::string path_)
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::font (std::string key_, std::string path_)
+LoaderPlugin& LoaderPlugin::font ([[maybe_unused]]std::string key_, std::string path_)
 {
 	path_ = path + path_;
 
@@ -162,14 +151,8 @@ LoaderPlugin& LoaderPlugin::font (std::string key_, std::string path_)
 
 void LoaderPlugin::reset ()
 {
-	setPath(scene->game.config.loaderPath);
-	setPrefix(scene->game.config.loaderPrefix);
+	setPath(g_config->loaderPath);
+	setPrefix(g_config->loaderPrefix);
 }
 
-void LoaderPlugin::shutdown ()
-{
-	scene->sys.events.off(lShutdown);
-}
-
-}	// namespace Loader
 }	// namespace Zen

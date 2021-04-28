@@ -39,11 +39,6 @@ class ScaleManager : public EventEmitter
 {
 public:
 	/**
-	 * @since 0.0.0
-	 */
-	~ScaleManager ();
-
-	/**
 	 * A reference to the GameConfig instance.
 	 *
 	 * @since 0.0.0

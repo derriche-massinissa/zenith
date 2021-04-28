@@ -29,6 +29,8 @@ struct SceneConfig
 	bool autoStart;
 	Data data;
 
+	SceneConfig ();
+
 	SceneConfig (
 			std::string key_,
 			std::unique_ptr<Scene> scene_,

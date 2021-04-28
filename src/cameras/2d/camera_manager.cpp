@@ -9,8 +9,8 @@
 
 #include <memory>
 #include "systems/camera.hpp"
-#include "../../scene/scene_manager.h"
-#include "../../scene/scene.h"
+#include "../../scene/scene_manager.hpp"
+#include "../../scene/scene.hpp"
 #include "../../scale/scale_manager.hpp"
 #include "../../geom/rectangle.hpp"
 #include "../../renderer/renderer.hpp"
@@ -44,24 +44,18 @@ CameraManager::CameraManager (Scene* scene_)
 
 CameraManager::~CameraManager ()
 {
-	shutdown();
+	main = entt::null;
 
+	systems.events.off(lUpdate);
 	systems.events.off(lStart);
+
 	g_scale.off(lResize);
 }
 
 void CameraManager::boot ()
 {
-	if (systems.settings.cameras.size())
-	{
-		// We have cameras to create
-		fromConfig(systems.settings.cameras);
-	}
-	else
-	{
-		// Make one
-		add();
-	}
+	// Make a main camera
+	add();
 
 	main = cameras[0];
 
@@ -77,22 +71,13 @@ void CameraManager::start ()
 {
 	if (main == entt::null)
 	{
-		if (systems.settings.cameras.size())
-		{
-			// We have cameras to create
-			fromConfig(systems.settings.cameras);
-		}
-		else
-		{
-			// Make one
-			add();
-		}
+		// Make a main camera
+		add();
 
 		main = cameras[0];
 	}
 
 	lUpdate = systems.events.on("update", &CameraManager::update, this);
-	lShutdown = systems.events.on("shutdown", &CameraManager::shutdown, this);
 }
 
 Entity CameraManager::add (
@@ -337,16 +322,6 @@ void CameraManager::resize (int width_, int height_)
 {
 	for (auto& camera_ : cameras)
 		SetSize(camera_, width_, height_);
-}
-
-void CameraManager::shutdown ()
-{
-	main = entt::null;
-
-	cameras.clear();
-
-	systems.events.off(lUpdate);
-	systems.events.off(lShutdown);
 }
 
 }	// namespace Zen

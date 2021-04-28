@@ -14,9 +14,8 @@ extern ScaleManager g_scale;
 extern Renderer g_renderer;
 extern AudioManager g_audio;
 
-Scene::Scene (Game& game_)
-	: sys (this)
-	, game (game_)
+Scene::Scene (std::string key)
+	: sys (this, key)
 	, audio (g_audio)
 	, textures (g_texture)
 	, cameras (this)

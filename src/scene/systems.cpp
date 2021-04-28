@@ -18,10 +18,11 @@ namespace Zen {
 extern SceneManager g_scene;
 extern Renderer g_renderer;
 
-SceneSystems::SceneSystems (Scene* scene_)
+SceneSystems::SceneSystems (Scene* scene_, std::string key)
 	: scene(scene_)
-	, settings(scene_->key)
-{}
+{
+	settings.key = key;
+}
 
 void SceneSystems::init ()
 {

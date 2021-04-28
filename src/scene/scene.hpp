@@ -19,7 +19,7 @@
 #include "../core/game.hpp"
 #include "../scale/scale_manager.hpp"
 #include "../cameras/2d/camera_manager.hpp"
-#include "../loader/loader_plugin.h"
+#include "../loader/loader_plugin.hpp"
 #include "../texture/texture_manager.hpp"
 #include "../gameobjects/display_list.hpp"
 #include "../gameobjects/update_list.h"
@@ -43,19 +43,12 @@ class Scene
 public:
 	/**
 	 * @since 0.0.0
+	 *
+	 * @param key The key of the Scene.
 	 */
-	Scene (Game& game);
+	Scene (std::string key);
 
-	/**
-	 * The key of the Scene. You have to override it with the key of your
-	 * own Scene.
-	 *
-	 * This key has to be unique, no two Scenes can have the same key!
-	 * Or very bad things WILL happen...
-	 *
-	 * @since 0.0.0
-	 */
-	const std::string key = "default";
+	virtual ~Scene () = default;
 
 	/**
 	 * The Scene Systems.
@@ -63,13 +56,6 @@ public:
 	 * @since 0.0.0
 	 */
 	SceneSystems sys;
-
-	/**
-	 * A reference to the Zenith Game instance.
-	 *
-	 * @since 0.0.0
-	 */
-	Game& game;
 
 	/**
 	 * A reference to the game Animation Manager.
@@ -174,7 +160,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	Loader::LoaderPlugin load;
+	LoaderPlugin load;
 
 	/**
 	 * A scene level Time and Clock plugin.

@@ -21,25 +21,15 @@ ScenePlugin::ScenePlugin (Scene* scene_)
 	: scene(scene_)
 	, systems (&scene_->sys)
 	, key (scene_->sys.settings.key)
-{
-	scene_->sys.events.on("start", &ScenePlugin::pluginStart, this);
-}
+{}
 
 ScenePlugin& ScenePlugin::start (std::string key_, Data data_)
 {
 	if (key_ == "")
 		key_ = key;
 
-	g_scene.queueOp(SCENE_OP::STOP, key);
+	g_scene.queueOp(SCENE_OP::REMOVE, key, "", data_);
 	g_scene.queueOp(SCENE_OP::START, key_, "", data_);
-
-	return *this;
-}
-
-ScenePlugin& ScenePlugin::restart (Data data_)
-{
-	g_scene.queueOp(SCENE_OP::STOP, key);
-	g_scene.queueOp(SCENE_OP::START, key, "", data_);
 
 	return *this;
 }
@@ -145,8 +135,6 @@ void ScenePlugin::transitionComplete ()
 		g_scene.remove(key);
 	else if (transitionWillSleep)
 		systems->sleep();
-	else
-		g_scene.stop(key);
 }
 
 Scene& ScenePlugin::add (
@@ -219,16 +207,6 @@ ScenePlugin& ScenePlugin::swap (std::string key_)
 {
 	if (key_ != key)
 		g_scene.queueOp(SCENE_OP::SWAP, key, key_);
-
-	return *this;
-}
-
-ScenePlugin& ScenePlugin::stop (std::string key_, Data data_)
-{
-	if (key_ == "")
-		key_ = key;
-
-	g_scene.queueOp(SCENE_OP::STOP, key_, "", data_);
 
 	return *this;
 }

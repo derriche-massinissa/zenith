@@ -8,14 +8,14 @@
 #include "keyboard_plugin.hpp"
 #include <SDL2/SDL_keyboard.h>
 #include <string>
-#include "../../scene/scene.h"
+#include "../../scene/scene.hpp"
 #include "../input_manager.hpp"
 #include "../../window/window.hpp"
 
 namespace Zen {
 
-extern InputManager g_input;
 extern Window g_window;
+extern InputManager g_input;
 
 KeyboardPlugin::KeyboardPlugin (Scene* scene)
 	: scene(scene)
@@ -25,26 +25,6 @@ KeyboardPlugin::KeyboardPlugin (Scene* scene)
 
 KeyboardPlugin::~KeyboardPlugin ()
 {
-	shutdown();
-}
-
-void KeyboardPlugin::start ()
-{
-	scene->input.pluginEvents.once("shutdown", &KeyboardPlugin::shutdown, this);
-
-	lKeyDown = g_input.events.on("keydown", &KeyboardPlugin::processKeyDown, this);
-	lKeyUp = g_input.events.on("keyup", &KeyboardPlugin::processKeyUp, this);
-
-	lBlur = g_window.on("blur", &KeyboardPlugin::resetKeys, this);
-
-	lPause = scene->sys.events.on("pause", &KeyboardPlugin::resetKeys, this);
-	lSleep = scene->sys.events.on("sleep", &KeyboardPlugin::resetKeys, this);
-}
-
-void KeyboardPlugin::shutdown ()
-{
-	resetKeys();
-
 	g_input.events.off(lKeyDown);
 	g_input.events.off(lKeyUp);
 
@@ -52,8 +32,17 @@ void KeyboardPlugin::shutdown ()
 
 	scene->sys.events.off(lPause);
 	scene->sys.events.off(lSleep);
+}
 
-	removeAllListeners();
+void KeyboardPlugin::start ()
+{
+	lKeyDown = g_input.events.on("keydown", &KeyboardPlugin::processKeyDown, this);
+	lKeyUp = g_input.events.on("keyup", &KeyboardPlugin::processKeyUp, this);
+
+	lBlur = g_window.on("blur", &KeyboardPlugin::resetKeys, this);
+
+	lPause = scene->sys.events.on("pause", &KeyboardPlugin::resetKeys, this);
+	lSleep = scene->sys.events.on("sleep", &KeyboardPlugin::resetKeys, this);
 }
 
 bool KeyboardPlugin::isActive ()

@@ -24,21 +24,24 @@
 namespace Zen {
 
 // Global Systems
+GameConfig *g_config = nullptr;
 entt::registry g_registry;
 EventEmitter g_event;
-extern Window g_window;
-extern TextureManager g_texture;
-extern ScaleManager g_scale;
-extern Renderer g_renderer;
-extern SceneManager g_scene;
-extern InputManager g_input;
-extern MouseManager g_mouse;
-extern KeyboardManager g_keyboard;
-extern AudioManager g_audio;
+Window g_window;
+TextureManager g_texture;
+ScaleManager g_scale;
+Renderer g_renderer;
+InputManager g_input;
+MouseManager g_mouse;
+KeyboardManager g_keyboard;
+AudioManager g_audio;
+SceneManager g_scene;
 
 Game::Game (GameConfig& config_)
 	: config (config_)
 {
+	g_config = &config_;
+
 	// Step delta for when the window is minimized/not visible
 	hiddenDelta = config_.hiddenDelta;
 
@@ -68,7 +71,7 @@ void Game::boot ()
 
 	g_renderer.start(&config);
 
-	g_scene.boot(this, &config.sceneFactory);
+	g_scene.boot(&config.sceneFactory);
 
 	g_input.boot(&config);
 

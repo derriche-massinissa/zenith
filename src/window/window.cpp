@@ -13,12 +13,8 @@
 
 namespace Zen {
 
-Window g_window;
-
 Window::~Window ()
 {
-	removeAllListeners();
-
 	// close called from the Game object destructor 'cuz calling it here crashes the program. Fix later, pls...
 	//close();
 }

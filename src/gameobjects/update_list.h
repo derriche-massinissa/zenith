@@ -37,7 +37,6 @@ class UpdateList
 {
 public:
 	UpdateList (Scene* scene_);
-	~UpdateList ();
 
 	Scene* scene = nullptr;
 
@@ -51,16 +50,9 @@ public:
 
 	int toProcess = 0;
 
-	ListenerBase* lStart = nullptr;
-	ListenerBase* lPreUpdate = nullptr;
-	ListenerBase* lUpdate = nullptr;
-	ListenerBase* lShutdown = nullptr;
-
 	void start ();
 
 	void sceneUpdate (Uint32 time_, Uint32 delta_);
-
-	void shutdown ();
 
 	/**
 	 * Add a GameObject instance to this display list.
