@@ -240,6 +240,29 @@ public:
 			Data data_ = {});
 
 	/**
+	 * Adds a new Scene into the SceneManager.
+	 * You must give each Scene a unique key by which you'll identify it.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @tparam T The scene to add.
+	 *
+	 * @param key_ A unique key used to reference the Scene.
+	 * @param autoStart_ If `true` the Scene will be started immediately after
+	 * being added.
+	 * @param data_ Optional data object. This will be set as
+	 * `Scene.sys.settings.data` and passed to `Scene.init` and `Scene.create`;
+	 *
+	 * @return A pointer to the added Scene if it was added immediately,
+	 * otherwise `nullptr`.
+	 */
+	template <typename T>
+	Scene& add (std::string key_, bool autoStart_ = false, Data data_ = {})
+	{
+		return add(key_, std::move(std::make_unique<T>()), autoStart_, data_);
+	}
+
+	/**
 	 * Launch the given Scene and run it in parallel with this one.
 	 *
 	 * This will happen at the next Scene Manager update, not

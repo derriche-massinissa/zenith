@@ -52,6 +52,7 @@ void SceneManager::bootQueue ()
 		if (entry_.scene->sys.settings.key == "")
 			entry_.scene->sys.settings.key = key_;
 
+		// Boot the scene
 		entry_.scene->sys.init();
 
 		// Replace key in case the scene had one
@@ -165,9 +166,14 @@ Scene* SceneManager::add (
 		return nullptr;
 	}
 
-	key_ = (scene_->sys.settings.key != "") ? scene_->sys.settings.key : key_;
+	if (scene_->sys.settings.key == "")
+		scene_->sys.settings.key = key_;
 
-	scene_->sys.settings.key = key_;
+	// Boot the scene
+	scene_->sys.init();
+
+	// Replace key in case the scene had one
+	key_ = scene_->sys.settings.key;
 
 	// Any data to inject?
 	scene_->sys.settings.data = data_;
@@ -182,7 +188,7 @@ Scene* SceneManager::add (
 
 	if (autoStart_ || scenePtr_->sys.settings.active)
 	{
-		if (pending.size())
+		if (pending.size() > 0)
 			toStart.emplace_back(key_);
 		else
 			start(key_);
