@@ -24,6 +24,7 @@ Scene::Scene (std::string key)
 	, updateList (this)
 	, input (this)
 	, load (this)
+	, tweens (this)
 	, scale (g_scale)
 	, renderer (g_renderer)
 {}

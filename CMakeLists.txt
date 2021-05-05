@@ -25,6 +25,51 @@ project(
 
 # Source files
 set(zenith_SRCS
+	src/tweens/easing.cpp
+
+	src/math/easing/linear/linear.cpp
+	src/math/easing/stepped/stepped.cpp
+
+	src/math/easing/back/in.cpp
+	src/math/easing/bounce/in.cpp
+	src/math/easing/circular/in.cpp
+	src/math/easing/cubic/in.cpp
+	src/math/easing/elastic/in.cpp
+	src/math/easing/expo/in.cpp
+	src/math/easing/quadratic/in.cpp
+	src/math/easing/quartic/in.cpp
+	src/math/easing/quintic/in.cpp
+	src/math/easing/sine/in.cpp
+
+	src/math/easing/back/out.cpp
+	src/math/easing/bounce/out.cpp
+	src/math/easing/circular/out.cpp
+	src/math/easing/cubic/out.cpp
+	src/math/easing/elastic/out.cpp
+	src/math/easing/expo/out.cpp
+	src/math/easing/quadratic/out.cpp
+	src/math/easing/quartic/out.cpp
+	src/math/easing/quintic/out.cpp
+	src/math/easing/sine/out.cpp
+
+	src/math/easing/back/in_out.cpp
+	src/math/easing/bounce/in_out.cpp
+	src/math/easing/circular/in_out.cpp
+	src/math/easing/cubic/in_out.cpp
+	src/math/easing/elastic/in_out.cpp
+	src/math/easing/expo/in_out.cpp
+	src/math/easing/quadratic/in_out.cpp
+	src/math/easing/quartic/in_out.cpp
+	src/math/easing/quintic/in_out.cpp
+	src/math/easing/sine/in_out.cpp
+
+	src/tweens/tween/tween.cpp
+	src/tweens/tween_manager.cpp
+
+
+
+
+
 	src/structs/list.cpp
 	src/audio/audio_manager.cpp
 	src/audio/tools/ogg.cpp

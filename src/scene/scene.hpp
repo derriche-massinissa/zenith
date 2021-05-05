@@ -26,6 +26,7 @@
 #include "../gameobjects/gameobject_factory.h"
 #include "../input/input_plugin.hpp"
 #include "../audio/audio_manager.hpp"
+#include "../tweens/tween_manager.hpp"
 
 namespace Zen {
 
@@ -174,9 +175,8 @@ public:
 	 * A scene level TweenManager plugin.
 	 *
 	 * @since 0.0.0
-	 * @todo TODO
 	 */
-	//Tweens::TweenManager tweens;
+	TweenManager tweens;
 
 	/**
 	 * A scene level Box2D physics plugin.
