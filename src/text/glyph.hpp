@@ -17,7 +17,9 @@ struct Glyph
 		bearingX = 0,
 		bearingY = 0,
 		advanceX = 0,
-		advanceY = 0;
+		advanceY = 0,
+		ascender = 0,
+		descender = 0;
 
 	// Position of the glyph in the atlas texture
 	int cacheX = 0,

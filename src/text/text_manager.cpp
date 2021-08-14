@@ -112,6 +112,8 @@ int TextManager::scanText (Entity text_)
 	if (text->style.wrapWidth > 0) {
 		wrappedText = WrapText(charactersCodes, text->style);
 		text->text = std::string(wrappedText.begin(), wrappedText.end());
+	} else {
+		wrappedText = charactersCodes;
 	}
 
 	// Update the text's information (size/bounding box)
@@ -190,6 +192,9 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 		glyph.advanceY = face->glyph->advance.y / 64;
 		glyph.bearingX = face->glyph->metrics.horiBearingX / 64;
 		glyph.bearingY = face->glyph->metrics.horiBearingY / 64;
+
+		glyph.ascender = face->ascender / 64;
+		glyph.descender = face->descender / 64;
 
 		glyphs.push_back(&glyph);
 	}
@@ -415,7 +420,8 @@ void TextManager::render (Entity textEntity, Entity camera)
 		auto &glyphMatrix = tempMatrix3;
 		ApplyITRS(&glyphMatrix,
 				penX + glyph.bearingX,
-				penY - glyph.bearingY,
+				penY - glyph.bearingY + atlas.lineSpacing - glyph.ascender + 2,
+				//			Gives better results with a margin of 2 pixels   ^
 				0,
 				1., 1.
 		);
