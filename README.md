@@ -6,8 +6,16 @@
 	<a href="#features">Features</a> |
 	<a href="#plans">Plans</a> |
 	<a href="#dependencies">Dependencies</a>
-</p>
 </br>
+</br>
+<a href=""><img alt="platforms" src="https://img.shields.io/static/v1?label=Platforms&message=Windows%20|%20Linux&color=blue&style=flat-square"></a>
+<a href="https://github.com/hexoctal/zenith/blob/master/LICENSE.md"><img alt="license" src="https://img.shields.io/static/v1?label=License&message=MIT&color=green&style=flat-square"></a>
+</br>
+<a href="https://github.com/hexoctal/zenith/issues"><img alt="issues" src="https://img.shields.io/github/issues-raw/hexoctal/zenith.svg?style=flat-square"/></a>
+<a href=""><img alt="size" src="https://img.shields.io/github/repo-size/hexoctal/zenith?style=flat-square"></a>
+<a href=""><img alt="starts" src="https://img.shields.io/github/stars/hexoctal/zenith?style=social"></a>
+</br>
+</p>
 
 #
 
