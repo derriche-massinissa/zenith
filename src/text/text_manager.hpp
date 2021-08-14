@@ -14,6 +14,7 @@
 #include "../ecs/entity.hpp"
 #include "const.hpp"
 #include "../geom/types/rectangle.hpp"
+#include "../components/transform_matrix.hpp"
 
 // FreeType 2
 #include <ft2build.h>
@@ -134,7 +135,7 @@ public:
 	/**
 	 * @since 0.0.0
 	 */
-	void render (Entity textEntity);
+	void render (Entity textEntity, Entity camera);
 
 	/**
 	 * The freetype library instance.
@@ -159,12 +160,10 @@ public:
 	 * @since 0.0.0
 	 */
 	std::map<std::string, std::map<						// Font Family
-		int, std::map<									// Color
-			int, std::map<								// Font Size
-				TEXT_DECORATION, std::map<				// Style
-					int, std::map<						// Outline
-						int, Glyph						// Character
-						>
+		int, std::map<									// Font Size
+			TEXT_DECORATION, std::map<					// Style
+				int, std::map<							// Outline
+					int, Glyph							// Character
 					>
 				>
 			>
@@ -175,11 +174,9 @@ public:
 	 * @since 0.0.0
 	 */
 	std::map<std::string, std::map<						// Font Family
-		int, std::map<									// Color
-			int, std::map<								// Font Size
-				TEXT_DECORATION, std::map<				// Style
-					int, FontAtlasData					// Outline
-					>
+		int, std::map<									// Font Size
+			TEXT_DECORATION, std::map<					// Style
+				int, FontAtlasData						// Outline
 				>
 			>
 		>
@@ -192,6 +189,34 @@ public:
 	 * @since 0.0.0
 	 */
 	std::vector<FontAtlasData*> atlasList;
+
+	/**
+	 * A temporary Transform Matrix, re-used internally during batching.
+	 *
+	 * @since 0.0.0
+	 */
+	Components::TransformMatrix tempMatrix1;
+
+	/**
+	 * A temporary Transform Matrix, re-used internally during batching.
+	 *
+	 * @since 0.0.0
+	 */
+	Components::TransformMatrix tempMatrix2;
+
+	/**
+	 * A temporary Transform Matrix, re-used internally during batching.
+	 *
+	 * @since 0.0.0
+	 */
+	Components::TransformMatrix tempMatrix3;
+
+	/**
+	 * A temporary Transform Matrix, re-used internally during batching.
+	 *
+	 * @since 0.0.0
+	 */
+	Components::TransformMatrix tempMatrix4;
 
 private:
 	/**

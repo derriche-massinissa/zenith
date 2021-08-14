@@ -264,15 +264,15 @@ void Renderer::render (
 	// Render the GameObject
 	for (auto& child_ : children_)
 	{
-		// !!! TEXT LAB !!!
-		if (IsText(child_)) {
-			g_text.render(child_);
-			continue;
-		}
-		// !!! TEXT LAB !!!
-
 		AddToRenderList(camera_, child_);
 
+		// Text object
+		if (IsText(child_)) {
+			g_text.render(child_, camera_);
+			continue;
+		}
+
+		// Textured object (image)
 		if (child_ != entt::null && GetFrame(child_) != entt::null)
 			batchSprite(child_, GetFrame(child_), camera_, GetParentTransformMatrix(child_));
 	}

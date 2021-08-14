@@ -92,18 +92,14 @@ Entity GameObjectFactory::text (double x, double y, std::string text, TextStyle 
 
 	g_registry.emplace<Components::Text>(txt);
 
-	// Just like an image, but the texture/frame is generated from the text
+	// Not a textured object. Each character is directly rendered from an atlas
 	g_registry.emplace<Components::Alpha>(txt);
 	g_registry.emplace<Components::BlendMode>(txt);
 	g_registry.emplace<Components::Depth>(txt);
-	g_registry.emplace<Components::Flip>(txt);
 	g_registry.emplace<Components::Bounds>(txt);
-	g_registry.emplace<Components::Mask>(txt);
-	g_registry.emplace<Components::Origin>(txt);
+	g_registry.emplace<Components::Origin>(txt, 0.5, 0.5);
 	g_registry.emplace<Components::ScrollFactor>(txt);
 	g_registry.emplace<Components::Size>(txt);
-	g_registry.emplace<Components::Textured>(txt);
-	g_registry.emplace<Components::Tint>(txt);
 	g_registry.emplace<Components::Position>(txt, x, y);
 	g_registry.emplace<Components::Rotation>(txt);
 	g_registry.emplace<Components::Scale>(txt);

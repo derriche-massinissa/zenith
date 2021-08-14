@@ -1,4 +1,4 @@
-/**
+/*
  * @file
  * @author		__AUTHOR_NAME__ <mail@host.com>
  * @copyright	2021 __COMPANY_LTD__
@@ -7,13 +7,25 @@
 
 #include "text_manager.hpp"
 #include "../window/window.hpp"
+#include "../scale/scale_manager.hpp"
 #include "../utils/map/contains.hpp"
+#include "../utils/vector/contains.hpp"
 #include "../components/text.hpp"
 #include "../components/position.hpp"
-#include <algorithm>
-#include <set>
+#include "../components/origin.hpp"
+#include "../components/size.hpp"
 #include "../display/types/color.hpp"
 #include "../display/color.hpp"
+#include "../systems/size.hpp"
+#include "../systems/alpha.hpp"
+#include "../systems/transform_matrix.hpp"
+#include "../systems/position.hpp"
+#include "../systems/rotation.hpp"
+#include "../systems/scroll.hpp"
+#include "../systems/scroll_factor.hpp"
+#include "../math/rad_to_deg.hpp"
+#include <algorithm>
+#include <set>
 
 // Padding to use between glyphs on the font atlas cache
 #define GLYPH_PADDING 6
@@ -24,6 +36,7 @@ namespace Zen {
 
 extern entt::registry g_registry;
 extern Window g_window;
+extern ScaleManager g_scale;
 
 TextManager::~TextManager ()
 {
@@ -63,8 +76,6 @@ void TextManager::addFont (std::string key, std::string path)
 		}
 
 		fonts[key] = face;
-
-		MessageNote("Added font: ", key, " from file :", path);
 	}
 }
 
@@ -81,7 +92,6 @@ int TextManager::scanText (Entity text_)
 	auto &data = glyphCache
 		[text->style.fontFamily]
 		[text->style.fontSize]
-		[text->style.color]
 		[text->style.decoration]
 		[text->style.outline];
 
@@ -98,10 +108,15 @@ int TextManager::scanText (Entity text_)
 	addGlyphs(newCharacters, text->style);
 
 	// Check and deal with text wrapping
+	std::vector<int> wrappedText;
 	if (text->style.wrapWidth > 0) {
-		auto wrappedText = WrapText(charactersCodes, text->style);
+		wrappedText = WrapText(charactersCodes, text->style);
 		text->text = std::string(wrappedText.begin(), wrappedText.end());
 	}
+
+	// Update the text's information (size/bounding box)
+	Rectangle bbox = GetTextBoundingBox(wrappedText, text->style);
+	SetSize(text_, bbox.width, bbox.height);
 
 	return newCharacters.size();
 }
@@ -121,7 +136,6 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 	FontAtlasData &atlas = fontsAtlas
 		[style.fontFamily]
 		[style.fontSize]
-		[style.color]
 		[style.decoration]
 		[style.outline];
 
@@ -137,10 +151,10 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 				0xff0000,
 				0xff000000
 		);
-	}
 
-	atlas.index = atlasList.size();
-	atlasList.emplace_back(&atlas);
+		atlas.index = atlasList.size();
+		atlasList.emplace_back(&atlas);
+	}
 
 	// Auto width, set height
 	FT_Set_Pixel_Sizes(face, 0, style.fontSize);
@@ -156,7 +170,6 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 		Glyph &glyph = glyphCache
 			[style.fontFamily]
 			[style.fontSize]
-			[style.color]
 			[style.decoration]
 			[style.outline]
 			[character];
@@ -235,20 +248,10 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 				0, 0, 0, 0xff
 		);
 
-		// Text color
-		Color textColor;
-		SetHex(&textColor, style.color);
-
 		// Convert from indexed to RGBA
 		SDL_Color colors[256];
-		for (int i = 0; i < 256; i++) {
+		for (int i = 0; i < 256; i++)
 			colors[i].r = colors[i].g = colors[i].b = colors[i].a = i;
-
-			colors[i].r *= textColor.gl[0];
-			colors[i].g *= textColor.gl[1];
-			colors[i].b *= textColor.gl[2];
-			colors[i].a *= textColor.gl[3];
-		}
 		SDL_SetPaletteColors(glyphSurface->format->palette, colors, 0, 256);
 
 		// Blit the glyph to the atlas
@@ -267,24 +270,47 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 
 	atlas.texture = SDL_CreateTextureFromSurface(g_window.renderer, atlas.surface);
 
-	if (!atlas.texture)
-		MessageError("Unable to create a texture from the rendered font atlas! SDL Error: ", SDL_GetError());
+	if (!atlas.texture) {
+		MessageError("Unable to create a texture from the rendered font atlas!"
+				"SDL Error: ", SDL_GetError());
+	} else {
+		// Enable transparency (Probably enabled automaticaly because of the
+		// alpha channel but whatever...)
+		SDL_SetTextureBlendMode(atlas.texture, SDL_BLENDMODE_BLEND);
+	}
 }
 
-void TextManager::render (Entity textEntity)
+void TextManager::render (Entity textEntity, Entity camera)
 {
-	auto [text, position] = g_registry.try_get<Components::Text,
-		 Components::Position>(textEntity);
+	auto [text, position, origin, size] = g_registry.try_get<Components::Text,
+		 Components::Position, Components::Origin, Components::Size>(textEntity);
 	ZEN_ASSERT(text, "The entity has no 'Text' component.");
+
+	double alpha = GetAlpha(camera) * GetAlpha(textEntity);
+
+	if (!alpha)
+		// Nothing to see, so abort early
+		return;
+
+	auto &camMatrix = tempMatrix1;
+	auto &textMatrix = tempMatrix2;
 
 	// Get the glyph atlas for this style
 	auto &atlas = fontsAtlas
 		[text->style.fontFamily]
 		[text->style.fontSize]
-		[text->style.color]
 		[text->style.decoration]
 		[text->style.outline];
-	SDL_SetTextureBlendMode(atlas.texture, SDL_BLENDMODE_BLEND);
+
+	// Text color (Tint)
+	Color textColor;
+	SetHex(&textColor, text->style.color);
+	SDL_SetTextureColorMod(
+		atlas.texture,
+		textColor.red,
+		textColor.green,
+		textColor.blue
+		);
 
 	// Convert all characters to unicodes
 	std::vector<int> characters = StringToUnicodes(text->text);
@@ -300,20 +326,43 @@ void TextManager::render (Entity textEntity)
 			largestLineWidth = bbox.width;
 	}
 
-	int posX = position->x, posY = position->y;
-	int penX = posX, penY = posY;
+	// Initial pen position
+	int posX = position->x - origin->x * size->width,
+		posY = position->y - origin->y * size->height;
 
-	// Setup initial position of the pen
+	// Transform matrices
+	ApplyITRS(&textMatrix,
+		posX, posY,
+		GetRotation(textEntity),
+		1., 1.
+	);
+	camMatrix = GetTransformMatrix(camera);
+
+	// Scroll factor
+	textMatrix.e -= GetScrollX(camera) * GetScrollFactorX(textEntity);
+	textMatrix.f -= GetScrollY(camera) * GetScrollFactorY(textEntity);
+
+	// Multiply by the Text matrix
+	Multiply(&camMatrix, textMatrix);
+
+	// ScaleManager values
+	Math::Vector2 sScale = g_scale.displayScale;
+	Math::Vector2 sOffset = g_scale.displayOffset;
+
+	int penX, penY;
+	penX = penY = posX = posY = 0;
+
+	// Move the pen to take into account the text align configuration
 	switch (text->style.alignment) {
 		case TEXT_ALIGNMENT::LEFT:
 			penX = posX;
 			break;
 		case TEXT_ALIGNMENT::RIGHT:
-			penX = posX + largestLineWidth - bboxes[line].width;
+			penX = posX + largestLineWidth - bboxes[0].width;
 			break;
 		case TEXT_ALIGNMENT::CENTER:
 			penX = posX + (largestLineWidth/2.) -
-				(bboxes[line].width/2);
+				(bboxes[0].width/2);
 			break;
 	}
 
@@ -351,29 +400,69 @@ void TextManager::render (Entity textEntity)
 		auto &glyph = glyphCache
 			[text->style.fontFamily]
 			[text->style.fontSize]
-			[text->style.color]
 			[text->style.decoration]
 			[text->style.outline]
 			[c];
 
 		// Taken from this rectangle from the glyph atlas
-		SDL_Rect glyphSrc {glyph.cacheX, glyph.cacheY, glyph.cacheW, glyph.cacheH};
+		SDL_Rect glyphSrc {
+			glyph.cacheX,
+			glyph.cacheY,
+			glyph.cacheW,
+			glyph.cacheH
+		};
 
-		int x = penX + glyph.bearingX,
-			y = penY - glyph.bearingY;
-		// Drawn to this rectangle on the screen
-		SDL_Rect glyphDst {x, y, glyph.cacheW, glyph.cacheH};
+		auto &glyphMatrix = tempMatrix3;
+		ApplyITRS(&glyphMatrix,
+				penX + glyph.bearingX,
+				penY - glyph.bearingY,
+				0,
+				1., 1.
+		);
 
-		SDL_RenderCopyEx(
+		auto &viewMatrix = tempMatrix4;
+		viewMatrix = camMatrix;
+		Multiply(&viewMatrix, glyphMatrix);
+
+		// Decompose the transform matrix
+		DecomposedMatrix dm = DecomposeMatrix(viewMatrix);
+
+		SDL_FRect glyphDst;
+
+		// Position
+		glyphDst.x = dm.translateX * sScale.x + sOffset.x;
+		glyphDst.y = dm.translateY * sScale.y + sOffset.y;
+
+		// Scale
+		glyphDst.w = glyph.cacheW * dm.scaleX * sScale.x;
+		glyphDst.h = glyph.cacheH * dm.scaleY * sScale.y;
+
+		// Rotation
+		float angle = Math::RadToDeg(dm.rotation);
+
+		// Origin
+		SDL_FPoint orig {0.f, 0.f};
+
+		// Alpha (Transparency)
+		if (alpha < 1.0)
+		{
+			SDL_SetTextureAlphaMod(
+				atlas.texture,
+				alpha * 255
+				);
+		}
+
+		SDL_RenderCopyExF(
 				g_window.renderer,
 				atlas.texture,
 				&glyphSrc,
 				&glyphDst,
-				0,
-				nullptr,
+				angle,
+				&orig,
 				SDL_FLIP_NONE
 				);
 
+		// Move on to the next character
 		penX += glyph.advanceX;
 	}
 }
@@ -493,7 +582,6 @@ Rectangle TextManager::GetTextBoundingBox (std::vector<int> &characters, TextSty
 		auto &atlas = fontsAtlas
 			[style.fontFamily]
 			[style.fontSize]
-			[style.color]
 			[style.decoration]
 			[style.outline];
 
@@ -504,7 +592,7 @@ Rectangle TextManager::GetTextBoundingBox (std::vector<int> &characters, TextSty
 
 	bbox.height = lineSpacing;
 
-	for (auto character : characters) {
+	for (int character : characters) {
 		if (character == '\n') {
 			bbox.height += lineSpacing;
 
@@ -516,7 +604,6 @@ Rectangle TextManager::GetTextBoundingBox (std::vector<int> &characters, TextSty
 			auto &glyph = glyphCache
 				[style.fontFamily]
 				[style.fontSize]
-				[style.color]
 				[style.decoration]
 				[style.outline]
 				[character];
@@ -524,6 +611,10 @@ Rectangle TextManager::GetTextBoundingBox (std::vector<int> &characters, TextSty
 			lineWidth += glyph.advanceX;
 		}
 	}
+
+	// Test width of last line
+	if (bbox.width < lineWidth)
+		bbox.width = lineWidth;
 
 	return bbox;
 }
@@ -538,7 +629,6 @@ std::vector<Rectangle> TextManager::GetLinesBoundingBox (
 		auto &atlas = fontsAtlas
 			[style.fontFamily]
 			[style.fontSize]
-			[style.color]
 			[style.decoration]
 			[style.outline];
 
@@ -558,7 +648,6 @@ std::vector<Rectangle> TextManager::GetLinesBoundingBox (
 			auto &glyph = glyphCache
 				[style.fontFamily]
 				[style.fontSize]
-				[style.color]
 				[style.decoration]
 				[style.outline]
 				[character];
@@ -578,60 +667,117 @@ std::vector<int> TextManager::WrapText (std::vector<int> text, TextStyle style)
 	std::vector<int> wrappedText;
 	std::vector<int> word;
 	int width = 0;
+	bool previouslyBlank = false;
 
-	bool previouslySpace = false;
+	std::vector<int> nonWordCharacters {' ', '\t', '-'};
+	std::vector<int> blankCharacters {' ', '\t'};
 
-	for (auto character : text) {
+	auto &glyphData = glyphCache
+		[style.fontFamily]
+		[style.fontSize]
+		[style.decoration]
+		[style.outline];
+
+	for (size_t i = 0; i < text.size(); i++) {
+		int character = text[i];
+
 		// Gather characters that form a single word
-		if (character != ' ' && character != '\t') {
+		if (!Contains(nonWordCharacters, character)) {
 			word.emplace_back(character);
-			continue;
+			previouslyBlank = false;
+		} else {
+			if (style.advancedWrap) {
+				// Collapse neighboring blanks into a single one
+				if (Contains(nonWordCharacters, character) && previouslyBlank)
+					continue;
+
+				if (Contains(nonWordCharacters, character))
+					previouslyBlank = true;
+			}
 		}
 
-		auto &glyphData = glyphCache
-			[style.fontFamily]
-			[style.fontSize]
-			[style.color]
-			[style.decoration]
-			[style.outline];
+		// If outside word or done with text
+		if (Contains(nonWordCharacters, character) || (i == text.size() - 1)) {
+			// If We reach the wrap width, add a new line
+			int wordWidth = 0;
+			for (int c : word)
+				wordWidth += glyphData[c].advanceX;
 
-		/*
-		if (style.advancedWrap) {
-			// Collapse neighboring spaces into a single one
-			if (character == ' ' && previouslySpace)
-				continue;
+			if ((wordWidth + width) > style.wrapWidth) {
+				wrappedText.emplace_back('\n');
+				width = 0;
 
-			if (character == ' ')
-				previouslySpace = true;
-			else
-				previouslySpace = false;
+				// If advanced wrap is on, break word if still larger than
+				// wrap width
+				if (style.advancedWrap && wordWidth > style.wrapWidth) {
+					wordWidth = 0;
+					std::vector<int> brokenWord;
+					for (int c : word) {
+						brokenWord.emplace_back(c);
+						wordWidth += glyphData[c].advanceX;
 
-			// Remove white spaces at the beginning of lines
+						if (wordWidth > style.wrapWidth) {
+							brokenWord.emplace_back('\n');
+							wordWidth = 0;
+						}
+					}
+					
+					word = brokenWord;
+				}
+			}
 
-			// Remove white spaces at the end of lines
+			// Insert word into wrapped text
+			wrappedText.insert(wrappedText.end(), word.begin(), word.end());
+			width += wordWidth;
+			word.clear();
 
-			// Break long words
+			// Add the pending non word character
+			wrappedText.emplace_back(character);
+			width += glyphData[character].advanceX;
 		}
-		*/
-
-		// If We reach the wrap width, add a new line
-		int wordWidth = 0;
-		for (auto& c : word)
-			wordWidth += glyphData[c].advanceX;
-
-		if ((wordWidth + width) > style.wrapWidth) {
-			wrappedText.emplace_back('\n');
-			width = 0;
-		}
-
-		wrappedText.insert(wrappedText.end(), word.begin(), word.end());
-		width += wordWidth;
-		word.clear();
-
-		// Add the pending non word character
-		wrappedText.emplace_back(character);
-		width += glyphData[character].advanceX;
 	}
+
+	if (!style.advancedWrap)
+		return wrappedText;
+
+	// Remove white spaces around newlines (\n)
+	std::vector<int> buffer;
+	std::vector<int> blankBuffer;
+	bool start = true;
+	bool ignore = false;
+	for (int character : wrappedText) {
+		// Ignore characters from start of text
+		if (start) {
+			if (Contains(blankCharacters, character))
+				continue;
+			else
+				start = false;
+		}
+
+		// Ignore all blank that come after a newline
+		if (ignore && Contains(blankCharacters, character))
+			continue;
+
+		// Setup blank ignore
+		if (character == '\n')
+			ignore = true;
+		else
+			ignore = false;
+
+		// BACK
+		if (Contains(blankCharacters, character)) {
+			blankBuffer.emplace_back(character);
+		} else if (character == '\n') {
+			blankBuffer.clear();
+			buffer.emplace_back(character);
+		} else {
+			buffer.insert(buffer.end(), blankBuffer.begin(), blankBuffer.end());
+			blankBuffer.clear();
+			buffer.emplace_back(character);
+		}
+	}
+
+	wrappedText = buffer;
 
 	return wrappedText;
 }
