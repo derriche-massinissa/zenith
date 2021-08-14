@@ -453,7 +453,9 @@ public:
 	template <typename... Args>
 	bool emit (std::string eventName_, Args&&... args_)
 	{
-		return emit(entt::null, eventName_, std::forward<Args>(args_)...);
+		// Cast `entt::null` to `Entity` to remove ambiguity (Otherwise it could
+		// be converted to std::string)
+		return emit((Entity)entt::null, eventName_, std::forward<Args>(args_)...);
 	}
 
 	/**
