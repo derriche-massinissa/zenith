@@ -5,43 +5,160 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-//#include "../text.hpp"
+#include "../text.hpp"
 
 #include <vector>
 #include "../../utils/assert.hpp"
-#include "../../components/actor.hpp"
-#include "../../components/update.hpp"
+#include "../../utils/messages.hpp"
+#include "../../components/text.hpp"
+#include "../../text/text_manager.hpp"
 
 namespace Zen {
 
 extern entt::registry g_registry;
+extern TextManager g_text;
 
-void SetScene (Entity entity, Entity scene)
+bool IsText (Entity entity)
 {
-	auto [actor, update] = g_registry.try_get<Components::Actor, Components::Update<Components::Actor>>(entity);
-	ZEN_ASSERT(actor, "The entity has no 'Actor' component.");
-
-	actor->scene = scene;
-
-	if (update)
-		update->update(entity);
+	return g_registry.has<Components::Text>(entity);
 }
 
-void f (std::string& text, std::vector<int>& characters)
+void SetText (Entity entity, std::string content)
 {
-	characters.clear();
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
 
-	int cplen = 1;
-	for (size_t i = 0; i < text.length();)
-	{
-		cplen = 1;
-		if ((text[i] & 0x78) == 0xf0)
-			cplen = 4;
-		else if ((text[i] & 0xf0) == 0xe0)
-			cplen = 3;
-		else if ((text[i] & 0xe0) == 0xc0)
-			cplen = 2;
+	text->text = content;
+
+	g_text.scanText(entity);
+}
+
+void SetTextStyle (Entity entity, TextStyle style)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style = style;
+}
+
+void SetFontFamily(Entity entity, std::string fontFamily)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.fontFamily = fontFamily;
+}
+
+void SetTextColor (Entity entity, int color)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.color = color;
+}
+
+void SetFontSize (Entity entity, int size)
+{
+	if (size <= 0) {
+		MessageError("Font size should be larger than zero");
+		return;
 	}
+
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.fontSize = size;
+}
+
+void SetTextDecoration (Entity entity, TEXT_DECORATION decoration)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.decoration = decoration;
+}
+
+void SetTextOutline (Entity entity, int outlineWidth)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.outline = outlineWidth;
+}
+
+void SetTextPadding (Entity entity, int padding)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.paddingTop = padding;
+	text->style.paddingBottom = padding;
+	text->style.paddingLeft = padding;
+	text->style.paddingRight = padding;
+}
+
+void SetTextPaddingTop (Entity entity, int padding)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.paddingTop = padding;
+}
+
+void SetTextPaddingBottom (Entity entity, int padding)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.paddingBottom = padding;
+}
+
+void SetTextPaddingLeft (Entity entity, int padding)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.paddingLeft = padding;
+}
+
+void SetTextPaddingRight (Entity entity, int padding)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.paddingRight = padding;
+}
+
+void SetTextWrapWidth (Entity entity, int width)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.wrapWidth = width;
+}
+
+void SetTextAdvancedWrap (Entity entity, bool advanced)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.advancedWrap = advanced;
+}
+
+void SetTextAlign (Entity entity, TEXT_ALIGNMENT alignment)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.alignment = alignment;
+}
+
+void SetTextBackgroundColor (Entity entity, int color)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	text->style.backgroundColor = color;
 }
 
 }	// namespace Zen

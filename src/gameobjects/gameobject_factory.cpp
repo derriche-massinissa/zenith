@@ -27,9 +27,11 @@
 #include "../components/renderable.hpp"
 #include "../components/actor.hpp"
 #include "../components/crop.hpp"
+#include "../components/text.hpp"
 #include "../systems/size.hpp"
 #include "../systems/origin.hpp"
 #include "../systems/textured.hpp"
+#include "../systems/text.hpp"
 
 namespace Zen {
 
@@ -83,5 +85,54 @@ Entity GameObjectFactory::image (double x, double y, std::string key, std::strin
 
 	return img;
 }
+
+Entity GameObjectFactory::text (double x, double y, std::string text, TextStyle style)
+{
+	auto txt = g_registry.create();
+
+	g_registry.emplace<Components::Text>(txt);
+
+	// Just like an image, but the texture/frame is generated from the text
+	g_registry.emplace<Components::Alpha>(txt);
+	g_registry.emplace<Components::BlendMode>(txt);
+	g_registry.emplace<Components::Depth>(txt);
+	g_registry.emplace<Components::Flip>(txt);
+	g_registry.emplace<Components::Bounds>(txt);
+	g_registry.emplace<Components::Mask>(txt);
+	g_registry.emplace<Components::Origin>(txt);
+	g_registry.emplace<Components::ScrollFactor>(txt);
+	g_registry.emplace<Components::Size>(txt);
+	g_registry.emplace<Components::Textured>(txt);
+	g_registry.emplace<Components::Tint>(txt);
+	g_registry.emplace<Components::Position>(txt, x, y);
+	g_registry.emplace<Components::Rotation>(txt);
+	g_registry.emplace<Components::Scale>(txt);
+	g_registry.emplace<Components::Visible>(txt);
+	g_registry.emplace<Components::Renderable>(txt);
+	g_registry.emplace<Components::Actor>(txt);
+
+	// Generate texture
+	SetTextStyle(txt, style);
+	SetText(txt, text);
+
+	scene->children.add(txt);
+
+	return txt;
+}
+
+Entity GameObjectFactory::text (double x, double y, std::vector<std::string> lines,
+		TextStyle style)
+{
+	std::string txt = lines[0];
+
+	// Join all the lines, separating them with a new line
+	for (size_t i = 1; i < lines.size(); i++) {
+		txt += '\n';
+		txt += lines[i];
+	}
+
+	return text(x, y, txt, style);
+}
+
 
 }	//namespace Zen

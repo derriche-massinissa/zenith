@@ -18,10 +18,12 @@ extern entt::registry g_registry;
 bool WillRender (Entity entity, Entity camera)
 {
 	auto renderable = g_registry.try_get<Components::Renderable>(entity);
-	ZEN_ASSERT(renderable, "The entity has no 'Renderable' component.");
+	if (!renderable)
+		return false;
 
 	auto id = g_registry.try_get<Components::Id>(camera);
-	ZEN_ASSERT(id, "The entity has no 'Renderable' component.");
+	if (!id)
+		return false;
 
 	return !(
 		0b1111 != renderable->flags ||

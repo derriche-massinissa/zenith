@@ -47,7 +47,7 @@ public:
 	void boot (GameConfig *config_);
 
 	/**
-	 * Checks the given texture key and to see if it is already in use.
+	 * Checks the given texture key to see if it is already in use.
 	 *
 	 * @since 0.0.0
 	 *

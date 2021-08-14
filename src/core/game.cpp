@@ -20,6 +20,7 @@
 #include "../input/mouse/mouse_manager.hpp"
 #include "../input/keyboard/keyboard_manager.hpp"
 #include "../audio/audio_manager.hpp"
+#include "../text/text_manager.hpp"
 
 namespace Zen {
 
@@ -36,6 +37,7 @@ MouseManager g_mouse;
 KeyboardManager g_keyboard;
 AudioManager g_audio;
 SceneManager g_scene;
+TextManager g_text;
 
 Game::Game (GameConfig& config_)
 	: config (config_)
@@ -74,6 +76,8 @@ void Game::boot ()
 	g_scene.boot(&config.sceneFactory);
 
 	g_input.boot(&config);
+
+	g_text.boot();
 
 	if (config.inputMouse)
 		g_mouse.boot();

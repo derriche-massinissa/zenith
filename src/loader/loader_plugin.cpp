@@ -20,11 +20,13 @@
 #include "../core/config.hpp"
 #include "../audio/audio_manager.hpp"
 #include "../input/input_manager.hpp"
+#include "../text/text_manager.hpp"
 
 namespace Zen {
 
 extern GameConfig *g_config;
 extern AudioManager g_audio;
+extern TextManager g_text;
 extern InputManager g_input;
 extern TextureManager g_texture;
 extern SceneManager g_scene;
@@ -140,11 +142,11 @@ LoaderPlugin& LoaderPlugin::audioStream (std::string key_, std::string path_)
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::font ([[maybe_unused]]std::string key_, std::string path_)
+LoaderPlugin& LoaderPlugin::font (std::string key_, std::string path_)
 {
 	path_ = path + path_;
 
-	MessageWarning("Fonts and text are not yet implemented!");
+	g_text.addFont(key_, path_);
 
 	return *this;
 }

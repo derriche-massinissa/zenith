@@ -9,6 +9,7 @@
 #define ZEN_COMPONENTS_TEXT_HPP
 
 #include "../ecs/entity.hpp"
+#include "../text/text_style.hpp"
 #include <string>
 #include <SDL2/SDL_ttf.h>
 
@@ -17,37 +18,20 @@ namespace Components {
 
 struct Text
 {
+	/**
+	 * The text content of this text object.
+	 *
+	 * @since 0.0.0
+	 */
 	std::string text;
 
-	std::string font;
-
-	int size = 12;
-
-	int color = 0xffffff;
-
-	int style = TTF_STYLE_NORMAL;
-
-	int outline = 0;
-
-	int hinting = TTF_HINTING_NORMAL;
-
-	int kerning = 1;
-
 	/**
-	 * The render mode of this text.
-	 * 0. Solid: Indexed, dirty, fast render, fast blit.
-	 * 1. Shaded: Indexed, nice, slow render, fast blit, __no transparency__.
-	 * 2. Blended: ARGB, very nice, slow render, slow blit.
+	 * Style configuration of the text to use when rendering it, such as its
+	 * color, line spacing, kerning, font family...
+	 *
+	 * @since 0.0.0
 	 */
-	int mode = 2;
-
-	double lineSpacing = 0;
-
-	double paddingTop, paddingLeft, paddingBottom, paddingRight;
-
-	bool wrap = false;
-
-	double horizontalBound = 0;
+	TextStyle style;
 };
 
 }	// namespace Components

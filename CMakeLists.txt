@@ -23,8 +23,27 @@ project(
 	LANGUAGES CXX
 	)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FT REQUIRED freetype2)
+
 # Source files
 set(zenith_SRCS
+	src/tweens/tween/tween.cpp
+	src/tweens/tween_manager.cpp
+
+
+
+
+
+	src/text/text_manager.cpp
+	src/systems/sources/text.cpp
+
+
+
+
+
+
+
 	src/tweens/easing.cpp
 
 	src/math/easing/linear/linear.cpp
@@ -63,8 +82,6 @@ set(zenith_SRCS
 	src/math/easing/quintic/in_out.cpp
 	src/math/easing/sine/in_out.cpp
 
-	src/tweens/tween/tween.cpp
-	src/tweens/tween_manager.cpp
 
 
 
@@ -202,11 +219,13 @@ set_target_properties(${PROJECT_NAME}
 # External includes
 target_include_directories(${PROJECT_NAME} PRIVATE
 	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/includes"
+	${FT_INCLUDE_DIRS}
 	)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
 	"${CMAKE_SOURCE_DIR}/lib/libvorbisfile.so"
 	"${CMAKE_SOURCE_DIR}/lib/libopenal.so"
+	${FT_LIBRARIES}
 	)
 
 # External includes

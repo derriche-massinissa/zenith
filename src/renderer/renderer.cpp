@@ -36,17 +36,20 @@
 #include "../systems/scroll.hpp"
 #include "../systems/tint.hpp"
 #include "../systems/blend_mode.hpp"
+#include "../systems/text.hpp"
 #include "../display/color.hpp"
 #include "../texture/systems/frame.hpp"
 #include "../texture/components/frame.hpp"
 #include "../texture/components/source.hpp"
 #include "../cameras/2d/systems/camera.hpp"
+#include "../text/text_manager.hpp"
 
 namespace Zen {
 
 extern entt::registry g_registry;
 extern Window g_window;
 extern ScaleManager g_scale;
+extern TextManager g_text;
 
 Renderer::~Renderer ()
 {
@@ -261,6 +264,13 @@ void Renderer::render (
 	// Render the GameObject
 	for (auto& child_ : children_)
 	{
+		// !!! TEXT LAB !!!
+		if (IsText(child_)) {
+			g_text.render(child_);
+			continue;
+		}
+		// !!! TEXT LAB !!!
+
 		AddToRenderList(camera_, child_);
 
 		if (child_ != entt::null && GetFrame(child_) != entt::null)

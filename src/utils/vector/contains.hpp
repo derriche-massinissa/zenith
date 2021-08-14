@@ -14,7 +14,7 @@
 namespace Zen {
 
 /**
- * Takes in a vector and an item, and returns true if the item is cotained
+ * Takes in a vector and an item, and returns true if the item is contained
  * inside the vector.
  *
  * @since 0.0.0
