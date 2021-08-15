@@ -65,6 +65,15 @@ void SetTextAlign (Entity text, TEXT_ALIGNMENT alignment);
  */
 void SetTextBackgroundColor (Entity text, int color = -1);
 
+// Getters
+
+/**
+ * @since 0.0.0
+ *
+ * @param text The text entity to get the value from.
+ */
+std::string GetText(Entity text);
+
 }
 
 #endif

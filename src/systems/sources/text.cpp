@@ -161,4 +161,12 @@ void SetTextBackgroundColor (Entity entity, int color)
 	text->style.backgroundColor = color;
 }
 
+std::string GetText(Entity entity)
+{
+	auto text = g_registry.try_get<Components::Text>(entity);
+	ZEN_ASSERT(text, "The entity has no 'Text' component");
+
+	return text->text;
+}
+
 }	// namespace Zen
