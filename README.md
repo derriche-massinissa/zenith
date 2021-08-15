@@ -38,3 +38,4 @@
 * [OpenAL Soft](https://github.com/kcat/openal-soft) : 3D Audio API
 * [entt](https://github.com/skypjack/entt) : A fast and reliable entity component system (ECS)
 * [JSON for Modern C++](https://github.com/nlohmann/json) : A C++ library for JSON support
+* [FreeType 2](https://www.freetype.org/) : A freely available software library to render fonts.
