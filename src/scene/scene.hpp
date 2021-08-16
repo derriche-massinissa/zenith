@@ -27,10 +27,9 @@
 #include "../input/input_plugin.hpp"
 #include "../audio/audio_manager.hpp"
 #include "../tweens/tween_manager.hpp"
+#include "../window/window.hpp"
 
 namespace Zen {
-
-class AudioManager;
 
 /**
  * A base Scene class which can be extended for your own use.
@@ -75,10 +74,16 @@ public:
 	//Data::DataManager& registry;
 
 	/**
+	 * A reference to the window instance.
+	 *
+	 * @since 0.0.0
+	 */
+	Window& window;
+
+	/**
 	 * A reference to the game Audio Manager.
 	 *
 	 * @since 0.0.0
-	 * @todo TODO
 	 */
 	AudioManager& audio;
 

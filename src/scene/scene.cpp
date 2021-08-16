@@ -13,9 +13,11 @@ extern TextureManager g_texture;
 extern ScaleManager g_scale;
 extern Renderer g_renderer;
 extern AudioManager g_audio;
+extern Window g_window;
 
 Scene::Scene (std::string key)
 	: sys (this, key)
+	, window (g_window)
 	, audio (g_audio)
 	, textures (g_texture)
 	, cameras (this)

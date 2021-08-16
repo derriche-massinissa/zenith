@@ -216,6 +216,16 @@ public:
 	Window& setFullscreen (bool flag_ = true);
 
 	/**
+	 * Make the window go fullscreen or into windowed mode, depending on the
+	 * current state.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @return This window instance.
+	 */
+	Window& toggleFullscreen ();
+
+	/**
 	 * Sets the minimum size this window can be resized to. Use with no parameter
 	 * to remove the limit.
 	 *
@@ -294,6 +304,13 @@ public:
 	 * @since 0.0.0
 	 */
 	bool pointerIn = false;
+
+	/**
+	 * Is the window in fullscreen mode?
+	 *
+	 * @since 0.0.0
+	 */
+	bool fullscreen = false;
 };
 
 /**

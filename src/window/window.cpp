@@ -275,12 +275,37 @@ Window& Window::setTitle (const char* title_)
 
 Window& Window::setFullscreen (bool flag_)
 {
-	if (flag_)
+	constexpr int DISPLAY = 0;
+
+	static int posX, posY;
+
+	// Update the flag
+	fullscreen = flag_;
+
+	if (fullscreen) { // Go from windowed to fullscreen
+		// Save position of window
+		SDL_GetWindowPosition(window, &posX, &posY);
+
+		// Get and save dimensions from real display
+		SDL_DisplayMode mode;
+		SDL_GetCurrentDisplayMode(DISPLAY, &mode);
 		SDL_SetWindowFullscreen(window, SDL_TRUE);
-	else
+
+		SDL_SetWindowDisplayMode(window, &mode);
+	}
+	else { // Go from fullscreen to windowed
 		SDL_SetWindowFullscreen(window, SDL_FALSE);
 
+		// Restore position of window
+		SDL_SetWindowPosition(window, posX, posY);
+	}
+
 	return *this;
+}
+
+Window& Window::toggleFullscreen ()
+{
+	return setFullscreen(!fullscreen);
 }
 
 Window& Window::setMinSize (int width_, int height_)
