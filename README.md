@@ -29,8 +29,10 @@
 
 ## Plans
 
-* Add 2D physics with Box2D
 * Animation system
+* Add 2D physics with Box2D
+* Asynchronous resource loader
+* OpenGL / Shaderss
 
 ## Dependencies
 
