@@ -223,6 +223,10 @@ void InputManager::setCursor (std::string cursor_)
 			else if (cursor_ == "_hand")
 				createSystemCursor("_hand", SDL_SYSTEM_CURSOR_HAND);
 		}
+		else if (cursor_.empty())
+		{
+			createSystemCursor("", SDL_SYSTEM_CURSOR_ARROW);
+		}
 		else
 		{
 			MessageError("There are no cursors with the requested key: ", cursor_);

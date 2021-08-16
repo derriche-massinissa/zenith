@@ -37,4 +37,28 @@ Components::Input* GetInput (Entity entity)
 	return input;
 }
 
+void SetCursor (Entity entity, std::string cursor)
+{
+	auto input = g_registry.try_get<Components::Input>(entity);
+	ZEN_ASSERT(input, "The entity has no 'Input' component.");
+
+	input->cursor = cursor;
+}
+
+void ResetCursor (Entity entity)
+{
+	auto input = g_registry.try_get<Components::Input>(entity);
+	ZEN_ASSERT(input, "The entity has no 'Input' component.");
+
+	input->cursor.clear();
+}
+
+std::string GetCursor (Entity entity)
+{
+	auto input = g_registry.try_get<Components::Input>(entity);
+	ZEN_ASSERT(input, "The entity has no 'Input' component.");
+
+	return input->cursor;
+}
+
 }	// namespace Zen
