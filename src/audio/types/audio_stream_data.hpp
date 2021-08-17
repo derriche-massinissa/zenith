@@ -9,7 +9,7 @@
 #define ZEN_AUDIO_TYPES_AUDIOSTREAMDATA_HPP
 
 #define ZEN_AUDIO_STREAM_BUFFERS_NUM 4
-#define ZEN_AUDIO_STREAM_BUFFERS_SIZE 4096
+#define ZEN_AUDIO_STREAM_BUFFERS_SIZE 65536 //4096
 //#define ZEN_AUDIO_STREAM_BUFFERS_SIZE 65536
 
 #include <array>
@@ -131,7 +131,19 @@ struct AudioStreamData
 	bool loop = false;
 
 	bool muted = false;
+
 	ALfloat volume = 1.f;
+
+	/**
+	 * A flag to indicate that this stream was just set up and already has buffers
+	 * with data about the start of the audio file.
+	 *
+	 * This is used to block ONCE the rewind function that always gets called
+	 * when playing a stream.
+	 *
+	 * @since 0.0.0
+	 */
+	bool justSetup = true;
 };
 
 }	// namespace Zen

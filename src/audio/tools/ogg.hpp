@@ -22,9 +22,6 @@
 #include "../types/audio_buffer.hpp"
 #include "../types/audio_stream_data.hpp"
 
-#define OGG_AL_NUM_BUFFERS 4
-#define OGG_AL_BUFFER_SIZE 65536
-
 namespace Zen {
 
 /**

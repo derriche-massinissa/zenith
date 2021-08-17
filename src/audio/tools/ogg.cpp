@@ -141,22 +141,36 @@ static long int tell_ogg_stream_callback (void *fileHandle)
 
 int setup_stream_ogg (const std::string& filename, AudioStreamData *audioStream)
 {
+	// Open audio file
 	audioStream->filename = filename;
 	audioStream->file.open(filename, std::ios::binary);
-	if (!audioStream->file.is_open())
-	{
+
+	// Check for problems with file
+	if (!audioStream->file.is_open()) {
 		MessageError("Couldn't open file \"", filename, "\"");
+		return -1;
+	} else if (audioStream->file.eof()) {
+		MessageError("Already reached EOF without loading data");
+		return -1;
+	} else if (audioStream->file.fail()) {
+		MessageError("Fail bit set");
+		return -1;
+	} else if (!audioStream->file) {
+		MessageError("File is false");
 		return -1;
 	}
 
+	// Get audio file size (fast forward to end of file to get size)
 	audioStream->file.seekg(0, std::ios_base::beg);
 	audioStream->file.ignore(std::numeric_limits<std::streamsize>::max());
 	audioStream->size = audioStream->file.gcount();
 
+	// Reset position in file
 	audioStream->file.clear();
 	audioStream->file.seekg(0, std::ios_base::beg);
 	audioStream->sizeConsumed = 0;
 
+	// Setup callbacks for vorbis to use
 	ov_callbacks oggCallbacks {
 		.read_func = read_ogg_stream_callback,
 		.seek_func = seek_ogg_stream_callback,
@@ -164,12 +178,14 @@ int setup_stream_ogg (const std::string& filename, AudioStreamData *audioStream)
 		.tell_func = tell_ogg_stream_callback
 	};
 
+	// Open file with vorbis
 	if (ov_open_callbacks(reinterpret_cast<void*>(audioStream), &audioStream->oggVorbisFile, nullptr, -1, oggCallbacks) < 0)
 	{
 		MessageError("Could not ov_open_callbacks");
 		return -1;
 	}
 
+	// Get info about audio file
 	vorbis_info* vorbisInfo = ov_info(&audioStream->oggVorbisFile, -1);
 
 	audioStream->channels = vorbisInfo->channels;
@@ -177,18 +193,26 @@ int setup_stream_ogg (const std::string& filename, AudioStreamData *audioStream)
 	audioStream->sampleRate = vorbisInfo->rate;
 	audioStream->duration = ov_time_total(&audioStream->oggVorbisFile, -1);
 
-	ZEN_AL_CALL(alGenBuffers, ZEN_AUDIO_STREAM_BUFFERS_NUM, &audioStream->buffers[0]);
-
-	if (audioStream->file.eof()) {
-		MessageError("Already reached EOF without loading data");
-		return false;
-	} else if (audioStream->file.fail()) {
-		MessageError("Fail bit set");
-		return false;
-	} else if (!audioStream->file) {
-		MessageError("File is false");
-		return false;
+	// Get audio format
+	if (audioStream->channels == 1 && audioStream->bitsPerSample == 8)
+		audioStream->format = AL_FORMAT_MONO8;
+	else if (audioStream->channels == 1 && audioStream->bitsPerSample == 16)
+		audioStream->format = AL_FORMAT_MONO16;
+	else if (audioStream->channels == 2 && audioStream->bitsPerSample == 8)
+		audioStream->format = AL_FORMAT_STEREO8;
+	else if (audioStream->channels == 2 && audioStream->bitsPerSample == 16)
+		audioStream->format = AL_FORMAT_STEREO16;
+	else {
+		MessageError("Unrecognized ogg format: ",
+				audioStream->channels, " channels, ",
+				audioStream->bitsPerSample, " bps");
+		return -1;
 	}
+
+	// Generate initial data to get the stream started
+
+	// Generate buffers
+	ZEN_AL_CALL(alGenBuffers, ZEN_AUDIO_STREAM_BUFFERS_NUM, &audioStream->buffers[0]);
 
 	std::array<char, ZEN_AUDIO_STREAM_BUFFERS_SIZE> data;
 
@@ -206,45 +230,37 @@ int setup_stream_ogg (const std::string& filename, AudioStreamData *audioStream)
 					&audioStream->oggCurrentSection);
 
 			if (result == OV_HOLE) {
-				MessageError("OV_HOLE found in initial read of buffer ", (int)i);
+				MessageError("AUDIO: OV_HOLE found in initial read of buffer ",
+						(int)i);
 				break;
 			}
 			else if (result == OV_EBADLINK) {
-				MessageError("OV_EBADLINK found in initial read of buffer ", (int)i);
+				MessageError("AUDIO: OV_EBADLINK found in initial read of buffer ",
+						(int)i);
 				break;
 			}
 			else if (result == OV_EINVAL) {
-				MessageError("OV_EINVAL found in initial read of buffer ", (int)i);
-				MessageNote("Make sure the buffer size is a multiple of 4 (Preferably 4096)");
+				MessageError("AUDIO: OV_EINVAL found in initial read of buffer ",
+						(int)i);
+				MessageNote("AUDIO: Make sure the buffer size is a multiple of 4");
 				break;
 			}
 			else if (result == 0) {
-				MessageError("EOF found in initial read of buffer ", (int)i);
+				MessageError("AUDIO: EOF found in initial read of buffer ", (int)i);
 				break;
 			}
 
 			dataSoFar += result;
 		}
 
-		if (audioStream->channels == 1 && audioStream->bitsPerSample == 8)
-			audioStream->format = AL_FORMAT_MONO8;
-		else if (audioStream->channels == 1 && audioStream->bitsPerSample == 16)
-			audioStream->format = AL_FORMAT_MONO16;
-		else if (audioStream->channels == 2 && audioStream->bitsPerSample == 8)
-			audioStream->format = AL_FORMAT_STEREO8;
-		else if (audioStream->channels == 2 && audioStream->bitsPerSample == 16)
-			audioStream->format = AL_FORMAT_STEREO16;
-		else {
-			MessageError("Unrecognized ogg format: ",
-					audioStream->channels, " channels, ",
-					audioStream->bitsPerSample, " bps");
-			return -1;
-		}
-
-		ZEN_AL_CALL(alBufferData, audioStream->buffers[i], audioStream->format, data.data(), dataSoFar, audioStream->sampleRate);
+		// Copy data to buffers
+		ZEN_AL_CALL(alBufferData, audioStream->buffers[i], audioStream->format,
+				data.data(), dataSoFar, audioStream->sampleRate);
 	}
 
-	ZEN_AL_CALL(alSourceQueueBuffers, audioStream->source, ZEN_AUDIO_STREAM_BUFFERS_NUM, &audioStream->buffers[0]);
+	// Queue buffers on source
+	ZEN_AL_CALL(alSourceQueueBuffers, audioStream->source,
+			ZEN_AUDIO_STREAM_BUFFERS_NUM, &audioStream->buffers[0]);
 
 	return 0;
 }
@@ -265,7 +281,7 @@ int update_stream_ogg (AudioStreamData *audioStream)
 	while (buffersProcessed--)
 	{
 		std::array<char, ZEN_AUDIO_STREAM_BUFFERS_SIZE> data;
-		std::memset(data.data(), 0, ZEN_AUDIO_STREAM_BUFFERS_SIZE);
+		//std::memset(data.data(), 0, ZEN_AUDIO_STREAM_BUFFERS_SIZE);
 
 		ALsizei dataSizeToBuffer = 0;
 		std::int32_t sizeRead = 0;
@@ -280,15 +296,15 @@ int update_stream_ogg (AudioStreamData *audioStream)
 					&audioStream->oggCurrentSection);
 
 			if (result == OV_HOLE) {
-				MessageError("OV_HOLE found in update of buffer");
+				MessageError("AUDIO: OV_HOLE found in update of buffer");
 				break;
 			}
 			else if (result == OV_EBADLINK) {
-				MessageError("OV_EBADLINK found in update of buffer");
+				MessageError("AUDIO: OV_EBADLINK found in update of buffer");
 				break;
 			}
 			else if (result == OV_EINVAL) {
-				MessageError("OV_EINVAL found in update of buffer");
+				MessageError("AUDIO: OV_EINVAL found in update of buffer");
 				break;
 			}
 			else if (result == 0) {
@@ -348,10 +364,11 @@ int update_stream_ogg (AudioStreamData *audioStream)
 			ALuint buffer;
 			ZEN_AL_CALL(alSourceUnqueueBuffers, audioStream->source, 1, &buffer);
 
-			// Write data to it
-			ZEN_AL_CALL(alBufferData, buffer, audioStream->format, data.data(), dataSizeToBuffer, audioStream->sampleRate);
+			// Write data to buffer
+			ZEN_AL_CALL(alBufferData, buffer, audioStream->format, data.data(),
+					dataSizeToBuffer, audioStream->sampleRate);
 
-			// Requeue it to the front, making UNPROCESSED again
+			// Requeue buffer to the front, making it UNPROCESSED again
 			ZEN_AL_CALL(alSourceQueueBuffers, audioStream->source, 1, &buffer);
 		}
 	}
@@ -488,38 +505,43 @@ int load_ogg (const std::string& filename, AudioBuffer *audioBuffer)
 
 int rewind_stream_ogg (AudioStreamData *audioStream)
 {
-	// Stop the source
-	ZEN_AL_CALL(alSourceStop, audioStream->source);
+	if (!audioStream->justSetup) {
+		// Stop the source and unque all buffers
+		ZEN_AL_CALL(alSourceStop, audioStream->source);
 
-	// Rewind the OGG file
-	std::int32_t seekResult =
-		ov_raw_seek(&audioStream->oggVorbisFile, 0);
+		// Rewind the OGG file
+		std::int32_t seekResult =
+			ov_raw_seek(&audioStream->oggVorbisFile, 0);
 
-	switch (seekResult)
-	{
-		case OV_ENOSEEK:
-			MessageError("OV_ENOSEEK found when trying to rewind");
-			break;
-		case OV_EINVAL:
-			MessageError("OV_EINVAL found when trying to rewind");
-			break;
-		case OV_EREAD:
-			MessageError("OV_EREAD found when trying to rewind");
-			break;
-		case OV_EFAULT:
-			MessageError("OV_EFAULT found when trying to rewind");
-			break;
-		case OV_EOF:
-			MessageError("OV_EOF found when trying to rewind");
-			break;
-		case OV_EBADLINK:
-			MessageError("OV_EBADLINK found when trying to rewind");
-			break;
+		switch (seekResult)
+		{
+			case OV_ENOSEEK:
+				MessageError("OV_ENOSEEK found when trying to rewind");
+				break;
+			case OV_EINVAL:
+				MessageError("OV_EINVAL found when trying to rewind");
+				break;
+			case OV_EREAD:
+				MessageError("OV_EREAD found when trying to rewind");
+				break;
+			case OV_EFAULT:
+				MessageError("OV_EFAULT found when trying to rewind");
+				break;
+			case OV_EOF:
+				MessageError("OV_EOF found when trying to rewind");
+				break;
+			case OV_EBADLINK:
+				MessageError("OV_EBADLINK found when trying to rewind");
+				break;
 
-		if (seekResult != 0) {
-			MessageError("Unknown error in ov_raw_seek");
-			return -1;
+			if (seekResult != 0) {
+				MessageError("Unknown error in ov_raw_seek");
+				return -1;
+			}
 		}
+	}
+	else {
+		audioStream->justSetup = false;
 	}
 
 	update_stream_ogg(audioStream);

@@ -362,7 +362,7 @@ void AudioManager::onWindowFocus ()
 {
 }
 
-void AudioManager::update (Uint32 time_, Uint32 delta_)
+void AudioManager::update ([[maybe_unused]] Uint32 time_, [[maybe_unused]] Uint32 delta_)
 {
 	auto streamsView_ = g_registry.view<Components::AudioStream>();
 
