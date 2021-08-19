@@ -28,6 +28,7 @@
 #include "../audio/audio_manager.hpp"
 #include "../tweens/tween_manager.hpp"
 #include "../window/window.hpp"
+#include "../renderer/renderer.hpp"
 
 namespace Zen {
 
