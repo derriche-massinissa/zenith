@@ -111,7 +111,7 @@ int TextManager::scanText (Entity text_)
 	std::vector<int> wrappedText;
 	if (text->style.wrapWidth > 0) {
 		wrappedText = WrapText(charactersCodes, text->style);
-		text->text = std::string(wrappedText.begin(), wrappedText.end());
+		text->content = std::string(wrappedText.begin(), wrappedText.end());
 	} else {
 		wrappedText = charactersCodes;
 	}
@@ -318,7 +318,7 @@ void TextManager::render (Entity textEntity, Entity camera)
 		);
 
 	// Convert all characters to unicodes
-	std::vector<int> characters = StringToUnicodes(text->text);
+	std::vector<int> characters = StringToUnicodes(text->content);
 
 	// Get the bounding box of each lines of this text object
 	std::vector<Rectangle> bboxes = GetLinesBoundingBox(characters, text->style);
@@ -736,8 +736,10 @@ std::vector<int> TextManager::WrapText (std::vector<int> text, TextStyle style)
 			wrappedText.insert(wrappedText.end(), word.begin(), word.end());
 			width += wordWidth;
 			word.clear();
+		}
 
-			// Add the pending non word character
+		// Add the pending non word character if any
+		if (Contains(nonWordCharacters, character)) {
 			wrappedText.emplace_back(character);
 			width += glyphData[character].advanceX;
 		}
