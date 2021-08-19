@@ -19,11 +19,21 @@ namespace Components {
 struct Text
 {
 	/**
-	 * The text content of this text object.
+	 * The text content of this text object. As set by the user.
 	 *
 	 * @since 0.0.0
 	 */
 	std::string text;
+
+	/**
+	 * DO NOT EDIT, work with the `text` property instead.
+	 *
+	 * The text content of this text object. Formated and arranged for caching
+	 * purposes for things like text wrapping and so on...
+	 *
+	 * @since 0.0.0
+	 */
+	std::string content;
 
 	/**
 	 * Style configuration of the text to use when rendering it, such as its
