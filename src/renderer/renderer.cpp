@@ -633,10 +633,11 @@ void Renderer::batchSprite (
 
 	if (!frameCheat___.rotated) {
 		ApplyITRS(&spriteMatrix_,
-			GetX(sprite_) + x_, GetY(sprite_) + y_,
+			GetX(sprite_), GetY(sprite_),
 			GetRotation(sprite_),
 			GetScaleX(sprite_), GetScaleY(sprite_)
 		);
+		Translate(&spriteMatrix_, x_, y_);
 	}
 	else {
 		ApplyITRS(&spriteMatrix_,
