@@ -45,19 +45,45 @@ void SetTextPaddingBottom (Entity text, int padding);
 void SetTextPaddingLeft (Entity text, int padding);
 void SetTextPaddingRight (Entity text, int padding);
 
-void SetTextWrap (Entity text, bool wrap);
-
 /**
+ * Set the maximum width of a text entity before it's content gets wrapped. Set
+ * to 0 or less to disable text wrapping.
+ *
  * @since 0.0.0
  *
  * @param text The text entity to modify.
- * @param bound The maximum width of this text object in pixels. 0 is unbounded.
+ * @param width The wrap width.
  */
-void SetTextHorizontalBound (Entity text, int bound = 0);
+void SetTextWrapWidth (Entity text, int width);
 
+/**
+ * Should advanced wrap be used for this text entity? Advanced wrap does
+ * the following:
+ * - Break words that are too long to fit on a single wrap line
+ * - Removes whitespaces at the beginning and end of each line
+ * - Collapses neighboring spaces into one
+ *
+ * @since 0.0.0
+ *
+ * @param text The text entity to modify.
+ * @param advanced Flag to set advanced wrap to.
+ */
+void SetTextAdvancedWrap (Entity entity, bool advanced);
+
+/**
+ * How should this text entity be aligned? Can be one of TEXT_ALIGNMENT
+ * possible values.
+ *
+ * @since 0.0.0
+ *
+ * @param text The text entity to modify.
+ * @param alignment The text alignment type to use.
+ */
 void SetTextAlign (Entity text, TEXT_ALIGNMENT alignment);
 
 /**
+ * TODO
+ * @todo
  * @since 0.0.0
  *
  * @param text The text entity to modify.

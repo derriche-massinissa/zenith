@@ -30,6 +30,7 @@ void SetText (Entity entity, std::string content)
 
 	text->text = content;
 
+	// Update inner properties and cache of the text manager
 	g_text.scanText(entity);
 }
 
@@ -39,6 +40,9 @@ void SetTextStyle (Entity entity, TextStyle style)
 	ZEN_ASSERT(text, "The entity has no 'Text' component");
 
 	text->style = style;
+
+	// Update inner properties and cache of the text manager
+	g_text.scanText(entity);
 }
 
 void SetFontFamily(Entity entity, std::string fontFamily)
@@ -47,6 +51,9 @@ void SetFontFamily(Entity entity, std::string fontFamily)
 	ZEN_ASSERT(text, "The entity has no 'Text' component");
 
 	text->style.fontFamily = fontFamily;
+
+	// Update inner properties and cache of the text manager
+	g_text.scanText(entity);
 }
 
 void SetTextColor (Entity entity, int color)
@@ -68,6 +75,9 @@ void SetFontSize (Entity entity, int size)
 	ZEN_ASSERT(text, "The entity has no 'Text' component");
 
 	text->style.fontSize = size;
+
+	// Update inner properties and cache of the text manager
+	g_text.scanText(entity);
 }
 
 void SetTextDecoration (Entity entity, TEXT_DECORATION decoration)
@@ -135,6 +145,9 @@ void SetTextWrapWidth (Entity entity, int width)
 	ZEN_ASSERT(text, "The entity has no 'Text' component");
 
 	text->style.wrapWidth = width;
+
+	// Update inner properties and cache of the text manager
+	g_text.scanText(entity);
 }
 
 void SetTextAdvancedWrap (Entity entity, bool advanced)
@@ -143,6 +156,9 @@ void SetTextAdvancedWrap (Entity entity, bool advanced)
 	ZEN_ASSERT(text, "The entity has no 'Text' component");
 
 	text->style.advancedWrap = advanced;
+
+	// Update inner properties and cache of the text manager
+	g_text.scanText(entity);
 }
 
 void SetTextAlign (Entity entity, TEXT_ALIGNMENT alignment)
