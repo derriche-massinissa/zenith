@@ -88,11 +88,11 @@ public:
 	double between (double min_, double max_);
 
 	/**
-	 * Returns a random real number between min and max, both inclusive.
+	 * Returns a random real number between 0 and 1.
 	 *
 	 * @since 0.0.0
 	 *
-	 * @return A random number between `min` and `max`.
+	 * @return A random number between 0 and 1.
 	 */
 	double frac ();
 
