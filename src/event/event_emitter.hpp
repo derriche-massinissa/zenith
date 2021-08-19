@@ -12,7 +12,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <queue>
+#include <deque>
 #include <map>
 #include <memory>
 
@@ -146,13 +146,17 @@ private:
 	 * event that already exists in the list, it is added to the list of
 	 * listeners of said event name.
 	 *
+	 * *NOTE*: Changed the vector to deque because the callback list can change
+	 * during the execution of an event, which makes the address of the unique
+	 * pointer to the listener invalid.
+	 *
 	 * @since 0.0.0
 	 */
 	std::map<
 		Entity,
 		std::map<
 			std::string,
-			std::vector<std::unique_ptr<ListenerBase>>
+			std::deque<std::shared_ptr<ListenerBase>>
 		>
 	> eventMap;
 
@@ -412,20 +416,27 @@ public:
 		if (iterator_ == eventMap[entity_].end())
 			return false;
 
+		// Create a copy of the callbacks list to make it same to modify the
+		// original list
+		std::deque<std::shared_ptr<ListenerBase>> callbacks = iterator_->second;
+
+		// Iterator over the original list
+		auto ol_ = iterator_->second.begin();
+
 		// Activate the listeners
-		for (auto l_ = iterator_->second.begin(); l_ != iterator_->second.end();)
+		for (auto l_ = callbacks.begin(); l_ != callbacks.end(); l_++)
 		{
 			static_cast<Listener<Args...>*>(l_->get())->callback(args_...);
 
 			if (l_->get()->once)
 			{
-				iterator_->second.erase(l_);
+				iterator_->second.erase(ol_);
 			}
 			else
 			{
 				// ONLY INCREMENT IF NO ERASE OPERATION HAPPENED!!
 				// ERASING NATURALLY MOVES LATER ELEMENTS HIGHER!!!
-				l_++;
+				ol_++;
 			}
 		}
 
