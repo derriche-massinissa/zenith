@@ -21,7 +21,7 @@ void SetCrop (Entity entity, Rectangle rect);
 
 CropData GetCrop (Entity entity);
 
-void SetTexture (Entity entity, std::string key, std::string frame);
+void SetTexture (Entity entity, std::string key, std::string frame = "__BASE");
 
 void SetFrame (Entity entity, std::string frameName, bool updateSize = true, bool updateOrigin = true);
 
