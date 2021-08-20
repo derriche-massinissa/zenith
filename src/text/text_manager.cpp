@@ -108,16 +108,15 @@ int TextManager::scanText (Entity text_)
 	addGlyphs(newCharacters, text->style);
 
 	// Check and deal with text wrapping
-	std::vector<int> wrappedText;
 	if (text->style.wrapWidth > 0) {
-		wrappedText = WrapText(charactersCodes, text->style);
-		text->content = std::string(wrappedText.begin(), wrappedText.end());
-	} else {
-		wrappedText = charactersCodes;
+		charactersCodes = WrapText(charactersCodes, text->style);
 	}
 
+	// Update the formated text content
+	text->content = std::string(charactersCodes.begin(), charactersCodes.end());
+
 	// Update the text's information (size/bounding box)
-	Rectangle bbox = GetTextBoundingBox(wrappedText, text->style);
+	Rectangle bbox = GetTextBoundingBox(charactersCodes, text->style);
 	SetSize(text_, bbox.width, bbox.height);
 
 	return newCharacters.size();
