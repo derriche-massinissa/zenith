@@ -160,6 +160,8 @@ public:
 
 	Uint32 dragTimeThreshold = 0;
 
+	bool enabled = true;
+
 private:
 	Scene* scene;
 
@@ -188,8 +190,6 @@ private:
 	std::vector<Entity> temp;
 
 	std::vector<int> dragState;
-
-	bool enabled = true;
 
 	InputEvent tempEvent;
 
