@@ -594,8 +594,8 @@ void Renderer::batchSprite (
 	double displayOriginX_ = GetDisplayOriginX(sprite_);
 	double displayOriginY_ = GetDisplayOriginY(sprite_);
 
-	double x_ = (-1. * displayOriginX_) + frameCheat___.data.spriteSourceSize.x;
-	double y_ = (-1. * displayOriginY_) + frameCheat___.data.spriteSourceSize.y;
+	double x_ = (-1. * displayOriginX_);// + frameCheat___.data.spriteSourceSize.x/2;
+	double y_ = (-1. * displayOriginY_);// + frameCheat___.data.spriteSourceSize.y/2;
 
 	if (IsCropped(sprite_))
 	{
@@ -631,21 +631,39 @@ void Renderer::batchSprite (
 	bool flipX_ = GetFlipX(sprite_);
 	bool flipY_ = GetFlipY(sprite_);
 
+
+	double xxx = (frameCheat___.data.spriteSourceSize.width - frameCheat___.data.sourceSize.width) / 2;
+	xxx += frameCheat___.data.spriteSourceSize.x;
+
+	double yyy = (frameCheat___.data.spriteSourceSize.height - frameCheat___.data.sourceSize.height) / 2;
+	yyy += frameCheat___.data.spriteSourceSize.y;
+
+
+
 	if (!frameCheat___.rotated) {
 		ApplyITRS(&spriteMatrix_,
 			GetX(sprite_), GetY(sprite_),
 			GetRotation(sprite_),
 			GetScaleX(sprite_), GetScaleY(sprite_)
 		);
+		x_ -= xxx;
+		y_ -= yyy;
 		Translate(&spriteMatrix_, x_, y_);
 	}
 	else {
 		ApplyITRS(&spriteMatrix_,
-			GetX(sprite_) + x_, GetY(sprite_) + y_ + frameCheat___.height,
+			GetX(sprite_), GetY(sprite_),// + frameCheat___.height,
 			GetRotation(sprite_) + Math::DegToRad(-90),
 			GetScaleX(sprite_), GetScaleY(sprite_)
 		);
+		x_ += xxx;
+		y_ += yyy;
+		Translate(&spriteMatrix_, x_, y_);
+		//Translate(&spriteMatrix_, x_ + frameCheat___.data.spriteSourceSize.x, y_ + frameCheat___.data.spriteSourceSize.y);
+		//Translate(&spriteMatrix_, x_ + frameCheat___.data.spriteSourceSize.x/2, y_ + frameCheat___.data.spriteSourceSize.y/2);
 	}
+
+	// Translate to take origin into account
 
 	/*
 	LoadIdentity(&spriteMatrix_);

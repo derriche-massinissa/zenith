@@ -68,6 +68,11 @@ void SetFrameSize (Entity entity, int width, int height, int x, int y)
 	frame->data.sourceSize.width = width;
 	frame->data.sourceSize.height = height;
 
+	frame->data.spriteSourceSize.x = 0;
+	frame->data.spriteSourceSize.y = 0;
+	frame->data.spriteSourceSize.width = width;
+	frame->data.spriteSourceSize.height = height;
+
 	frame->data.radius = 0.5 * std::sqrt(width * width + height * height);
 
 	frame->data.drawImage.x = x;
