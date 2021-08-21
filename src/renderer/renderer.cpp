@@ -594,8 +594,67 @@ void Renderer::batchSprite (
 	double displayOriginX_ = GetDisplayOriginX(sprite_);
 	double displayOriginY_ = GetDisplayOriginY(sprite_);
 
-	double x_ = (-1. * displayOriginX_);// + frameCheat___.data.spriteSourceSize.x/2;
-	double y_ = (-1. * displayOriginY_);// + frameCheat___.data.spriteSourceSize.y/2;
+	// Position
+	double x_, y_;
+
+	// Sprite rotation
+	double rot_ = GetRotation(sprite_);
+
+	// Is the frame rotated in the texture atlas?
+	if (!frameCheat___.rotated) {
+		x_ = -displayOriginX_ + frameCheat___.data.spriteSourceSize.x;
+		y_ = -displayOriginY_ + frameCheat___.data.spriteSourceSize.y;
+	} else {
+		// Restore frame to upright position
+		rot_ += Math::DegToRad(-90);
+
+		// Invert `x` and `y` axis for origin and invert y axis (No minus for x_)
+		x_ = displayOriginY_;
+		y_ = -displayOriginX_;
+
+		// A trimmed frame has the following metrics:
+		// - Width of frame
+		// - Height of frame
+		// - X position in atlas
+		// - Y position in atlas
+		// - Real dimensions of image before trimming
+		//		- Real width
+		// 		- Real height
+		// - Trimmed empty space
+		//		- Padding Left
+		// 		- Padding Up
+		// 		- Padding Right
+		// 		- Padding Bottom
+
+		// Frame is rotated -90deg on atlas (clockwise)
+		// First we restore it upward by rotating it by -90deg
+		// By doing this, the following happens:
+		// - The originaly trimX or left padding becomes y's padding or top padding
+		// - The originaly paddingV or bottom padding becomes x's padding or
+		//		left padding
+
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// |                                  |                 ^
+		// |                                  |               trimX
+		// |                                  |                 v
+		// |           +--------------+       |              +------+
+		// |           |              |       |              |  R   |
+		// | < trimX > |   Original   |       |              |  o   |
+		// |           |              |       | < paddingB > |  t   |
+		// |           +--------------+       |              |  a   |
+		// |                  ^               |              |  t   |
+		// |               paddingB           |              +------+
+		// |                  v               |
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		double bottomPadding =
+			frameCheat___.data.sourceSize.height -				// Original height
+			frameCheat___.data.spriteSourceSize.height -		// Non empty height
+			frameCheat___.data.spriteSourceSize.y;				// Top trimmed padding
+
+		x_ += bottomPadding - frameCheat___.data.sourceSize.height;
+		y_ += frameCheat___.data.spriteSourceSize.x;
+	}
 
 	if (IsCropped(sprite_))
 	{
@@ -631,55 +690,20 @@ void Renderer::batchSprite (
 	bool flipX_ = GetFlipX(sprite_);
 	bool flipY_ = GetFlipY(sprite_);
 
+	// Convert transformations to matrix
+	ApplyITRS(&spriteMatrix_,
+		GetX(sprite_), GetY(sprite_),
+		rot_,
+		GetScaleX(sprite_), GetScaleY(sprite_)
+	);
 
-	double xxx = (frameCheat___.data.spriteSourceSize.width - frameCheat___.data.sourceSize.width) / 2;
-	xxx += frameCheat___.data.spriteSourceSize.x;
+	// Translate to take origin and trimming into account
+	Translate(&spriteMatrix_, x_, y_);
 
-	double yyy = (frameCheat___.data.spriteSourceSize.height - frameCheat___.data.sourceSize.height) / 2;
-	yyy += frameCheat___.data.spriteSourceSize.y;
-
-
-
-	if (!frameCheat___.rotated) {
-		ApplyITRS(&spriteMatrix_,
-			GetX(sprite_), GetY(sprite_),
-			GetRotation(sprite_),
-			GetScaleX(sprite_), GetScaleY(sprite_)
-		);
-		x_ -= xxx;
-		y_ -= yyy;
-		Translate(&spriteMatrix_, x_, y_);
-	}
-	else {
-		ApplyITRS(&spriteMatrix_,
-			GetX(sprite_), GetY(sprite_),// + frameCheat___.height,
-			GetRotation(sprite_) + Math::DegToRad(-90),
-			GetScaleX(sprite_), GetScaleY(sprite_)
-		);
-		x_ += xxx;
-		y_ += yyy;
-		Translate(&spriteMatrix_, x_, y_);
-		//Translate(&spriteMatrix_, x_ + frameCheat___.data.spriteSourceSize.x, y_ + frameCheat___.data.spriteSourceSize.y);
-		//Translate(&spriteMatrix_, x_ + frameCheat___.data.spriteSourceSize.x/2, y_ + frameCheat___.data.spriteSourceSize.y/2);
-	}
-
-	// Translate to take origin into account
-
-	/*
-	LoadIdentity(&spriteMatrix_);
-	Translate(&spriteMatrix_, GetX(sprite_) + x_, GetY(sprite_) + y_);
-
-	if (frameCheat___.rotated) {
-		Translate(&spriteMatrix_, 0, frameCheat___.height);
-		Rotate(&spriteMatrix_, Math::DegToRad(-90));
-	}
-
-	Rotate(&spriteMatrix_, GetRotation(sprite_));
-	Scale(&spriteMatrix_, GetScaleX(sprite_), GetScaleY(sprite_));
-	*/
-
+	// Get the camera transform matrix
 	camMatrix_ = GetTransformMatrix(camera_);
 
+	// Is the game object a member of a container
 	if (parentTransformMatrix_)
 	{
 		// Multiply the camera by the parent matrix
