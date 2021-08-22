@@ -416,7 +416,7 @@ public:
 		if (iterator_ == eventMap[entity_].end())
 			return false;
 
-		// Create a copy of the callbacks list to make it same to modify the
+		// Create a copy of the callbacks list to make it safe to modify the
 		// original list
 		std::deque<std::shared_ptr<ListenerBase>> callbacks = iterator_->second;
 
@@ -440,13 +440,19 @@ public:
 			}
 		}
 
-		// Remove the event if no more listeners remain
-		if (iterator_->second.empty())
-			eventMap[entity_].erase(iterator_);
+		// Have the map been emptied during the event emission?
+		if (!eventMap.empty() &&
+			eventMap.contains(entity_) &&
+			eventMap[entity_].contains(eventName_) )
+		{
+			// Remove the event if no more listeners remain
+			if (iterator_->second.empty())
+				eventMap[entity_].erase(iterator_);
 
-		// Remove the entity if no more events remain
-		if (iteratorEnt_->second.empty())
-			eventMap.erase(iteratorEnt_);
+			// Remove the entity if no more events remain
+			if (iteratorEnt_->second.empty())
+				eventMap.erase(iteratorEnt_);
+		}
 
 		return true;
 	}
