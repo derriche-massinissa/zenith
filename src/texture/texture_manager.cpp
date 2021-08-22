@@ -24,6 +24,8 @@
 #include "systems/frame.hpp"
 #include "../geom/rectangle.hpp"
 #include "../display/color.hpp"
+#include "../components/transform_matrix.hpp"
+#include "../systems/transform_matrix.hpp"
 
 namespace Zen {
 
@@ -531,7 +533,9 @@ int TextureManager::getPixelAlpha (int x_, int y_, Entity textureFrame_)
 			auto& src_ = g_registry.get<Components::TextureSource>(frame_.source);
 			auto& txt_ = g_registry.get<Components::Texture>(src_.texture);
 
-			MessageError("Reading pixel alpha values can only be done for cached textures! Load the texture \"", txt_.key, "\" with `true` as the last parameter to cache it.");
+			MessageError("Reading pixel alpha values can only be done for cached "
+					"textures! Load the texture \"", txt_.key, "\" with `true` "
+					"as the last parameter to cache it.");
 			return -1;
 		}
 
@@ -545,12 +549,32 @@ int TextureManager::getPixelAlpha (int x_, int y_, Entity textureFrame_)
 		x_ -= frame_.x;
 		y_ -= frame_.y;
 
+		// Position in atlas
 		auto data_ = frame_.data.cut;
 
+		double w_ = data_.width;
+		double h_ = data_.height;
+
+		// Adjust for rotation
+		if (frame_.rotated) {
+			double Y_ = y_;
+			y_ = x_;
+			x_ = data_.height - Y_;
+
+			// Swap width and height
+			Y_ = w_;
+			w_ = h_;
+			h_ = Y_;
+		}
+
+		// Offset in atlas
 		x_ += data_.x;
 		y_ += data_.y;
 
-		if (x_ >= data_.x && x_ < GetRight(data_) && y_ >= data_.y && y_ < GetBottom(data_))
+		if (x_ >= data_.x &&
+			x_ < (data_.x + w_) &&
+			y_ >= data_.y &&
+			y_ < (data_.y + h_))
 		{
 			// Get pixels in unsigned int of 32 bits
 			Uint32 *upixels_ = static_cast<Uint32*>(cache_->second->pixels);

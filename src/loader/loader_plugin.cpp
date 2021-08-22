@@ -75,17 +75,20 @@ LoaderPlugin& LoaderPlugin::cursor (std::string key_, std::string path_, int hot
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::atlas (std::string key_, std::string texturePath_, std::string atlasPath_)
+LoaderPlugin& LoaderPlugin::atlas (std::string key_, std::string texturePath_, std::string atlasPath_, bool alphaCache_)
 {
 	texturePath_ = path + texturePath_;
 	atlasPath_ = path + atlasPath_;
 
 	g_texture.addAtlas(key_, texturePath_, atlasPath_);
 
+	if (alphaCache_)
+		g_texture.createAlphaCache(key_);
+
 	return *this;
 }
 
-LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_, std::string path_)
+LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_, std::string path_, bool alphaCache_)
 {
 	atlasPath_ = path + atlasPath_;
 	path_ = path + path_;
@@ -111,6 +114,9 @@ LoaderPlugin& LoaderPlugin::multiatlas (std::string key_, std::string atlasPath_
 		sources_.emplace_back(path_ + textureFile_["image"].get<std::string>());
 
 	g_texture.addAtlas(key_, sources_, atlasPath_);
+
+	if (alphaCache_)
+		g_texture.createAlphaCache(key_);
 
 	return *this;
 }

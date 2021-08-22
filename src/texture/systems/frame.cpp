@@ -26,8 +26,8 @@ Entity CreateFrame (Entity source, std::string name, int x, int y, int width, in
 			Components::Frame{
 				.name = name,
 				.source = source,
-				.x = x,
-				.y = y,
+				.x = 0,
+				.y = 0,
 				.width = width,
 				.height = height,
 				.halfWidth = width/2,

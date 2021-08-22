@@ -116,7 +116,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& atlas (std::string key, std::string texturePath, std::string atlasPath);
+	LoaderPlugin& atlas (std::string key, std::string texturePath, std::string atlasPath, bool alphaCache = false);
 
 	/**
 	 * Load a multi-atlas texture.
@@ -125,7 +125,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	LoaderPlugin& multiatlas (std::string key, std::string atlasPath, std::string path = "");
+	LoaderPlugin& multiatlas (std::string key, std::string atlasPath, std::string path = "", bool alphaCache = false);
 
 	/**
 	 * Load a spritesheet.

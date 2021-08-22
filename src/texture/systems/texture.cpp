@@ -257,7 +257,7 @@ std::vector<Entity> GetTextureSources (Entity texture)
 	{
 		auto& src_ = g_registry.get<Components::TextureSource>(source_);
 
-		if (src_.sdlTexture)
+		if (src_.texture == texture)
 		{
 			out_.push_back(source_);
 		}
