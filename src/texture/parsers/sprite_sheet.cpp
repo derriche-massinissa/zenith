@@ -15,6 +15,8 @@
 #include "../components/frame.hpp"
 #include "../components/texture.hpp"
 
+#include <cmath>
+
 namespace Zen {
 
 extern entt::registry g_registry;

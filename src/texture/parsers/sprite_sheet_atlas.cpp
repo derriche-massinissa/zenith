@@ -14,6 +14,8 @@
 #include "../components/source.hpp"
 #include "../components/frame.hpp"
 
+#include <cmath>
+
 namespace Zen {
 
 extern entt::registry g_registry;
