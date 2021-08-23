@@ -130,9 +130,33 @@ struct AudioStreamData
 	 */
 	bool loop = false;
 
+	/**
+	 * Is the stream muted?
+	 *
+	 * @since 0.0.0
+	 */
 	bool muted = false;
 
+	/**
+	 * The stream's volume, between 0 and 1;
+	 *
+	 * @since 0.0.0
+	 */
 	ALfloat volume = 1.f;
+
+	/**
+	 * Is the stream playing?
+	 * Use this instead of querying OpenAL for the source state!
+	 *
+	 * In case of lag, the stream will run out of buffers which will mark it as
+	 * stopped in OpenAL, even though we do not want it stopped.
+	 * Unlike the state, this flag only changes when the user explicitly say so.
+	 * So even if the source runs out of buffers during a lag, when the program
+	 * resumes, it loads up new bufffers from where it left off in the audio file.
+	 *
+	 * @since 0.0.0
+	 */
+	bool playing = false;
 
 	/**
 	 * A flag to indicate that this stream was just set up and already has buffers

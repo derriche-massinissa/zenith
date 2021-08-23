@@ -15,7 +15,9 @@ static std::size_t read_ogg_callback (
 		std::size_t elementSize,
 		void *dataSource)
 {
-	ZEN_ASSERT((elementCount == 1), "Function: static std::size_t read_ogg_callback (void *buffer, std::size_t elementSize, std::size_t elementCount, void *dataSource)");
+	ZEN_ASSERT((elementCount == 1), "Function: static std::size_t "
+			"read_ogg_callback (void *buffer, std::size_t elementSize, "
+			"std::size_t elementCount, void *dataSource)");
 
 	std::ifstream& stream = *static_cast<std::ifstream*>(dataSource);
 	stream.read(static_cast<char*>(buffer), elementSize);
@@ -24,7 +26,8 @@ static std::size_t read_ogg_callback (
 	return static_cast<size_t>(bytesRead);
 }
 
-static std::int32_t seek_ogg_callback (void *dataSource, ogg_int64_t offset, std::int32_t origin)
+static std::int32_t seek_ogg_callback (void *dataSource, ogg_int64_t offset,
+		std::int32_t origin)
 {
 	static const std::vector<std::ios_base::seekdir> seekDirections {
 		std::ios_base::beg,
@@ -270,10 +273,7 @@ int update_stream_ogg (AudioStreamData *audioStream)
 	ALint buffersProcessed = 0;
 	ZEN_AL_CALL(alGetSourcei, audioStream->source, AL_BUFFERS_PROCESSED, &buffersProcessed);
 
-	ALint state;
-	ZEN_AL_CALL(alGetSourcei, audioStream->source, AL_SOURCE_STATE, &state);
-
-	if (buffersProcessed <= 0 || state != AL_PLAYING)
+	if (buffersProcessed <= 0 || !audioStream->playing)
 		return 0;
 
 	int retValue = 0;
@@ -308,8 +308,8 @@ int update_stream_ogg (AudioStreamData *audioStream)
 				break;
 			}
 			else if (result == 0) {
-				// End of file
-				// Loop from the beginning
+				// End of file:
+				// Loop: Loop from the beginning
 				if (audioStream->loop)
 				{
 					std::int32_t seekResult =
@@ -344,11 +344,12 @@ int update_stream_ogg (AudioStreamData *audioStream)
 						}
 					}
 				}
-				// Don't add any data
+				// No Loop: Don't add any data
 				else
 				{
 					sizeRead = 0;
 					retValue = 1;
+					audioStream->playing = false;
 					break;
 				}
 			}
@@ -372,6 +373,12 @@ int update_stream_ogg (AudioStreamData *audioStream)
 			ZEN_AL_CALL(alSourceQueueBuffers, audioStream->source, 1, &buffer);
 		}
 	}
+
+	ALint state;
+	ZEN_AL_CALL(alGetSourcei, audioStream->source, AL_SOURCE_STATE, &state);
+
+	if (audioStream->playing && state != AL_PLAYING)
+		ZEN_AL_CALL(alSourcePlay, audioStream->source);
 
 	return retValue;
 }

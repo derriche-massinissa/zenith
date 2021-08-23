@@ -183,6 +183,7 @@ void AudioManager::play (Entity entity_)
 	{
 		rewind_stream_ogg(&streams[stream_->index]);
 		ZEN_AL_CALL(alSourcePlay, streams[stream_->index].source);
+		streams[stream_->index].playing = true;
 
 		emit(entity_, ZEN_AUDIO_EVENTS_PLAY);
 	}
@@ -212,6 +213,7 @@ void AudioManager::pause (Entity entity_)
 	else if (stream_ != nullptr)
 	{
 		ZEN_AL_CALL(alSourcePause, streams[stream_->index].source);
+		streams[stream_->index].playing = false;
 
 		emit(entity_, ZEN_AUDIO_EVENTS_PAUSE);
 	}
@@ -232,6 +234,7 @@ void AudioManager::resume (Entity entity_)
 	else if (stream_ != nullptr)
 	{
 		ZEN_AL_CALL(alSourcePlay, streams[stream_->index].source);
+		streams[stream_->index].playing = true;
 		emit(entity_, ZEN_AUDIO_EVENTS_RESUME);
 	}
 }
@@ -251,6 +254,7 @@ void AudioManager::stop (Entity entity_)
 	else if (stream_ != nullptr)
 	{
 		ZEN_AL_CALL(alSourceStop, streams[stream_->index].source);
+		streams[stream_->index].playing = false;
 	}
 
 	emit(entity_, ZEN_AUDIO_EVENTS_STOP);
