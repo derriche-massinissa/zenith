@@ -10,7 +10,6 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 
 #include "const.hpp"
 #include "../event/event_emitter.hpp"
@@ -128,15 +127,6 @@ public:
 	 * @return 1 if an error occured, 0 otherwise.
 	 */
 	int initSdlMixer ();
-
-	/**
-	 * This method initializes SDL_ttf.
-	 *
-	 * @since 0.0.0
-	 *
-	 * @return 1 if an error occured, 0 otherwise.
-	 */
-	int initSdlTtf ();
 
 	/**
 	 * This method creates a SDL_window.

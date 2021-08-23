@@ -8,7 +8,6 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <SDL2/SDL_ttf.h>
 #include "glyph.hpp"
 #include "text_style.hpp"
 #include "../ecs/entity.hpp"

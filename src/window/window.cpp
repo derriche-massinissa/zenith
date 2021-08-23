@@ -46,14 +46,11 @@ int Window::create (GameConfig *cfg)
 	} else if (initSdlImg()) {
 		cleanup(WINDOW_CLEANUP::SDL);
 		return 1;
-	} else if (initSdlTtf()) {
+	}  else if (createWindow()) {
 		cleanup(WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
-	} else if (createWindow()) {
-		cleanup(WINDOW_CLEANUP::TTF, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
-		return 1;
 	} else if (createRenderer()) {
-		cleanup(window, WINDOW_CLEANUP::TTF, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
+		cleanup(window, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
 	} else {
 		// Everything has gone well
@@ -86,17 +83,6 @@ int Window::initSdlImg ()
 	int imgFlags_ = IMG_INIT_PNG;
 	if (!(IMG_Init(imgFlags_) & imgFlags_)) {
 		MessageError("Could not initialize SDL_image: %s\n", IMG_GetError());
-		return 1;
-	}
-
-	return 0;
-}
-
-int Window::initSdlTtf ()
-{
-	// Initialize SDL_ttf
-	if (TTF_Init() != 0) {
-		MessageError("Could not initialize SDL_ttf: %s\n", TTF_GetError());
 		return 1;
 	}
 
@@ -164,7 +150,6 @@ int Window::close ()
 	cleanup(
 			renderer,
 			window,
-			WINDOW_CLEANUP::TTF,
 			WINDOW_CLEANUP::IMG,
 			WINDOW_CLEANUP::SDL
 		   );
@@ -193,10 +178,6 @@ void Window::cleanup<WINDOW_CLEANUP> (WINDOW_CLEANUP c_)
 
 		case WINDOW_CLEANUP::IMG:
 			IMG_Quit();
-			break;
-
-		case WINDOW_CLEANUP::TTF:
-			TTF_Quit();
 			break;
 	}
 }

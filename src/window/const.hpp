@@ -29,8 +29,7 @@ enum class WINDOW_STATE {
  */
 enum class WINDOW_CLEANUP {
 	SDL,
-	IMG,
-	TTF
+	IMG
 };
 
 }	// namespace Zen

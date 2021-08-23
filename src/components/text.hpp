@@ -11,7 +11,6 @@
 #include "../ecs/entity.hpp"
 #include "../text/text_style.hpp"
 #include <string>
-#include <SDL2/SDL_ttf.h>
 
 namespace Zen {
 namespace Components {
