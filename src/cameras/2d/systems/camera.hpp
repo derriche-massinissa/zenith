@@ -108,179 +108,91 @@ void Ignore (Entity camera, std::vector<Entity>&& entries);
  */
 void PreRender (Entity entity);
 
-//////**
-///// * Fades the Camera in from the given color over the duration specified.
-///// *
-///// * @since 0.0.0
-///// *
-///// * @param duration_ The duration of the effect in milliseconds.
-///// * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
-///// * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
-///// * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
-///// *
-///// * @return This Camera instance.
-///// */
-/////Camera& fadeIn (
-/////		int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0);
-/////
-//////**
-///// * @overload
-///// * @since 0.0.0
-///// *
-///// * @param duration_ The duration of the effect in milliseconds.
-///// * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
-///// * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
-///// * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
-///// * @param callback_ This callback will be invoked every frame for the duration of the effect.
-///// * It is sent two arguments: A reference to the camera and a progress amount between 0 and 1 indicating how complete the effect is.
-///// * @param context_ The context in which the callback is invoked.
-///// *
-///// * @return This Camera instance.
-///// */
-/////template <typename T>
-/////	Camera& fadeIn (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera, double), T* context_)
-/////	{
-/////		std::function<void(Camera, double)> cb_ = std::bind(
-/////				callback_,
-/////				context_,
-/////				std::placeholders::_1,
-/////				std::placeholders::_2);
-/////
-/////		return fadeEffect.start(false, duration_, red_, green_, blue_, true, cb_);
-/////	}
-/////
-//////**
-///// * Fades the Camera out to the given color over the duration specified.
-///// * This is an alias for Camera.fade that forces the fade to start, regardless of existing fades.
-///// *
-///// * @since 0.0.0
-///// *
-///// * @param duration_ The duration of the effect in milliseconds.
-///// * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
-///// * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
-///// * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
-///// *
-///// * @return This Camera instance.
-///// */
-/////Camera& fadeOut (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0);
-/////
-//////**
-///// * @overload
-///// * @since 0.0.0
-///// *
-///// * @param duration_ The duration of the effect in milliseconds.
-///// * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
-///// * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
-///// * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
-///// * @param callback_ This callback will be invoked every frame for the duration of the effect.
-///// * It is sent two arguments: A reference to the camera and a progress amount between 0 and 1 indicating how complete the effect is.
-///// * @param context_ The context in which the callback is invoked.
-///// *
-///// * @return This Camera instance.
-///// */
-/////template <typename T>
-/////	Camera& fadeOut (int duration_, int red_, int green_, int blue_, void (T::* callback_)(Camera, double), T* context_)
-/////	{
-/////		std::function<void(Camera, double)> cb_ = std::bind(
-/////				callback_,
-/////				context_,
-/////				std::placeholders::_1,
-/////				std::placeholders::_2);
-/////
-/////		return fadeEffect.start(true, duration_, red_, green_, blue_, true, cb_);
-/////	}
-/////
-//////**
-///// * Fades the Camera from the given color to transparent over the duration specified.
-///// *
-///// * @since 0.0.0
-///// *
-///// * @param duration_ The duration of the effect in milliseconds.
-///// * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
-///// * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
-///// * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
-///// * @param force_ Force the effect to start immediately, even if already running.
-///// *
-///// * @return This Camera instance.
-///// */
-/////Camera& fadeFrom (
-/////		int duration_ = 1000,
-/////		int red_ = 0,
-/////		int green_ = 0,
-/////		int blue_ = 0,
-/////		bool force_ = false);
-/////
-//////**
-///// * @overload
-///// *
-///// * @since 0.0.0
-///// *
-///// * @param duration_ The duration of the effect in milliseconds.
-///// * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
-///// * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
-///// * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
-///// * @param force_ Force the effect to start immediately, even if already running.
-///// * @param callback_ This callback will be invoked every frame for the duration of the effect.
-///// * It is sent two arguments: A reference to the camera and a progress amount between 0 and 1 indicating how complete the effect is.
-///// * @param context_ The context in which the callback is invoked.
-///// *
-///// * @return This Camera instance.
-///// */
-/////template <typename T>
-/////	Camera& fadeFrom (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera, double), T* context_)
-/////	{
-/////		std::function<void(Camera, double)> cb_ = std::bind(
-/////				callback_,
-/////				context_,
-/////				std::placeholders::_1,
-/////				std::placeholders::_2);
-/////
-/////		return fadeEffect.start(false, duration_, red_, green_, blue_, force_, cb_);
-/////	}
-/////
-//////**
-///// * Fades the Camera from transparent to the given color over the duration specified.
-///// *
-///// * @since 0.0.0
-///// *
-///// * @param duration_ The duration of the effect in milliseconds.
-///// * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
-///// * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
-///// * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
-///// * @param force_ Force the effect to start immediately, even if already running.
-///// *
-///// * @return This Camera instance.
-///// */
-/////Camera& fade (int duration_ = 1000, int red_ = 0, int green_ = 0, int blue_ = 0, bool force_ = false);
-/////
-//////**
-///// * @overload
-///// *
-///// * @since 0.0.0
-///// *
-///// * @param duration_ The duration of the effect in milliseconds.
-///// * @param red_ The amount to fade the red channel towards. A value between 0 and 255.
-///// * @param green_ The amount to fade the green channel towards. A value between 0 and 255.
-///// * @param blue_ The amount to fade the blue channel towards. A value between 0 and 255.
-///// * @param force_ Force the effect to start immediately, even if already running.
-///// * @param callback_ This callback will be invoked every frame for the duration of the effect.
-///// * It is sent two arguments: A reference to the camera and a progress amount between 0 and 1 indicating how complete the effect is.
-///// * @param context_ The context in which the callback is invoked.
-///// *
-///// * @return This Camera instance.
-///// */
-/////template <typename T>
-/////	Camera& fade (int duration_, int red_, int green_, int blue_, bool force_, void (T::* callback_)(Camera, double), T* context_)
-/////	{
-/////		std::function<void(Camera, double)> cb_ = std::bind(
-/////				callback_,
-/////				context_,
-/////				std::placeholders::_1,
-/////				std::placeholders::_2);
-/////
-/////		return fadeEffect.start(true, duration_, red_, green_, blue_, force_, cb_);
-/////	}
-/////
+/**
+ * Fades the Camera in from the given color over the duration specified.
+ *
+ * @since 0.0.0
+ *
+ * @param camera The camera to apply the effect on.
+ * @param duration The duration of the effect in milliseconds.
+ * @param red The amount to fade the red channel towards. A value between 0 and 255.
+ * @param green The amount to fade the green channel towards. A value between 0 and
+ * 255.
+ * @param blue The amount to fade the blue channel towards. A value between 0 and
+ * 255.
+ * @param callback This callback will be invoked every frame for the duration of
+ * the effect.
+ * It is sent two arguments: A reference to the camera and a progress amount
+ * between 0 and 1 indicating how complete the effect is.
+ */
+void FadeIn (Entity camera, int duration = 1000, int red = 0, int green = 0,
+		int blue = 0, std::function<void(Entity, double)> callback = nullptr);
+
+/**
+ * Fades the Camera out to the given color over the duration specified.
+ * This is an alias for Camera.fade that forces the fade to start, regardless of existing fades.
+ *
+ * @since 0.0.0
+ *
+ * @param camera The camera to apply the effect on.
+ * @param duration The duration of the effect in milliseconds.
+ * @param red The amount to fade the red channel towards. A value between 0 and 255.
+ * @param green The amount to fade the green channel towards. A value between 0 and
+ * 255.
+ * @param blue The amount to fade the blue channel towards. A value between 0 and
+ * 255.
+ * @param callback This callback will be invoked every frame for the duration of
+ * the effect.
+ * It is sent two arguments: A reference to the camera and a progress amount
+ * between 0 and 1 indicating how complete the effect is.
+ */
+void FadeOut (Entity camera, int duration = 1000, int red = 0, int green = 0,
+		int blue = 0, std::function<void(Entity, double)> callback = nullptr);
+
+/**
+ * Fades the Camera from the given color to transparent over the duration specified.
+ *
+ * @since 0.0.0
+ *
+ * @param camera The camera to apply the effect on.
+ * @param duration The duration of the effect in milliseconds.
+ * @param red The amount to fade the red channel towards. A value between 0 and 255.
+ * @param green The amount to fade the green channel towards. A value between 0 and
+ * 255.
+ * @param blue The amount to fade the blue channel towards. A value between 0 and
+ * 255.
+ * @param force Force the effect to start immediately, even if already running.
+ * @param callback This callback will be invoked every frame for the duration of
+ * the effect.
+ * It is sent two arguments: A reference to the camera and a progress amount
+ * between 0 and 1 indicating how complete the effect is.
+ */
+void FadeFrom (Entity camera, int duration = 1000, int red = 0, int green = 0,
+		int blue = 0, bool force = false,
+		std::function<void(Entity, double)> callback = nullptr);
+
+/**
+ * Fades the Camera from transparent to the given color over the duration specified.
+ *
+ * @since 0.0.0
+ *
+ * @param duration The duration of the effect in milliseconds.
+ * @param red The amount to fade the red channel towards. A value between
+ * 0 and 255.
+ * @param green The amount to fade the green channel towards. A value between
+ * 0 and 255.
+ * @param blue The amount to fade the blue channel towards. A value between
+ * 0 and 255.
+ * @param force Force the effect to start immediately, even if already running.
+ * @param callback This callback will be invoked every frame for the duration of
+ * the effect.
+ * It is sent two arguments: A reference to the camera and a progress amount
+ * between 0 and 1 indicating how complete the effect is.
+ */
+void Fade (Entity camera, int duration = 1000, int red = 0, int green = 0,
+		int blue = 0, bool force = false,
+		std::function<void(Entity, double)> callback = nullptr);
+
 //////**
 ///// * Flashes the Camera by setting it to the given color immediately and then fading it away again quickly over the duration specified.
 ///// *
@@ -504,16 +416,14 @@ void PreRender (Entity entity);
 /////
 /////		return zoomEffect.start(zoom_, duration_, ease_, force_, cb_);
 /////	}
-/////
-//////**
-///// * Resets any active FX, such as a fade, flash or shake. Useful to call after a fade in order to
-///// * remove the fade.
-///// *
-///// * @since 0.0.0
-///// *
-///// * @return This Camera instance.
-///// */
-/////Camera& resetFX ();
+
+/**
+ * Resets any active FX, such as a fade, flash or shake. Useful to call after a
+ * fade in order to remove the fade.
+ *
+ * @since 0.0.0
+ */
+void resetFX (Entity camera);
 
 /**
  * Internal method called automatically when the viewport changes.
@@ -527,10 +437,11 @@ void UpdateCameraSystem (Entity entity);
  *
  * @since 0.0.0
  *
- * @param time_ The amount of time since SDL started in ms.
- * @param delta_ The delta time, in ms, elapsed since the last frame.
+ * @param camera The camera to update
+ * @param time The amount of time since SDL started in ms.
+ * @param delta The delta time, in ms, elapsed since the last frame.
  */
-void UpdateCamera (Entity entity, Uint32 time, Uint32 delta);
+void UpdateCamera (Entity camera, Uint32 time, Uint32 delta);
 
 }	// namespace Zen
 

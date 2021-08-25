@@ -9,13 +9,14 @@
 #define ZEN_COMPONENTS_ACTOR_HPP
 
 #include "../ecs/entity.hpp"
+#include "../scene/scene.fwd.hpp"
 
 namespace Zen {
 namespace Components {
 
 struct Actor
 {
-	Entity scene = entt::null;
+	Scene *scene = nullptr;
 };
 
 }	// namespace Components

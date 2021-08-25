@@ -18,6 +18,8 @@
 #include "../utils/messages.hpp"
 #include "../core/config.hpp"
 
+#include "../cameras/2d/systems/fade.hpp"
+
 #include "../systems/position.hpp"
 #include "../systems/size.hpp"
 #include "../systems/viewport.hpp"
@@ -278,7 +280,7 @@ void Renderer::render (
 	}
 
 	//camera_.flashEffect.postRender();
-	//camera_.fadeEffect.postRender();
+	PostRenderFade(camera_);
 
 	SetDirty(camera_, false);
 

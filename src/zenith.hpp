@@ -8,6 +8,12 @@
 #ifndef ZENITH_HPP
 #define ZENITH_HPP
 
+// Cameras
+#include "cameras/2d/systems/camera.hpp"
+
+// Core
+#include "core/config.hpp"
+
 // Geometry
 #include "geom/circle.hpp"
 #include "geom/ellipse.hpp"

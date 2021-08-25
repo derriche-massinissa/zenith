@@ -15,7 +15,7 @@ namespace Zen {
 
 extern entt::registry g_registry;
 
-void SetScene (Entity entity, Entity scene)
+void SetScene (Entity entity, Scene *scene)
 {
 	auto [actor, update] = g_registry.try_get<Components::Actor, Components::Update<Components::Actor>>(entity);
 	ZEN_ASSERT(actor, "The entity has no 'Actor' component.");
@@ -24,6 +24,14 @@ void SetScene (Entity entity, Entity scene)
 
 	if (update)
 		update->update(entity);
+}
+
+Scene* GetScene (Entity entity)
+{
+	auto actor = g_registry.try_get<Components::Actor>(entity);
+	ZEN_ASSERT(actor, "The entity has no 'Actor' component.");
+
+	return actor->scene;
 }
 
 }	// namespace Zen

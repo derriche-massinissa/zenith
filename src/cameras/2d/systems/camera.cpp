@@ -51,6 +51,10 @@
 #include "../../../systems/size.hpp"
 #include "../../../systems/dirty.hpp"
 #include "../../../systems/origin.hpp"
+#include "../../../systems/visible.hpp"
+
+#include "fade.hpp"
+#include "../components/fade.hpp"
 
 namespace Zen {
 
@@ -95,6 +99,7 @@ Entity CreateCamera (double x, double y, double width, double height)
 	g_registry.emplace<Components::Update<Components::Position>>(camera, &UpdateCameraSystem);
 	g_registry.emplace<Components::Update<Components::Size>>(camera, &UpdateCameraSystem);
 	//g_registry.emplace<Components::Update<Components::Actor>>(camera, &UpdateCameraScene);
+	g_registry.emplace<Components::EffectFade>(camera);
 
 	UpdateCameraSystem(camera);
 	SetOrigin(camera, 0.5);
@@ -493,28 +498,32 @@ void PreRender (Entity entity)
 		*/
 }
 
-////void FadeIn (
-////		Entity entity,
-////		int duration_, int red_, int green_, int blue_)
-////{
-////	return fadeEffect.start(false, duration_, red_, green_, blue_, true);
-////}
-////
-////void FadeOut (Entity entity, int duration_, int red_, int green_, int blue_)
-////{
-////	return fadeEffect.start(true, duration_, red_, green_, blue_, true);
-////}
-////
-////void FadeFrom (Entity entity, int duration_, int red_, int green_, int blue_, bool force_)
-////{
-////	return fadeEffect.start(false, duration_, red_, green_, blue_, force_);
-////}
-////
-////void Fade (Entity entity, int duration_, int red_, int green_, int blue_, bool force_)
-////{
-////	return fadeEffect.start(true, duration_, red_, green_, blue_, force_);
-////}
-////
+void FadeIn (Entity camera, int duration, int red, int green,
+		int blue, std::function<void(Entity, double)> callback)
+{
+	StartFade(camera, false, duration, red, green, blue, true, callback);
+}
+
+void FadeOut (Entity camera, int duration, int red, int green,
+		int blue, std::function<void(Entity, double)> callback)
+{
+	StartFade(camera, true, duration, red, green, blue, true, callback);
+}
+
+void FadeFrom (Entity camera, int duration, int red, int green,
+		int blue, bool force,
+		std::function<void(Entity, double)> callback)
+{
+	StartFade(camera, false, duration, red, green, blue, force, callback);
+}
+
+void Fade (Entity camera, int duration, int red, int green,
+		int blue, bool force,
+		std::function<void(Entity, double)> callback)
+{
+	StartFade(camera, true, duration, red, green, blue, force, callback);
+}
+
 ////void Flash (Entity entity, int duration_, int red_, int green_, int blue_, bool force_)
 ////{
 ////	return flashEffect.start(duration_, red_, green_, blue_, force_);
@@ -544,17 +553,16 @@ void PreRender (Entity entity)
 ////{
 ////	return zoomEffect.start(zoom_, duration_, ease_, force_);
 ////}
-////
-////void ResetFX (Entity entity)
-////{
-////	rotateToEffect.reset();
-////	panEffect.reset();
-////	shakeEffect.reset();
-////	flashEffect.reset();
-////	fadeEffect.reset();
-////
-////	return *this;
-////}
+
+void ResetFX (Entity camera)
+{
+	ResetFade(camera);
+
+	//rotateToEffect.reset();
+	//panEffect.reset();
+	//shakeEffect.reset();
+	//flashEffect.reset();
+}
 
 void UpdateCameraSystem (Entity entity)
 {
@@ -577,16 +585,18 @@ void UpdateCameraSystem (Entity entity)
 	viewport->value = custom_;
 }
 
-void UpdateCamera (Entity entity, Uint32 time, Uint32 delta)
+void UpdateCamera (Entity camera, Uint32 time, Uint32 delta)
 {
-	////if (visible) {
-	////	rotateToEffect.update(time_, delta_);
-	////	panEffect.update(time_, delta_);
-	////	zoomEffect.update(time_, delta_);
-	////	shakeEffect.update(time_, delta_);
-	////	flashEffect.update(time_, delta_);
-	////	fadeEffect.update(time_, delta_);
-	////}
+	if (GetVisible(camera)) {
+		UpdateFade(camera, time, delta);
+
+		//rotateToEffect.update(time_, delta_);
+		//panEffect.update(time_, delta_);
+		//zoomEffect.update(time_, delta_);
+		//shakeEffect.update(time_, delta_);
+		//flashEffect.update(time_, delta_);
+		//fadeEffect.update(time_, delta_);
+	}
 }
 
 }	// namespace Zen

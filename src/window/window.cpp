@@ -46,7 +46,7 @@ int Window::create (GameConfig *cfg)
 	} else if (initSdlImg()) {
 		cleanup(WINDOW_CLEANUP::SDL);
 		return 1;
-	}  else if (createWindow()) {
+	} else if (createWindow()) {
 		cleanup(WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
 	} else if (createRenderer()) {

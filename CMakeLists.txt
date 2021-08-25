@@ -98,6 +98,7 @@ set(zenith_SRCS
 	src/input/keyboard/keyboard_manager.cpp
 	src/cameras/2d/camera_manager.cpp
 	src/cameras/2d/systems/camera.cpp
+	src/cameras/2d/systems/fade.cpp
 	src/core/config.cpp
 	src/core/game.cpp
 	src/core/handle_sdl_events.cpp
@@ -222,11 +223,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	${FT_INCLUDE_DIRS}
 	)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
-	"${CMAKE_SOURCE_DIR}/lib/libvorbisfile.so"
-	"${CMAKE_SOURCE_DIR}/lib/libopenal.so"
-	${FT_LIBRARIES}
-	)
+#target_link_libraries(${PROJECT_NAME} PUBLIC
+#	"${CMAKE_SOURCE_DIR}/lib/libvorbisfile.so"
+#	"${CMAKE_SOURCE_DIR}/lib/libopenal.so"
+#	${FT_LIBRARIES}
+#	)
 
 # External includes
 #target_include_directories(${PROJECT_NAME} PUBLIC

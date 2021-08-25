@@ -93,7 +93,7 @@ Entity CameraManager::add (
 	cameras.emplace_back(camera_);
 
 	SetName(camera_, name_.c_str());
-	//SetScene(camera_, scene);
+	SetScene(camera_, scene);
 
 	SetId(camera_, getNextID());
 

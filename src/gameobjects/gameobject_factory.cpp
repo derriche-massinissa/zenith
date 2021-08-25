@@ -75,7 +75,7 @@ Entity GameObjectFactory::image (double x, double y, std::string key, std::strin
 	g_registry.emplace<Components::Visible>(img);
 	g_registry.emplace<Components::Renderable>(img);
 	g_registry.emplace<Components::Crop>(img);
-	g_registry.emplace<Components::Actor>(img);
+	g_registry.emplace<Components::Actor>(img, scene);
 
 	SetTexture(img, key, frame);
 	SetSizeToFrame(img);
@@ -105,7 +105,7 @@ Entity GameObjectFactory::text (double x, double y, std::string text, TextStyle 
 	g_registry.emplace<Components::Scale>(txt);
 	g_registry.emplace<Components::Visible>(txt);
 	g_registry.emplace<Components::Renderable>(txt);
-	g_registry.emplace<Components::Actor>(txt);
+	g_registry.emplace<Components::Actor>(txt, scene);
 
 	// Generate texture
 	SetTextStyle(txt, style);
@@ -129,6 +129,5 @@ Entity GameObjectFactory::text (double x, double y, std::vector<std::string> lin
 
 	return text(x, y, txt, style);
 }
-
 
 }	//namespace Zen

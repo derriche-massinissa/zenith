@@ -9,10 +9,13 @@
 #define ZEN_SYSTEMS_ACTOR_HPP
 
 #include "../ecs/entity.hpp"
+#include "../scene/scene.fwd.hpp"
 
 namespace Zen {
 
-void SetScene (Entity entity, Entity scene);
+void SetScene (Entity entity, Scene *scene);
+
+Scene* GetScene (Entity entity);
 
 }	// namespace Zen
 
