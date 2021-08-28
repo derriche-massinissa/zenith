@@ -14,12 +14,14 @@
 #include "../../../scene/scene.hpp"
 #include "../../../math/clamp.hpp"
 #include "../../../window/window.hpp"
+#include "../../../scale/scale_manager.hpp"
 #include "../events/events.hpp"
 
 namespace Zen {
 
 extern entt::registry g_registry;
 extern Window g_window;
+extern ScaleManager g_scale;
 
 void StartFade (Entity camera, bool direction, int duration,
 		int red, int green, int blue, bool force,
@@ -104,11 +106,15 @@ bool PostRenderFade (Entity camera)
 	SDL_SetRenderDrawColor(g_window.renderer, fade->red, fade->green,
 			fade->blue, fade->alpha);
 
+	// ScaleManager values
+	Math::Vector2 sScale = g_scale.displayScale;
+	Math::Vector2 sOffset = g_scale.displayOffset;
+
 	SDL_FRect rect {
-		(float) position->x,
-		(float) position->y,
-		(float) size->width,
-		(float) size->height
+		(float) (position->x * sScale.x + sOffset.x),
+		(float) (position->y * sScale.y + sOffset.y),
+		(float) (size->width * sScale.x),
+		(float) (size->height * sScale.y)
 	};
 
 	SDL_SetRenderDrawBlendMode(g_window.renderer,
