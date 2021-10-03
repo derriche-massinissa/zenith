@@ -28,6 +28,7 @@
 #include "../components/actor.hpp"
 #include "../components/crop.hpp"
 #include "../components/text.hpp"
+#include "../components/type.hpp"
 #include "../systems/size.hpp"
 #include "../systems/origin.hpp"
 #include "../systems/textured.hpp"
@@ -76,6 +77,7 @@ Entity GameObjectFactory::image (double x, double y, std::string key, std::strin
 	g_registry.emplace<Components::Renderable>(img);
 	g_registry.emplace<Components::Crop>(img);
 	g_registry.emplace<Components::Actor>(img, scene);
+	g_registry.emplace<Components::Type>(img, "image");
 
 	SetTexture(img, key, frame);
 	SetSizeToFrame(img);
@@ -106,6 +108,7 @@ Entity GameObjectFactory::text (double x, double y, std::string text, TextStyle 
 	g_registry.emplace<Components::Visible>(txt);
 	g_registry.emplace<Components::Renderable>(txt);
 	g_registry.emplace<Components::Actor>(txt, scene);
+	g_registry.emplace<Components::Type>(txt, "text");
 
 	// Generate texture
 	SetTextStyle(txt, style);

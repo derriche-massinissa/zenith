@@ -50,6 +50,8 @@ void SetAlpha (
  */
 double GetAlpha (Entity entity);
 
+double GetAlpha (Entity entity, double *tl, double *tr, double *bl, double *br);
+
 double GetAlphaTopLeft (Entity entity);
 
 double GetAlphaTopRight (Entity entity);

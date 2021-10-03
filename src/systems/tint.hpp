@@ -31,7 +31,11 @@ void SetTintFill (
 
 Color GetTint (Entity);
 
+void GetTint (Entity entity, int *tl, int *tr, int *bl, int *br);
+
 bool IsTinted (Entity entity);
+
+bool IsTintFilled (Entity entity);
 
 }	// namespace Zen
 

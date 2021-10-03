@@ -14,16 +14,17 @@
 #include "../../utils/messages.hpp"
 #include "../components/source.hpp"
 #include "../../window/window.hpp"
+#include "../../renderer/renderer.hpp"
 
 namespace Zen {
 
 extern entt::registry g_registry;
 extern Window g_window;
+extern Renderer g_renderer;
 
 Entity CreateTextureSource (Entity texture, std::string src, int index)
 {
-	SDL_Texture *sdlTexture = nullptr;
-	int width, height;
+	SDL_Surface *surface = nullptr;
 
 	// We first load the texture
 	if (src.size() > 10 && src.substr(0, 10) == "iVBORw0KGg")
@@ -33,8 +34,7 @@ Entity CreateTextureSource (Entity texture, std::string src, int index)
 
 		SDL_RWops *rw_ = SDL_RWFromConstMem(base64.c_str(), base64.size());
 
-		sdlTexture = IMG_LoadTextureTyped_RW(
-				g_window.renderer,
+		surface = IMG_LoadTyped_RW(
 				rw_,
 				1,		// The SDL_RWops will be closed automatically
 				"PNG"
@@ -43,35 +43,42 @@ Entity CreateTextureSource (Entity texture, std::string src, int index)
 	else
 	{
 		// Source is an image file path
-		sdlTexture = IMG_LoadTexture(
-				g_window.renderer,
+		surface = IMG_Load(
 				src.c_str()
 				);
 	}
 
-	// Check if the texture loaded correctly
-	if (!sdlTexture)
+	// Check if the surface loaded correctly
+	if (!surface)
 	{
-		MessageError("Texture couldn't be created: ", IMG_GetError());
+		MessageError("Surface couldn't be created: ", IMG_GetError());
 
 		return entt::null;
 	}
 	else
 	{
-		SDL_QueryTexture(sdlTexture, nullptr, nullptr, &width, &height);
-
 		// Create a Texture Source entity
 		auto source = g_registry.create();
-		g_registry.emplace<Components::TextureSource>(
+		auto &c = g_registry.emplace<Components::TextureSource>(
 				source,
 				texture,
 				src.c_str(),
 				index,
 				1.0,
-				sdlTexture,
-				width,
-				height
+				surface->w,
+				surface->h,
+				0,
+				surface,
+				0,
+				-1
 				);
+
+		// Create a texture from the surface
+		c.glTexture = g_renderer.createTextureFromSource(source);
+
+		// Free the temporary surface
+		SDL_FreeSurface(c.tmp);
+		c.tmp = nullptr;
 
 		return source;
 	}
@@ -82,8 +89,8 @@ void DestroyTextureSource (Entity source)
 	auto src = g_registry.try_get<Components::TextureSource>(source);
 	ZEN_ASSERT(src, "The entity has no 'TextureSource' component.");
 
-	if (src->sdlTexture)
-		SDL_DestroyTexture(src->sdlTexture);
+	if (src->glTexture)
+		glDeleteTextures(1, &src->glTexture);
 
 	g_registry.destroy(source);
 }

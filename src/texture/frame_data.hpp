@@ -13,7 +13,7 @@
 
 namespace Zen {
 
-/*
+/**
 	FrameData data = {
 		{	// cut
 			0,	// x
@@ -43,7 +43,8 @@ namespace Zen {
 			0,	// width
 			0	// height
 		}
-		*/
+*/
+
 struct FrameData
 {
 	Rectangle cut;

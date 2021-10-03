@@ -57,7 +57,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	SDL_Renderer *renderer = nullptr;
+	SDL_GLContext context = nullptr;
 
 	/**
 	 * Getter for the window's width.
@@ -120,13 +120,13 @@ public:
 	int initSdlImg ();
 
 	/**
-	 * This method initializes SDL_mixer.
+	 * This method initializes OpenGL.
 	 *
 	 * @since 0.0.0
 	 *
 	 * @return 1 if an error occured, 0 otherwise.
 	 */
-	int initSdlMixer ();
+	int initGL ();
 
 	/**
 	 * This method creates a SDL_window.
@@ -138,13 +138,22 @@ public:
 	int createWindow ();
 
 	/**
-	 * This method creates a renderer for the window.
+	 * This method creates an OpenGL context for the window.
 	 *
 	 * @since 0.0.0
 	 *
 	 * @return 1 if an error occured, 0 otherwise.
 	 */
-	int createRenderer ();
+	int createContext ();
+
+	/**
+	 * Setup OpenGL with initial settings.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @return 1 if an error occured, 0 otherwise.
+	 */
+	int setupGL ();
 
 	/**
 	 * This method sets the render scale quality hint, to prevent pixel art
@@ -180,8 +189,8 @@ public:
 	 * @param t Template parameter.
 	 * @param args Template parameter pack.
 	 */
-	template<typename T, typename... Args>
-		void cleanup (T t_, Args&&... args_);
+	template <typename T, typename... Args>
+	void cleanup (T t_, Args&&... args_);
 
 	/**
 	 * Sets the window's title.
@@ -337,7 +346,7 @@ void Window::cleanup<SDL_Window*> (SDL_Window *win_);
  * @sa void cleanup (T t, Args&&... args)
  */
 template<>
-void Window::cleanup<SDL_Renderer*> (SDL_Renderer *ren_);
+void Window::cleanup<SDL_GLContext> (SDL_GLContext ctx_);
 
 }	// namespace Zen
 

@@ -328,6 +328,30 @@ uint32_t GetHex (uint8_t red, uint8_t green, uint8_t blue);
 uint32_t GetHex32 (uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
 /**
+ * Given 3 separate color values, this will return an integer representation of it.
+ *
+ * @since 0.0.0
+ * @param r The red component in a range from 0.0 to 1.0.
+ * @param g The green component in a range from 0.0 to 1.0.
+ * @param b The blue component in a range from 0.0 to 1.0.
+ * @return The packed RGBA values as a Uint32.
+ */
+uint32_t GetHexF (double r, double g, double b);
+
+/**
+ * Given an alpha and 3 separate color values, this will return an integer
+ * representation of it.
+ *
+ * @since 0.0.0
+ * @param r The red component in a range from 0.0 to 1.0.
+ * @param g The green component in a range from 0.0 to 1.0.
+ * @param b The blue component in a range from 0.0 to 1.0.
+ * @param a The alpha component in a range from 0.0 to 1.0.
+ * @return The packed RGBA values as a Uint32.
+ */
+uint32_t GetHexF (double r, double g, double b, double a);
+
+/**
  * RGB space conversion.
  *
  * @param n The value to convert.

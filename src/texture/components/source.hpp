@@ -8,13 +8,23 @@
 #ifndef ZEN_TEXTURES_COMPONENTS_SOURCE_HPP
 #define ZEN_TEXTURES_COMPONENTS_SOURCE_HPP
 
-#include <SDL2/SDL_render.h>
 #include <string>
+#include <SDL2/SDL_render.h>
 #include "../../ecs/entity.hpp"
+#include "../../renderer/types/gl_types.hpp"
 
 namespace Zen {
 namespace Components {
 
+/**
+ * A Texture Source is the encapsulation of the actual source data for a Texture.
+ *
+ * A Texture can contain multiple Texture Sources, which only happens when a
+ * multi-atlas is loaded.
+ *
+ * @struct TextureSource
+ * @since 0.0.0
+ */
 struct TextureSource
 {
 	/**
@@ -28,7 +38,7 @@ struct TextureSource
 	/**
 	 * The source used to create this Source.
 	 *
-	 * Typically a path to an image file, but can also be Base64 image data.
+	 * Either a path to an image file, or a Base64 image data.
 	 *
 	 * @property
 	 * @since 0.0.0
@@ -52,20 +62,43 @@ struct TextureSource
 	double resolution;
 
 	/**
-	 * The SDL_Texture loaded in memory that this Source represents.
-	 *
-	 * @property
-	 * @since 0.0.0
-	 */
-	SDL_Texture *sdlTexture;
-
-	/**
 	 * The dimensions of this Source.
 	 *
 	 * @property
 	 * @since 0.0.0
 	 */
 	int width, height;
+
+	/**
+	 * The GL_Texture loaded in memory that this Source represents.
+	 *
+	 * @property
+	 * @since 0.0.0
+	 */
+	GL_texture glTexture = 0;
+
+	/**
+	 * A temporary surface populated when the source is created. It is used to
+	 * create an OpenGL texture and is freed as soon as that is done.
+	 *
+	 * @property
+	 * @since 0.0.0
+	 */
+	SDL_Surface *tmp = nullptr;
+
+	/**
+	 * The current texture unit index as assigned by the Renderer.
+	 *
+	 * @since 0.0.0
+	 */
+	int glIndex = 0;
+
+	/**
+	 * The counter value when this texture was last assigned an index by the Renderer.
+	 *
+	 * @since 0.0.0
+	 */
+	int glIndexCounter = -1;
 };
 
 } // namespace Components

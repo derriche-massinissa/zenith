@@ -83,9 +83,9 @@ void SetFrameCropUVs (Entity frame, CropData *crop, int x, int y, int width, int
  *
  * @since 0.0.0
  *
- * @param crop_ The crop data object. This is the `GameObject.crop_` property.
- * @param flipX_ Does the parent Game Object have flipX set?
- * @param flipY_ Does the parent Game Object have flipY set?
+ * @param crop The crop data object. This is the `GameObject.crop_` property.
+ * @param flipX Does the parent Game Object have flipX set?
+ * @param flipY Does the parent Game Object have flipY set?
  *
  * @return The updated crop data object.
  */

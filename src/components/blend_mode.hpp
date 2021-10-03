@@ -8,14 +8,12 @@
 #ifndef ZEN_COMPONENTS_BLENDMODE_HPP
 #define ZEN_COMPONENTS_BLENDMODE_HPP
 
-#include "../enums/blend_modes.hpp"
-
 namespace Zen {
 namespace Components {
 
 struct BlendMode
 {
-	BLEND_MODE value = BLEND_MODE::BLEND;
+	int value = 1;
 };
 
 }	// namespace Components

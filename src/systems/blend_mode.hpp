@@ -13,7 +13,9 @@
 
 namespace Zen {
 
-BLEND_MODE GetBlendMode (Entity entity);
+int GetBlendMode (Entity entity);
+
+void SetBlendMode (Entity entity, int value);
 
 void SetBlendMode (Entity entity, BLEND_MODE value);
 

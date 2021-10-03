@@ -11,6 +11,14 @@
 #include "../core/config.hpp"
 #include "../utils/messages.hpp"
 
+#include <GL/glew.h>
+#include <SDL2/SDL_opengl.h>
+#include <GL/glu.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 namespace Zen {
 
 Window::~Window ()
@@ -49,7 +57,7 @@ int Window::create (GameConfig *cfg)
 	} else if (createWindow()) {
 		cleanup(WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
-	} else if (createRenderer()) {
+	} else if (createContext()) {
 		cleanup(window, WINDOW_CLEANUP::IMG, WINDOW_CLEANUP::SDL);
 		return 1;
 	} else {
@@ -89,6 +97,14 @@ int Window::initSdlImg ()
 	return 0;
 }
 
+int Window::initGL ()
+{
+	// Use OpenGL 3.3 core
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+}
+
 int Window::createWindow ()
 {
 	// Create a window
@@ -98,7 +114,7 @@ int Window::createWindow ()
 			SDL_WINDOWPOS_UNDEFINED,
 			config->width,
 			config->height,
-			SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+			SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 			);
 	if (window == nullptr) {
 		MessageError("Window could not be created: %s\n", SDL_GetError());
@@ -108,24 +124,56 @@ int Window::createWindow ()
 	return 0;
 }
 
-int Window::createRenderer ()
+int Window::createContext ()
 {
 	// Create a renderer for the window
-	renderer = SDL_CreateRenderer(
-			window,
-			-1,
-			SDL_RENDERER_ACCELERATED |
-			SDL_RENDERER_PRESENTVSYNC |
-			SDL_RENDERER_TARGETTEXTURE
-			);
-	if (renderer == nullptr) {
-		MessageError("Renderer could not be created: %s\n", SDL_GetError());
+	context = SDL_GL_CreateContext(window);
+	if (context == nullptr) {
+		MessageError("OpenGL context could not be created: %s\n", SDL_GetError());
 		return 1;
 	}
 
-	// Initialize the render color
-	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xff);
+	// Initialize GLEW
+	glewExperimental = GL_TRUE;
+	GLenum glewError = glewInit();
+	if (glewError != GLEW_OK)
+		MessageError("Could not initialize GLEW: ", glewGetErrorString(glewError));
 
+	// Use VSync
+	if (SDL_GL_SetSwapInterval(1) < 0)
+		MessageWarning("Could not enable VSync: ", SDL_GetError());
+
+	if (setupGL()) {
+		MessageError("Unable to setup OpenGL");
+
+		return -1;
+	}
+
+	return 0;
+}
+
+int Window::setupGL ()
+{
+	// Depth testing
+	glDisable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LEQUAL);
+
+	// Stencil testing
+	glEnable(GL_STENCIL_TEST);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	// Blending
+	glEnable(GL_BLEND);
+
+	// Face culling (Unneeded because this is a 2D framework)
+	glDisable(GL_CULL_FACE);
+
+	// Gamma correction (Default)
+	//glEnable(GL_FRAMEBUFFER_SRGB);
+
+	// Draw in wireframe
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
 	return 0;
 }
 
@@ -147,13 +195,12 @@ int Window::close ()
 {
 	// Do not forget to free resources in their respective managers before
 	// running this!
-	cleanup(
-			renderer,
+	cleanup(context,
 			window,
 			WINDOW_CLEANUP::IMG,
 			WINDOW_CLEANUP::SDL
 		   );
-	renderer = nullptr;
+	context = nullptr;
 	window = nullptr;
 
 	return 0;
@@ -191,11 +238,11 @@ void Window::cleanup<SDL_Window*> (SDL_Window *win_)
 }
 
 template<>
-void Window::cleanup<SDL_Renderer*> (SDL_Renderer *ren_)
+void Window::cleanup<SDL_GLContext> (SDL_GLContext ctx_)
 {
-	if (!ren_) return;
+	if (!ctx_) return;
 
-	SDL_DestroyRenderer(ren_);
+	SDL_GL_DeleteContext(ctx_);
 }
 
 void Window::handleSDLEvents (SDL_Event event_)

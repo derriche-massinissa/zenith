@@ -14,7 +14,7 @@ namespace Zen {
 
 extern entt::registry g_registry;
 
-BLEND_MODE GetBlendMode (Entity entity)
+int GetBlendMode (Entity entity)
 {
 	auto blendMode = g_registry.try_get<Components::BlendMode>(entity);
 	ZEN_ASSERT(blendMode, "The entity has no 'BlendMode' component.");
@@ -22,7 +22,7 @@ BLEND_MODE GetBlendMode (Entity entity)
 	return blendMode->value;
 }
 
-void SetBlendMode (Entity entity, BLEND_MODE value)
+void SetBlendMode (Entity entity, int value)
 {
 	auto blendMode = g_registry.try_get<Components::BlendMode>(entity);
 	ZEN_ASSERT(blendMode, "The entity has no 'BlendMode' component.");
@@ -30,6 +30,12 @@ void SetBlendMode (Entity entity, BLEND_MODE value)
 	blendMode->value = value;
 }
 
-BLEND_MODE blendMode = BLEND_MODE::NORMAL;
+void SetBlendMode (Entity entity, BLEND_MODE value)
+{
+	auto blendMode = g_registry.try_get<Components::BlendMode>(entity);
+	ZEN_ASSERT(blendMode, "The entity has no 'BlendMode' component.");
+
+	blendMode->value = static_cast<int>(value);
+}
 
 }	// namespace Zen

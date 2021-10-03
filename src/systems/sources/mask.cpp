@@ -8,6 +8,7 @@
 #include "../mask.hpp"
 
 #include "../../components/mask.hpp"
+#include "../../components/renderable.hpp"
 #include "../../utils/assert.hpp"
 
 namespace Zen {
@@ -16,19 +17,30 @@ extern entt::registry g_registry;
 
 Entity GetMask (Entity entity)
 {
-	auto mask = g_registry.try_get<Components::Mask>(entity);
-	ZEN_ASSERT(mask, "The entity has no 'Mask' component.");
+	auto masked = g_registry.try_get<Components::Masked>(entity);
+	ZEN_ASSERT(masked, "The entity has no 'Mask' component.");
 
-	return mask->mask;
+	return masked->mask;
 }
 
-void SetMask (Entity entity, Entity maskEntity, bool fixedPosition)
+void SetMask (Entity entity, Entity maskEntity)
 {
-	auto mask = g_registry.try_get<Components::Mask>(entity);
-	ZEN_ASSERT(mask, "The entity has no 'Mask' component.");
+	// Is the entity renderable?
+	auto renderable = g_registry.try_get<Components::Renderable>(entity);
+	ZEN_ASSERT(renderable, "The entity has no 'Renderable' component.");
 
-	mask->mask = maskEntity;
-	mask->fixed = fixedPosition;
+	// Is the mask entity a geometry object?
+	// TODO
+	bool isBitmap = true;
+
+	// Setup the masked entity
+	Components::Masked &mask =
+		g_registry.emplace_or_replace<Components::Masked>(entity);
+
+	mask.mask = maskEntity;
+
+
+	// Setup the mask entity
 }
 
 void ClearMask (Entity entity)
@@ -38,6 +50,10 @@ void ClearMask (Entity entity)
 
 	mask->mask = entt::null;
 	mask->fixed = false;
+}
+
+void PreRenderMask (Entity masked, Entity camera)
+{
 }
 
 }	// namespace Zen

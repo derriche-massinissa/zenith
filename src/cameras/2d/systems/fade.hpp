@@ -74,6 +74,10 @@ void CompleteFade (Entity camera);
  */
 void ResetFade (Entity camera);
 
+bool IsFadeRunning (Entity camera);
+
+bool IsFadeComplete (Entity camera);
+
 }	// namespace Zen
 
 #endif

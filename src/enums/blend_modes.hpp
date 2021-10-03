@@ -11,7 +11,8 @@
 namespace Zen {
 
 enum class BLEND_MODE {
-	NORMAL,
+	SKIP_CHECK = -1,
+	NORMAL = 0,
 	BLEND,
 	ADD,
 	MULTIPLY,
