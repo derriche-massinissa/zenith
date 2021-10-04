@@ -25,6 +25,10 @@
 #include "../../systems/scroll.hpp"
 #include "../../systems/scroll_factor.hpp"
 #include "../../cameras/2d/systems/camera.hpp"
+#include "../../math/deg_to_rad.hpp"
+
+#include "../shaders/multi_vert.hpp"
+#include "../shaders/multi_frag.hpp"
 
 namespace Zen {
 
@@ -38,17 +42,14 @@ MultiPipeline::MultiPipeline (PipelineConfig config)
 PipelineConfig MultiPipeline::prepareConfig (PipelineConfig config)
 {
 	// Load default shaders
-	std::string shaderSourceFS = FileToString("../shaders/multi.frag");
-	std::string shaderSourceVS = FileToString("../shaders/multi.vert");
-
 	if (config.fragShader.empty())
-		config.fragShader = shaderSourceVS;
+		config.fragShader = Shaders::MULTI_FRAG;
 
 	config.fragShader = ParseFragmentShaderMaxTextures(config.fragShader,
 			g_renderer.maxTextures);
 
 	if (config.vertShader.empty())
-		config.vertShader = shaderSourceVS;
+		config.vertShader = Shaders::MULTI_VERT;
 
 	if (config.attributes.empty()) {
 		config.attributes = {
@@ -85,8 +86,13 @@ void MultiPipeline::boot ()
 }
 
 void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
-		Components::TransformMatrix parentTransformMatrix)
+		Components::TransformMatrix *parentTransformMatrix)
 {
+	double alpha = GetAlpha(camera) * GetAlpha(gameObject);
+	if (!alpha)
+		// Nothing to see, so abort early
+		return;
+
 	auto &camMatrix = tempMatrix1;
 	auto &spriteMatrix = tempMatrix2;
 	auto &calcMatrix = tempMatrix3;
@@ -99,17 +105,80 @@ void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
 	double v0 = frame->v0;
 	double u1 = frame->u1;
 	double v1 = frame->v1;
-	int frameX = frame->x;
-	int frameY = frame->y;
-	int frameWidth = frame->width;
-	int frameHeight = frame->height;
+	int frameX = frame->cutX;//frame->x;
+	int frameY = frame->cutY;//frame->y;
+	// TODO test with cut.height instead of frame.height
+	int frameWidth = (frame->rotated) ? frame->cutHeight : frame->cutWidth;
+	int frameHeight = (frame->rotated) ? frame->cutWidth : frame->cutHeight;
 	bool customPivot = frame->customPivot;
 
 	double displayOriginX = GetDisplayOriginX(gameObject);
 	double displayOriginY = GetDisplayOriginY(gameObject);
 
-	double x = -displayOriginX + frameX;
-	double y = -displayOriginY + frameY;
+	// Position
+	double x, y;
+	//double x = -displayOriginX + frameX;
+	//double y = -displayOriginY + frameY;
+
+	// Rotation
+	double rot = GetRotation(gameObject);
+
+	// Is the frame rotated in the texture atlas?
+	if (!frame->rotated) {
+		x = -displayOriginX + frame->data.spriteSourceSize.x;
+		y = -displayOriginY + frame->data.spriteSourceSize.y;
+	}
+	else {
+		// Restore frame to upright orientation
+		rot += Math::DegToRad(-90);
+
+		// Invert `x` and `y` axis for origin and invert y axis (No minus for x_)
+		x = displayOriginY;
+		y = -displayOriginX;
+
+		// A trimmed frame has the following metrics:
+		// - Width of frame
+		// - Height of frame
+		// - X position in atlas
+		// - Y position in atlas
+		// - Real dimensions of image before trimming
+		//		- Real width
+		// 		- Real height
+		// - Trimmed empty space
+		//		- Padding Left
+		// 		- Padding Up
+		// 		- Padding Right
+		// 		- Padding Bottom
+
+		// Frame is rotated -90deg on atlas (clockwise)
+		// First we restore it upward by rotating it by -90deg
+		// By doing this, the following happens:
+		// - The originaly trimX or left padding becomes y's padding or top padding
+		// - The originaly paddingV or bottom padding becomes x's padding or
+		//		left padding
+
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// |                                  |                 ^
+		// |                                  |               trimX
+		// |                                  |                 v
+		// |           +--------------+       |              +------+
+		// |           |              |       |              |  R   |
+		// | < trimX > |   Original   |       |              |  o   |
+		// |           |              |       | < paddingB > |  t   |
+		// |           +--------------+       |              |  a   |
+		// |                  ^               |              |  t   |
+		// |               paddingB           |              +------+
+		// |                  v               |
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		double bottomPadding =
+			frame->data.sourceSize.height -				// Original height
+			frame->data.spriteSourceSize.height -		// Non empty height
+			frame->data.spriteSourceSize.y;				// Top trimmed padding
+
+		x += bottomPadding - frame->data.sourceSize.height;
+		y += frame->data.spriteSourceSize.x;
+	}
 
 	if (IsCropped(gameObject)) {
 		auto crop = GetCrop(gameObject);
@@ -160,8 +229,21 @@ void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
 
 	camMatrix = GetTransformMatrix(camera);
 
-	spriteMatrix.e -= GetScrollX(camera) * GetScrollFactorX(gameObject);
-	spriteMatrix.f -= GetScrollY(camera) * GetScrollFactorY(gameObject);
+	if (parentTransformMatrix) {
+		// Multiply the camera by the parent matrix
+		MultiplyWithOffset(&camMatrix, *parentTransformMatrix,
+				-GetScrollX(camera) * GetScrollFactorX(gameObject),
+				-GetScrollY(camera) * GetScrollFactorY(gameObject)
+				);
+
+		// Undo the camera scroll
+		spriteMatrix.e = GetX(gameObject);
+		spriteMatrix.f = GetY(gameObject);
+	}
+	else {
+		spriteMatrix.e -= GetScrollX(camera) * GetScrollFactorX(gameObject);
+		spriteMatrix.f -= GetScrollY(camera) * GetScrollFactorY(gameObject);
+	}
 
 	// Multiply by the sprite matrix, store result in calcMatrix
 	calcMatrix = camMatrix;

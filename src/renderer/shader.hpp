@@ -19,8 +19,31 @@
 
 namespace Zen {
 
+/**
+ * Instances of the Shader class belong to the Pipeline classes.
+ * When the pipeline is created it will create an instance of this class for
+ * each one of its shaders, as defined in the pipeline configuration.
+ *
+ * This class encapsulates everything needed to manage a shader in a pipeline,
+ * including the shader attributes and uniforms, as well as lots of handy
+ * methods such as `set`, for setting uniform values on this shader.
+ *
+ * Typically, you do not create an instance of this class directly, as it works
+ * in unison with the pipeline to which it belongs. You can gain access to this
+ * class via a pipeline's `shaders` array, post-creation.
+ *
+ * @since 0.0.0
+ */
 class Shader : public EventEmitter {
 public:
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param name The name of this Shader.
+	 * @param vertexShader The vertex shader source code as a single string.
+	 * @param fragmentShader The fragment shader source code as a single string.
+	 * @param attributes - A vector of attributes.
+	 */
 	Shader (std::string name, std::string vertexShader,
 		std::string fragmentShader,
 		std::vector<PipelineAttributeConfig> attributes);
@@ -29,18 +52,92 @@ public:
 
 	void checkCompileErrors (GLuint shader, std::string type);
 	
-	void createAttributes (std::vector<PipelineAttributeConfig>);
+    /**
+	 * Takes the vertex attributes config and parses it, creating the resulting
+	 * array that is stored in this shaders `attributes` property, calculating
+	 * the offset, normalization and location in the process.
+     *
+	 * Calling this method resets Shader::attributes,
+	 * Shader::vertexSize and Shader::vertexComponentCount.
+     *
+	 * It is called automatically when this class is created, but can be called
+	 * manually if required.
+     *
+     * @since 0.0.0
+     *
+     * @param attributes An array of attributes configs.
+     */
+	void createAttributes (std::vector<PipelineAttributeConfig> attirbutes);
 
+    /**
+	 * Sets the program this shader uses as being the active shader in the Renderer.
+     *
+	 * This method is called every time the parent pipeline is made the current
+	 * active pipeline.
+     *
+     * @since 0.0.0
+     *
+     * @param setAttributes Should the vertex attribute pointers be set?
+     * @param flush Flush the pipeline before binding this shader?
+     */
 	void bind (bool setAttributes = false, bool flush = false);
 
+    /**
+	 * Sets the program this shader uses as being the active shader in the Renderer.
+     *
+     * Then resets all of the attribute pointers.
+     *
+     * @since 0.0.0
+     */
 	Shader* rebind ();
 
+    /**
+     * Sets the vertex attribute pointers.
+     *
+     * This should __ONLY__ be called after the _vertex array_ has been bound.
+     *
+     * It is called automatically during the `bind` method.
+     *
+     * @since 0.0.0
+     *
+     * @param reset Reset the vertex attribute locations?
+     */
 	void setAttribPointers (bool reset = false);
 
+    /**
+	 * Sets up the `Shader.uniforms` object, populating it with the names and
+	 * locations of the shader uniforms this shader requires.
+     *
+	 * It works by first calling `glGetProgramiv(program, GL_ACTIVE_UNIFORMS,
+	 * &totalUniforms)` to find out how many active uniforms this shader has.
+	 * It then iterates through them, calling `glGetActiveUniform` to get the
+	 * Active Info from each one. Finally, the name and location are stored in
+	 * the local array.
+     *
+     * This method is called automatically when this class is created.
+     *
+     * @since 0.0.0
+     */
 	void createUniforms ();
 
+    /**
+     * Checks to see if the given uniform name exists and is active in this shader.
+     *
+     * @since 0.0.0
+     *
+     * @param name The name of the uniform to check for.
+     *
+     * @return `true` if the uniform exists, otherwise `false`.
+     */
 	bool hasUniform (std::string name);
 
+    /**
+     * Resets the cached values of the given uniform.
+     *
+     * @since 0.0.0
+     *
+     * @param name The name of the uniform to reset.
+     */
 	void resetUniform (std::string name);
 
 	// Utillity uniform functions

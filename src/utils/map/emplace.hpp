@@ -21,15 +21,22 @@ namespace Zen {
  * @param map A pointer to a map to emplace a new item in.
  * @param key The key to emplace a new item at.
  * @param args The arguments to use to construct the new item.
+ *
+ * @return A pointer to the emplaced item, or null if it couldn't be added.
  */
 template <typename T, typename O, typename...Args>
-void Emplace (std::map<T, O>* map, T key, Args&&...args)
+O* Emplace (std::map<T, O>* map, T key, Args&&...args)
 {
-	map->emplace(
+	auto o = map->emplace(
 		std::piecewise_construct,
 		std::forward_as_tuple(key),
 		std::forward_as_tuple(std::forward<Args...>(args...))
 	);
+	
+	if (o.second)
+		return nullptr;
+	else
+		return &o.first->second;
 }
 
 #endif

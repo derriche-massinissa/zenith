@@ -17,6 +17,8 @@ struct Position
 		   y = 0.,
 		   z = 0.,
 		   w = 0.;
+
+	bool roundPixels = false;
 };
 
 }	// namespace Components

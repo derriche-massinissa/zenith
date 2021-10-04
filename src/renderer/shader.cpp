@@ -124,15 +124,15 @@ void Shader::bind (bool setAttributes, bool flush)
 	if (flush)
 		emit("pipeline-flush");
 
-	emit("shader-set");
+	g_renderer.setProgram(program);
 
-	if (setAttributes)
-		setAttribPointers();
+	//if (setAttributes)
+	//	setAttribPointers();
 }
 
 Shader* Shader::rebind ()
 {
-	emit("shader-set");
+	g_renderer.setProgram(program);
 
 	setAttribPointers(true);
 

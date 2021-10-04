@@ -46,6 +46,7 @@
 #include "../systems/text.hpp"
 #include "../systems/mask.hpp"
 #include "../systems/type.hpp"
+#include "../systems/renderable.hpp"
 #include "../display/color.hpp"
 #include "../texture/systems/frame.hpp"
 #include "../texture/components/frame.hpp"
@@ -89,24 +90,6 @@ extern SceneManager g_scene;
 //	resize(g_window.width(), g_window.height());
 //}
 
-//void Renderer::preRender ()
-//{
-//	if (config->clearBeforeRender)
-//	{
-//		SDL_SetRenderDrawColor(
-//				g_window.renderer,
-//				backgroundColor.red,
-//				backgroundColor.green,
-//				backgroundColor.blue,
-//				0xff);
-//		SDL_RenderClear(g_window.renderer);
-//	}
-//
-//	drawCount = 0;
-//
-//	emit("pre-render");
-//}
-//
 //void Renderer::render (
 //		std::vector<Entity> children_,
 //		Entity camera_)
@@ -225,265 +208,7 @@ extern SceneManager g_scene;
 //		SDL_RenderSetClipRect(g_window.renderer, nullptr);
 //	}
 //}
-//
-//void Renderer::postRender ()
-//{
-//	// Update the screen once every element has been rendered
-//	// This will also trigger a delay as the renderer is Vsynced
-//	SDL_RenderPresent(g_window.renderer);
-//
-//	emit("post-render");
-//
-//	if (snapshotState.active)
-//	{
-//		takeSnapshot();
-//
-//		snapshotState.active = false;
-//	}
-//}
-//
-//Renderer& Renderer::snapshot (std::string path_, std::function<void(SDL_Surface*)> callback_)
-//{
-//	return snapshotArea(0, 0, g_window.width(), g_window.height(), path_, callback_);
-//}
-//
-//Renderer& Renderer::snapshotArea (
-//		int x_,
-//		int y_,
-//		int width_,
-//		int height_,
-//		std::string path_,
-//		std::function<void(SDL_Surface*)> callback_)
-//{
-//	snapshotState.callback = callback_;
-//
-//	snapshotState.callbackPixel = nullptr;
-//
-//	snapshotState.path = path_;
-//
-//	snapshotState.getPixel = false;
-//
-//	snapshotState.x = Math::Clamp(x_, 0, g_window.width());
-//
-//	snapshotState.y = Math::Clamp(y_, 0, g_window.height());
-//
-//	snapshotState.width = Math::Clamp(
-//			width_,
-//			0,
-//			g_window.width() - snapshotState.x);
-//
-//	snapshotState.height = Math::Clamp(
-//			height_,
-//			0,
-//			g_window.height() - snapshotState.y);
-//
-//	snapshotState.active = true;
-//
-//	return *this;
-//}
-//
-//Renderer& Renderer::snapshotPixel (int x_, int y_, std::function<void(Color)>& callback_)
-//{
-//	snapshotArea(x_, y_, 1, 1, "", nullptr);
-//
-//	snapshotState.getPixel = true;
-//	snapshotState.callbackPixel = callback_;
-//
-//	return *this;
-//}
-//
-//Renderer& Renderer::snapshotPixel (int x_, int y_, std::function<void(Color)>&& callback_)
-//{
-//	return snapshotPixel(x_, y_, callback_);
-//}
-//
-//void Renderer::takeSnapshot ()
-//{
-//	if (!snapshotState.active)
-//		return;
-//
-//	if (snapshotState.surface) {
-//		SDL_FreeSurface(snapshotState.surface);
-//		snapshotState.surface = nullptr;
-//	}
-//
-//	// Get the pixel format of the window
-//	SDL_Surface *infoSurface_ = nullptr;
-//
-//	infoSurface_ = SDL_GetWindowSurface(g_window.window);
-//
-//	if (!infoSurface_) {
-//		MessageError("Failed to create info surface from window: ", SDL_GetError());
-//		return;
-//	}
-//
-//	SDL_PixelFormat pixelFormat_ = *infoSurface_->format;
-//
-//	SDL_FreeSurface(infoSurface_);
-//
-//
-//	if (snapshotState.getPixel) {
-//		// Pixel grab
-//		Uint32 pixel_;
-//		int pitch_ = 4;
-//		SDL_Rect rect_;
-//		rect_.x = snapshotState.x;
-//		rect_.y = snapshotState.y;
-//		rect_.w = 1;
-//		rect_.h = 1;
-//
-//		if (SDL_RenderReadPixels(
-//					g_window.renderer,
-//					&rect_,
-//					pixelFormat_.format,
-//					&pixel_,
-//					pitch_
-//					))
-//		{
-//			MessageError("Failed to read the window pixel data: ", SDL_GetError());
-//			return;
-//		}
-//
-//		// Get the color components of the pixel
-//		Uint8 r_ = 0, g_ = 0, b_ = 0, a_ = 0;
-//		SDL_GetRGBA(pixel_, &pixelFormat_, &r_, &g_, &b_, &a_);
-//
-//		// Save the color components to the output color object
-//		Color out_;
-//		SetTo(&out_, r_, g_, b_, a_);
-//
-//		// Call the callback if one was given
-//		if (snapshotState.callbackPixel)
-//			snapshotState.callbackPixel(out_);
-//	}
-//	else
-//	{
-//		// Area/Full grab
-//		bool areaSnapshot = (
-//				snapshotState.x != 0 ||
-//				snapshotState.y != 0 ||
-//				snapshotState.width != g_window.width() ||
-//				snapshotState.height != g_window.height()
-//				);
-//
-//		// Create a blank surface
-//		if (areaSnapshot) {
-//			snapshotState.surface = SDL_CreateRGBSurface(
-//					0,
-//					snapshotState.width,
-//					snapshotState.height,
-//					pixelFormat_.BitsPerPixel,
-//					pixelFormat_.Rmask,
-//					pixelFormat_.Gmask,
-//					pixelFormat_.Bmask,
-//					pixelFormat_.Amask
-//					);
-//		} else {
-//			snapshotState.surface = SDL_CreateRGBSurface(
-//					0,
-//					g_window.width(),
-//					g_window.height(),
-//					pixelFormat_.BitsPerPixel,
-//					pixelFormat_.Rmask,
-//					pixelFormat_.Gmask,
-//					pixelFormat_.Bmask,
-//					pixelFormat_.Amask
-//					);
-//		}
-//		if (!snapshotState.surface) {
-//			MessageError("Failed to create an RGB surface: ", SDL_GetError());
-//			return;
-//		}
-//
-//		int readFailed_ = 1;
-//
-//		// Read the window's pixels
-//		if (areaSnapshot) {
-//			// Read the rectangle defined in snapshotState
-//			SDL_Rect rect_;
-//			rect_.x = snapshotState.x;
-//			rect_.y = snapshotState.y;
-//			rect_.w = snapshotState.width;
-//			rect_.h = snapshotState.height;
-//
-//			MessageNote("area");
-//
-//			readFailed_ = SDL_RenderReadPixels(
-//					g_window.renderer,
-//					&rect_,
-//					pixelFormat_.format,
-//					snapshotState.surface->pixels,
-//					snapshotState.surface->pitch);
-//		} else {
-//			// Read the whole window
-//			readFailed_ = SDL_RenderReadPixels(
-//					g_window.renderer,
-//					nullptr,
-//					pixelFormat_.format,
-//					snapshotState.surface->pixels,
-//					snapshotState.surface->pitch);
-//		}
-//
-//		// Check if the renderer was read normally
-//		if (readFailed_) {
-//			MessageError("Failed to read the window pixel data: ", SDL_GetError());
-//			SDL_FreeSurface(snapshotState.surface);
-//			return;
-//		}
-//
-//		// Save an image file if a path is given
-//		if (snapshotState.path != "") {
-//			saveSnapshot();
-//		}
-//
-//		// Call the callback if one was given
-//		if (snapshotState.callback)
-//			snapshotState.callback(snapshotState.surface);
-//	}
-//}
-//
-//void Renderer::saveSnapshot ()
-//{
-//	std::string& path_ = snapshotState.path;
-//	std::string extension_ = "";
-//
-//	// Figure out the file type
-//	for (auto c_ = path_.rbegin(); c_ != path_.rend(); c_++) {
-//		if (*c_ == '.')
-//		{
-//			// We read all the extension's characters
-//			break;
-//		}
-//
-//		extension_.insert(0, 1, *c_);
-//	}
-//
-//	if (extension_ == "bmp")
-//	{
-//		if (SDL_SaveBMP(snapshotState.surface, path_.c_str()))
-//			MessageError("Failed to save snapshot in a 'BMP' file: ", SDL_GetError());
-//	}
-//	else if (extension_ == "png")
-//	{
-//		if (IMG_SavePNG(snapshotState.surface, path_.c_str()))
-//			MessageError("Failed to save snapshot in a 'PNG' file: ", IMG_GetError());
-//	}
-//	else if (extension_ == "jpg")
-//	{
-//		if (IMG_SaveJPG(snapshotState.surface, path_.c_str(), 100))
-//			MessageError("Failed to save snapshot in a 'JPG' file: ", IMG_GetError());
-//	}
-//	else if (extension_ == "jpeg")
-//	{
-//		if (IMG_SaveJPG(snapshotState.surface, path_.c_str(), 100))
-//			MessageError("Failed to save snapshot in a 'JPEG' file: ", IMG_GetError());
-//	}
-//	else
-//	{
-//		MessageError("File type unsupported! Try something else like 'png' or 'jpg'.");
-//	}
-//}
-//
+
 //void Renderer::batchSprite (
 //		Entity sprite_,
 //		Entity frame_,
@@ -893,15 +618,22 @@ void Renderer::init (GameConfig* config)
 
 Renderer::~Renderer ()
 {
-	/*
 	if (snapshotState.surface)
 		SDL_FreeSurface(snapshotState.surface);
-	*/
 }
 
 void Renderer::boot ()
 {
-	// TODO
+	width = g_scale.displaySize.width;
+	height = g_scale.displaySize.height;
+
+	isBooted = true;
+
+	renderTarget.resize(width, height);
+	renderTarget.setAutoResize(true);
+
+	// Setup pipelines
+	pipelines.boot(config.pipeline);
 }
 
 void Renderer::onResize (Size, Size displaySize_, int, int)
@@ -1384,7 +1116,7 @@ GL_fbo Renderer::popFramebuffer (bool updateScissor, bool resetTextures,
 	fboStack.pop_back();
 
 	// Reset the previous frambuffer
-	GL_fbo framebuffer;
+	GL_fbo framebuffer = 0;
 
 	if (!fboStack.empty())
 		framebuffer = fboStack.back();
@@ -1565,6 +1297,16 @@ GL_fbo Renderer::createFramebuffer (int width_, int height_,
 	resetTextures();
 
 	return framebuffer_;
+}
+
+GL_vao Renderer::createVertexArray ()
+{
+	GL_vao vertexArray;
+
+	glGenVertexArrays(1, &vertexArray);
+	glBindVertexArray(vertexArray);
+
+	return vertexArray;
 }
 
 GL_vbo Renderer::createVertexBuffer (size_t initialSize, GLenum bufferUsage)
@@ -1822,7 +1564,7 @@ void Renderer::render (std::vector<Entity> children_, Entity camera_)
 		else
 			nextTypeMatch = false;
 
-		renderChild(child_, camera_);
+		Render(child_, camera_);
 
 		newType = false;
 	}
@@ -1843,10 +1585,14 @@ void Renderer::postRender ()
 {
 	flush();
 
+	// Update screen
+	SDL_GL_SwapWindow(g_window.window);
+
 	emit("post-render");
 
-	if (snapshotState.callback) {
+	if (snapshotState.active) {
 		snapshot();
+		snapshotState.active = false;
 		snapshotState.callback = nullptr;
 	}
 
@@ -1889,6 +1635,163 @@ void Renderer::snapshotArea (int x_, int y_, int width_, int height_,
 			g_window.height() - snapshotState.y);
 
 	snapshotState.active = true;
+}
+
+void Renderer::snapshotPixel (int x_, int y_, std::function<void(Color)>& callback_)
+{
+	snapshotArea(x_, y_, 1, 1, "", nullptr);
+
+	snapshotState.getPixel = true;
+	snapshotState.callbackPixel = callback_;
+}
+
+void Renderer::snapshotPixel (int x_, int y_, std::function<void(Color)>&& callback_)
+{
+	return snapshotPixel(x_, y_, callback_);
+}
+
+void Renderer::snapshotFramebuffer (GL_fbo framebuffer, int bufferWidth,
+		int bufferHeight, std::function<void(SDL_Surface*)>&& callback,
+		bool getPixel, int x, int y, int width, int height, std::string path)
+{
+	snapshotArea(x, y, width, height, path, callback);
+
+	snapshotState.getPixel = getPixel;
+
+	snapshotState.isFramebuffer = true;
+	snapshotState.bufferWidth = bufferWidth;
+	snapshotState.bufferHeight = bufferHeight;
+
+	setFramebuffer(framebuffer);
+
+	takeSnapshot();
+
+	setFramebuffer(currentFramebuffer);
+
+	snapshotState.callback = nullptr;
+	snapshotState.isFramebuffer = false;
+	snapshotState.active = false;
+}
+
+void Renderer::takeSnapshot ()
+{
+	if (!snapshotState.active)
+		return;
+
+	if (snapshotState.surface) {
+		SDL_FreeSurface(snapshotState.surface);
+		snapshotState.surface = nullptr;
+	}
+
+	// Get the pixel format of the window
+	SDL_Surface *infoSurface_ = nullptr;
+
+	infoSurface_ = SDL_GetWindowSurface(g_window.window);
+
+	if (!infoSurface_) {
+		MessageError("Failed to create info surface from window: ", SDL_GetError());
+		return;
+	}
+
+	SDL_PixelFormat pixelFormat_ = *infoSurface_->format;
+
+	SDL_FreeSurface(infoSurface_);
+
+	if (snapshotState.getPixel) {
+		// Pixel grab
+		std::uint8_t pixel_[4];
+
+		glReadPixels(snapshotState.x, snapshotState.y, 1, 1, GL_RGBA,
+				GL_UNSIGNED_BYTE, &pixel_);
+
+		// Save the color components to the output color object
+		Color out_;
+		SetTo(&out_, pixel_[0], pixel_[1], pixel_[2], pixel_[3]);
+
+		// Call the callback if one was given
+		if (snapshotState.callbackPixel)
+			snapshotState.callbackPixel(out_);
+	}
+	else
+	{
+		// Create a blank surface
+		if (!(snapshotState.surface = SDL_CreateRGBSurface(
+				0,
+				snapshotState.width,
+				snapshotState.height,
+				pixelFormat_.BitsPerPixel,
+				pixelFormat_.Rmask,
+				pixelFormat_.Gmask,
+				pixelFormat_.Bmask,
+				pixelFormat_.Amask
+				))) {
+			MessageError("Failed to create an RGB surface: ", SDL_GetError());
+			return;
+		}
+
+		std::vector<std::uint8_t> pixels_;
+		pixels_.resize(snapshotState.surface->pitch * snapshotState.surface->h);
+
+		// Read the window's pixels
+		glReadPixels(snapshotState.x, snapshotState.y, snapshotState.width,
+				snapshotState.height, GL_RGBA, GL_UNSIGNED_BYTE, pixels_.data());
+
+		// Save an image file if a path is given
+		if (snapshotState.path != "") {
+			saveSnapshot();
+		}
+
+		// Call the callback if one was given
+		if (snapshotState.callback)
+			snapshotState.callback(snapshotState.surface);
+	}
+}
+
+void Renderer::saveSnapshot ()
+{
+	std::string& path_ = snapshotState.path;
+	std::string extension_ = "";
+
+	// Figure out the file type
+	for (auto c_ = path_.rbegin(); c_ != path_.rend(); c_++) {
+		if (*c_ == '.')
+		{
+			// We read all the extension's characters
+			break;
+		}
+
+		extension_.insert(0, 1, *c_);
+	}
+
+	if (extension_ == "bmp")
+	{
+		if (SDL_SaveBMP(snapshotState.surface, path_.c_str()))
+			MessageError("Failed to save snapshot in a 'BMP' file: ",
+					SDL_GetError());
+	}
+	else if (extension_ == "png")
+	{
+		if (IMG_SavePNG(snapshotState.surface, path_.c_str()))
+			MessageError("Failed to save snapshot in a 'PNG' file: ",
+					IMG_GetError());
+	}
+	else if (extension_ == "jpg")
+	{
+		if (IMG_SaveJPG(snapshotState.surface, path_.c_str(), 100))
+			MessageError("Failed to save snapshot in a 'JPG' file: ",
+					IMG_GetError());
+	}
+	else if (extension_ == "jpeg")
+	{
+		if (IMG_SaveJPG(snapshotState.surface, path_.c_str(), 100))
+			MessageError("Failed to save snapshot in a 'JPEG' file: ",
+					IMG_GetError());
+	}
+	else
+	{
+		MessageError("File type unsupported! Try something else like 'png'"
+				"or 'jpg'.");
+	}
 }
 
 }	// namespace Zen

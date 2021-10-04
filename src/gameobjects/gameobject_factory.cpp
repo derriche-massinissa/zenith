@@ -33,6 +33,7 @@
 #include "../systems/origin.hpp"
 #include "../systems/textured.hpp"
 #include "../systems/text.hpp"
+#include "render_functions.hpp"
 
 namespace Zen {
 
@@ -45,15 +46,6 @@ GameObjectFactory::GameObjectFactory (Scene* scene_)
 
 void GameObjectFactory::boot ()
 {}
-
-/*
-Image& GameObjectFactory::image (int x, int y, std::string key, std::string frame)
-{
-	return *static_cast<Image*> (
-		scene->children.add(std::move( std::make_unique<Image>(scene, x, y, key, frame) ))
-	);
-}
-*/
 
 Entity GameObjectFactory::image (double x, double y, std::string key, std::string frame)
 {
@@ -74,10 +66,12 @@ Entity GameObjectFactory::image (double x, double y, std::string key, std::strin
 	g_registry.emplace<Components::Rotation>(img);
 	g_registry.emplace<Components::Scale>(img);
 	g_registry.emplace<Components::Visible>(img);
-	g_registry.emplace<Components::Renderable>(img);
 	g_registry.emplace<Components::Crop>(img);
 	g_registry.emplace<Components::Actor>(img, scene);
 	g_registry.emplace<Components::Type>(img, "image");
+
+	Components::Renderable &r = g_registry.emplace<Components::Renderable>(img);
+	r.render = Render_image;
 
 	SetTexture(img, key, frame);
 	SetSizeToFrame(img);
@@ -106,9 +100,11 @@ Entity GameObjectFactory::text (double x, double y, std::string text, TextStyle 
 	g_registry.emplace<Components::Rotation>(txt);
 	g_registry.emplace<Components::Scale>(txt);
 	g_registry.emplace<Components::Visible>(txt);
-	g_registry.emplace<Components::Renderable>(txt);
 	g_registry.emplace<Components::Actor>(txt, scene);
 	g_registry.emplace<Components::Type>(txt, "text");
+
+	auto &r = g_registry.emplace<Components::Renderable>(txt);
+	r.render = Render_text;
 
 	// Generate texture
 	SetTextStyle(txt, style);

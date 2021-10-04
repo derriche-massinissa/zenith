@@ -60,6 +60,11 @@ public:
 	 */
 	Pipeline (PipelineConfig config);
 
+	/**
+	 * @since 0.0.0
+	 */
+	~Pipeline ();
+
     /**
      * Called when the Game has fully booted and the Renderer has finished setting
 	 * up.
@@ -217,6 +222,14 @@ public:
      * @since 0.0.0
      */
     void rebind ();
+
+    /**
+     * @since 0.0.0
+     *
+     * @return `true` if the vertex array was bound, or `false` if it was already
+	 * bound.
+     */
+    bool setVertexArray ();
 
     /**
      * Binds the vertex buffer to be the active ARRAY_BUFFER on the OpenGL context.
@@ -735,6 +748,13 @@ public:
 	std::vector<std::uint8_t> vertexData;
 
 	/**
+	 * The vertex array that holds the render state.
+	 *
+	 * @since 0.0.0
+	 */
+	GL_vao vertexArray = 0;
+
+	/**
 	 * The buffer that holds the vertex data.
 	 *
 	 * Created from the `vertexData` array. If `vertices` are set in the config, a
@@ -742,7 +762,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	GLuint vertexBuffer;
+	GLuint vertexBuffer = 0;
 
 	/**
 	 * The primitive topology which the pipeline will use to submit draw calls.
@@ -838,7 +858,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::optional<glm::mat4> projectionMatrix;
+	glm::mat4 projectionMatrix;
 
 	/**
 	 * The cached width of the Projection matrix.

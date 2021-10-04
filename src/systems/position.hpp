@@ -41,6 +41,10 @@ double GetZ (Entity entity);
 
 double GetW (Entity entity);
 
+bool GetRoundPixels (Entity entity);
+
+void SetRoundPixels (Entity entity, bool value);
+
 }	// namespace Zen
 
 #endif

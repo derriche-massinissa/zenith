@@ -26,11 +26,77 @@ Pipeline::Pipeline (PipelineConfig config)
 	, topology (config.topology)
 	, forceZero (config.forceZero)
 	, config (config)
-{}
+{
+}
+
+Pipeline::~Pipeline ()
+{
+	glDeleteVertexArrays(1, &vertexArray);
+	glDeleteBuffers(1, &vertexBuffer);
+}
 
 void Pipeline::boot()
 {
-	// TODO
+	resize(g_renderer.width, g_renderer.height);
+
+	// Create the RenderTargets
+	for (auto target : config.renderTarget) {
+		renderTargets.emplace_back(width, height, target.scale, target.minFilter,
+				target.autoClear, target.autoResize);
+	}
+
+	if (!renderTargets.empty())
+		// Default to the first one in the vector
+		currentRenderTarget = &renderTargets[0];
+
+	// Create the Shaders
+	setShadersFromConfig(config);
+
+	// Which shader has the largest vertex size?
+	int vertexSize = 0;
+	for (auto &shader : shaders) {
+		if (shader.second->vertexSize > vertexSize)
+			vertexSize = shader.second->vertexSize;
+	}
+
+	int batchSize = config.batchSize;
+
+	// * 6 because there are 6 vertices in a quad and 'batchSize' represents
+	// the quantity of quads in the batch
+	vertexCapacity = batchSize * 6;
+
+	vertexData.resize(vertexCapacity * vertexSize);
+
+	if (!config.vertices.empty()) {
+		float *vertexViewF32 = reinterpret_cast<float*>(vertexData.data());
+		memcpy(vertexViewF32, config.vertices.data(),
+				sizeof(float) * config.vertices.size());
+		vertexBuffer = g_renderer.createVertexBuffer(vertexData, GL_STATIC_DRAW);
+	}
+	else {
+		vertexBuffer = g_renderer.createVertexBuffer(sizeof(std::uint8_t) *
+				vertexData.size(), GL_STATIC_DRAW);
+	}
+
+	// Setup shaders
+	setVertexArray();
+	setVertexBuffer();
+
+	for (auto &shader : shaders) {
+		shader.second->rebind();
+		//shader.second->setAttribPointers(true);
+	}
+
+	hasBooted = true;
+
+	g_renderer.on("resize", &Pipeline::resize, this);
+	g_renderer.on("pre-render", &Pipeline::onPreRender, this);
+	g_renderer.on("render", &Pipeline::onRender, this);
+	g_renderer.on("post-render", &Pipeline::onPostRender, this);
+
+	emit("boot");
+
+	onBoot();
 }
 
 void Pipeline::onBoot ()
@@ -48,12 +114,13 @@ void Pipeline::setShader (Shader *shader, bool setAttributes)
 
 		g_renderer.resetTextures();
 
-		bool wasBound = setVertexBuffer();
+		bool wasBound = setVertexArray();
+		// FIXME test this: setVertexBuffer();
 
-		if (wasBound && !setAttributes)
-			setAttributes = true;
+		//if (wasBound && !setAttributes)
+		//	setAttributes = true;
 
-		shader->bind(setAttributes, false);
+		shader->bind(/*this: */ setAttributes /* doesn't matter*/, false);
 		
 		currentShader = shader;
 	}
@@ -88,14 +155,13 @@ void Pipeline::setShadersFromConfig (PipelineConfig config)
 
 	if (configShaders.empty()) {
 		if (!defaultVertShader.empty() && !defaultFragShader.empty()) {
-			Emplace(&shaders, std::string("default"), std::make_unique<Shader>(
-				"default", defaultVertShader, defaultFragShader, defaultAttribs
-			));
+			auto *s = Emplace(&shaders, std::string("default"),
+					std::make_unique<Shader>("default", defaultVertShader,
+						defaultFragShader, defaultAttribs))->get();
 
-			shaders.at("default")->on("set-program", &Pipeline::setCurrentProgram,
-					this);
-			shaders.at("default")->on("set-current", &Pipeline::setCurrentShader,
-					this);
+			s->on("set-program", &Pipeline::setCurrentProgram, this);
+			s->on("set-current", &Pipeline::setCurrentShader, this);
+			s->on("pipeline-flush", &Pipeline::flush, this);
 		}
 	}
 	else {
@@ -106,14 +172,13 @@ void Pipeline::setShadersFromConfig (PipelineConfig config)
 			auto attributes = entry.attributes;
 
 			if (!vertShader.empty() && !fragShader.empty()) {
-				Emplace(&shaders, name, std::make_unique<Shader>(
+				auto *s = Emplace(&shaders, name, std::make_unique<Shader>(
 					name, vertShader, fragShader, attributes
-				));
+				))->get();
 
-				shaders.at(name)->on("set-program", &Pipeline::setCurrentProgram,
-						this);
-				shaders.at(name)->on("set-current", &Pipeline::setCurrentShader,
-						this);
+				s->on("set-program", &Pipeline::setCurrentProgram, this);
+				s->on("set-current", &Pipeline::setCurrentShader, this);
+				s->on("pipeline-flush", &Pipeline::flush, this);
 			}
 		}
 	}
@@ -162,14 +227,10 @@ void Pipeline::resize (double width_, double height_)
 
 void Pipeline::setProjectionMatrix (double width_, double height_)
 {
-	// Not all pipeline have a projection matrix
-	if (!projectionMatrix)
-		return;
-
 	projectionWidth = width_;
 	projectionHeight = height_;
 
-	*projectionMatrix = glm::ortho(0.f, (float)width_, (float)height_, 0.f);
+	projectionMatrix = glm::ortho(0.f, (float)width_, (float)height_, 0.f);
 
 	std::string name = "uProjectionMatrix";
 
@@ -179,16 +240,13 @@ void Pipeline::setProjectionMatrix (double width_, double height_)
 		if (shader->hasUniform(name)) {
 			shader->resetUniform(name);
 
-			shader->set(name, false, *projectionMatrix);
+			shader->set(name, false, projectionMatrix);
 		}
 	}
 }
 
 void Pipeline::updateProjectionMatrix ()
 {
-	if (!projectionMatrix)
-		return;
-
 	double globalWidth_ = g_renderer.projectionWidth;
 	double globalHeight_ = g_renderer.projectionHeight;
 
@@ -201,7 +259,8 @@ void Pipeline::bind (Shader *currentShader_)
 	if (currentShader_)
 		currentShader = currentShader_;
 
-	bool wasBound = setVertexBuffer();
+	bool wasBound = setVertexArray();
+	// FIXME test this: setVertexBuffer();
 
 	currentShader->bind(wasBound);
 
@@ -212,7 +271,8 @@ void Pipeline::bind (Shader *currentShader_)
 
 void Pipeline::rebind ()
 {
-	setVertexBuffer();
+	setVertexArray();
+	//setVertexBuffer();
 
 	for (auto s = shaders.rbegin(); s != shaders.rend(); s++) {
 		Shader *shader = s->second.get();
@@ -234,6 +294,19 @@ bool Pipeline::setVertexBuffer ()
 	if (buffer_ != vertexBuffer) {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 
+		return true;
+	}
+
+	return false;
+}
+
+bool Pipeline::setVertexArray ()
+{
+	GL_vao vao_ = g_renderer.currentVertexArray;
+
+	if (vao_ != vertexArray) {
+		g_renderer.currentVertexArray = vertexArray;
+		glBindVertexArray(vertexArray);
 		return true;
 	}
 
@@ -276,7 +349,8 @@ void Pipeline::flush (bool isPostFlush_)
 		int vertexSize_ = currentShader->vertexSize;
 
 		if (active) {
-			setVertexBuffer();
+			setVertexArray();
+			//setVertexBuffer();
 
 			if (vertexCount == vertexCapacity)
 				glBufferData(GL_ARRAY_BUFFER, vertexSize_, vertexData.data(),
@@ -346,10 +420,10 @@ void Pipeline::batchVert (double x, double y, double u, double v, int unit,
 
 	size_t vertexOffset = (vertexCount * currentShader->vertexComponentCount) - 1;
 
-	vertexViewF32[++vertexOffset] = (float) x;
-	vertexViewF32[++vertexOffset] = (float) y;
-	vertexViewF32[++vertexOffset] = (float) u;
-	vertexViewF32[++vertexOffset] = (float) v;
+	vertexViewF32[++vertexOffset] = static_cast<float>(x);
+	vertexViewF32[++vertexOffset] = static_cast<float>(y);
+	vertexViewF32[++vertexOffset] = static_cast<float>(u);
+	vertexViewF32[++vertexOffset] = static_cast<float>(v);
 	vertexViewU32[++vertexOffset] = unit;
 	vertexViewU32[++vertexOffset] = tintEffect;
 	vertexViewU32[++vertexOffset] = tint;

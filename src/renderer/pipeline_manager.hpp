@@ -16,6 +16,7 @@
 #include "pipelines/utility_pipeline.hpp"
 #include "pipelines/multi_pipeline.hpp"
 #include "pipelines/bitmap_mask_pipeline.hpp"
+#include "pipelines/postfx_pipeline.hpp"
 
 namespace Zen {
 
@@ -54,7 +55,7 @@ public:
 	/**
 	 * @since 0.0.0
 	 */
-	void boot (PipelineConfig config);
+	void boot ();
 
     /**
      * Adds a pipeline to this Pipeline Manager.
@@ -64,7 +65,7 @@ public:
      * You should call it like this:
      *
      * ```cpp
-     * add<CustomPipeline>('yourName');`
+     * add<CustomPipeline>("yourName");`
      * ```
      *
      * To add a **Post Pipeline**, see `addPostPipeline` instead.
@@ -78,23 +79,27 @@ public:
      */
 	template <typename T>
     Pipeline* add (std::string name)
-	{}
+	{
+		if (has(name)) {
+			MessageWarning("Pipeline: ", name, " already exists");
+			return nullptr;
+		}
 
-    /**
-     * Adds a Post Pipeline to this Pipeline Manager.
-     *
-     * You should call it like this:
-     *
-     * To add a regular pipeline, see the `add` method instead.
-     *
-     * @since 0.0.0
-     *
-     * @tparam pipeline A pipeline class which must extend `PostFXPipeline`.
-     * @param name A unique string-based key for the pipeline within the manager.
-     */
-	template <typename T>
-    void addPostPipeline (std::string name)
-	{}
+		Pipeline &pipeline = *Emplace(pipelines, name, std::make_unique<T>());
+
+		if (pipeline.isPostFX) {
+			MessageWarning(name, " is a Post Pipeline. Use `addPostPipeline`"
+					" instead");
+			pipelines.erase(pipelines.find(name));
+			return nullptr;
+		}
+
+		pipeline.name = name;
+
+		pipeline.boot();
+
+		return &pipeline;
+	}
 
     /**
      * Flushes the current pipeline, if one is bound.
@@ -108,11 +113,11 @@ public:
      *
      * @since 0.0.0
      *
-     * @param pipeline The string-based name of the pipeline to get
+     * @param name The string-based name of the pipeline to check for
      *
      * @return `true` if the given pipeline is loaded, otherwise `false`.
      */
-    bool has (std::string pipeline);
+    bool has (std::string name);
 
     /**
      * Returns the pipeline instance based on the given name.
@@ -126,19 +131,6 @@ public:
     Pipeline* get (std::string pipeline);
 
     /**
-     * Returns a _new instance_ of the post pipeline based on the given name.
-     *
-     * @since 0.0.0
-     *
-     * @param pipeline The string-based name of the pipeline to get
-     * @param gameObject If this post pipeline is being installed into a
-	 * Game Object or Camera, this is it.
-     *
-     * @return The pipeline instance, or `nullptr` if not found.
-     */
-    PostFXPipeline* getPostPipeline (std::string pipeline, Entity entity);
-
-    /**
      * Removes a pipeline instance based on the given name.
      *
      * If no pipeline matches the name, this method does nothing.
@@ -150,7 +142,7 @@ public:
      *
      * @param name The name of the pipeline to be removed.
      */
-	bool remove (std::string name);
+	void remove (std::string name);
 
     /**
      * Sets the current pipeline to be used by the Renderer.

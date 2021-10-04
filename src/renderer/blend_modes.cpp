@@ -12,6 +12,69 @@ namespace Zen {
 
 void Renderer::createBlendModes ()
 {
+	// C = (S.rgb * 1) + (D.rgb * 0)
+	int mode = static_cast<int>(BLEND_MODE::NORMAL);
+	blendModes[mode] = {
+		{GL_FUNC_ADD},
+		{GL_ONE, GL_ZERO}
+	};
+
+	// C = (S * S.a) + (D * (1 - S.a))
+	mode = static_cast<int>(BLEND_MODE::BLEND);
+	blendModes[mode] = {
+		{GL_FUNC_ADD},
+		// fnc
+		{GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
+	};
+
+	// C = (S * 1) + (D * 1)
+	mode = static_cast<int>(BLEND_MODE::ADD);
+	blendModes[mode] = {
+		{GL_FUNC_ADD},
+		// fnc
+		{GL_ONE, GL_ONE}
+	};
+
+	// C = (S * D) + (D * 0)
+	mode = static_cast<int>(BLEND_MODE::MULTIPLY);
+	blendModes[mode] = {
+		{GL_FUNC_ADD},
+		// fnc
+		{GL_DST_COLOR, GL_ZERO}
+	};
+
+	// TODO write and test blend modes
+	// C.rgb = (S.rgb * 1-D.rgb) + (D.rgb * 1)
+	// C.a = (S.a * 0) + (D.a * 1)
+	mode = static_cast<int>(BLEND_MODE::SCREEN);
+	blendModes[mode] = {
+		{GL_FUNC_ADD},
+		// fnc
+		{GL_DST_COLOR, GL_ZERO}
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/*
 	blendModes[BLEND_MODE::NORMAL] = SDL_BLENDMODE_NONE;
 
 	blendModes[BLEND_MODE::BLEND] = SDL_BLENDMODE_BLEND;
@@ -124,6 +187,7 @@ void Renderer::createBlendModes ()
 			SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
 			SDL_BLENDOPERATION_ADD
 			);
+	*/
 }
 
 }	// namespace Zen

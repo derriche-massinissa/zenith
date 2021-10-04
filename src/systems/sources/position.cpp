@@ -156,4 +156,20 @@ double GetCenterY (Entity entity)
 	return position->y + (0.5 * size->height);
 }
 
+bool GetRoundPixels (Entity entity)
+{
+	auto position = g_registry.try_get<Components::Position>(entity);
+	ZEN_ASSERT(position, "The entity has no 'Position' component.");
+
+	return position->roundPixels;
+}
+
+void SetRoundPixels (Entity entity, bool value)
+{
+	auto position = g_registry.try_get<Components::Position>(entity);
+	ZEN_ASSERT(position, "The entity has no 'Position' component.");
+
+	position->roundPixels = value;
+}
+
 }	// namespace Zen

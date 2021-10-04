@@ -84,13 +84,7 @@ public:
 	 * if set.
      */
     void batchSprite (Entity gameObject, Entity camera,
-			Components::TransformMatrix parentTransformMatrix);
-
-	/**
-	 * @overload
-	 * @since 0.0.0
-	 */
-    void batchSprite (Entity gameObject, Entity camera);
+			Components::TransformMatrix *parentTransformMatrix = nullptr);
 
     /**
      * Generic function for batching a textured quad using argument values instead
