@@ -15,6 +15,8 @@
 
 namespace Zen {
 
+class MultiPipeline;
+
 /**
  * Fades the Camera to or from the given color over the duration specified.
  *
@@ -56,7 +58,7 @@ void UpdateFade (Entity camera, Uint32 time, Uint32 delta);
  *
  * @return `true` if the effect drew to the renderer, otherwise `false`.
  */
-bool PostRenderFade (Entity camera);
+bool PostRenderFade (Entity camera, MultiPipeline& pipeline);
 
 /**
  * Called internally when the effect completes.

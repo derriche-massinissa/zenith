@@ -5,13 +5,12 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
-#ifndef ZEN_RENDERER_FWD_HPP
-#define ZEN_RENDERER_FWD_HPP
+#ifndef ZEN_RENDERER_EVENTS_HPP
+#define ZEN_RENDERER_EVENTS_HPP
 
-namespace Zen {
-
-class Renderer;
-
-}	// namespace Zen
+#include "RENDER.hpp"
+#include "POST_RENDER.hpp"
+#include "PRE_RENDER.hpp"
+#include "RESIZE.hpp"
 
 #endif

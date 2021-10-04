@@ -10,16 +10,23 @@
 
 #include "../ecs/entity.hpp"
 #include "../renderer/types/gl_types.hpp"
+#include "../event/event_listener.hpp"
 
 namespace Zen {
 namespace Components {
 
 struct Mask
 {
+	/**
+	 * Is this mask a bitmap mask or a geometry mask?
+	 *
+	 * @since 0.0.0
+	 */
+	bool bitmap = false;
+
 	//////////
 	// Bitmask
 	//////////
-	Entity bitmapMask = entt::null; // renderable
 
 	/**
 	 * The texture used for the masks framebuffer.
@@ -79,13 +86,6 @@ struct Mask
 	// Geometry
 	///////////
 	/**
-	 * The Graphics object which describes the Geometry Mask.
-	 *
-	 * @since 0.0.0
-	 */
-	Entity geometryMask = entt::null;
-
-	/**
 	 * The current stencil level.
 	 *
 	 * @since 0.0.0
@@ -97,9 +97,25 @@ struct Mask
 	///////////
 	/**
 	 * Is this mask a bitmap mask? Otherwise it is a geometry mask.
+	 *
 	 * @since 0.0.0
 	 */
 	bool isBitmap = true;
+
+	/**
+	 * A renderable entity to act as a mask. Either a textured or graphics
+	 * game object.
+	 *
+	 * @since 0.0.0
+	 */
+	Entity maskEntity = entt::null;
+
+	/**
+	 * The listener for the renderer's event to resize this mask.
+	 *
+	 * @since 0.0.0
+	 */
+	ListenerBase *resizeListener = nullptr;
 };
 
 }	// namespace Components

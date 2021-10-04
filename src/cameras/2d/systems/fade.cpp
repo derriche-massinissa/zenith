@@ -16,6 +16,7 @@
 #include "../../../window/window.hpp"
 #include "../../../scale/scale_manager.hpp"
 #include "../events/events.hpp"
+#include "../../../renderer/utility.hpp"
 
 namespace Zen {
 
@@ -91,7 +92,33 @@ void UpdateFade (Entity camera, [[maybe_unused]] Uint32 time, Uint32 delta)
 	}
 }
 
-bool PostRenderFade (Entity camera)
+bool PostRenderFade (Entity camera, MultiPipeline& pipeline)
+{
+	auto [fade, position, size] = g_registry.try_get<Components::EffectFade,
+		 Components::Position, Components::Size>(camera);
+	if (!fade) {
+		MessageWarning("The entity has no 'EffectFade' component");
+		return false;
+	}
+
+	if (!fade->isRunning && !fade->isComplete)
+		return false;
+
+	double red = fade->red / 255.;
+	double green = fade->green / 255.;
+	double blue = fade->blue / 255.;
+
+	pipeline.drawFillRect(
+		position->x, position->y, size->width, size->height,
+		GetTintFromFloats(blue, green, red, 1),
+		fade->alpha
+	);
+
+	return true;
+}
+
+/*
+bool g ()
 {
 	auto [fade, position, size] = g_registry.try_get<Components::EffectFade,
 		 Components::Position, Components::Size>(camera);
@@ -123,6 +150,7 @@ bool PostRenderFade (Entity camera)
 
 	return true;
 }
+*/
 
 void CompleteFade (Entity camera)
 {

@@ -12,6 +12,7 @@
 #include "../../components/mask.hpp"
 #include "../../components/masked.hpp"
 #include "../../systems/mask.hpp"
+#include "../../systems/renderable.hpp"
 #include "../shaders/bitmap_mask_frag.hpp"
 #include "../shaders/bitmap_mask_vert.hpp"
 
@@ -66,12 +67,11 @@ void BitmapMaskPipeline::resize (double width, double height)
 	set("uResolution", width, height);
 }
 
-void BitmapMaskPipeline::beginMask (Entity mask, Entity maskedObject, Entity camera)
+void BitmapMaskPipeline::beginMask (Entity mask, Entity camera)
 {
 	Components::Mask *m = g_registry.try_get<Components::Mask>(mask);
-	Components::Masked *md = g_registry.try_get<Components::Masked>(maskedObject);
 
-	if (m && m->bitmapMask != entt::null) {
+	if (m && m->maskEntity != entt::null) {
 		g_renderer.flush();
 
 		g_renderer.pushFramebuffer(m->mainFramebuffer);
@@ -87,18 +87,18 @@ void BitmapMaskPipeline::beginMask (Entity mask, Entity maskedObject, Entity cam
 	}
 }
 
-void BitmapMaskPipeline::endMask (Entity mask, Entity camera)
+void BitmapMaskPipeline::endMask (Entity maskEntity, Entity camera)
 {
-	Components::Mask *m = g_registry.try_get<Components::Mask>(mask);
+	Components::Mask *mask = g_registry.try_get<Components::Mask>(maskEntity);
 
-	if () {
+	if (mask->maskEntity != entt::null) {
 		// mask.mainFramebuffer should now contain all the Game Objects we want
 		// masked
 		g_renderer.flush();
 
 		// Swap to the mask framebuffer (push, in case the bitmapMask GO has a
 		// post-pipeline)
-		g_renderer.pushFramebuffer(m->maskFramebuffer);
+		g_renderer.pushFramebuffer(mask->maskFramebuffer);
 
 		// Clear it and draw the Game Object that is acting as a mask to it
 		glClearColor(0, 0, 0, 0);
@@ -106,7 +106,7 @@ void BitmapMaskPipeline::endMask (Entity mask, Entity camera)
 
 		g_renderer.setBlendMode(0, true);
 
-		mask.render(g_renderer, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa);
+		Render(mask->maskEntity, camera);
 
 		g_renderer.flush();
 
@@ -114,13 +114,12 @@ void BitmapMaskPipeline::endMask (Entity mask, Entity camera)
 		g_renderer.popFramebuffer();
 		g_renderer.popFramebuffer();
 
-		// Is there a stecil furter up the stack?
-		Entity prev = g_renderer.getCurrentStencilMask();
-		if (prev != entt::null) {
+		// Is there a stecil further up the stack?
+		auto prev = g_renderer.getCurrentStencilMask();
+		if (prev.mask != entt::null) {
 			glEnable(GL_STENCIL_TEST);
 
-			// TODO are camera and prev.camera different? Used camera for now
-			ApplyStencil(prev, camera, true);
+			ApplyStencil(prev.mask, prev.camera, true);
 		}
 		else {
 			g_renderer.currentMask.mask = entt::null;
@@ -130,12 +129,12 @@ void BitmapMaskPipeline::endMask (Entity mask, Entity camera)
 		g_renderer.pipelines.set(name);
 
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, m->maskTexture);
+		glBindTexture(GL_TEXTURE_2D, mask->maskTexture);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m->mainTexture);
+		glBindTexture(GL_TEXTURE_2D, mask->mainTexture);
 
-		set("uInvertMaskAlpha", m->invertAlpha);
+		set("uInvertMaskAlpha", mask->invertAlpha);
 
 		// Finally, draw a triangle filling the whole screen
 		glDrawArrays(topology, 0, 3);

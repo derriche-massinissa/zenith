@@ -59,7 +59,7 @@ public:
      * @param maskedObject GameObject masked by the mask GameObject.
      * @param camera The camera rendering the current mask.
      */
-    void beginMask (Entity mask, Entity maskedObject, Entity camera);
+    void beginMask (Entity mask, Entity camera);
 
     /**
      * The masked game objects framebuffer is unbound and its texture

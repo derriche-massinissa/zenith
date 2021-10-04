@@ -92,8 +92,6 @@ struct RenderConfig {
 	GLenum mipmapFilter = GL_LINEAR;
 
 	Color backgroundColor;
-
-	PipelineConfig pipeline;
 };
 
 }	// namespace Zen

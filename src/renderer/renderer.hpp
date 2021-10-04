@@ -794,8 +794,10 @@ public:
      * Return the current stencil mask.
      *
      * @since 0.0.0
+	 *
+	 * @return The current stencil mask along its camera.
      */
-	Entity getCurrentStencilMask ();
+	Mask_ getCurrentStencilMask ();
 
     /**
      * Controls the post-render operations for the given camera.

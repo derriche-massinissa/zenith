@@ -29,13 +29,6 @@ struct Masked
 	 * or the scene's main camera (the mask is independent of the camera).
 	 */
 	Entity camera = entt::null;
-
-	/**
-	 * Is this mask a bitmap mask or a geometry mask?
-	 *
-	 * @since 0.0.0
-	 */
-	bool bitmap = false;
 };
 
 }	// namespace Components

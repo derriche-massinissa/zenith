@@ -22,6 +22,7 @@
 #include "../utils/vector/remove.hpp"
 #include "../utils/map/emplace.hpp"
 #include "../core/config.hpp"
+#include "events/events.hpp"
 
 #include "../cameras/2d/systems/fade.hpp"
 
@@ -633,7 +634,7 @@ void Renderer::boot ()
 	renderTarget.setAutoResize(true);
 
 	// Setup pipelines
-	pipelines.boot(config.pipeline);
+	pipelines.boot();
 }
 
 void Renderer::onResize (Size, Size displaySize_, int, int)
@@ -1447,16 +1448,20 @@ void Renderer::preRenderCamera (Entity camera)
 	}
 }
 
-Entity Renderer::getCurrentStencilMask ()
+Mask_ Renderer::getCurrentStencilMask ()
 {
-	Entity prev = entt::null;
+	Mask_ tmp;
+	Mask_ *prev = nullptr;
 
 	if (!maskStack.empty())
-		prev = maskStack.back().mask;
-	else if (currentCameraMask.mask != entt::null && IsMaskStencil(currentCameraMask.mask))
-		prev = currentCameraMask.mask;
+		prev = &maskStack.back();
+	else if (currentCameraMask.mask != entt::null &&
+			IsMaskStencil(currentCameraMask.mask))
+		prev = &currentCameraMask;
+	else
+		prev = &tmp;
 
-	return prev;
+	return *prev;
 }
 
 void Renderer::postRenderCamera (Entity camera) {
@@ -1465,7 +1470,7 @@ void Renderer::postRenderCamera (Entity camera) {
 		auto &pipeline = pipelines.setMulti();
 
 		//flashEffect.postRender(pipeline, GetHexF);
-		PostRenderFade(camera);
+		PostRenderFade(camera, pipeline);
 	}
 
 	SetDirty(camera, false);
@@ -1475,7 +1480,7 @@ void Renderer::postRenderCamera (Entity camera) {
 	auto mask = g_registry.try_get<Components::Masked>(camera);
 	if (mask) {
 		currentCameraMask.mask = entt::null;
-		PostRenderMask(camera);
+		PostRenderMask(mask->mask, mask->camera);
 	}
 	
 	pipelines.postBatchCamera(camera);
