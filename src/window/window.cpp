@@ -31,7 +31,7 @@ int Window::width()
 {
 	int width_ = 0;
 
-	SDL_GetRendererOutputSize(renderer, &width_, nullptr);
+	SDL_GetWindowSize(window, &width_, nullptr);
 
 	return width_;
 }
@@ -40,7 +40,7 @@ int Window::height()
 {
 	int height_ = 0;
 
-	SDL_GetRendererOutputSize(renderer, nullptr, &height_);
+	SDL_GetWindowSize(window, nullptr, &height_);
 
 	return height_;
 }
@@ -97,7 +97,7 @@ int Window::initSdlImg ()
 	return 0;
 }
 
-int Window::initGL ()
+void Window::initGL ()
 {
 	// Use OpenGL 3.3 core
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);

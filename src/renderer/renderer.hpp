@@ -126,6 +126,8 @@ struct SnapshotState
 class Renderer : public EventEmitter
 {
 public:
+	Renderer();
+
 	~Renderer ();
 
     /**

@@ -440,6 +440,9 @@ Color TextureManager::getPixel (int x_, int y_, std::string key_, std::string fr
 
 	Color out_;
 
+	return out_;
+
+	/* TODO getPixel
 	if (frame_)
 	{
 		// Adjust for trim (if not trimmed x and y are just zero)
@@ -456,7 +459,7 @@ Color TextureManager::getPixel (int x_, int y_, std::string key_, std::string fr
 			void *pixels_ = nullptr;
 			int pitch_ = 0;
 
-			// Get the frame's source SDL texture
+			// Get the frame's source texture
 			auto& source_ = g_registry.get<Components::TextureSource>(frame_->source);
 			SDL_Texture *texture_ = source_.sdlTexture;
 
@@ -505,6 +508,7 @@ Color TextureManager::getPixel (int x_, int y_, std::string key_, std::string fr
 	}
 
 	return out_;
+	*/
 }
 
 Color TextureManager::getPixel (int x_, int y_, std::string key_, int frameIndex_)

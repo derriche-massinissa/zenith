@@ -265,7 +265,7 @@ void CameraManager::render (
 
 			auto visibleChildren_ = getVisibleChildren(displayList_.getChildren(), camera_);
 
-			renderer_.render(*scene, visibleChildren_, camera_);
+			renderer_.render(visibleChildren_, camera_);
 		}
 	}
 }

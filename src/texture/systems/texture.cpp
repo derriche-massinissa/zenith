@@ -38,7 +38,7 @@ Entity CreateTexture (std::string key, std::vector<std::string> sources)
 		// Check if the source is valid and loaded
 		// Otherwise this texture is invalid
 		auto& src = g_registry.get<Components::TextureSource>(sourceEntities[i]);
-		if (!src.sdlTexture)
+		if (!src.glTexture)
 		{
 			// Destroy all created sources and return null
 			for (int j = i; j >= 0; j--)
@@ -253,14 +253,11 @@ std::vector<Entity> GetTextureSources (Entity texture)
 
 	auto sources_ = g_registry.view<Components::TextureSource>();
 
-	for (auto source_ : sources_)
-	{
+	for (auto source_ : sources_) {
 		auto& src_ = g_registry.get<Components::TextureSource>(source_);
 
 		if (src_.texture == texture)
-		{
 			out_.push_back(source_);
-		}
 	}
 
 	return out_;
@@ -275,14 +272,11 @@ std::vector<std::string> GetTextureSourceFiles (Entity texture)
 
 	auto sources_ = g_registry.view<Components::TextureSource>();
 
-	for (auto source_ : sources_)
-	{
+	for (auto source_ : sources_) {
 		auto& src_ = g_registry.get<Components::TextureSource>(source_);
 
-		if (src_.sdlTexture)
-		{
+		if (src_.glTexture)
 			out_.push_back(src_.source);
-		}
 	}
 
 	return out_;

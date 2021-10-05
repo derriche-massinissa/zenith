@@ -617,6 +617,10 @@ void Renderer::init (GameConfig* config)
 }
 */
 
+Renderer::Renderer ()
+	: renderTarget(1, 1)
+{}
+
 Renderer::~Renderer ()
 {
 	if (snapshotState.surface)

@@ -123,10 +123,8 @@ public:
 	 * This method initializes OpenGL.
 	 *
 	 * @since 0.0.0
-	 *
-	 * @return 1 if an error occured, 0 otherwise.
 	 */
-	int initGL ();
+	void  initGL ();
 
 	/**
 	 * This method creates a SDL_window.
