@@ -123,8 +123,8 @@ public:
      * @param clear Clear the target before copying?
      * @param clearAlpha Clear the alpha channel when running glClear on the target?
      */
-    void copyFrame (Entity source, Entity target, double brightness = 1.,
-			bool clear = true, bool clearAlpha = true);
+    void copyFrame (RenderTarget *source, RenderTarget *target,
+			double brightness = 1., bool clear = true, bool clearAlpha = true);
 
     /**
 	 * Pops the framebuffer from the renderers FBO stack and sets that as the

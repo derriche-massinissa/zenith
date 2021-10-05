@@ -23,8 +23,7 @@ extern entt::registry g_registry;
 
 BitmapMaskPipeline::BitmapMaskPipeline (PipelineConfig config)
 	: Pipeline(prepareConfig(config))
-{
-}
+{}
 
 PipelineConfig BitmapMaskPipeline::prepareConfig (PipelineConfig config)
 {

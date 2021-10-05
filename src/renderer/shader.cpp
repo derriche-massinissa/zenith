@@ -9,7 +9,6 @@
 #include "utility.hpp"
 #include "../utils/map/contains.hpp"
 #include "renderer.hpp"
-#include <glm/gtc/type_ptr.hpp>
 #include <functional>
 
 namespace Zen {
@@ -151,7 +150,8 @@ void Shader::setAttribPointers (bool reset)
 			if (attribLocation >= 0) {
 				glEnableVertexAttribArray(attribLocation);
 				glVertexAttribPointer(attribLocation, element.size, element.type,
-						element.normalized, vertexSize, (void*)element.offset);
+						element.normalized, vertexSize,
+						reinterpret_cast<void*>(element.offset));
 
 				element.enabled = true;
 				element.location = attribLocation;
@@ -162,7 +162,8 @@ void Shader::setAttribPointers (bool reset)
 		}
 		else if (element.enabled) {
 			glVertexAttribPointer(element.location, element.size, element.type,
-					element.normalized, vertexSize, (void*)element.offset);
+					element.normalized, vertexSize,
+					reinterpret_cast<void*>(element.offset));
 		}
 		else if (!element.enabled && element.location > -1) {
 			glDisableVertexAttribArray(element.location);
@@ -174,7 +175,7 @@ void Shader::setAttribPointers (bool reset)
 void Shader::createUniforms ()
 {
 	GLint i = 0;
-	GLuint location;
+	GLint location;
 	GLsizei length;
 	GLint size;
 	GLenum type;
@@ -196,7 +197,7 @@ void Shader::createUniforms ()
 			if (location < 0) {
 				uniforms[name] = {
 					.name = name,
-					.location = location
+					.location = static_cast<GLuint>(location)
 				};
 			}
 
@@ -214,7 +215,7 @@ void Shader::createUniforms ()
 					if (location < 0) {
 						uniforms[name] = {
 							.name = name,
-							.location = location
+							.location = static_cast<GLuint>(location)
 						};
 					}
 				}
@@ -238,6 +239,7 @@ void Shader::resetUniform (std::string name)
 	uniform.value.clear();
 }
 
+/*
 // Bool ----------------------------------------------------------------------
 void Shader::set (const std::string &name, bool value)
 {
@@ -406,5 +408,6 @@ void Shader::set (const std::string &name, bool transpose, const glm::mat4 &mat)
 	if (uniform)
 		glUniformMatrix4fv(uniform->location, 1, transpose, v);
 }
+*/
 
 }	// namespace Zen

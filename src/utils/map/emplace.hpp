@@ -30,7 +30,7 @@ O* Emplace (std::map<T, O>* map, T key, Args&&...args)
 	auto o = map->emplace(
 		std::piecewise_construct,
 		std::forward_as_tuple(key),
-		std::forward_as_tuple(std::forward<Args...>(args...))
+		std::forward_as_tuple(std::forward<Args...>(args)...)
 	);
 	
 	if (o.second)
@@ -39,6 +39,6 @@ O* Emplace (std::map<T, O>* map, T key, Args&&...args)
 		return &o.first->second;
 }
 
-#endif
-
 }	// namespace Zen
+
+#endif

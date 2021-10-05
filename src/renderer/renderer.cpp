@@ -1269,7 +1269,8 @@ GL_fbo Renderer::createFramebuffer (int width_, int height_,
 			renderTexture_, 0);
 
 	// Save info about framebuffer
-	Emplace(&framebufferInfo, framebuffer_, renderTexture_, renderBuffer_);
+	Emplace(&framebufferInfo, framebuffer_,
+			FramebufferInfo_ {renderTexture_, renderBuffer_});
 
 	// Check if fbo is complete
 	GLenum complete_ = glCheckFramebufferStatus(GL_FRAMEBUFFER);

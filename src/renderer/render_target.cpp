@@ -60,7 +60,7 @@ void RenderTarget::resize (double width_, double height_)
 		if (height_ <= 0)
 			height_ = 1;
 
-		texture = g_renderer.createTextureFromSource(nullptr, width_, height_,
+		texture = g_renderer.createTextureFromSource(entt::null, width_, height_,
 				minFilter);
 		framebuffer = g_renderer.createFramebuffer(width_, height_, texture, false);
 
@@ -120,7 +120,7 @@ GL_fbo RenderTarget::unbind (bool flush)
 
 void RenderTarget::destroy ()
 {
-	g_renderer.deleterFramebuffer(framebuffer);
+	g_renderer.deleteFramebuffer(framebuffer);
 	g_renderer.deleteTexture(texture);
 
 	if (resizeListener)

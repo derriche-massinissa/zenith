@@ -675,7 +675,7 @@ public:
 	template <typename ... Args>
 	void set (std::string name, Args&& ... args)
 	{
-		currentShader->set(name, std::forward(args)...);
+		currentShader->set(name, std::forward<Args>(args)...);
 	}
 
 	/**
@@ -698,7 +698,7 @@ public:
 		if (!shader)
 			return;
 
-		shader->set(name, std::forward(args)...);
+		shader->set(name, std::forward<Args>(args)...);
 	}
 
 	void setCurrentShader (Shader *shader);

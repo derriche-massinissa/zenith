@@ -17,6 +17,7 @@
 #include "pipelines/multi_pipeline.hpp"
 #include "pipelines/bitmap_mask_pipeline.hpp"
 #include "pipelines/postfx_pipeline.hpp"
+#include "../utils/map/emplace.hpp"
 
 namespace Zen {
 
@@ -77,28 +78,37 @@ public:
      *
      * @return Pointer to the created pipeline
      */
-	template <typename T>
-    Pipeline* add (std::string name)
+	template <typename T, typename ... Args>
+    Pipeline* add (std::string name, Args&& ... args)
 	{
 		if (has(name)) {
 			MessageWarning("Pipeline: ", name, " already exists");
 			return nullptr;
 		}
 
-		Pipeline &pipeline = *Emplace(pipelines, name, std::make_unique<T>());
+		Pipeline *pipeline = nullptr;
+		if constexpr (sizeof...(Args) == 0) {
+			PipelineConfig config;
+			pipeline = Emplace(&pipelines, name,
+						std::make_unique<T>(config))->get();
+		}
+		else {
+			pipeline = Emplace(&pipelines, name, std::make_unique<T>(
+							std::forward<Args...>(args)...))->get();
+		}
 
-		if (pipeline.isPostFX) {
+		if (pipeline->isPostFX) {
 			MessageWarning(name, " is a Post Pipeline. Use `addPostPipeline`"
 					" instead");
 			pipelines.erase(pipelines.find(name));
 			return nullptr;
 		}
 
-		pipeline.name = name;
+		pipeline->name = name;
 
-		pipeline.boot();
+		pipeline->boot();
 
-		return &pipeline;
+		return pipeline;
 	}
 
     /**

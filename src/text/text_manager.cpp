@@ -124,6 +124,10 @@ int TextManager::scanText (Entity text_)
 
 void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 {
+	MessageNote("Convert texture work for text to use OpenGL!");
+	return;
+
+	/*
 	// Check if the requested font is already loaded
 	if (!Contains(fonts, style.fontFamily))
 	{
@@ -282,10 +286,15 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 		// alpha channel but whatever...)
 		SDL_SetTextureBlendMode(atlas.texture, SDL_BLENDMODE_BLEND);
 	}
+	*/
 }
 
 void TextManager::render (Entity textEntity, Entity camera)
 {
+	MessageNote("Implement a text pipeline");
+	return;
+
+	/*
 	auto [text, position, origin, size] = g_registry.try_get<Components::Text,
 		 Components::Position, Components::Origin, Components::Size>(textEntity);
 	ZEN_ASSERT(text, "The entity has no 'Text' component.");
@@ -470,6 +479,7 @@ void TextManager::render (Entity textEntity, Entity camera)
 		// Move on to the next character
 		penX += glyph.advanceX;
 	}
+	*/
 }
 
 // PRIVATE

@@ -11,7 +11,7 @@
 
 namespace Zen {
 
-SinglePipeline::SinglePipeline ()
+SinglePipeline::SinglePipeline (PipelineConfig config)
 	: MultiPipeline(prepareConfig(config))
 {}
 

@@ -292,11 +292,6 @@ void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
 	g_renderer.pipelines.postBatch(gameObject);
 }
 
-void MultiPipeline::batchSprite (Entity gameObject, Entity camera)
-{
-	// Optional parent matrix
-}
-
 void MultiPipeline::batchTexture (
 	Entity gameObject,
 	GL_texture texture,
@@ -312,7 +307,7 @@ void MultiPipeline::batchTexture (
 	int tintTL, int tintTR, int tintBL, int tintBR, int tintEffect,
 	double uOffset, double vOffset,
 	Entity camera,
-	Components::TransformMatrix parentTransformMatrix,
+	Components::TransformMatrix *parentTransformMatrix,
 	bool skipFlip,
 	int textureUnit
 	)
@@ -363,7 +358,8 @@ void MultiPipeline::batchTexture (
 	}
 
 	// Invert the flipY if this is a RenderTexture
-	flipY = flipY ^ (!skipFlip && texture.isRenderTexture ? 1 : 0);
+	flipY = flipY ^ (!skipFlip && g_renderer.textureInfo[texture].isRenderTexture
+			? 1 : 0);
 
 	if (flipX) {
 		width *= -1;
@@ -388,7 +384,7 @@ void MultiPipeline::batchTexture (
 
 	if (parentTransformMatrix) {
 		// Multiply the camera by the parent matrix
-		MultiplyWithOffset(&camMatrix, parentTransformMatrix,
+		MultiplyWithOffset(&camMatrix, *parentTransformMatrix,
 			-GetScrollX(camera) * scrollFactorX,
 			-GetScrollY(camera) * scrollFactorY
 		);
@@ -437,7 +433,7 @@ void MultiPipeline::batchTextureFrame (
 	double x, double y,
 	int tint, double alpha,
 	Components::TransformMatrix transformMatrix,
-	Components::TransformMatrix parentTransformMatrix
+	Components::TransformMatrix *parentTransformMatrix
 	)
 {
 	auto *fr = g_registry.try_get<Components::Frame>(frame);
@@ -454,7 +450,7 @@ void MultiPipeline::batchTextureFrame (
 
 	if (parentTransformMatrix) {
 		calcMatrix = spriteMatrix;
-		Multiply(&calcMatrix, parentTransformMatrix);
+		Multiply(&calcMatrix, *parentTransformMatrix);
 	}
 	else {
 		calcMatrix = spriteMatrix;

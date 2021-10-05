@@ -28,6 +28,35 @@ pkg_check_modules(FT REQUIRED freetype2)
 
 # Source files
 set(zenith_SRCS
+	src/renderer/pipelines/graphics_pipeline.cpp
+
+
+
+	src/renderer/blend_modes.cpp
+	src/renderer/pipeline.cpp
+	src/renderer/pipeline_manager.cpp
+	src/renderer/render_target.cpp
+	src/renderer/renderer.cpp
+	src/renderer/shader.cpp
+	src/renderer/utility.cpp
+	src/renderer/pipelines/bitmap_mask_pipeline.cpp
+	src/renderer/pipelines/multi_pipeline.cpp
+
+	src/renderer/pipelines/postfx_pipeline.cpp
+	src/renderer/pipelines/single_pipeline.cpp
+	src/renderer/pipelines/utility_pipeline.cpp
+
+	src/utils/file/file_to_string.cpp
+	src/utils/string/replace.cpp
+
+
+
+
+
+
+
+
+
 	src/tweens/tween/tween.cpp
 	src/tweens/tween_manager.cpp
 
@@ -141,8 +170,8 @@ set(zenith_SRCS
 	src/math/transform_xy.cpp
 	src/math/vector2.cpp
 	src/math/wrap.cpp
-	src/renderer/blend_modes.cpp
-	src/renderer/renderer.cpp
+
+
 	src/scale/scale_manager.cpp
 	src/scene/config.cpp
 	src/scene/scene.cpp

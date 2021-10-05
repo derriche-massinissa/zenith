@@ -15,7 +15,7 @@ namespace Zen {
 class SinglePipeline : public MultiPipeline
 {
 public:
-	SinglePipeline ();
+	SinglePipeline (PipelineConfig config);
 
 	PipelineConfig prepareConfig (PipelineConfig config);
 

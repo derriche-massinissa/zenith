@@ -78,7 +78,8 @@ void PostFXPipeline::onDraw (RenderTarget *renderTarget)
 	bindAndDraw(renderTarget);
 }
 
-void PostFXPipeline::copyFrame (Entity source, Entity target, double brightness, bool clear, bool clearAlpha)
+void PostFXPipeline::copyFrame (RenderTarget *source, RenderTarget *target,
+		double brightness, bool clear, bool clearAlpha)
 {
 	g_renderer.pipelines.copyFrame(source, target, brightness, clear, clearAlpha);
 }

@@ -22,7 +22,8 @@ extern Renderer g_renderer;
 
 PipelineConfig UtilityPipeline::setupConfig (PipelineConfig config)
 {
-	config.renderTarget = 4;
+	for (int i = 0; i < 4; i ++)
+		config.renderTarget.emplace_back();
 
 	config.vertShader = Shaders::QUAD_VERT;
 
@@ -326,7 +327,7 @@ void UtilityPipeline::clearFrame (RenderTarget* target, bool clearAlpha)
 
 	auto &fbo = g_renderer.currentFramebuffer;
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo->frameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 }
 
 void UtilityPipeline::setUVs (double uA, double vA, double uB, double vB, double uC,

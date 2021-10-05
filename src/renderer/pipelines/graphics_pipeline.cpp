@@ -8,6 +8,7 @@
 #include "graphics_pipeline.hpp"
 #include "../renderer.hpp"
 #include "../../systems/transform_matrix.hpp"
+#include <earcut/earcut.hpp>
 
 namespace Zen {
 
@@ -31,7 +32,7 @@ void GraphicsPipeline::batchFillRect (double x, double y, double width,
 void GraphicsPipeline::batchFillRect (double x, double y, double width,
 		double height)
 {
-	g_renderer.pipelines.set(this);
+	g_renderer.pipelines.set(name);
 
 	// Use whatever values are already in the calcMatrix
 
@@ -68,7 +69,7 @@ void GraphicsPipeline::batchFillTriangle (double x0, double y0, double x1,
 void GraphicsPipeline::batchFillTriangle (double x0, double y0, double x1,
 		double y1, double x2, double y2)
 {
-	g_renderer.pipelines.set(this);
+	g_renderer.pipelines.set(name);
 
 	double tx0 = GetX(calcMatrix, x0, y0);
 	double ty0 = GetY(calcMatrix, x0, y0);
@@ -79,7 +80,7 @@ void GraphicsPipeline::batchFillTriangle (double x0, double y0, double x1,
 	double tx2 = GetX(calcMatrix, x2, y2);
 	double ty2 = GetY(calcMatrix, x2, y2);
 
-	batchTri(x0, y0, x1, y1, x2, y2, fillTint[0], fillTint[1], fillTint[2]);
+	batchTri(tx0, ty0, tx1, ty1, tx2, ty2, fillTint[0], fillTint[1], fillTint[2]);
 }
 
 void GraphicsPipeline::batchStrokeTriangle (double x0, double y0, double x1,
@@ -107,19 +108,35 @@ void GraphicsPipeline::batchFillPath (std::vector<Math::Vector2> path,
 	batchFillPath(path);
 }
 
+std::vector<std::vector<std::array<double, 2>>> setupPolylines (std::vector<double> vec)
+{
+	std::vector<std::vector<std::array<double, 2>>> out;
+
+	// Add polyline
+	out.emplace_back();
+
+	// Fill polyline
+	std::array<double, 2> p;
+	for (size_t i = 0; i < vec.size(); i += 2) {
+		p = {vec[i], vec[i+1]};
+		out[0].emplace_back(p);
+	}
+
+	return out;
+}
+
 void GraphicsPipeline::batchFillPath (std::vector<Math::Vector2> path)
 {
-	g_renderer.pipelines.set(this);
+	g_renderer.pipelines.set(name);
 
-	std::vector<size_t> polygonIndexArray;
-	Math::Vector2 point;
+	std::vector<std::uint32_t> polygonIndexArray;
 
 	for (auto p : path) {
 		polygonCache.push_back(p.x);
 		polygonCache.push_back(p.y);
 	}
 
-	polygonIndexArray = Earcut(polygonCache);
+	polygonIndexArray = mapbox::earcut(setupPolylines(polygonCache));
 
 	for (size_t i = 0; i < polygonIndexArray.size(); i++) {
 		size_t p0 = polygonIndexArray[i + 0] * 2;
@@ -153,7 +170,7 @@ void GraphicsPipeline::batchStrokePath (std::vector<VerticeConfig> path,
 		double lineWidth, bool pathOpen, Components::TransformMatrix currentMatrix,
 		Components::TransformMatrix parentMatrix)
 {
-	g_renderer.pipelines.set(this);
+	g_renderer.pipelines.set(name);
 
 	// Reset the closePath booleans
 	*prevQuad = {0};
@@ -184,7 +201,7 @@ void GraphicsPipeline::batchLine (double ax, double ay, double bx, double by,
 		bool closePath, Components::TransformMatrix currentMatrix,
 		Components::TransformMatrix parentMatrix)
 {
-	g_renderer.pipelines.set(this);
+	g_renderer.pipelines.set(name);
 
 	calcMatrix = parentMatrix;
 	Multiply(&calcMatrix, currentMatrix);

@@ -125,55 +125,6 @@ struct SnapshotState
 
 class Renderer : public EventEmitter
 {
-//	GameConfig *config;
-//
-//
-//
-//private:
-//	/**
-//	 * Takes a snapshot of an area from the current frame.
-//	 *
-//	 * @since 0.0.0
-//	 */
-//	void takeSnapshot ();
-//
-//	/**
-//	 * Saves the snapshot surface in an image file.
-//	 *
-//	 * @since 0.0.0
-//	 */
-//	void saveSnapshot ();
-//
-//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 public:
 	~Renderer ();
 

@@ -10,7 +10,9 @@
 
 #include <vector>
 #include <map>
+#include <cstring>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "types/gl_pipeline_attribute.hpp"
 #include "types/gl_pipeline_attribute_config.hpp"
 #include "types/gl_pipeline_uniforms_config.hpp"
@@ -140,6 +142,7 @@ public:
      */
 	void resetUniform (std::string name);
 
+	/*
 	// Utillity uniform functions
 	// Booleans ------------------------------------------------------------------
 	void set (const std::string &name, bool value);
@@ -162,25 +165,200 @@ public:
 	void set (const std::string &name, float x, float y, float z, float w);
 	void set (const std::string &name, const glm::vec<4, int> &vec);
 	void set (const std::string &name, int x, int y, int z, int w);
+
 	// Matrices ------------------------------------------------------------------
 	void set (const std::string &name, bool transpose, const glm::mat2 &mat);
 	void set (const std::string &name, bool transpose, const glm::mat3 &mat);
 	void set (const std::string &name, bool transpose, const glm::mat4 &mat);
+	*/
+
+	// Matrices ------------------------------------------------------------------
+	template <typename T, int N>
+	void set (const std::string &name, bool transpose, const glm::mat<N, N, T>& mat)
+	{
+		const T *ptr = glm::value_ptr(mat);
+		auto *uniform = prepareUniform(name, N*N, ptr);
+
+		if (!uniform)
+			return;
+
+		if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>) {
+			if		constexpr	(N == 2)
+				glUniformMatrix2fv(uniform->location, 1, transpose, ptr);
+			else if constexpr	(N == 3)
+				glUniformMatrix3fv(uniform->location, 1, transpose, ptr);
+			else if constexpr	(N == 4)
+				glUniformMatrix4fv(uniform->location, 1, transpose, ptr);
+		}
+		else if constexpr (std::is_same_v<T, int> || std::is_same_v<T, bool>) {
+			if		constexpr	(N == 2)
+				glUniformMatrix2iv(uniform->location, 1, transpose, ptr);
+			else if constexpr	(N == 3)
+				glUniformMatrix3iv(uniform->location, 1, transpose, ptr);
+			else if constexpr	(N == 4)
+				glUniformMatrix4iv(uniform->location, 1, transpose, ptr);
+		}
+		else if constexpr (std::is_same_v<T, unsigned int>) {
+			if		constexpr	(N == 2)
+				glUniformMatrix2uiv(uniform->location, 1, transpose, ptr);
+			else if constexpr	(N == 3)
+				glUniformMatrix3uiv(uniform->location, 1, transpose, ptr);
+			else if constexpr	(N == 4)
+				glUniformMatrix4uiv(uniform->location, 1, transpose, ptr);
+		}
+		else {
+			MessageWarning("Unsupported uniform type!");
+		}
+	}
+
+	/**
+	 * One to 4 scalars
+	 *
+	 * ```cpp
+	 * set("uColor", 0.4, 0.5, 0.1);
+	 * set("uSize", 175);
+	 * set("uDensity", 57.4);
+	 * ```
+	 *
+	 * @since 0.0.0
+	 */
+	/*
+	template <typename T>
+	void set (const std::string &name, T value)
+	{
+		std::vector<T> vec {value};
+		auto *uniform = prepareUniform(name, 1, vec.data());
+		if (!uniform) return;
+	}
+
+	template <typename T>
+	void set (const std::string &name, T value, T value2)
+	{
+	}
+
+	template <typename T>
+	void set (const std::string &name, T value, T value2, T value3)
+	{
+	}
+
+	template <typename T>
+	void set (const std::string &name, T value, T value2, T value3, T value4)
+	{
+	}
+	*/
+
+	template <
+		typename T,
+		typename ... Args,
+		typename = std::enable_if_t<(std::is_same_v<T, Args> && ...)>
+	>
+	void set (const std::string &name, T value, Args ... args)
+	{
+		constexpr std::size_t N = sizeof...(Args) + 1;
+
+		PipelineUniformConfig *uniform;
+		if constexpr (std::is_same_v<T, double>) {		// If double, make it float
+			std::vector<float> vec {value, args...};
+			uniform = prepareUniform(name, N, vec.data());
+		}
+		else if constexpr (std::is_same_v<T, bool>) {	// If bool, make it int
+			std::vector<int> vec {value, args...};
+			uniform = prepareUniform(name, N, vec.data());
+		}
+		else {
+			std::vector<T> vec {value, args...};
+			uniform = prepareUniform(name, N, vec.data());
+		}
+
+		if (!uniform)
+			return;
+
+		if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>) {
+			if		constexpr (N == 1)
+				glUniform1f(uniform->location, value);
+			else if	constexpr (N == 2)
+				glUniform2f(uniform->location, value, args...);
+			else if	constexpr (N == 3)
+				glUniform3f(uniform->location, value, args...);
+			else if	constexpr (N == 4)
+				glUniform4f(uniform->location, value, args...);
+		}
+		else if constexpr (std::is_same_v<T, int> || std::is_same_v<T, bool>) {
+			if		constexpr (N == 1)
+				glUniform1i(uniform->location, value);
+			else if	constexpr (N == 2)
+				glUniform2i(uniform->location, value, args...);
+			else if	constexpr (N == 3)
+				glUniform3i(uniform->location, value, args...);
+			else if	constexpr (N == 4)
+				glUniform4i(uniform->location, value, args...);
+		}
+		else if constexpr (std::is_same_v<T, unsigned int>) {
+			if		constexpr (N == 1)
+				glUniform1ui(uniform->location, value);
+			else if	constexpr (N == 2)
+				glUniform2ui(uniform->location, value, args...);
+			else if	constexpr (N == 3)
+				glUniform3ui(uniform->location, value, args...);
+			else if	constexpr (N == 4)
+				glUniform4ui(uniform->location, value, args...);
+		}
+		else {
+			MessageWarning("Unsupported uniform type!");
+		}
+	}
+
+	/**
+	 * GLM Vector
+	 */
+	template <typename T, int N>
+	void set (const std::string &name, const glm::vec<N, T>& vec)
+	{
+		const T *ptr = glm::value_ptr(vec);
+		auto *uniform = prepareUniform(name, N, ptr);
+
+		if (!uniform)
+			return;
+
+		if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>) {
+			if		constexpr (N == 2) glUniform2fv(uniform->location, 1, ptr);
+			else if	constexpr (N == 3) glUniform3fv(uniform->location, 1, ptr);
+			else if	constexpr (N == 4) glUniform4fv(uniform->location, 1, ptr);
+		}
+		else if constexpr (std::is_same_v<T, int> || std::is_same_v<T, bool>) {
+			if		constexpr (N == 2) glUniform2iv(uniform->location, 1, ptr);
+			else if	constexpr (N == 3) glUniform3iv(uniform->location, 1, ptr);
+			else if	constexpr (N == 4) glUniform4iv(uniform->location, 1, ptr);
+		}
+		else if constexpr (std::is_same_v<T, unsigned int>) {
+			if		constexpr (N == 2) glUniform2uiv(uniform->location, 1, ptr);
+			else if	constexpr (N == 3) glUniform3uiv(uniform->location, 1, ptr);
+			else if	constexpr (N == 4) glUniform4uiv(uniform->location, 1, ptr);
+		}
+		else {
+			MessageWarning("Unsupported uniform type!");
+		}
+	}
+
 	// Vector ---------------------------------------------------------------------
 	template <typename T>
 	void set (const std::string &name, const std::vector<T>& data)
 	{
 		auto *uniform = prepareUniform(name, data.size(), data.data());
 
-		if (uniform) {
-			if constexpr (std::is_same_v<T, float>)
-				glUniform1fv(uniform->location, data.size(), data.data());
-			else if constexpr (std::is_same_v<T, int>)
-				glUniform1iv(uniform->location, data.size(), data.data());
-			else if constexpr (std::is_same_v<T, unsigned int>)
-				glUniform1uiv(uniform->location, data.size(), data.data());
-		}
+		if (!uniform)
+			return;
+
+		if constexpr (std::is_same_v<T, float>)
+			glUniform1fv(uniform->location, data.size(), data.data());
+		else if constexpr (std::is_same_v<T, int>)
+			glUniform1iv(uniform->location, data.size(), data.data());
+		else if constexpr (std::is_same_v<T, unsigned int>)
+			glUniform1uiv(uniform->location, data.size(), data.data());
+		else
+			MessageWarning("Unsupported uniform type!");
 	}
+
 	// Array ---------------------------------------------------------------------
 	template <typename T, int N>
 	void set (const std::string &name, const std::array<T, N>& data)
@@ -194,9 +372,22 @@ public:
 				glUniform1iv(uniform->location, N, data.data());
 			else if constexpr (std::is_same_v<T, unsigned int>)
 				glUniform1uiv(uniform->location, N, data.data());
+			else
+				MessageWarning("Unsupported uniform type!");
 		}
 	}
 
+	/**
+	 * Find uniform and verifies if the data we're about to set it to is different,
+	 * otherwise, updating it is useless.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @tparam T The type of the data and thus of the uniform itself.
+	 * @param name The name of the uniform.
+	 * @param size The number of elements in the data array.
+	 * @param data A data array.
+	 */
 	template <typename T>
 	PipelineUniformConfig* prepareUniform (const std::string &name, size_t size,
 			const T* data)
@@ -227,7 +418,7 @@ public:
 		// Data is new
 		uniform.value.clear();
 		uniform.value.resize(size * step);
-		memcpy(uniform.value.data(), data, size * step);
+		std::memcpy(uniform.value.data(), data, size * step);
 
 		emit("set-program", program);
 		emit("set-current", this);

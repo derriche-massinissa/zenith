@@ -142,7 +142,7 @@ public:
         int tintTL, int tintTR, int tintBL, int tintBR, int tintEffect,
         double uOffset, double vOffset,
         Entity camera,
-        Components::TransformMatrix parentTransformMatrix,
+        Components::TransformMatrix *parentTransformMatrix,
         bool skipFlip = false,
         int textureUnit = -1
 		);
@@ -165,7 +165,7 @@ public:
         double x, double y,
         int tint, double alpha,
         Components::TransformMatrix transformMatrix,
-        Components::TransformMatrix parentTransformMatrix
+        Components::TransformMatrix *parentTransformMatrix
 		);
 
 private:
