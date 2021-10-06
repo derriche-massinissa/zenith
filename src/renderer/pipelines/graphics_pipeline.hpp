@@ -26,6 +26,8 @@ class GraphicsPipeline : public Pipeline
 public:
 	GraphicsPipeline (PipelineConfig config);
 
+	PipelineConfig prepareConfig (PipelineConfig config);
+
     /**
      * Pushes a filled rectangle into the vertex batch.
      *

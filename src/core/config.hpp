@@ -388,13 +388,6 @@ public:
 	RenderConfig renderConfig;
 
 	/**
-	 * The background color used by the renderer to clear the screen.
-	 *
-	 * @since 0.0.0
-	 */
-	Color backgroundColor;
-
-	/**
 	 * @const The smoothing factor to apply during Pointer movement.
 	 */
 	double inputSmoothFactor = 0.;

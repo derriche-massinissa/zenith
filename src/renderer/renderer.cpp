@@ -764,7 +764,7 @@ void Renderer::setScissor (int x_, int y_, int width_, int height_)
 	if (set_) {
 		flush();
 
-		glScissor(x_, height_ - y_, width_, height_);
+		glScissor(x_, y_, width_, height_);
 	}
 }
 
@@ -779,7 +779,7 @@ void Renderer::resetScissor ()
 		int ch_ = currentScissor[3];
 
 		if (cw_ > 0 && ch_ > 0)
-			glScissor(cx_, ch_ - cy_, cw_, ch_);
+			glScissor(cx_, cy_, cw_, ch_);
 	}
 }
 
@@ -1568,7 +1568,7 @@ void Renderer::render (std::vector<Entity> children_, Entity camera_)
 	for (size_t i = 0; i < children_.size(); i++) {
 		finalType = (i == (children_.size() - 1));
 
-		auto &child_ = children_[i];
+		Entity child_ = children_[i];
 
 		auto m_ = g_registry.try_get<Components::Masked>(child_);
 		Entity mask_ = (m_) ? m_->mask : entt::null;

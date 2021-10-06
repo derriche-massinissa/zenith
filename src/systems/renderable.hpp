@@ -44,7 +44,7 @@ void Render (Entity entity, Entity camera,
  *
  * @return `true` if the pipeline was set successfully, otherwise `false`.
  */
-bool InitPipeline (Entity entity, std::string name);
+bool InitPipeline (Entity entity, std::string name = "");
 
 /**
  * Sets the main Pipeline of this Game Object.

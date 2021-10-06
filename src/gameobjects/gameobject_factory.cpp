@@ -33,6 +33,7 @@
 #include "../systems/origin.hpp"
 #include "../systems/textured.hpp"
 #include "../systems/text.hpp"
+#include "../systems/renderable.hpp"
 #include "render_functions.hpp"
 
 namespace Zen {
@@ -76,6 +77,7 @@ Entity GameObjectFactory::image (double x, double y, std::string key, std::strin
 	SetTexture(img, key, frame);
 	SetSizeToFrame(img);
 	SetOriginFromFrame(img);
+	InitPipeline(img);
 
 	scene->children.add(img);
 

@@ -178,7 +178,7 @@ GameConfig& GameConfig::setMipMapFilter (GLenum filter)
 
 GameConfig& GameConfig::setBackgroundColor (unsigned int color)
 {
-	SetHex(&backgroundColor, color);
+	SetHex(&renderConfig.backgroundColor, color);
 
 	return *this;
 }
@@ -186,7 +186,7 @@ GameConfig& GameConfig::setBackgroundColor (unsigned int color)
 GameConfig& GameConfig::setBackgroundColor (
 			unsigned int red, unsigned int green, unsigned int blue)
 {
-	SetTo(&backgroundColor, red, green, blue);
+	SetTo(&renderConfig.backgroundColor, red, green, blue);
 
 	return *this;
 }

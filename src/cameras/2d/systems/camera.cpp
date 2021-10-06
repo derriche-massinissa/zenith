@@ -52,6 +52,7 @@
 #include "../../../systems/dirty.hpp"
 #include "../../../systems/origin.hpp"
 #include "../../../systems/visible.hpp"
+#include "../../../systems/background_color.hpp"
 
 #include "fade.hpp"
 #include "../components/fade.hpp"
@@ -103,6 +104,7 @@ Entity CreateCamera (double x, double y, double width, double height)
 
 	UpdateCameraSystem(camera);
 	SetOrigin(camera, 0.5);
+	SetBackgroundColor (camera, 0, 0, 0, 0);
 
 	return camera;
 

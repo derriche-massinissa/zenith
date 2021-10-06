@@ -8,14 +8,44 @@
 #include "graphics_pipeline.hpp"
 #include "../renderer.hpp"
 #include "../../systems/transform_matrix.hpp"
+#include "../shaders/graphics_vert.hpp"
+#include "../shaders/graphics_frag.hpp"
+#include "../utility.hpp"
 #include <earcut/earcut.hpp>
 
 namespace Zen {
 
 extern Renderer g_renderer;
 
-GraphicsPipeline::GraphicsPipeline (PipelineConfig config) : Pipeline(config)
+GraphicsPipeline::GraphicsPipeline (PipelineConfig config)
+	: Pipeline(prepareConfig(config))
+{}
+
+PipelineConfig GraphicsPipeline::prepareConfig (PipelineConfig config)
 {
+	// Load default shaders
+	if (config.fragShader.empty())
+		config.fragShader = Shaders::GRAPHICS_FRAG;
+
+	if (config.vertShader.empty())
+		config.vertShader = Shaders::GRAPHICS_VERT;
+
+	if (config.attributes.empty()) {
+		config.attributes = {
+			{
+				.name = "aPosition",
+				.size = 2
+			},
+			{
+				.name = "aColor",
+				.size = 4,
+				.type = GL_UNSIGNED_BYTE,
+				.normalized = true
+			}
+		};
+	}
+
+	return config;
 }
 
 void GraphicsPipeline::batchFillRect (double x, double y, double width,
