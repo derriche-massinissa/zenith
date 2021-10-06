@@ -14,13 +14,19 @@ namespace Zen {
 
 extern entt::registry g_registry;
 
-void render_image (Entity entity, Entity camera, Components::TransformMatrix* matrix)
+void Render_image (Entity entity, Entity camera, Components::TransformMatrix* matrix)
 {
 	AddToRenderList(camera, entity);
 
 	auto &r = g_registry.get<Components::Renderable>(entity);
 	static_cast<MultiPipeline*>(r.pipeline)->batchSprite(entity, camera,
 			matrix);
+}
+
+void Render_text (Entity entity, Entity camera,
+		Components::TransformMatrix* matrix)
+{
+	MessageNote("Text rendering not yet implemented");
 }
 
 }	// namespace Zen

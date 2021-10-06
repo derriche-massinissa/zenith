@@ -104,14 +104,14 @@ GameConfig& GameConfig::setMouseInput (bool flag)
 
 GameConfig& GameConfig::setAntialiasing (bool flag)
 {
-	antialias = flag;
+	renderConfig.antialias = flag;
 
 	return *this;
 }
 
 GameConfig& GameConfig::setPixelArt (bool flag)
 {
-	pixelArt = flag;
+	renderConfig.pixelArt = flag;
 
 	if (flag)
 		setAntialiasing(true);
@@ -121,9 +121,57 @@ GameConfig& GameConfig::setPixelArt (bool flag)
 	return *this;
 }
 
+GameConfig& GameConfig::setRoundPixels (bool flag)
+{
+	renderConfig.roundPixels = flag;
+
+	return *this;
+}
+
 GameConfig& GameConfig::setClearBeforeRender (bool flag)
 {
-	clearBeforeRender = flag;
+	renderConfig.clearBeforeRender = flag;
+
+	return *this;
+}
+
+GameConfig& GameConfig::setPreserveDrawingBuffer (bool flag)
+{
+	renderConfig.preserveDrawingBuffer = flag;
+
+	return *this;
+}
+
+GameConfig& GameConfig::setBatchSize (int size)
+{
+	if (size <= 0) size = 1;
+
+	renderConfig.batchSize = size;
+
+	return *this;
+}
+
+GameConfig& GameConfig::setMaxTextures (int number)
+{
+	if (number <= 0) number = -1;
+
+	renderConfig.maxTextures = number;
+
+	return *this;
+}
+
+GameConfig& GameConfig::setMaxTextureSize (int size)
+{
+	if (size <= 0) size = -1;
+
+	renderConfig.maxTextureSize = size;
+
+	return *this;
+}
+
+GameConfig& GameConfig::setMipMapFilter (GLenum filter)
+{
+	renderConfig.mipmapFilter = filter;
 
 	return *this;
 }

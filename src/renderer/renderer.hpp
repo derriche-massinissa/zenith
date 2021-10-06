@@ -14,7 +14,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#include <optional>
+#include <memory>
 
 #include "../enums/blend_modes.hpp"
 #include "../core/types/render_config.hpp"
@@ -126,30 +126,7 @@ struct SnapshotState
 class Renderer : public EventEmitter
 {
 public:
-	Renderer();
-
 	~Renderer ();
-
-    /**
-     * Creates a new OpenGL context and initializes all internal state.
-     *
-     * @since 0.0.0
-     *
-     * @param config The configuration object for the renderer.
-     */
-    void init (GameConfig* config);
-	/**
-	 * ^
-	 * |
-	 * This one to replace?
-	 *
-	 *
-	 *
-	 * Start up this renderer. This _MUST_ run after the Window was created!
-	 *
-	 * @since 0.0.0
-	 */
-	void start (GameConfig *cfg_);
 
 	/**
 	 * Instantiate all the supported blend modes of this Renderer.
@@ -162,8 +139,10 @@ public:
      * Internal boot handler. Calls 'boot' on each pipeline.
      *
      * @since 0.0.0
+	 *
+     * @param config The configuration for the renderer.
      */
-    void boot ();
+    void boot (RenderConfig config);
 
     /**
      * The event handler that manages the `resize` event dispatched by the Scale
@@ -1249,7 +1228,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	RenderTarget renderTarget;
+	std::unique_ptr<RenderTarget> renderTarget;
 
 	/**
 	 * The global game Projection matrix, used by shaders as 'uProjectionMatrix'

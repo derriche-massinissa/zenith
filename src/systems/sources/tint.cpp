@@ -64,6 +64,17 @@ Color GetTint (Entity entity)
 	return output;
 }
 
+void GetTint (Entity entity, int *tl, int *tr, int *bl, int *br)
+{
+	auto tint = g_registry.try_get<Components::Tint>(entity);
+	ZEN_ASSERT(tint, "The entity has no 'Tint' component.");
+
+	*tl = tint->tl;
+	*tr = tint->tr;
+	*bl = tint->bl;
+	*br = tint->br;
+}
+
 bool IsTinted (Entity entity)
 {
 	auto tint = g_registry.try_get<Components::Tint>(entity);
@@ -75,6 +86,14 @@ bool IsTinted (Entity entity)
 			tint->bl != 0xffffff ||
 			tint->br != 0xffffff
 		   );
+}
+
+bool IsTintFilled (Entity entity)
+{
+	auto tint = g_registry.try_get<Components::Tint>(entity);
+	ZEN_ASSERT(tint, "The entity has no 'Tint' component.");
+
+	return tint->fill;
 }
 
 }	// namespace Zen

@@ -63,7 +63,7 @@ int Window::create (GameConfig *cfg)
 	} else {
 		// Everything has gone well
 
-		setPixelArt(config->pixelArt);
+		setPixelArt(config->renderConfig.pixelArt);
 
 		if (config->minWidth || config->minHeight)
 			setMinSize(config->minWidth, config->minHeight);
@@ -126,7 +126,9 @@ int Window::createWindow ()
 
 int Window::createContext ()
 {
-	// Create a renderer for the window
+	initGL();
+
+	// Create an OpenGL context for the window
 	context = SDL_GL_CreateContext(window);
 	if (context == nullptr) {
 		MessageError("OpenGL context could not be created: %s\n", SDL_GetError());

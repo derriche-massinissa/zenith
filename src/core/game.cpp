@@ -71,7 +71,7 @@ void Game::boot ()
 
 	g_scale.boot(&config);
 
-	g_renderer.start(&config);
+	g_renderer.boot(config.renderConfig);
 
 	g_scene.boot(&config.sceneFactory);
 

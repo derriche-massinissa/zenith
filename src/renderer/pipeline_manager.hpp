@@ -106,7 +106,8 @@ public:
 
 		pipeline->name = name;
 
-		pipeline->boot();
+		if (!pipeline->hasBooted)
+			pipeline->boot();
 
 		return pipeline;
 	}

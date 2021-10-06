@@ -39,7 +39,7 @@ struct PipelineAttributeConfig {
 	 *
 	 * @since 0.0.0
 	 */
-	GLenum type;
+	GLenum type = GL_FLOAT;
 
 	/**
 	 * Should the attribute data be normalized?

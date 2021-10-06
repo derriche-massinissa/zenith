@@ -26,7 +26,7 @@ extern Renderer g_renderer;
 Entity GetMask (Entity entity)
 {
 	auto masked = g_registry.try_get<Components::Masked>(entity);
-	ZEN_ASSERT(masked, "The entity has no 'Mask' component.");
+	ZEN_ASSERT(masked, "The entity has no 'Masked' component.");
 
 	return masked->mask;
 }
@@ -220,6 +220,14 @@ void PostRenderMask (Entity mask, Entity camera)
 			}
 		}
 	}
+}
+
+bool IsMaskStencil (Entity entity)
+{
+	auto mask = g_registry.try_get<Components::Mask>(entity);
+	ZEN_ASSERT(mask, "The entity has no 'Mask' component.");
+
+	return mask->isStencil;
 }
 
 }	// namespace Zen

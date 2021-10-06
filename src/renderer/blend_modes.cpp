@@ -12,10 +12,14 @@ namespace Zen {
 
 void Renderer::createBlendModes ()
 {
+	blendModes.resize(20);
+
 	// C = (S.rgb * 1) + (D.rgb * 0)
 	int mode = static_cast<int>(BLEND_MODE::NORMAL);
 	blendModes[mode] = {
+		// eqn
 		{GL_FUNC_ADD},
+		// fnc
 		{GL_ONE, GL_ZERO}
 	};
 
@@ -23,7 +27,6 @@ void Renderer::createBlendModes ()
 	mode = static_cast<int>(BLEND_MODE::BLEND);
 	blendModes[mode] = {
 		{GL_FUNC_ADD},
-		// fnc
 		{GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
 	};
 
@@ -31,7 +34,6 @@ void Renderer::createBlendModes ()
 	mode = static_cast<int>(BLEND_MODE::ADD);
 	blendModes[mode] = {
 		{GL_FUNC_ADD},
-		// fnc
 		{GL_ONE, GL_ONE}
 	};
 
@@ -39,7 +41,6 @@ void Renderer::createBlendModes ()
 	mode = static_cast<int>(BLEND_MODE::MULTIPLY);
 	blendModes[mode] = {
 		{GL_FUNC_ADD},
-		// fnc
 		{GL_DST_COLOR, GL_ZERO}
 	};
 
@@ -49,7 +50,6 @@ void Renderer::createBlendModes ()
 	mode = static_cast<int>(BLEND_MODE::SCREEN);
 	blendModes[mode] = {
 		{GL_FUNC_ADD},
-		// fnc
 		{GL_DST_COLOR, GL_ZERO}
 	};
 

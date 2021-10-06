@@ -675,6 +675,7 @@ public:
 	template <typename ... Args>
 	void set (std::string name, Args&& ... args)
 	{
+		if (!currentShader) return;
 		currentShader->set(name, std::forward<Args>(args)...);
 	}
 
@@ -880,6 +881,11 @@ public:
 	 * @since 0.0.0
 	 */
 	const PipelineConfig config;
+
+	ListenerBase *resizeListener = nullptr;
+	ListenerBase *preRenderListener = nullptr;
+	ListenerBase *renderListener = nullptr;
+	ListenerBase *postRenderListener = nullptr;
 };
 
 }	// namespace Zen

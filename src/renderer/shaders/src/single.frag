@@ -14,7 +14,7 @@ uniform sampler2D uMainSampler;
 // ----------------------------------------------------------------------------
 void main ()
 {
-	vec4 texture = texture2D(uMainSampler, TextCoord);
+	vec4 texture = texture2D(uMainSampler, TexCoord);
 	vec4 texel = vec4(Tint.bgr * Tint.a, Tint.a);
 
 	// Multiply texture tint

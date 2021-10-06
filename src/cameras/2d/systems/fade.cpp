@@ -187,4 +187,26 @@ void ResetFade (Entity camera)
 	fade->isComplete = false;
 }
 
+bool IsFadeRunning (Entity camera)
+{
+	auto fade = g_registry.try_get<Components::EffectFade>(camera);
+	if (!fade) {
+		MessageWarning("The entity has no 'EffectFade' component");
+		return false;
+	}
+
+	return fade->isRunning;
+}
+
+bool IsFadeComplete (Entity camera)
+{
+	auto fade = g_registry.try_get<Components::EffectFade>(camera);
+	if (!fade) {
+		MessageWarning("The entity has no 'EffectFade' component");
+		return false;
+	}
+
+	return fade->isComplete;
+}
+
 }	// namespace Zen

@@ -600,42 +600,59 @@ extern SceneManager g_scene;
 
 
 
-
-/*
-void Renderer::init (GameConfig* config)
-{
-	backgroundColor = config->backgroundColor;
-
-	// Create the supported blend modes
-	createBlendModes();
-
-	glClearColor(backgroundColor.gl[0], backgroundColor.gl[1],
-			backgroundColor.gl[2], backgroundColor.gl[3]);
-
-	// Mipmaps
-	mipmapFilter = config.mipmapFilter;
-}
-*/
-
-Renderer::Renderer ()
-	: renderTarget(1, 1)
-{}
-
 Renderer::~Renderer ()
 {
 	if (snapshotState.surface)
 		SDL_FreeSurface(snapshotState.surface);
 }
 
-void Renderer::boot ()
+void Renderer::boot (RenderConfig config_)
 {
+	config = config_;
+
+	// Create the supported blend modes
+	createBlendModes();
+
+	glClearColor(config.backgroundColor.gl[0], config.backgroundColor.gl[1],
+			config.backgroundColor.gl[2], config.backgroundColor.gl[3]);
+
+	// Mipmaps
+	mipmapFilter = config.mipmapFilter;
+
+	if (config.maxTextures < 0)
+		config.maxTextures = 16;
+
+	// Temporary textures
+	const std::uint8_t pixel[4] = {0, 0, 255, 255};
+	for (int i = 0; i < config.maxTextures; i++) {
+		GL_texture tmp;
+		glGenTextures(1, &tmp);
+
+		glActiveTexture(GL_TEXTURE0 + i);
+
+		glBindTexture(GL_TEXTURE_2D, tmp);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA,
+				GL_UNSIGNED_BYTE, (void*)pixel);
+
+		tempTextures.push_back(tmp);
+
+		textureIndexes.push_back(i);
+	}
+
+	// Reset to texture 1 (Texture 0 is reserved for framebuffers)
+	currentActiveTexture = 1;
+	startActiveTexture++;
+	glActiveTexture(GL_TEXTURE1);
+
+	setBlendMode(BLEND_MODE::NORMAL);
+
 	width = g_scale.displaySize.width;
 	height = g_scale.displaySize.height;
 
 	isBooted = true;
 
-	renderTarget.resize(width, height);
-	renderTarget.setAutoResize(true);
+	renderTarget = std::make_unique<RenderTarget>(width, height, 1, 0, true, true);
 
 	// Setup pipelines
 	pipelines.boot();
@@ -656,7 +673,7 @@ void Renderer::beginCapture (double width_, double height_)
 	if (height_ < 0)
 		height_ = height;
 
-	renderTarget.bind(true, width_, height_);
+	renderTarget->bind(true, width_, height_);
 
 	setProjectionMatrix(width_, height_);
 
@@ -665,11 +682,11 @@ void Renderer::beginCapture (double width_, double height_)
 
 RenderTarget* Renderer::endCapture ()
 {
-	renderTarget.unbind(true);
+	renderTarget->unbind(true);
 
 	resetProjectionMatrix();
 
-	return &renderTarget;
+	return renderTarget.get();
 }
 
 void Renderer::resize (double width_, double height_)
@@ -1154,15 +1171,19 @@ void Renderer::resetProgram ()
 GL_texture Renderer::createTextureFromSource (Entity source_, double width_,
 		double height_, GLenum scaleMode_)
 {
-	auto src_ = g_registry.try_get<Components::TextureSource>(source_);
-	ZEN_ASSERT(src_, "The entity is not a Texture Source");
+	Components::TextureSource *src_ = nullptr;
+
+	if (source_ != entt::null) {
+		src_ = g_registry.try_get<Components::TextureSource>(source_);
+		ZEN_ASSERT(src_, "The entity is not a Texture Source");
+
+		width_ = src_->width;
+		height_ = src_->width;
+	}
 
 	GLenum minFilter_ = GL_NEAREST;
 	GLenum magFilter_ = GL_NEAREST;
 	GLenum wrap_ = GL_CLAMP_TO_EDGE;
-
-	width_ = (source_ != entt::null) ? src_->width : width_;
-	height_ = (source_ != entt::null) ? src_->width : height_;
 
 	bool pow_ = Math::IsSizePowerOfTwo(width_, height_);
 

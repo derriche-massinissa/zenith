@@ -16,6 +16,7 @@
 #include <utility>
 #include <fstream>
 #include "../utils/messages.hpp"
+#include "../utils/map/emplace.hpp"
 #include "../core/config.hpp"
 #include "../window/window.hpp"
 #include "components/source.hpp"
@@ -353,10 +354,11 @@ Entity TextureManager::addSpriteSheetFromAtlas (std::string key_, SpriteSheetCon
 
 Entity TextureManager::create (std::string key_, std::vector<std::string> sources_)
 {
-	Entity texture_ = entt::null;
+	Entity *texture_ = nullptr;
 
 	if (checkKey(key_))
 	{
+		/* TODO remove this
 		auto [it, _] = list.emplace(
 				key_,
 				CreateTexture(key_, sources_)
@@ -367,9 +369,15 @@ Entity TextureManager::create (std::string key_, std::vector<std::string> source
 			list.erase(it);
 		else
 			texture_ = list.find(key_)->second;
+		*/
+
+		texture_ = Emplace(&list, key_, CreateTexture(key_, sources_));
+
+		if (!texture_)
+			list.erase(list.find(key_));
 	}
 
-	return texture_;
+	return *texture_;
 }
 
 Entity TextureManager::create (std::string key_, std::string source_)

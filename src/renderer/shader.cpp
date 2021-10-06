@@ -51,6 +51,8 @@ void Shader::createProgram (std::string vertexShader, std::string fragmentShader
 	// longer necessery
 	glDeleteShader(vs);
 	glDeleteShader(fs);
+
+	glUseProgram(program);
 }
 
 void Shader::checkCompileErrors (GLuint shader, std::string type)
@@ -62,7 +64,8 @@ void Shader::checkCompileErrors (GLuint shader, std::string type)
 		if (!success) {
 			GLchar infoLog[1024];
 			glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-			MessageError("Shader compilation failed: ", type, " | ", infoLog);
+			MessageError("Shader compilation failed for shader \"", name, "\" : ",
+					type, " | ", infoLog);
 		}
 	}
 	else {
@@ -70,7 +73,8 @@ void Shader::checkCompileErrors (GLuint shader, std::string type)
 		if (!success) {
 			GLchar infoLog[1024];
 			glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-			MessageError("Program linking failed: ", type, " | ", infoLog);
+			MessageError("Program linking failed for shader \"", name, "\" : ",
+					type, " | ", infoLog);
 		}
 	}
 }
@@ -179,7 +183,7 @@ void Shader::createUniforms ()
 	GLsizei length;
 	GLint size;
 	GLenum type;
-	GLchar nameinfo;
+	GLchar nameBuffer[512];
 
 	std::string name;
 
@@ -188,13 +192,13 @@ void Shader::createUniforms ()
 	glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &totalUniforms);
 	
 	for (i = 0; i < totalUniforms; i++) {
-		glGetActiveUniform(program, i, 512, &length, &size, &type, &nameinfo);
+		glGetActiveUniform(program, i, 512, &length, &size, &type, nameBuffer);
 
 		if (length > 0) {
-			name = std::string(&nameinfo);
+			name = std::string(nameBuffer);
 			location = glGetUniformLocation(program, name.c_str());
 
-			if (location < 0) {
+			if (location >= 0) {
 				uniforms[name] = {
 					.name = name,
 					.location = static_cast<GLuint>(location)
@@ -207,12 +211,12 @@ void Shader::createUniforms ()
 
 			std::size_t found = name.find("[");
 			if (found != std::string::npos) {
-				name = name.substr(found);
+				name = name.substr(0, found);
 
 				if (uniforms.find(name) == uniforms.end()) {
 					location = glGetUniformLocation(program, name.c_str());
 
-					if (location < 0) {
+					if (location >= 0) {
 						uniforms[name] = {
 							.name = name,
 							.location = static_cast<GLuint>(location)

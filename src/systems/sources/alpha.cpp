@@ -54,6 +54,17 @@ double GetAlpha (Entity entity)
 	return alpha->value;
 }
 
+void GetAlpha (Entity entity, double *tl, double *tr, double *bl, double *br)
+{
+	const auto alpha = g_registry.try_get<Components::Alpha>(entity);
+	ZEN_ASSERT(alpha, "The entity has no 'Alpha' component.");
+
+	*tl = alpha->tl;
+	*tr = alpha->tr;
+	*bl = alpha->bl;
+	*br = alpha->br;
+}
+
 double GetAlphaTopLeft (Entity entity)
 {
 	const auto alpha = g_registry.try_get<Components::Alpha>(entity);

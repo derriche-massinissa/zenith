@@ -29,15 +29,18 @@ PipelineManager::~PipelineManager ()
 void PipelineManager::boot ()
 {
 	// Setup all the default pipelines
+	add<UtilityPipeline>(Pipelines::UTILITY_PIPELINE);
+	UTILITY_PIPELINE = static_cast<UtilityPipeline*>(
+			pipelines[Pipelines::UTILITY_PIPELINE].get()
+	);
+
 	add<MultiPipeline>(Pipelines::MULTI_PIPELINE);
 	add<SinglePipeline>(Pipelines::SINGLE_PIPELINE);
 	add<BitmapMaskPipeline>(Pipelines::BITMAPMASK_PIPELINE);
 	add<GraphicsPipeline>(Pipelines::GRAPHICS_PIPELINE);
 	//add<LightPipeline>(Pipelines::LIGHT_PIPELINE);
 	//add<PointLightPipeline>(Pipelines::POINTLIGHT_PIPELINE);
-	add<PostFXPipeline>(Pipelines::POSTFX_PIPELINE);
 	//add<RopePipeline>(Pipelines::ROPE_PIPELINE);
-	add<UtilityPipeline>(Pipelines::UTILITY_PIPELINE);
 
 	// Our const like references
 	MULTI_PIPELINE = static_cast<MultiPipeline*>(
@@ -45,9 +48,6 @@ void PipelineManager::boot ()
 	);
 	BITMAPMASK_PIPELINE = static_cast<BitmapMaskPipeline*>(
 			pipelines[Pipelines::BITMAPMASK_PIPELINE].get()
-	);
-	UTILITY_PIPELINE = static_cast<UtilityPipeline*>(
-			pipelines[Pipelines::UTILITY_PIPELINE].get()
 	);
 
 	// FBO references

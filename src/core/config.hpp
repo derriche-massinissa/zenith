@@ -17,6 +17,7 @@
 #include "../display/types/color.hpp"
 
 #include "../scene/scene.fwd.hpp"
+#include "types/render_config.hpp"
 
 namespace Zen {
 
@@ -175,6 +176,13 @@ public:
 	GameConfig& setPixelArt (bool flag);
 
 	/**
+	 * @since 0.0.0
+	 *
+	 * @param flag If true, enable pixel round.
+	 */
+	GameConfig& setRoundPixels (bool flag);
+
+	/**
 	 * Whether the renderer will be cleared between each rendering frame. You can
 	 * disable this if you have a full-screen background image or game object.
 	 *
@@ -182,6 +190,42 @@ public:
 	 * @param flag If `true`, the renderer will be cleared each frame.
 	 */
 	GameConfig& setClearBeforeRender (bool flag = true);
+
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param flag If true, do not clear OpenGL buffers.
+	 */
+
+	GameConfig& setPreserveDrawingBuffer (bool flag);
+
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param size The number of quads in a render batch.
+	 */
+	GameConfig& setBatchSize (int size);
+
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param number The maximum number of textures before triggering a flush.
+	 */
+	GameConfig& setMaxTextures (int number);
+
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param size The maximum texture size.
+	 */
+	GameConfig& setMaxTextureSize (int size);
+
+	/**
+	 * @since 0.0.0
+	 *
+	 * @param filter The mipmapping filter to use.
+	 */
+	GameConfig& setMipMapFilter (GLenum filter);
 
 	/**
 	 * Sets the background color used by the renderer for cleaning the screen.
@@ -337,29 +381,11 @@ public:
 	bool inputMouse = true;
 
 	/**
-	 * Enable antialiasing will make textures look smoother by using a linear
-	 * filter when rendering them. Setting this to false will make SDL use
-	 * nearest neighbor pixels, making the textures look crisper.
+	 * The configuration of all render related systems.
 	 *
 	 * @since 0.0.0
 	 */
-	bool antialias = true;
-
-	/**
-	 * This will just set all the antialiasing options, regardless of the
-	 * used renderer.
-	 *
-	 * @since 0.0.0
-	 */
-	bool pixelArt = false;
-
-	/**
-	 * Whether the renderer will be cleared between each rendering frame. You can
-	 * disable this if you have a full-screen background image or game object.
-	 *
-	 * @since 0.0.0
-	 */
-	bool clearBeforeRender = true;
+	RenderConfig renderConfig;
 
 	/**
 	 * The background color used by the renderer to clear the screen.

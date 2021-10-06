@@ -33,6 +33,12 @@ Pipeline::~Pipeline ()
 {
 	glDeleteVertexArrays(1, &vertexArray);
 	glDeleteBuffers(1, &vertexBuffer);
+
+	// Remove listeners
+	g_renderer.off(resizeListener);
+	g_renderer.off(preRenderListener);
+	g_renderer.off(renderListener);
+	g_renderer.off(postRenderListener);
 }
 
 void Pipeline::boot()
@@ -89,10 +95,10 @@ void Pipeline::boot()
 
 	hasBooted = true;
 
-	g_renderer.on("resize", &Pipeline::resize, this);
-	g_renderer.on("pre-render", &Pipeline::onPreRender, this);
-	g_renderer.on("render", &Pipeline::onRender, this);
-	g_renderer.on("post-render", &Pipeline::onPostRender, this);
+	resizeListener = g_renderer.on("resize", &Pipeline::resize, this);
+	preRenderListener = g_renderer.on("pre-render", &Pipeline::onPreRender, this);
+	renderListener = g_renderer.on("render", &Pipeline::onRender, this);
+	postRenderListener = g_renderer.on("post-render", &Pipeline::onPostRender, this);
 
 	emit("boot");
 
@@ -145,6 +151,7 @@ void Pipeline::setCurrentProgram (GLuint program)
 void Pipeline::setShadersFromConfig (PipelineConfig config)
 {
 	shaders.clear();
+	std::string first;
 
 	std::string defaultVertShader = config.vertShader;
 	std::string defaultFragShader = ParseFragmentShaderMaxTextures(
@@ -154,6 +161,8 @@ void Pipeline::setShadersFromConfig (PipelineConfig config)
 	auto configShaders = config.shaders;
 
 	if (configShaders.empty()) {
+		first = "default";
+
 		if (!defaultVertShader.empty() && !defaultFragShader.empty()) {
 			auto *s = Emplace(&shaders, std::string("default"),
 					std::make_unique<Shader>("default", defaultVertShader,
@@ -166,6 +175,8 @@ void Pipeline::setShadersFromConfig (PipelineConfig config)
 	}
 	else {
 		for (auto &entry : configShaders) {
+			if (first.empty()) first = entry.name;
+
 			std::string name = entry.name;
 			std::string vertShader = entry.vertShader;
 			std::string fragShader = ParseFragmentShaderMaxTextures(entry.vertShader, g_renderer.maxTextures);
@@ -186,7 +197,7 @@ void Pipeline::setShadersFromConfig (PipelineConfig config)
 	if (shaders.empty())
 		MessageWarning("Pipeline: ", name, " - Invalid shader config");
 	else
-		currentShader = shaders.at(configShaders[0].name).get();
+		currentShader = shaders.at(first).get();
 }
 
 

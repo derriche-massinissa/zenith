@@ -27,7 +27,7 @@ struct PipelineAttribute {
 	 *
 	 * @since 0.0.0
 	 */
-	int size;
+	int size = 1;
 
 	/**
 	 * The data type of the attribute. Can be one of the following:
@@ -39,7 +39,7 @@ struct PipelineAttribute {
 	 *
 	 * @since 0.0.0
 	 */
-	GLenum type;
+	GLenum type = GL_FLOAT;
 
 	/**
 	 * The offset, in bytes, of this attribute data in the vertex array. Equivalent

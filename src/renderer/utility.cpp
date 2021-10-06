@@ -12,6 +12,9 @@
 namespace Zen {
 
 const static std::map<GLenum, size_t> gl_type_size {
+	{ GL_UNSIGNED_BYTE, 1 },
+	{ GL_BYTE, 1 },
+
 	{ GL_FLOAT, 4 },
 	{ GL_INT, 4 },
 	{ GL_UNSIGNED_INT, 4 },
@@ -329,7 +332,7 @@ std::string ParseFragmentShaderMaxTextures (std::string fragmentShaderSource,
 
 	for (size_t i = 0; i < maxTextures; i++) {
 		if (i > 0)
-			src += "\n\telse";
+			src += "\n\telse ";
 
 		if (i < maxTextures - 1)
 			src += "if (TexId < " + std::to_string(i) + ".5)";

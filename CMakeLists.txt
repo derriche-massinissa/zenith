@@ -49,6 +49,16 @@ set(zenith_SRCS
 	src/utils/file/file_to_string.cpp
 	src/utils/string/replace.cpp
 
+	src/gameobjects/render_functions.cpp
+
+	src/math/pow2/get_power_of_two.cpp
+	src/math/pow2/is_size_power_of_two.cpp
+	src/math/pow2/is_value_power_of_two.cpp
+
+	src/display/color_matrix.cpp
+
+	src/systems/sources/type.cpp
+
 
 
 
@@ -110,6 +120,9 @@ set(zenith_SRCS
 	src/math/easing/quartic/in_out.cpp
 	src/math/easing/quintic/in_out.cpp
 	src/math/easing/sine/in_out.cpp
+
+
+
 
 
 
