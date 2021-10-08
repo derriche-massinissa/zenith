@@ -35,7 +35,7 @@ uniform mat4 uProjectionMatrix;
 // ----------------------------------------------------------------------------
 void main ()
 {
-	gl_Position = uProjectionMatrix * vec4(aPosition, 1.0, 1.0);
+	gl_Position = uProjectionMatrix * vec4(aPosition, 0.f, 1.f);
 
 	TexCoord = aTexCoord;
 	TexId = aTexId;

@@ -43,6 +43,9 @@ Pipeline::~Pipeline ()
 
 void Pipeline::boot()
 {
+	// Generate and bind the VAO of the pipeline
+	vertexArray = g_renderer.createVertexArray();
+
 	resize(g_renderer.width, g_renderer.height);
 
 	// Create the RenderTargets
@@ -86,12 +89,14 @@ void Pipeline::boot()
 
 	// Setup shaders
 	setVertexArray();
-	setVertexBuffer();
+	//setVertexBuffer();
 
 	for (auto &shader : shaders) {
 		shader.second->rebind();
 		//shader.second->setAttribPointers(true);
 	}
+
+	glBindVertexArray(0);
 
 	hasBooted = true;
 
@@ -108,8 +113,8 @@ void Pipeline::boot()
 void Pipeline::onBoot ()
 {}
 
-void Pipeline::onResize ([[maybe_unused]] double width,
-		[[maybe_unused]] double height)
+void Pipeline::onResize ([[maybe_unused]] int width,
+		[[maybe_unused]] int height)
 {}
 
 void Pipeline::setShader (Shader *shader, bool setAttributes)
@@ -121,7 +126,7 @@ void Pipeline::setShader (Shader *shader, bool setAttributes)
 		g_renderer.resetTextures();
 
 		bool wasBound = setVertexArray();
-		// FIXME test this: setVertexBuffer();
+		//setVertexBuffer();
 
 		//if (wasBound && !setAttributes)
 		//	setAttributes = true;
@@ -218,13 +223,13 @@ bool Pipeline::shouldFlush (int amount)
 }
 
 
-void Pipeline::resize (double width_, double height_)
+void Pipeline::resize (int width_, int height_)
 {
-	if (width_ != width || height != height)
+	if (width_ != width || height_ != height)
 		flush();
 
-	width_ = width;
-	height_ = height;
+	width = width_;
+	height = height_;
 
 	for (auto target : renderTargets)
 		target.resize(width, height);
@@ -236,7 +241,7 @@ void Pipeline::resize (double width_, double height_)
 	onResize(width, height);
 }
 
-void Pipeline::setProjectionMatrix (double width_, double height_)
+void Pipeline::setProjectionMatrix (int width_, int height_)
 {
 	projectionWidth = width_;
 	projectionHeight = height_;
@@ -271,7 +276,7 @@ void Pipeline::bind (Shader *currentShader_)
 		currentShader = currentShader_;
 
 	bool wasBound = setVertexArray();
-	// FIXME test this: setVertexBuffer();
+	//setVertexBuffer();
 
 	currentShader->bind(wasBound);
 
@@ -357,6 +362,7 @@ void Pipeline::flush (bool isPostFlush_)
 
 		onBeforeFlush(isPostFlush_);
 
+		// Get size of a single vertex
 		int vertexSize_ = currentShader->vertexSize;
 
 		if (active) {
@@ -364,10 +370,11 @@ void Pipeline::flush (bool isPostFlush_)
 			//setVertexBuffer();
 
 			if (vertexCount == vertexCapacity)
-				glBufferData(GL_ARRAY_BUFFER, vertexSize_, vertexData.data(),
-						GL_DYNAMIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER, vertexCount * vertexSize_,
+						vertexData.data(), GL_DYNAMIC_DRAW);
 			else
-				glBufferSubData(GL_ARRAY_BUFFER, 0, vertexSize_, vertexData.data());
+				glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * vertexSize_,
+						vertexData.data());
 
 			glDrawArrays(topology, 0, vertexCount);
 		}
@@ -425,18 +432,18 @@ void Pipeline::onAfterFlush ([[maybe_unused]] bool isPostFlush)
 void Pipeline::batchVert (double x, double y, double u, double v, int unit,
 		int tintEffect, int tint)
 {
+	float *vertexViewF32 = reinterpret_cast<float*>(vertexData.data());
 	std::uint32_t *vertexViewU32 = reinterpret_cast<std::uint32_t*>(
 			vertexData.data());
-	float *vertexViewF32 = reinterpret_cast<float*>(vertexData.data());
 
-	size_t vertexOffset = (vertexCount * currentShader->vertexComponentCount) - 1;
+	int vertexOffset = (vertexCount * currentShader->vertexComponentCount) - 1;
 
 	vertexViewF32[++vertexOffset] = static_cast<float>(x);
 	vertexViewF32[++vertexOffset] = static_cast<float>(y);
 	vertexViewF32[++vertexOffset] = static_cast<float>(u);
 	vertexViewF32[++vertexOffset] = static_cast<float>(v);
-	vertexViewU32[++vertexOffset] = unit;
-	vertexViewU32[++vertexOffset] = tintEffect;
+	vertexViewF32[++vertexOffset] = unit;
+	vertexViewF32[++vertexOffset] = tintEffect;
 	vertexViewU32[++vertexOffset] = tint;
 
 	vertexCount++;
@@ -445,9 +452,9 @@ void Pipeline::batchVert (double x, double y, double u, double v, int unit,
 bool Pipeline::batchQuad (Entity gameObject, double x0, double y0, double x1,
 		double y1, double x2, double y2, double x3, double y3, double u0,
 		double v0, double u1, double v1, int tintTL, int tintTR, int tintBL,
-		int tintBR, int tintEffect, GL_texture texture, GLenum unit)
+		int tintBR, int tintEffect, GL_texture texture, int unit)
 {
-	if (unit == GL_NONE)
+	if (unit < 0)
 		unit = currentUnit;
 
 	bool hasFlushed = false;

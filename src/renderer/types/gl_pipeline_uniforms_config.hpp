@@ -35,6 +35,28 @@ struct PipelineUniformConfig {
 	 * @since 0.0.0
 	 */
 	std::vector<std::uint8_t> value;
+
+	/**
+	 * The number of elements in this uniform. If more than 1, this uniform
+	 * is an array.
+	 *
+	 * @since 0.0.0
+	 */
+	int length;
+
+	/**
+	 * The OpenGL type of this uniform.
+	 *
+	 * @since 0.0.0
+	 */
+	GLenum type;
+
+	/**
+	 * The total size in bytes of this uniform.
+	 *
+	 * @since 0.0.0
+	 */
+	size_t size;
 };
 
 }	// namespace Zen

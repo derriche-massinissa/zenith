@@ -97,7 +97,7 @@ public:
      * @param width The new width of this Pipeline.
      * @param height The new height of this Pipeline.
      */
-	void onResize (double width, double height);
+	void onResize (int width, int height);
 
     /**
      * Sets the currently active shader within this pipeline.
@@ -175,7 +175,7 @@ public:
      * @param width The new width of this pipeline.
      * @param height The new height of this pipeline.
      */
-    virtual void resize (double width, double height);
+    virtual void resize (int width, int height);
     /**
      * Adjusts this pipelines orthonormal Projection Matrix to use the given
 	 * dimensions and resets the `uProjectionMatrix` uniform on all bound shaders.
@@ -188,7 +188,7 @@ public:
      * @param width The new width of this pipeline.
      * @param height The new height of this pipeline.
      */
-    void setProjectionMatrix (double width, double height);
+    void setProjectionMatrix (int width, int height);
 
     /**
      * Adjusts this pipelines orthonormal Projection Matrix to match that of the
@@ -550,7 +550,7 @@ public:
     bool batchQuad (Entity gameObject, double x0, double y0, double x1, double y1,
 			double x2, double y2, double x3, double y3, double u0, double v0,
 			double u1, double v1, int tintTL, int tintTR, int tintBL, int tintBR,
-			int tintEffect, GL_texture texture, GLenum unit = GL_NONE);
+			int tintEffect, GL_texture texture, int unit = -1);
 
     /**
      * Adds the vertices data into the batch and flushes if full.
@@ -717,14 +717,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	double width = 0;
+	int width = 0;
 
 	/**
 	 * Height of the current viewport.
 	 *
 	 * @since 0.0.0
 	 */
-	double height = 0;
+	int height = 0;
 
 	/**
 	 * The current number of vertices that have been added to the pipeline batch.
@@ -866,14 +866,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	double projectionWidth = 0;
+	int projectionWidth = 0;
 
 	/**
 	 * The cached height of the Projection matrix.
 	 *
 	 * @since 0.0.0
 	 */
-	double projectionHeight = 0;
+	int projectionHeight = 0;
 
 	/**
 	 * The configuration object that was used to create this pipeline.

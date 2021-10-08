@@ -169,7 +169,7 @@ public:
      * @param width Optional new width of the Render Target.
      * @param height Optional new height of the Render Target.
      */
-    void beginCapture (double width = -1, double height = -1);
+    void beginCapture (int width = -1, int height = -1);
 
     /**
      * Unbinds the Renderer's Render Target and returns it, stopping any further
@@ -192,7 +192,7 @@ public:
      * @param width The new width of the renderer.
      * @param height The new height of the renderer.
      */
-    void resize (double width, double height);
+    void resize (int width, int height);
 
     /**
      * Gets the aspect ratio of the Renderer's dimensions.
@@ -211,7 +211,7 @@ public:
      * @param width The new width of the Projection Matrix.
      * @param height The new height of the Projection Matrix.
      */
-	void setProjectionMatrix (double width, double height);
+	void setProjectionMatrix (int width, int height);
 
     /**
      * Resets the Projection Matrix back to this renderer's width and height.
@@ -565,8 +565,8 @@ public:
      * @return The OpenGL Texture that was created, or `null` if it couldn't be
 	 * created.
      */
-	GL_texture createTextureFromSource (Entity source, double width = -1,
-			double height = -1, GLenum scaleMode = GL_LINEAR);
+	GL_texture createTextureFromSource (Entity source, int width = -1,
+			int height = -1, GLenum scaleMode = GL_LINEAR);
 
     /**
      * A wrapper for creating a GL_texture. If no pixel data is passed it will
@@ -944,20 +944,20 @@ public:
 	PipelineManager pipelines;
 
 	/**
-	 * The width of the canvas being rendered to.
+	 * The width of the window being rendered to.
 	 * This is populated in the onResize event handler.
 	 *
 	 * @since 0.0.0
 	 */
-	double width = 0;
+	int width = 0;
 
 	/**
-	 * The height of the canvas being rendered to.
+	 * The height of the window being rendered to.
 	 * This is populated in the onResize event handler.
 	 *
 	 * @since 0.0.0
 	 */
-	double height = 0;
+	int height = 0;
 
 	/**
 	 * An array of blend modes supported by the Renderer.
@@ -1008,7 +1008,7 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	std::vector<GLenum> textureIndexes;
+	std::vector<int> textureIndexes;
 
 	/**
 	 * An array of default temporary OpenGL Textures.
@@ -1243,14 +1243,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	double projectionWidth = 0;
+	int projectionWidth = 0;
 
 	/**
 	 * The cached height of the Projection matrix.
 	 *
 	 * @since 0.0.0
 	 */
-	double projectionHeight = 0;
+	int projectionHeight = 0;
 
 	/**
 	 * Stores informations about the different OpenGL textures.

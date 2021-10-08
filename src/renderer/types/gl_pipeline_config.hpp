@@ -26,7 +26,7 @@ struct PipelineConfig {
 
 	std::string fragShader;
 
-	int batchSize = 1;
+	int batchSize = 4096;
 
 	/**
 	 * The size, in bytes, of a single entry is the vertex buffer.

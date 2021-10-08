@@ -79,6 +79,8 @@ void SetFrameSize (Entity entity, int width, int height, int x, int y)
 	frame->data.drawImage.y = y;
 	frame->data.drawImage.width = width;
 	frame->data.drawImage.height = height;
+
+	UpdateFrameUVs(entity);
 }
 
 void SetFrameTrim (Entity entity, int actualWidth, int actualHeight, int destX, int destY, int destWidth, int destHeight)

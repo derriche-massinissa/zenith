@@ -37,7 +37,7 @@ public:
 	 * @param autoResize Automatically clear this Render Target if the Renderer
 	 * resizes?
 	 */
-	RenderTarget (double width, double height, double scale = 1, int minFilter = 0,
+	RenderTarget (int width, int height, double scale = 1, int minFilter = 0,
 			bool autoClear = true, bool autoResize = false);
 
     /**
@@ -65,7 +65,7 @@ public:
      * @param width The new width of this Render Target.
      * @param height The new height of this Render Target.
      */
-	void resize (double width, double height);
+	void resize (int width, int height);
 
     /**
      * Pushes this Render Target as the current frame buffer of the renderer.
@@ -82,7 +82,7 @@ public:
      * @param width Optional new width of this Render Target.
      * @param height Optional new height of this Render Target.
      */
-	void bind (bool adjustViewport = false, double width = 0, double height = 0);
+	void bind (bool adjustViewport = false, int width = 0, int height = 0);
 
     /**
      * Adjusts the GL viewport to match the width and height of this Render Target.
@@ -149,14 +149,14 @@ public:
 	 *
 	 * @since 0.0.0
 	 */
-	double width = 0;
+	int width = 0;
 
 	/**
 	 * The height of the texture.
 	 *
 	 * @since 0.0.0
 	 */
-	double height = 0;
+	int height = 0;
 
 	/**
 	 * A value between 0 and 1. Controls the size of this Render Target in

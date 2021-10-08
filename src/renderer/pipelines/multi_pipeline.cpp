@@ -88,6 +88,8 @@ void MultiPipeline::boot ()
 void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
 		Components::TransformMatrix *parentTransformMatrix)
 {
+	g_renderer.pipelines.set(name, gameObject);
+
 	double alpha = GetAlpha(camera) * GetAlpha(gameObject);
 	if (!alpha)
 		// Nothing to see, so abort early
@@ -312,6 +314,8 @@ void MultiPipeline::batchTexture (
 	int textureUnit
 	)
 {
+	g_renderer.pipelines.set(name, gameObject);
+
 	auto &camMatrix = tempMatrix1;
 	auto &spriteMatrix = tempMatrix2;
 	auto &calcMatrix = tempMatrix3;
@@ -436,6 +440,8 @@ void MultiPipeline::batchTextureFrame (
 	Components::TransformMatrix *parentTransformMatrix
 	)
 {
+	g_renderer.pipelines.set(name);
+
 	auto *fr = g_registry.try_get<Components::Frame>(frame);
 
 	g_renderer.pipelines.set(name);
@@ -467,6 +473,11 @@ void MultiPipeline::batchTextureFrame (
 
 	double tx3 = GetX(calcMatrix, xw, y);
 	double ty3 = GetY(calcMatrix, xw, y);
+
+	/* FIXME should vertex positions be normalized??????
+	tx0 = tx1 = ty1 = ty2 = 0.;
+	tx2 = tx3 = ty0 = ty3 = 1.;
+	*/
 
 	int unit = g_renderer.setTextureSource(fr->source);
 

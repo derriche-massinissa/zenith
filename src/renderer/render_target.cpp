@@ -13,7 +13,7 @@ namespace Zen {
 
 extern Renderer g_renderer;
 
-RenderTarget::RenderTarget (double width, double height, double scale,
+RenderTarget::RenderTarget (int width, int height, double scale,
 		int minFilter, bool autoClear, bool autoResize)
 	: scale (scale)
 	, minFilter (minFilter)
@@ -39,10 +39,10 @@ void RenderTarget::setAutoResize (bool autoResize_)
 	autoResize = autoResize_;
 }
 
-void RenderTarget::resize (double width_, double height_)
+void RenderTarget::resize (int width_, int height_)
 {
-	double scaledWidth_ = width_ * scale;
-	double scaledHeight_ = height_ * scale;
+	int scaledWidth_ = width_ * scale;
+	int scaledHeight_ = height_ * scale;
 
 	if (scaledWidth_ != width || scaledHeight_ != height) {
 		g_renderer.deleteFramebuffer(framebuffer);
@@ -50,9 +50,6 @@ void RenderTarget::resize (double width_, double height_)
 
 		width_ *= scale;
 		height_ *= scale;
-
-		width_ = std::round(width_);
-		height_ = std::round(height_);
 
 		if (width_ <= 0)
 			width_ = 1;
@@ -69,7 +66,7 @@ void RenderTarget::resize (double width_, double height_)
 	}
 }
 
-void RenderTarget::bind (bool adjustViewport_, double width_, double height_)
+void RenderTarget::bind (bool adjustViewport_, int width_, int height_)
 {
 	if (adjustViewport_)
 		g_renderer.flush();

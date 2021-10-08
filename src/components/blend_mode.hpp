@@ -13,7 +13,7 @@ namespace Components {
 
 struct BlendMode
 {
-	int value = 1;
+	int value = 0;
 };
 
 }	// namespace Components

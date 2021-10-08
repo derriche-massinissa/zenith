@@ -8,6 +8,7 @@
 #include "utility.hpp"
 #include <map>
 #include "../utils/string/replace.hpp"
+#include "../utils/assert.hpp"
 
 namespace Zen {
 
@@ -47,6 +48,10 @@ const static std::map<GLenum, size_t> gl_type_size {
 
 	{ GL_FLOAT_MAT4x2, 32 },
 	{ GL_FLOAT_MAT4x3, 48 },
+
+	{ GL_SAMPLER_1D, 4 },
+	{ GL_SAMPLER_2D, 4 },
+	{ GL_SAMPLER_3D, 4 },
 };
 
 const static std::map<GLenum, std::string> gl_type_enum_name {
@@ -269,8 +274,11 @@ std::size_t GetGLTypeSize (GLenum type)
 {
 	size_t size = 0;
 
-	if (gl_type_size.find(type) != gl_type_size.end())
-		size = gl_type_size.at(type);
+	ZEN_ASSERT(gl_type_size.find(type) != gl_type_size.end(),
+			std::string("Requested GL type is not supported (") +
+			GetGLTypeEnumName(type) + ")");
+
+	size = gl_type_size.at(type);
 
 	return size;
 }
@@ -335,7 +343,7 @@ std::string ParseFragmentShaderMaxTextures (std::string fragmentShaderSource,
 			src += "\n\telse ";
 
 		if (i < maxTextures - 1)
-			src += "if (TexId < " + std::to_string(i) + ".5)";
+			src += "if (TexId < " + std::to_string(i) + ".5f)";
 
 		src += "\n\t{";
 		src += "\n\t\ttexture = texture2D(uMainSampler[" + std::to_string(i) +

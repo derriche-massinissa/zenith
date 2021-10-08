@@ -656,6 +656,17 @@ void Renderer::boot (RenderConfig config_)
 
 	// Setup pipelines
 	pipelines.boot();
+
+	// TODO Setup default textures, fbo, scissor
+	// Setup default textures, fbo, scissor
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glEnable(GL_SCISSOR_TEST);
+
+	g_scale.on("resize", &Renderer::onResize, this);
+
+	resize(width, height);
 }
 
 void Renderer::onResize (Size, Size displaySize_, int, int)
@@ -666,7 +677,7 @@ void Renderer::onResize (Size, Size displaySize_, int, int)
 	}
 }
 
-void Renderer::beginCapture (double width_, double height_)
+void Renderer::beginCapture (int width_, int height_)
 {
 	if (width_ < 0)
 		width_ = width;
@@ -689,7 +700,7 @@ RenderTarget* Renderer::endCapture ()
 	return renderTarget.get();
 }
 
-void Renderer::resize (double width_, double height_)
+void Renderer::resize (int width_, int height_)
 {
 	width = width_;
 	height = height_;
@@ -711,13 +722,13 @@ double Renderer::getAspectRatio ()
 	return ( (double) width ) / height;
 }
 
-void Renderer::setProjectionMatrix (double width_, double height_)
+void Renderer::setProjectionMatrix (int width_, int height_)
 {
 	if (width_ != projectionWidth || height_ != projectionHeight) {
 		projectionWidth = width_;
 		projectionHeight = height_;
 
-		projectionMatrix = glm::ortho(0., width_, height_, 0.);
+		projectionMatrix = glm::ortho(0.f, (float)width_, (float)height_, 0.f);
 	}
 }
 
@@ -726,7 +737,7 @@ void Renderer::resetProjectionMatrix ()
 	projectionWidth = width;
 	projectionHeight = height;
 
-	projectionMatrix = glm::ortho(0., width, height, 0.);
+	projectionMatrix = glm::ortho(0.f, (float)width, (float)height, 0.f);
 }
 
 void Renderer::flush ()
@@ -1168,8 +1179,8 @@ void Renderer::resetProgram ()
 	glUseProgram(currentProgram);
 }
 
-GL_texture Renderer::createTextureFromSource (Entity source_, double width_,
-		double height_, GLenum scaleMode_)
+GL_texture Renderer::createTextureFromSource (Entity source_, int width_,
+		int height_, GLenum scaleMode_)
 {
 	Components::TextureSource *src_ = nullptr;
 
@@ -1614,10 +1625,126 @@ void Renderer::render (std::vector<Entity> children_, Entity camera_)
 
 void Renderer::postRender ()
 {
+	/*
+	int tmp = -5;
+	tmp++;
+
+	GL_texture gl_texture = 21;
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, gl_texture);
+	*/
+
+	//Shader &shader = *pipelines.MULTI_PIPELINE->currentShader;
+	//shader.set("uMainSampler[1]", 1); // <- texture unit
+
+	/*
+	bool lock = true;
+	if (lock) {
+		int loc = glGetUniformLocation(shader.program, "uMainSampler[1]");
+		glUniform1i(loc, 1); // <- texture unit
+	}
+	*/
+
+	//shader.bind();
+	//shader.rebind();
+	//shader.set("uProjectionMatrix", false, projectionMatrix);
+
 	flush();
+
+//	// TODO
+//	static bool first = true;
+//	static GL_vao VAO;
+//	int tmp = -2;
+//	tmp++;
+//	if (first) {
+//		first = false;
+//
+//		GL_vbo VBO;
+//
+//		std::vector<std::uint8_t> data;
+//		data.resize(42*4);
+//
+//		float *view = reinterpret_cast<float*>(data.data());
+//		int i = 0;
+//		for (float v : {
+//			/*
+//			-.5f, -.5f, 0.f, 0.f, 1.f, 0.f, 0.f,
+//			-.5f, .5f, 0.f, 1.f, 1.f, 0.f, 0.f,
+//			.5f, .5f, 1.f, 1.f, 1.f, 0.f, 0.f,
+//			-.5f, -.5f, 0.f, 0.f, 1.f, 0.f, 0.f,
+//			.5f, .5f, 1.f, 1.f, 1.f, 0.f, 0.f,
+//			.5f, -.5f, 1.f, 0.f, 1.f, 0.f, 0.f
+//			 */
+//			36.f, 36.f, 0.f, 0.f, 1.f, 0.f, 0.f,
+//			36.f, 164.f, 0.f, 1.f, 1.f, 0.f, 0.f,
+//			164.f, 164.f, 1.f, 1.f, 1.f, 0.f, 0.f,
+//			36.f, 36.f, 0.f, 0.f, 1.f, 0.f, 0.f,
+//			164.f, 164.f, 1.f, 1.f, 1.f, 0.f, 0.f,
+//			164.f, 36.f, 1.f, 0.f, 1.f, 0.f, 0.f
+//		}) {
+//			view[i] = v;
+//			i++;
+//		};
+//
+//		//glGenVertexArrays(1, &VAO);
+//		VAO = pipelines.MULTI_PIPELINE->vertexArray;
+//		glBindVertexArray(VAO);
+//
+//		glGenBuffers(1, &VBO);
+//		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(),
+//				GL_STATIC_DRAW);
+//
+//		Shader &shader = *pipelines.MULTI_PIPELINE->currentShader;
+//		shader.rebind();
+//
+//		glm::mat4 proj = glm::ortho(0.f, 800.f, 600.f, 0.f);
+//		shader.set("uProjectionMatrix", false, proj);
+//		//int loc = glGetUniformLocation(shader.program, "uProjectionMatrix");
+//		//glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(proj));
+//
+//		const float *p = glm::value_ptr(proj);
+//
+//		for (int i = 0; i < 16; i++) {
+//			std::cout << p[i] << " | ";
+//		}
+//		std::cout << std::endl;
+//
+//		/*
+//		glEnableVertexAttribArray(0);
+//		glVertexAttribPointer(0, 2, GL_FLOAT, 0.f, 28,
+//				reinterpret_cast<void*>(0));
+//		glEnableVertexAttribArray(1);
+//		glVertexAttribPointer(1, 2, GL_FLOAT, 0.f, 28,
+//				reinterpret_cast<void*>(8));
+//		glEnableVertexAttribArray(2);
+//		glVertexAttribPointer(2, 1, GL_FLOAT, 0.f, 28,
+//				reinterpret_cast<void*>(16));
+//		glEnableVertexAttribArray(3);
+//		glVertexAttribPointer(3, 1, GL_FLOAT, 0.f, 28,
+//				reinterpret_cast<void*>(20));
+//		glEnableVertexAttribArray(4);
+//		glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, 1.f, 28,
+//				reinterpret_cast<void*>(24));
+//				*/
+//
+//		glBindVertexArray(0);
+//		glDeleteBuffers(1, &VBO);
+//	}
+//
+//	//glClearColor(0.f, 0.2f, 0.f, 1.f);
+//	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+//	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//	glUseProgram(pipelines.MULTI_PIPELINE->currentShader->program);
+//	glBindVertexArray(VAO);
+//	glDrawArrays(GL_TRIANGLES, 0, 6);
+//	glBindVertexArray(0);
+//	// TODO
 
 	// Update screen
 	SDL_GL_SwapWindow(g_window.window);
+
+//	return;
 
 	emit("post-render");
 

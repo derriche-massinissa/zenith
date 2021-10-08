@@ -18,6 +18,7 @@
 #include "types/gl_pipeline_uniforms_config.hpp"
 #include "types/gl_types.hpp"
 #include "../event/event_emitter.hpp"
+#include "utility.hpp"
 
 namespace Zen {
 
@@ -142,37 +143,24 @@ public:
      */
 	void resetUniform (std::string name);
 
-	/*
-	// Utillity uniform functions
-	// Booleans ------------------------------------------------------------------
-	void set (const std::string &name, bool value);
-	// Scalars -------------------------------------------------------------------
-	void set (const std::string &name, int value);
-	void set (const std::string &name, unsigned int value);
-	void set (const std::string &name, float value);
-	// Vector 2 ------------------------------------------------------------------
-	void set (const std::string &name, const glm::vec2 &vec);
-	void set (const std::string &name, float x, float y);
-	void set (const std::string &name, const glm::vec<2, int> &vec);
-	void set (const std::string &name, int x, int y);
-	// Vector 3 ------------------------------------------------------------------
-	void set (const std::string &name, const glm::vec3 &vec);
-	void set (const std::string &name, float x, float y, float z);
-	void set (const std::string &name, const glm::vec<3, int> &vec);
-	void set (const std::string &name, int x, int y, int z);
-	// Vector 4 ------------------------------------------------------------------
-	void set (const std::string &name, const glm::vec4 &vec);
-	void set (const std::string &name, float x, float y, float z, float w);
-	void set (const std::string &name, const glm::vec<4, int> &vec);
-	void set (const std::string &name, int x, int y, int z, int w);
-
-	// Matrices ------------------------------------------------------------------
-	void set (const std::string &name, bool transpose, const glm::mat2 &mat);
-	void set (const std::string &name, bool transpose, const glm::mat3 &mat);
-	void set (const std::string &name, bool transpose, const glm::mat4 &mat);
-	*/
-
-	// Matrices ------------------------------------------------------------------
+	/**
+	 * Sets a uniform of the given name on this shader of type: mat2, mat3, mat4.
+	 *
+	 * The uniform is only set if the value/s given is/are different than
+	 * those previously set.
+	 *
+	 * This method works by first setting this shader as being the current
+	 * shader within the Renderer, if it isn't already. It also sets this
+	 * shader as being the current one within the pipeline it belongs to.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @tparam T The type of the data.
+	 * @tparam N The size of the square matrix.
+	 * @param name The name of the uniform to set.
+	 * @param transpose Whether to transpose the matrix.
+	 * @param mat The new value to set the uniform to.
+	 */
 	template <typename T, int N>
 	void set (const std::string &name, bool transpose, const glm::mat<N, N, T>& mat)
 	{
@@ -212,41 +200,29 @@ public:
 	}
 
 	/**
-	 * One to 4 scalars
+	 * Sets a uniform of the given name on this shader of type T.
 	 *
 	 * ```cpp
-	 * set("uColor", 0.4, 0.5, 0.1);
-	 * set("uSize", 175);
-	 * set("uDensity", 57.4);
+	 * // vec4 uColor;
+	 * shader.set("uColor", 1.f, .7f, .4f, 1.f);
+	 * // float uInensity;
+	 * shader.set("uIntensity", 1.6f);
 	 * ```
 	 *
+	 * The uniform is only set if the value/s given is/are different than
+	 * those previously set.
+	 *
+	 * This method works by first setting this shader as being the current
+	 * shader within the Renderer, if it isn't already. It also sets this
+	 * shader as being the current one within the pipeline it belongs to.
+	 *
 	 * @since 0.0.0
+	 *
+	 * @tparam T The type of the data.
+	 * @param name The name of the uniform to set.
+	 * @param value The new first value to set the uniform to.
+	 * @param args The new values to set the uniform to in addition to the first.
 	 */
-	/*
-	template <typename T>
-	void set (const std::string &name, T value)
-	{
-		std::vector<T> vec {value};
-		auto *uniform = prepareUniform(name, 1, vec.data());
-		if (!uniform) return;
-	}
-
-	template <typename T>
-	void set (const std::string &name, T value, T value2)
-	{
-	}
-
-	template <typename T>
-	void set (const std::string &name, T value, T value2, T value3)
-	{
-	}
-
-	template <typename T>
-	void set (const std::string &name, T value, T value2, T value3, T value4)
-	{
-	}
-	*/
-
 	template <
 		typename T,
 		typename ... Args,
@@ -309,7 +285,27 @@ public:
 	}
 
 	/**
-	 * GLM Vector
+	 * Sets a uniform of the given name on this shader of type vecN
+	 * (vec2, vec3, vec4...)
+	 *
+	 * ```cpp
+	 * // vec4 uColor;
+	 * shader.set("uColor", {1.f, .7f, .4f, 1.f});
+	 * ```
+	 *
+	 * The uniform is only set if the value/s given is/are different than
+	 * those previously set.
+	 *
+	 * This method works by first setting this shader as being the current
+	 * shader within the Renderer, if it isn't already. It also sets this
+	 * shader as being the current one within the pipeline it belongs to.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @tparam T The type of the data.
+	 * @tparam N The size of the vector.
+	 * @param name The name of the uniform to set.
+	 * @param vec The new value to set the uniform to.
 	 */
 	template <typename T, int N>
 	void set (const std::string &name, const glm::vec<N, T>& vec)
@@ -340,7 +336,27 @@ public:
 		}
 	}
 
-	// Vector ---------------------------------------------------------------------
+	/**
+	 * Sets an array uniform of the given name on this shader of type T.
+	 *
+	 * ```cpp
+	 * // float uMainSampler[12];
+	 * shader.set("uMainSampler", data);
+	 * ```
+	 *
+	 * The uniform is only set if the value/s given is/are different than
+	 * those previously set.
+	 *
+	 * This method works by first setting this shader as being the current
+	 * shader within the Renderer, if it isn't already. It also sets this
+	 * shader as being the current one within the pipeline it belongs to.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @tparam T The type of the data.
+	 * @param name The name of the uniform to set.
+	 * @param data The new value to set the uniform to.
+	 */
 	template <typename T>
 	void set (const std::string &name, const std::vector<T>& data)
 	{
@@ -359,7 +375,28 @@ public:
 			MessageWarning("Unsupported uniform type!");
 	}
 
-	// Array ---------------------------------------------------------------------
+	/**
+	 * Sets an array uniform of the given name on this shader of type T.
+	 *
+	 * ```cpp
+	 * // float uMainSampler[12];
+	 * shader.set("uMainSampler", data);
+	 * ```
+	 *
+	 * The uniform is only set if the value/s given is/are different than
+	 * those previously set.
+	 *
+	 * This method works by first setting this shader as being the current
+	 * shader within the Renderer, if it isn't already. It also sets this
+	 * shader as being the current one within the pipeline it belongs to.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @tparam T The type of the data.
+	 * @tparam N The number of elements in the uniform to set.
+	 * @param name The name of the uniform to set.
+	 * @param data The new value to set the uniform to.
+	 */
 	template <typename T, int N>
 	void set (const std::string &name, const std::array<T, N>& data)
 	{
@@ -392,33 +429,82 @@ public:
 	PipelineUniformConfig* prepareUniform (const std::string &name, size_t size,
 			const T* data)
 	{
-		// Does the uniform exist?
-		if (uniforms.find(name) == uniforms.end())
-			return nullptr;
+		std::string uniformName = name;
 
-		auto &uniform = uniforms[name];
-		T *value = reinterpret_cast<T*>(uniform.value.data());
+		std::size_t found = uniformName.find("[");
+		int index = -1;
 
-		size_t step = sizeof(T) / sizeof(std::uint8_t);
-		if (size == (uniform.value.size()/step)) {
-			bool same = true;
-			for (size_t i = 0; i < size; i++) {
-				if (value[i] != data[i]) {
-					same = false;
-					break;
-				}
+		// Is the passed name indexed? e.g. uName[3], uTexture[7]
+		if (found != std::string::npos) {
+			index = std::stoi(name.substr(found+1));
+			uniformName = name.substr(0, found);
+
+			if (index < 0) {
+				MessageWarning("Cannot set uniform \"", name, "\" :: Index cannot "
+						"be negative");
+				return nullptr;
 			}
-			if (same)
+		}
+
+		// Does the uniform exist?
+		if (uniforms.find(uniformName) == uniforms.end()) {
+			MessageWarning("Cannot set uniform \"", name, "\" :: Uniform does "
+					"not exist");
+			return nullptr;
+		}
+
+		// Get the uniform
+		auto &uniform = uniforms[uniformName];
+
+		// The size in bytes of a single element in the uniform if an array,
+		// otherwise the size of the whole uniform
+		size_t byteSize = sizeof(T) / sizeof(std::uint8_t);
+
+		if ((sizeof(T)*size) > uniform.size) {
+			MessageWarning("Cannot set uniform \"", name, "\" :: The size of "
+					"the data (", (sizeof(T)*size), " bytes) is greater than "
+					"the size of the uniform (", uniform.size, " bytes)");
+			return nullptr;
+		}
+
+		// If the given name is indexed, is the uniform an array?
+		if (index > -1 && uniform.length == 1) {
+			// If not, then the passed in name is wrong and shouldn't be indexed
+			MessageWarning("Cannot set uniform \"", name, "\" :: The uniform is "
+					"not an array");
+			return nullptr;
+		}
+		else if (index == -1) {
+			index = 0;
+		}
+		else if (index >= uniform.length) {
+			MessageWarning("Cannot set uniform \"", name, "\" :: Out of bounds "
+					"index");
+			return nullptr;
+		}
+
+		T *value = reinterpret_cast<T*>(
+				// Offset pointer if uniform is an array
+				uniform.value.data() + byteSize * index
+		);
+
+		if (!uniform.value.empty()) {
+			// Compare the data
+			int res = std::memcmp(data, value, byteSize * size);
+
+			if (res == 0)
+				// Both buffers are equal, no need to update the uniform
 				return nullptr;
 		}
 		else {
-			return nullptr;
+			uniform.value.resize(uniform.size);
+			value = reinterpret_cast<T*>(
+					uniform.value.data() + byteSize * index
+			);
 		}
 
 		// Data is new
-		uniform.value.clear();
-		uniform.value.resize(size * step);
-		std::memcpy(uniform.value.data(), data, size * step);
+		std::memcpy(value, data, byteSize * size);
 
 		emit("set-program", program);
 		emit("set-current", this);
@@ -426,16 +512,66 @@ public:
 		return &uniform;
 	}
 
+	/**
+	 * The name of this shader in the pipeline it belongs to.
+	 *
+	 * @since 0.0.0
+	 */
 	std::string name;
 
+	/**
+	 * The OpenGL shader program created from compiling the vertex and fragment
+	 * shaders.
+	 *
+	 * @since 0.0.0
+	 */
 	GL_program program;
 
+	/**
+	 * The amount of vertex attribute components of 32 bit length.
+	 *
+	 * @since 0.0.0
+	 */
 	int vertexComponentCount = 0;
 
+	/**
+	 * The size, in bytes, of a single vertex.
+	 *
+	 * This is derived by adding together all of the vertex attributes.
+	 *
+	 * For example, the Multi Pipeline has the following attributes:
+	 *
+	 * aPosition - (size 2 x GL_FLOAT) = 8
+	 * aTexCoord - (size 2 x GL_FLOAT) = 8
+	 * aTexId - (size 1 x GL_FLOAT) = 4
+	 * aTintEffect - (size 1 x GL_FLOAT) = 4
+	 * aTint - (size 4 x GL_UNSIGNED_BYTE) = 4
+	 *
+	 * The total, in this case, is 8 + 8 + 4 + 4 + 4 = 28.
+	 *
+	 * This is calculated automatically during the `createAttributes` method.
+	 *
+	 * @since 0.0.0
+	 */
 	int vertexSize = 0;
 
+	/**
+	 * Vector of objects that describe the vertex attributes of this shader.
+	 *
+	 * @since 0.0.0
+	 */
 	std::vector<PipelineAttribute> attributes;
 
+	/**
+	 * The active uniforms that this shader has.
+	 *
+	 * This is an object that maps the uniform names to their location and
+	 * cached values.
+	 *
+	 * It is populated automatically via the `createUniforms` method.
+	 *
+	 * @since 0.0.0
+	 */
 	std::map<std::string, PipelineUniformConfig> uniforms;
 };
 
