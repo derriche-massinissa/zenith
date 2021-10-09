@@ -299,7 +299,8 @@ double GetY (Components::TransformMatrix matrix, double x, double y)
 	return x * matrix.b + y * matrix.d + matrix.f;
 }
 
-int GetXRound (Components::TransformMatrix matrix, double x, double y, bool round)
+double GetXRound (Components::TransformMatrix matrix, double x, double y,
+		bool round)
 {
 	double v = GetX(matrix, x, y);
 
@@ -309,7 +310,8 @@ int GetXRound (Components::TransformMatrix matrix, double x, double y, bool roun
 	return v;
 }
 
-int GetYRound (Components::TransformMatrix matrix, double x, double y, bool round)
+double GetYRound (Components::TransformMatrix matrix, double x, double y,
+		bool round)
 {
 	double v = GetY(matrix, x, y);
 

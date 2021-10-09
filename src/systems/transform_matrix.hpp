@@ -268,7 +268,7 @@ double GetY (Components::TransformMatrix matrix, double x, double y);
 /**
  * Returns the X component of this matrix multiplied by the given values.
  *
- * This is the same as `x * a + y * c + e`, optionally passing via `Math.round`.
+ * This is the same as `x * a + y * c + e`, optionally passing via `std::round`.
  *
  * @since 0.0.0
  *
@@ -278,12 +278,12 @@ double GetY (Components::TransformMatrix matrix, double x, double y);
  *
  * @return The calculated x value.
  */
-int GetXRound (Components::TransformMatrix matrix, double x, double y, bool round = false);
+double GetXRound (Components::TransformMatrix matrix, double x, double y, bool round = false);
 
 /**
  * Returns the Y component of this matrix multiplied by the given values.
  *
- * This is the same as `x * b + y * d + f`, optionally passing via `Math.round`.
+ * This is the same as `x * b + y * d + f`, optionally passing via `std::round`.
  *
  * @since 0.0.0
  *
@@ -293,7 +293,7 @@ int GetXRound (Components::TransformMatrix matrix, double x, double y, bool roun
  *
  * @return The calculated y value.
  */
-int GetYRound (Components::TransformMatrix matrix, double x, double y, bool round = false);
+double GetYRound (Components::TransformMatrix matrix, double x, double y, bool round = false);
 
 Components::TransformMatrix GetTransformMatrix (Entity entity);
 

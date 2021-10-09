@@ -474,11 +474,6 @@ void MultiPipeline::batchTextureFrame (
 	double tx3 = GetX(calcMatrix, xw, y);
 	double ty3 = GetY(calcMatrix, xw, y);
 
-	/* FIXME should vertex positions be normalized??????
-	tx0 = tx1 = ty1 = ty2 = 0.;
-	tx2 = tx3 = ty0 = ty3 = 1.;
-	*/
-
 	int unit = g_renderer.setTextureSource(fr->source);
 
 	tint = GetTintAppendFloatAlpha(tint, alpha);

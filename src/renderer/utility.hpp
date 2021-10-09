@@ -9,6 +9,8 @@
 #define ZEN_RENDERER_UTILITY_HPP
 
 #include <string>
+#include <array>
+#include <SDL2/SDL.h>
 #include <GL/glew.h>
 
 namespace Zen {
@@ -62,6 +64,8 @@ std::uint32_t GetTintAppendFloatAlphaAndSwap (int rgb, float a);
 
 std::string ParseFragmentShaderMaxTextures (std::string fragmentShaderSource,
 		size_t maxTextures);
+
+std::array<GLenum, 2> GetTexGLFormatFromSDLFormat (SDL_Surface *surface, bool gamma = false);
 
 }	// namespace Zen
 

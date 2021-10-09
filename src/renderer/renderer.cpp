@@ -657,9 +657,6 @@ void Renderer::boot (RenderConfig config_)
 	// Setup pipelines
 	pipelines.boot();
 
-	// TODO Setup default textures, fbo, scissor
-	// Setup default textures, fbo, scissor
-
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glEnable(GL_SCISSOR_TEST);
@@ -714,7 +711,8 @@ void Renderer::resize (int width_, int height_)
 	defaultScissor[2] = width;
 	defaultScissor[3] = height;
 
-	emit("resize", width, height);
+	emit("resize", g_scale.gameSize.width, g_scale.gameSize.height);
+	//emit("resize", width, height);
 }
 
 double Renderer::getAspectRatio ()
@@ -775,6 +773,7 @@ void Renderer::setScissor (int x_, int y_, int width_, int height_)
 	if (set_) {
 		flush();
 
+		glViewport(x_, y_, width_, height_);
 		glScissor(x_, y_, width_, height_);
 	}
 }
@@ -789,8 +788,10 @@ void Renderer::resetScissor ()
 		int cw_ = currentScissor[2];
 		int ch_ = currentScissor[3];
 
-		if (cw_ > 0 && ch_ > 0)
+		if (cw_ > 0 && ch_ > 0) {
+			glViewport(cx_, cy_, cw_, ch_);
 			glScissor(cx_, cy_, cw_, ch_);
+		}
 	}
 }
 
@@ -1212,9 +1213,11 @@ GL_texture Renderer::createTextureFromSource (Entity source_, int width_,
 				GL_RGBA, nullptr, width_, height_);
 	}
 	else if (source_ != entt::null) {
+		auto format_ = GetTexGLFormatFromSDLFormat(src_->tmp);
+
 		// Create the texture
 		texture_ = createTexture2D(0, minFilter_, magFilter_, wrap_, wrap_,
-				GL_RGBA, src_->tmp);
+				format_[0], src_->tmp);
 	}
 
 	return texture_;
@@ -1455,16 +1458,63 @@ void Renderer::deleteBuffer (GLuint buffer)
 
 void Renderer::preRenderCamera (Entity camera)
 {
+	bool modScale = GetViewport(camera) || g_scale.scaleMode != SCALE_MODE::RESIZE;
+
+	int offsetX = g_scale.displayOffset.x;
+	int offsetY = g_scale.displayOffset.y;
+	double scaleX = g_scale.displayScale.x;
+	double scaleY = g_scale.displayScale.y;
+
 	double cx = GetX(camera);
 	double cy = GetY(camera);
 	double cw = GetWidth(camera);
 	double ch = GetHeight(camera);
 
+	int w = g_scale.gameSize.width;
+	int h = g_scale.gameSize.height;
+
 	Color color = GetBackgroundColor(camera);
 
 	pipelines.preBatchCamera(camera);
 
-	pushScissor(cx, cy, cw, ch);
+	if (modScale) {
+		// Skip rendering this camera if its viewport is outside the window
+		if (cx > w || cy > h || cx < -cw || cy < -ch)
+			return;
+
+		// Clip the viewport if it goes outside the left side of the window
+		if (cx < 0) {
+			cw += cx;
+			cx = 0;
+		}
+
+		// Clip the viewport if it goes outside the right side of the window
+		if ((cx + cw) > w) {
+			cw = w - cx;
+		}
+
+		// Clip the viewport if it goes outside the top side of the window
+		if (cy < 0) {
+			ch += cy;
+			cy = 0;
+		}
+
+		// Clip the viewport if it goes outside the bottom side of the window
+		if ((cy + ch) > h) {
+			ch = h - cy;
+		}
+	}
+
+	cx *= scaleX;
+	cy *= scaleY;
+	cw *= scaleX;
+	ch *= scaleY;
+	cx += offsetX;
+	cy += offsetY;
+
+	if (modScale) {
+		pushScissor(cx, cy, cw, ch);
+	}
 
 	auto *masked = g_registry.try_get<Components::Masked>(camera);
 	if (masked) {
@@ -1478,7 +1528,7 @@ void Renderer::preRenderCamera (Entity camera)
 		auto &pipeline = pipelines.setMulti();
 
 		pipeline.drawFillRect(
-			cx, cy, cw, ch,
+			0, 0, w, h,
 			GetTintFromFloats(color.gl[2], color.gl[1], color.gl[0], 1.),
 			color.gl[3]
 		);
@@ -1512,7 +1562,9 @@ void Renderer::postRenderCamera (Entity camera) {
 
 	SetDirty(camera, false);
 
-	popScissor();
+	if (GetViewport(camera) || g_scale.scaleMode != SCALE_MODE::RESIZE) {
+		popScissor();
+	}
 
 	auto mask = g_registry.try_get<Components::Masked>(camera);
 	if (mask) {
@@ -1527,6 +1579,8 @@ void Renderer::preRender ()
 {
 	// Make sure we are bound to the main framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glDisable(GL_SCISSOR_TEST);
 
 	if (config.clearBeforeRender) {
 		Color clearColor = config.backgroundColor;
@@ -1544,8 +1598,10 @@ void Renderer::preRender ()
 	scissorStack.clear();
 	scissorStack.push_back(currentScissor);
 
-	if (g_scene.customViewports)
+	if (g_scene.customViewports) {
+		glViewport(0, 0, width, height);
 		glScissor(0, 0, width, height);
+	}
 
 	currentMask.mask = entt::null;
 	currentCameraMask.mask = entt::null;

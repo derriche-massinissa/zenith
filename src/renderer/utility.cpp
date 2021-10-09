@@ -305,27 +305,27 @@ std::string GetGLTypeName (GLenum type)
 
 std::uint32_t GetTintFromFloats (float r, float g, float b, float a)
 {
-	std::uint32_t ur = (static_cast<int>(r * 255) | 0) & 0xff;
-	std::uint32_t ug = (static_cast<int>(g * 255) | 0) & 0xff;
-	std::uint32_t ub = (static_cast<int>(b * 255) | 0) & 0xff;
-	std::uint32_t ua = (static_cast<int>(a * 255) | 0) & 0xff;
+	std::uint32_t ur = static_cast<int>(r * 255) & 0xff;
+	std::uint32_t ug = static_cast<int>(g * 255) & 0xff;
+	std::uint32_t ub = static_cast<int>(b * 255) & 0xff;
+	std::uint32_t ua = static_cast<int>(a * 255) & 0xff;
 
 	return ((ua << 24) | (ur << 16) | (ug << 8) | ub);
 }
 
 std::uint32_t GetTintAppendFloatAlpha (int rgb, float a)
 {
-	std::uint32_t ua = (static_cast<int>(a * 255) | 0) & 0xff;
+	std::uint32_t ua = static_cast<int>(a * 255) & 0xff;
 
 	return (ua << 24 | rgb);
 }
 
 std::uint32_t GetTintAppendFloatAlphaAndSwap (int rgb, float a)
 {
-	std::uint32_t ur = ((rgb >> 16) | 0) & 0xff;
-	std::uint32_t ug = ((rgb >> 8) | 0) & 0xff;
-	std::uint32_t ub = (rgb  | 0) & 0xff;
-	std::uint32_t ua = (static_cast<int>(a * 255) | 0) & 0xff;
+	std::uint32_t ur = (rgb >> 16) & 0xff;
+	std::uint32_t ug = (rgb >> 8) & 0xff;
+	std::uint32_t ub = rgb & 0xff;
+	std::uint32_t ua = static_cast<int>(a * 255) & 0xff;
 
 	return (ua << 24) | (ub << 16) | (ug << 8) | ur;
 }
@@ -357,6 +357,57 @@ std::string ParseFragmentShaderMaxTextures (std::string fragmentShaderSource,
 	fragmentShaderSource = Replace(fragmentShaderSource, "%forloop%", src);
 
 	return fragmentShaderSource;
+}
+
+std::array<GLenum, 2> GetTexGLFormatFromSDLFormat (SDL_Surface *surface, bool gamma)
+{
+	GLenum format;
+	GLenum gformat;
+
+	switch (surface->format->format) {
+		case SDL_PIXELFORMAT_BGR24:
+		case SDL_PIXELFORMAT_BGR444:
+		case SDL_PIXELFORMAT_BGR555:
+		case SDL_PIXELFORMAT_BGR565:
+		case SDL_PIXELFORMAT_BGR888:
+			format = GL_BGR;
+			gformat = (gamma) ? GL_SRGB : GL_RGB;
+			break;
+
+		case SDL_PIXELFORMAT_BGRA32:
+		case SDL_PIXELFORMAT_BGRA4444:
+		case SDL_PIXELFORMAT_BGRA5551:
+		case SDL_PIXELFORMAT_BGRA8888:
+		case SDL_PIXELFORMAT_BGRX8888:
+			format = GL_BGRA;
+			gformat = (gamma) ? GL_SRGB_ALPHA : GL_RGBA;
+			break;
+
+		case SDL_PIXELFORMAT_RGB24:
+		case SDL_PIXELFORMAT_RGB444:
+		case SDL_PIXELFORMAT_RGB555:
+		case SDL_PIXELFORMAT_RGB565:
+		case SDL_PIXELFORMAT_RGB888:
+			format = GL_RGB;
+			gformat = (gamma) ? GL_SRGB : GL_RGB;
+			break;
+
+		case SDL_PIXELFORMAT_RGBA32:
+		case SDL_PIXELFORMAT_RGBA4444:
+		case SDL_PIXELFORMAT_RGBA5551:
+		case SDL_PIXELFORMAT_RGBA8888:
+		case SDL_PIXELFORMAT_RGBX8888:
+			format = GL_RGBA;
+			gformat = (gamma) ? GL_SRGB_ALPHA : GL_RGBA;
+			break;
+
+		default:
+			format = GL_RGB;
+			gformat = (gamma) ? GL_SRGB : GL_RGB;
+			break;
+	}
+
+	return {format, gformat};
 }
 
 }	// namespace Zen

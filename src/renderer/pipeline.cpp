@@ -8,6 +8,7 @@
 #include "pipeline.hpp"
 #include "renderer.hpp"
 #include "utility.hpp"
+#include "../scale/scale_manager.hpp"
 #include "../utils/map/emplace.hpp"
 #include "../texture/components/frame.hpp"
 #include "../ecs/entity.hpp"
@@ -18,8 +19,9 @@
 
 namespace Zen {
 
-extern Renderer g_renderer;
 extern entt::registry g_registry;
+extern Renderer g_renderer;
+extern ScaleManager g_scale;
 
 Pipeline::Pipeline (PipelineConfig config)
 	: name (config.name)
@@ -263,8 +265,8 @@ void Pipeline::setProjectionMatrix (int width_, int height_)
 
 void Pipeline::updateProjectionMatrix ()
 {
-	double globalWidth_ = g_renderer.projectionWidth;
-	double globalHeight_ = g_renderer.projectionHeight;
+	double globalWidth_ = g_scale.gameSize.width;//g_renderer.projectionWidth;
+	double globalHeight_ = g_scale.gameSize.height;//g_renderer.projectionHeight;
 
 	if (projectionWidth != globalWidth_ || projectionHeight != globalHeight_)
 		setProjectionMatrix(globalWidth_, globalHeight_);
@@ -465,6 +467,9 @@ bool Pipeline::batchQuad (Entity gameObject, double x0, double y0, double x1,
 		unit = setTexture2D(texture);
 	}
 
+	if (texture == 0)
+		tintEffect = 2;
+
 	batchVert(x0, y0, u0, v0, unit, tintEffect, tintTL);
 	batchVert(x1, y1, u0, v1, unit, tintEffect, tintBL);
 	batchVert(x2, y2, u1, v1, unit, tintEffect, tintBR);
@@ -502,23 +507,20 @@ bool Pipeline::batchTri (Entity gameObject, double x0, double y0, double x1,
 	return hasFlushed;
 }
 
-void Pipeline::drawFillRect (double x, double y, double width, double height,
+void Pipeline::drawFillRect (int x, int y, int width, int height,
 		int color, double alpha, GL_texture texture, bool flipUV)
 {
-	x = std::floor(x);
-	y = std::floor(y);
+	double xw = x + width;
+	double yh = y + height;
 
-	double xw = std::floor(x + width);
-	double yh = std::floor(y + height);
-
-	GLenum unit = setTexture2D(texture);
+	int unit = (texture > 0) ? setTexture2D(texture) : -1;
 
 	int tint = GetTintAppendFloatAlphaAndSwap(color, alpha);
 
 	double u0 = 0;
 	double v0 = 0;
-	double u1 = 0;
-	double v1 = 0;
+	double u1 = 1;
+	double v1 = 1;
 
 	if (flipUV) {
 		v0 = 1;

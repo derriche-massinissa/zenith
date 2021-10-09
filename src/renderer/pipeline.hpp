@@ -618,7 +618,7 @@ public:
      * @param flipUV Flip the vertical UV coordinates of the texture before
 	 * rendering?
      */
-    void drawFillRect (double x, double y, double width, double height, int color,
+    void drawFillRect (int x, int y, int width, int height, int color,
 			double alpha, GL_texture texture = 0, bool flipUV = true);
 
     /**

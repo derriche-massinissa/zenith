@@ -102,9 +102,11 @@ Pipeline* PipelineManager::set (std::string name, Entity entity,
 		current = pipeline;
 
 		pipeline->bind(currentShader);
-	}
 
-	pipeline->updateProjectionMatrix();
+		pipeline->updateProjectionMatrix();
+	}
+	// FIXME moved update to above block
+	//pipeline->updateProjectionMatrix();
 
 	pipeline->onBind(entity);
 
