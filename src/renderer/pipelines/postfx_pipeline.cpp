@@ -127,21 +127,21 @@ void PostFXPipeline::copyFrameRect (RenderTarget *source, RenderTarget *target,
 			clearAlpha);
 }
 
-void PostFXPipeline::bindAndDraw (RenderTarget *source, RenderTarget *target,
-		bool clear, bool clearAlpha, Shader *currentShader)
+void PostFXPipeline::bindAndDraw (RenderTarget *source_, RenderTarget *target_,
+		bool clear_, bool clearAlpha_, Shader *currentShader_)
 {
-	bind(currentShader);
+	bind(currentShader_);
 
 	set("uMainSampler", 0);
 
-	if (target) {
-		glViewport(0, 0, target->width, target->height);
-		glBindFramebuffer(GL_FRAMEBUFFER, target->framebuffer);
+	if (target_) {
+		glViewport(0, 0, target_->width, target_->height);
+		glBindFramebuffer(GL_FRAMEBUFFER, target_->framebuffer);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-				GL_TEXTURE_2D, target->texture, 0);
+				GL_TEXTURE_2D, target_->texture, 0);
 
-		if (clear) {
-			if (clearAlpha)
+		if (clear_) {
+			if (clearAlpha_)
 				glClearColor(0, 0, 0, 0);
 			else
 				glClearColor(0, 0, 0, 1);
@@ -152,18 +152,18 @@ void PostFXPipeline::bindAndDraw (RenderTarget *source, RenderTarget *target,
 	else {
 		g_renderer.popFramebuffer(false, false, false);
 
-		if (g_renderer.currentFramebuffer)
+		if (!g_renderer.currentFramebuffer)
 			glViewport(0, 0, g_renderer.width, g_renderer.height);
 	}
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, source->texture);
+	glBindTexture(GL_TEXTURE_2D, source_->texture);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(std::uint8_t) * vertexData.size(),
 			vertexData.data(), GL_STATIC_DRAW);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
-	if (!target) {
+	if (!target_) {
 		g_renderer.resetTextures();
 	}
 	else {

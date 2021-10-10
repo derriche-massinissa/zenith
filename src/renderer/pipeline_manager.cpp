@@ -191,6 +191,9 @@ void PipelineManager::postBatchCamera (Entity camera)
 
 bool PipelineManager::isCurrent (std::string name, Shader* currentShader)
 {
+	if (!current)
+		return false;
+
 	if (!Contains(pipelines, name))
 		return false;
 

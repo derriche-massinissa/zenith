@@ -274,13 +274,15 @@ void Pipeline::updateProjectionMatrix ()
 
 void Pipeline::bind (Shader *currentShader_)
 {
-	if (currentShader_)
-		currentShader = currentShader_;
+	if (!currentShader_)
+		currentShader_ = currentShader;
 
 	bool wasBound = setVertexArray();
 	//setVertexBuffer();
 
-	currentShader->bind(wasBound);
+	currentShader_->bind(wasBound);
+
+	currentShader = currentShader_;
 
 	emit(Events::PIPELINE_BIND, this, currentShader);
 

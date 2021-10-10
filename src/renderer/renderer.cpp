@@ -21,6 +21,7 @@
 #include "../utils/messages.hpp"
 #include "../utils/vector/remove.hpp"
 #include "../utils/map/emplace.hpp"
+#include "../utils/map/contains.hpp"
 #include "../core/config.hpp"
 #include "events/events.hpp"
 
@@ -1210,7 +1211,7 @@ GL_texture Renderer::createTextureFromSource (Entity source_, int width_,
 	GL_texture texture_ = 0;
 	if (source_ == entt::null && width_ > 0 && height_ > 0) {
 		texture_ = createTexture2D(0, minFilter_, magFilter_, wrap_, wrap_,
-				GL_RGBA, nullptr, width_, height_);
+				GL_RGB, nullptr, width_, height_);
 	}
 	else if (source_ != entt::null) {
 		auto format_ = GetTexGLFormatFromSDLFormat(src_->tmp);
@@ -1308,8 +1309,8 @@ GL_fbo Renderer::createFramebuffer (int width_, int height_,
 			renderTexture_, 0);
 
 	// Save info about framebuffer
-	Emplace(&framebufferInfo, framebuffer_,
-			FramebufferInfo_ {renderTexture_, renderBuffer_});
+	framebufferInfo[framebuffer_] = 
+				FramebufferInfo_ {renderTexture_, renderBuffer_};
 
 	// Check if fbo is complete
 	GLenum complete_ = glCheckFramebufferStatus(GL_FRAMEBUFFER);
