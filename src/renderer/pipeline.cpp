@@ -45,9 +45,6 @@ Pipeline::~Pipeline ()
 
 void Pipeline::boot()
 {
-	// Generate and bind the VAO of the pipeline
-	vertexArray = g_renderer.createVertexArray();
-
 	resize(g_renderer.width, g_renderer.height);
 
 	// Create the RenderTargets
@@ -59,6 +56,9 @@ void Pipeline::boot()
 	if (!renderTargets.empty())
 		// Default to the first one in the vector
 		currentRenderTarget = &renderTargets[0];
+
+	// Generate and bind the VAO of the pipeline
+	vertexArray = g_renderer.createVertexArray();
 
 	// Create the Shaders
 	setShadersFromConfig(config);
@@ -86,19 +86,15 @@ void Pipeline::boot()
 	}
 	else {
 		vertexBuffer = g_renderer.createVertexBuffer(sizeof(std::uint8_t) *
-				vertexData.size(), GL_STATIC_DRAW);
+				vertexData.size(), GL_DYNAMIC_DRAW);
 	}
 
 	// Setup shaders
-	setVertexArray();
-	//setVertexBuffer();
-
 	for (auto &shader : shaders) {
 		shader.second->rebind();
-		//shader.second->setAttribPointers(true);
 	}
 
-	glBindVertexArray(0);
+	unsetVertexArray();
 
 	hasBooted = true;
 
@@ -127,15 +123,13 @@ void Pipeline::setShader (Shader *shader, bool setAttributes)
 
 		g_renderer.resetTextures();
 
-		bool wasBound = setVertexArray();
-		//setVertexBuffer();
-
-		//if (wasBound && !setAttributes)
-		//	setAttributes = true;
+		setVertexArray();
 
 		shader->bind(/*this: */ setAttributes /* doesn't matter*/, false);
 		
 		currentShader = shader;
+
+		unsetVertexArray();
 	}
 }
 
@@ -278,21 +272,21 @@ void Pipeline::bind (Shader *currentShader_)
 		currentShader_ = currentShader;
 
 	bool wasBound = setVertexArray();
-	//setVertexBuffer();
 
-	currentShader_->bind(wasBound);
+	currentShader_->bind(/* TODO */ wasBound /* DO NOT MATTER */);
 
 	currentShader = currentShader_;
 
 	emit(Events::PIPELINE_BIND, this, currentShader);
 
 	onActive(currentShader);
+
+	unsetVertexArray();
 }
 
 void Pipeline::rebind ()
 {
 	setVertexArray();
-	//setVertexBuffer();
 
 	for (auto s = shaders.rbegin(); s != shaders.rend(); s++) {
 		Shader *shader = s->second.get();
@@ -304,6 +298,8 @@ void Pipeline::rebind ()
 	onActive(currentShader);
 
 	onRebind();
+
+	unsetVertexArray();
 }
 
 bool Pipeline::setVertexBuffer ()
@@ -327,8 +323,27 @@ bool Pipeline::setVertexArray ()
 	if (vao_ != vertexArray) {
 		g_renderer.currentVertexArray = vertexArray;
 		glBindVertexArray(vertexArray);
+		setVertexBuffer();
 		return true;
 	}
+
+	setVertexBuffer();
+
+	return false;
+}
+
+bool Pipeline::unsetVertexArray ()
+{
+	GL_vao vao_ = g_renderer.currentVertexArray;
+
+	if (vao_ != 0) {
+		g_renderer.currentVertexArray = 0;
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		return true;
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	return false;
 }
@@ -371,7 +386,6 @@ void Pipeline::flush (bool isPostFlush_)
 
 		if (active) {
 			setVertexArray();
-			//setVertexBuffer();
 
 			if (vertexCount == vertexCapacity)
 				glBufferData(GL_ARRAY_BUFFER, vertexCount * vertexSize_,
@@ -381,6 +395,8 @@ void Pipeline::flush (bool isPostFlush_)
 						vertexData.data());
 
 			glDrawArrays(topology, 0, vertexCount);
+
+			unsetVertexArray();
 		}
 
 		vertexCount = 0;

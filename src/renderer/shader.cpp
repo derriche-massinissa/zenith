@@ -129,8 +129,10 @@ void Shader::bind (bool setAttributes, bool flush)
 
 	g_renderer.setProgram(program);
 
+	/*
 	if (setAttributes)
 		setAttribPointers();
+	*/
 }
 
 Shader* Shader::rebind ()
@@ -144,9 +146,21 @@ Shader* Shader::rebind ()
 
 void Shader::setAttribPointers (bool reset)
 {
-	int tmp = -3;
-	tmp++;
+	for (size_t i = 0; i < attributes.size(); i++) {
+		auto &element = attributes[i];
 
+		GLint attribLocation = i;
+
+		glEnableVertexAttribArray(attribLocation);
+		glVertexAttribPointer(attribLocation, element.size, element.type,
+				element.normalized, vertexSize,
+				reinterpret_cast<void*>(element.offset));
+
+		element.enabled = true;
+		element.location = attribLocation;
+	}
+
+	/*
 	for (size_t i = 0; i < attributes.size(); i++) {
 		auto &element = attributes[i];
 
@@ -171,6 +185,7 @@ void Shader::setAttribPointers (bool reset)
 			element.location = -1;
 		}
 	}
+	*/
 }
 
 void Shader::createUniforms ()

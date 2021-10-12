@@ -80,7 +80,7 @@ void RenderTarget::bind (bool adjustViewport_, int width_, int height_)
 		adjustViewport();
 
 	if (autoClear) {
-		glClearColor(0, 0, 0, 0);
+		glClearColor(0.f, 0.f, 0.f, 0.f);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 }
@@ -98,7 +98,7 @@ void RenderTarget::clear ()
 
 	glDisable(GL_SCISSOR_TEST);
 
-	glClearColor(0, 0, 0, 0);
+	glClearColor(0.f, 0.f, 0.f, 0.f);
 
 	glClear(GL_COLOR_BUFFER_BIT);
 

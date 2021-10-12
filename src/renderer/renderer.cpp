@@ -712,7 +712,9 @@ void Renderer::resize (int width_, int height_)
 	defaultScissor[2] = width;
 	defaultScissor[3] = height;
 
-	emit("resize", g_scale.gameSize.width, g_scale.gameSize.height);
+	emit("resize", static_cast<int>(g_scale.gameSize.width),
+			static_cast<int>(g_scale.gameSize.height));
+
 	//emit("resize", width, height);
 }
 
@@ -1211,7 +1213,7 @@ GL_texture Renderer::createTextureFromSource (Entity source_, int width_,
 	GL_texture texture_ = 0;
 	if (source_ == entt::null && width_ > 0 && height_ > 0) {
 		texture_ = createTexture2D(0, minFilter_, magFilter_, wrap_, wrap_,
-				GL_RGB, nullptr, width_, height_);
+				GL_RGBA, nullptr, width_, height_);
 	}
 	else if (source_ != entt::null) {
 		auto format_ = GetTexGLFormatFromSDLFormat(src_->tmp);
@@ -1347,6 +1349,7 @@ GL_vao Renderer::createVertexArray ()
 
 	glGenVertexArrays(1, &vertexArray);
 	glBindVertexArray(vertexArray);
+	currentVertexArray = vertexArray;
 
 	return vertexArray;
 }
@@ -1613,6 +1616,336 @@ void Renderer::preRender ()
 	emit("pre-render");
 }
 
+int getFramebuffer () {
+	int fbo;
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
+	return fbo;
+} int getFramebufferTexture () {
+	int texture;
+	glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &texture);
+	return texture;
+} int getTextureWidth () {
+	int width;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+	return width;
+} int getTextureHeight () {
+	int height;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+	return height;
+}
+
+void test_render_ ()
+{
+//	// TODO
+	extern Renderer g_renderer;
+	static bool first = true;
+	static GL_vao VAO, VAO2;
+	static GL_vbo VBO, VBO2;
+	int tmp = -2; tmp++;
+	if (first) {
+		first = false;
+
+		std::vector<std::uint8_t> data;
+		data.resize(42*4);
+
+		std::uint8_t tint_v[4] = {0, 0, 255, 255};
+		float tint = *reinterpret_cast<float*>(tint_v);
+		float *view = reinterpret_cast<float*>(data.data());
+		int i = 0;
+		for (float v : {
+			36.f, 36.f, 0.f, 0.f, 1.f, 2.f, tint,
+			36.f, 164.f, 0.f, 1.f, 1.f, 2.f, tint,
+			164.f, 164.f, 1.f, 1.f, 1.f, 2.f, tint,
+			36.f, 36.f, 0.f, 0.f, 1.f, 2.f, tint,
+			164.f, 164.f, 1.f, 1.f, 1.f, 2.f, tint,
+			164.f, 36.f, 1.f, 0.f, 1.f, 2.f, tint,
+		}) {
+			view[i] = v;
+			i++;
+		};
+
+		//glGenVertexArrays(1, &VAO);
+		VAO = g_renderer.pipelines.MULTI_PIPELINE->vertexArray;
+		glBindVertexArray(VAO);
+
+		VBO = g_renderer.pipelines.MULTI_PIPELINE->vertexBuffer;
+		//glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * data.size(),
+				data.data());
+		//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(),
+		//		GL_STATIC_DRAW);
+
+		Shader *shader = g_renderer.pipelines.MULTI_PIPELINE->currentShader;
+		shader->rebind();
+
+		glm::mat4 proj = glm::ortho(0.f, 800.f, 600.f, 0.f);
+		shader->set("uProjectionMatrix", false, proj);
+
+		// SECOND VAO /////////////////////////////////////////////////////////////
+		std::uint8_t tint_v2[4] = {255, 0, 255, 255};
+		tint = *reinterpret_cast<float*>(tint_v2);
+		for (float v : {
+			200.f, 200.f, 0.f, 0.f, 1.f, 2.f, tint,
+			200.f, 328.f, 0.f, 1.f, 1.f, 2.f, tint,
+			328.f, 328.f, 1.f, 1.f, 1.f, 2.f, tint,
+			200.f, 200.f, 0.f, 0.f, 1.f, 2.f, tint,
+			328.f, 328.f, 1.f, 1.f, 1.f, 2.f, tint,
+			328.f, 200.f, 1.f, 0.f, 1.f, 2.f, tint,
+		}) {
+			view[i] = v;
+			i++;
+		};
+		VAO2 = g_renderer.pipelines.pipelines["SinglePipeline"]->vertexArray;
+		glBindVertexArray(VAO2);
+
+		VBO2 = g_renderer.pipelines.pipelines["SinglePipeline"]->vertexBuffer;
+		glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+		for (size_t i = 0; i < data.size(); i++)
+			data[i] = 0;
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * data.size(),
+				data.data());
+
+		shader = g_renderer.pipelines.pipelines["SinglePipeline"]->currentShader;
+		shader->rebind();
+
+		proj = glm::ortho(0.f, 800.f, 600.f, 0.f);
+		shader->set("uProjectionMatrix", false, proj);
+		// SECOND VAO /////////////////////////////////////////////////////////////
+
+		glBindVertexArray(0);
+		//glDeleteBuffers(1, &VBO);
+	}
+
+	glClearColor(0.f, 1.f, 1.f, 1.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glUseProgram(g_renderer.pipelines.MULTI_PIPELINE->currentShader->program);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glUseProgram(g_renderer.pipelines.pipelines["SinglePipeline"]->currentShader->program);
+	glBindVertexArray(VAO2);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
+//	// TODO
+}
+
+class TestPipeline
+{
+public:
+	TestPipeline ()
+	{
+		// COLOR BUFFER
+		glGenTextures(1, &colorbuffer);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, colorbuffer);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 800, 600, 0, GL_RGBA,
+				GL_UNSIGNED_BYTE, nullptr);
+
+		// FRAMEBUFFER
+		glCreateFramebuffers(1, &framebuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+				colorbuffer, 0);
+		GLenum complete = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (complete != GL_FRAMEBUFFER_COMPLETE)
+			MessageError("Framebuffer uncomplete!");
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// SHADER
+		const char *vcode = v.c_str();
+		GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vs, 1, &vcode, nullptr);
+		glCompileShader(vs);
+
+		GLint success;
+		glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			GLchar infoLog[1024];
+			glGetShaderInfoLog(vs, 1024, nullptr, infoLog);
+			MessageError(infoLog);
+		}
+
+		const char *fcode = f.c_str();
+		GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fs, 1, &fcode, nullptr);
+		glCompileShader(fs);
+
+		glGetShaderiv(fs, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			GLchar infoLog[1024];
+			glGetShaderInfoLog(fs, 1024, nullptr, infoLog);
+			MessageError(infoLog);
+		}
+
+		program = glCreateProgram();
+		glAttachShader(program, vs);
+		glAttachShader(program, fs);
+		glLinkProgram(program);
+
+		glDeleteShader(vs);
+		glDeleteShader(fs);
+
+		glUseProgram(program);
+		int loc = glGetUniformLocation(program, "uMainSampler");
+		glUniform1f(loc, 0); // uMainSampler
+
+		setup(&VAO, &VBO, sizeof(data1), data1);
+		setup(&VAO2, &VBO2, sizeof(data2), data2);
+		setup(&VAO3, &VBO3, sizeof(data3), data3);
+
+		glUseProgram(0);
+	}
+
+	~TestPipeline ()
+	{
+		glDeleteProgram(program);
+		glDeleteBuffers(1, &VBO);
+		glDeleteVertexArrays(1, &VAO);
+		glDeleteBuffers(1, &VBO2);
+		glDeleteVertexArrays(1, &VAO2);
+		glDeleteBuffers(1, &VBO3);
+		glDeleteVertexArrays(1, &VAO3);
+	}
+
+	void setup (GL_vao *vao, GL_vbo *vbo, size_t size, float* data)
+	{
+		// VAO
+		glGenVertexArrays(1, vao);
+		glBindVertexArray(*vao);
+
+		// VBO
+		glGenBuffers(1, vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+
+		// ATTRIBS
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*5, (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float)*5,
+				(void*)(sizeof(float)*2));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(float)*5,
+				(void*)(sizeof(float)*4));
+
+		glBindVertexArray(0);
+	}
+
+	void render ()
+	{
+		glClearColor(0.4f, 0.f, 0.f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+		glClearColor(1.f, 1.f, 0.f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(program);
+		int loc = glGetUniformLocation(program, "uColor");
+
+		glUniform4f(loc, 0.f, 1.f, 1.f, 1.f);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glUniform4f(loc, 1.f, 0.f, 1.f, 1.f);
+		glBindVertexArray(VAO2);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, colorbuffer);
+		glUniform4f(loc, 0.f, 0.f, 1.f, 1.f);
+		glBindVertexArray(VAO3);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindVertexArray(0);
+	}
+
+	GL_vao VAO, VAO2, VAO3;
+
+	GL_vbo VBO, VBO2, VBO3;
+
+	GL_program program;
+
+	GL_texture colorbuffer;
+
+	GL_fbo framebuffer;
+
+	float data1[30] = {
+		0.f, 0.f,	0.f, 0.f,	-1.f,
+		0.f, .5f,	0.f, 1.f,	-1.f,
+		.5f, .5f,	1.f, 1.f,	-1.f,
+		0.f, 0.f,	0.f, 0.f,	-1.f,
+		.5f, .5f,	1.f, 1.f,	-1.f,
+		.5f, 0.f,	1.f, 0.f,	-1.f};
+	float data2[30] = {
+		-.9f, -.9f,	0.f, 0.f,	-1.f,
+		-.9f, -.1f,	0.f, 1.f,	-1.f,	
+		-.1f, -.1f,	1.f, 1.f,	-1.f,	
+		-.9f, -.9f,	0.f, 0.f,	-1.f,	  
+		-.1f, -.1f,	1.f, 1.f,	-1.f,	
+		-.1f, -.9f,	1.f, 0.f,	-1.f};
+	float data3[30] = {
+		-1.f, 1.f,	0.f, 0.f,	0.f,
+		-1.f, 0.f,	0.f, 1.f,	0.f,
+		.0f, 0.f,	1.f, 1.f,	0.f,
+		-1.f, 1.f,	0.f, 0.f,	0.f,
+		0.f, 0.f,	1.f, 1.f,	0.f,
+		0.f, 1.f,	1.f, 0.f,	0.f};
+
+	const std::string v = R"(
+		#version 330 core
+		layout (location = 0) in vec2 aPosition;
+		layout (location = 1) in vec2 aTexCoord;
+		layout (location = 2) in float aTexId;
+		out vec2 TexCoord;
+		out float TexId;
+		void main ()
+		{
+			gl_Position = vec4(aPosition, 0.f, 1.f);
+			TexCoord = aTexCoord;
+			TexId = aTexId;
+		}
+	)";
+
+	const std::string f = R"(
+		#version 330 core
+		in vec2 TexCoord;
+		in float TexId;
+		out vec4 FragColor;
+		uniform vec4 uColor;
+		uniform sampler2D uMainSampler;
+		void main ()
+		{
+			vec4 frag;
+
+			if (TexId < 0) {
+				frag = uColor;
+			}
+			else {
+				frag = mix(uColor, texture2D(uMainSampler, TexCoord), .5f);
+				frag = texture2D(uMainSampler, TexCoord);
+			}
+
+			FragColor = frag;
+		}
+	)";
+};
+std::unique_ptr<TestPipeline> test = nullptr;
+
 void Renderer::render (std::vector<Entity> children_, Entity camera_)
 {
 	emit("render", camera_);
@@ -1682,121 +2015,13 @@ void Renderer::render (std::vector<Entity> children_, Entity camera_)
 
 void Renderer::postRender ()
 {
-	/*
-	int tmp = -5;
-	tmp++;
-
-	GL_texture gl_texture = 21;
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, gl_texture);
-	*/
-
-	//Shader &shader = *pipelines.MULTI_PIPELINE->currentShader;
-	//shader.set("uMainSampler[1]", 1); // <- texture unit
-
-	/*
-	bool lock = true;
-	if (lock) {
-		int loc = glGetUniformLocation(shader.program, "uMainSampler[1]");
-		glUniform1i(loc, 1); // <- texture unit
-	}
-	*/
-
-	//shader.bind();
-	//shader.rebind();
-	//shader.set("uProjectionMatrix", false, projectionMatrix);
-
 	flush();
 
-//	// TODO
-//	static bool first = true;
-//	static GL_vao VAO;
-//	int tmp = -2;
-//	tmp++;
-//	if (first) {
-//		first = false;
-//
-//		GL_vbo VBO;
-//
-//		std::vector<std::uint8_t> data;
-//		data.resize(42*4);
-//
-//		float *view = reinterpret_cast<float*>(data.data());
-//		int i = 0;
-//		for (float v : {
-//			/*
-//			-.5f, -.5f, 0.f, 0.f, 1.f, 0.f, 0.f,
-//			-.5f, .5f, 0.f, 1.f, 1.f, 0.f, 0.f,
-//			.5f, .5f, 1.f, 1.f, 1.f, 0.f, 0.f,
-//			-.5f, -.5f, 0.f, 0.f, 1.f, 0.f, 0.f,
-//			.5f, .5f, 1.f, 1.f, 1.f, 0.f, 0.f,
-//			.5f, -.5f, 1.f, 0.f, 1.f, 0.f, 0.f
-//			 */
-//			36.f, 36.f, 0.f, 0.f, 1.f, 0.f, 0.f,
-//			36.f, 164.f, 0.f, 1.f, 1.f, 0.f, 0.f,
-//			164.f, 164.f, 1.f, 1.f, 1.f, 0.f, 0.f,
-//			36.f, 36.f, 0.f, 0.f, 1.f, 0.f, 0.f,
-//			164.f, 164.f, 1.f, 1.f, 1.f, 0.f, 0.f,
-//			164.f, 36.f, 1.f, 0.f, 1.f, 0.f, 0.f
-//		}) {
-//			view[i] = v;
-//			i++;
-//		};
-//
-//		//glGenVertexArrays(1, &VAO);
-//		VAO = pipelines.MULTI_PIPELINE->vertexArray;
-//		glBindVertexArray(VAO);
-//
-//		glGenBuffers(1, &VBO);
-//		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(),
-//				GL_STATIC_DRAW);
-//
-//		Shader &shader = *pipelines.MULTI_PIPELINE->currentShader;
-//		shader.rebind();
-//
-//		glm::mat4 proj = glm::ortho(0.f, 800.f, 600.f, 0.f);
-//		shader.set("uProjectionMatrix", false, proj);
-//		//int loc = glGetUniformLocation(shader.program, "uProjectionMatrix");
-//		//glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(proj));
-//
-//		const float *p = glm::value_ptr(proj);
-//
-//		for (int i = 0; i < 16; i++) {
-//			std::cout << p[i] << " | ";
-//		}
-//		std::cout << std::endl;
-//
-//		/*
-//		glEnableVertexAttribArray(0);
-//		glVertexAttribPointer(0, 2, GL_FLOAT, 0.f, 28,
-//				reinterpret_cast<void*>(0));
-//		glEnableVertexAttribArray(1);
-//		glVertexAttribPointer(1, 2, GL_FLOAT, 0.f, 28,
-//				reinterpret_cast<void*>(8));
-//		glEnableVertexAttribArray(2);
-//		glVertexAttribPointer(2, 1, GL_FLOAT, 0.f, 28,
-//				reinterpret_cast<void*>(16));
-//		glEnableVertexAttribArray(3);
-//		glVertexAttribPointer(3, 1, GL_FLOAT, 0.f, 28,
-//				reinterpret_cast<void*>(20));
-//		glEnableVertexAttribArray(4);
-//		glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, 1.f, 28,
-//				reinterpret_cast<void*>(24));
-//				*/
-//
-//		glBindVertexArray(0);
-//		glDeleteBuffers(1, &VBO);
-//	}
-//
-//	//glClearColor(0.f, 0.2f, 0.f, 1.f);
-//	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-//	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//	glUseProgram(pipelines.MULTI_PIPELINE->currentShader->program);
-//	glBindVertexArray(VAO);
-//	glDrawArrays(GL_TRIANGLES, 0, 6);
-//	glBindVertexArray(0);
-//	// TODO
+	/*
+	if (!test)
+		test = std::make_unique<TestPipeline>();
+	test->render();
+	*/
 
 	// Update screen
 	SDL_GL_SwapWindow(g_window.window);
@@ -2010,3 +2235,60 @@ void Renderer::saveSnapshot ()
 }
 
 }	// namespace Zen
+/*
+	void setup (GL_vao *vao, GL_vbo *vbo, float* data)
+	{
+		// VAO
+		glGenVertexArrays(1, vao);
+		glBindVertexArray(*vao);
+
+		// VBO
+		glGenBuffers(1, vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+
+		// ---
+		// SHADER
+		const char *vcode = v.c_str();
+		GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vs, 1, &vcode, nullptr);
+		glCompileShader(vs);
+
+		GLint success;
+		glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			GLchar infoLog[1024];
+			glGetShaderInfoLog(vs, 1024, nullptr, infoLog);
+			MessageError(infoLog);
+		}
+
+		const char *fcode = f.c_str();
+		GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fs, 1, &fcode, nullptr);
+		glCompileShader(fs);
+
+		glGetShaderiv(fs, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			GLchar infoLog[1024];
+			glGetShaderInfoLog(fs, 1024, nullptr, infoLog);
+			MessageError(infoLog);
+		}
+
+		program = glCreateProgram();
+		glAttachShader(program, vs);
+		glAttachShader(program, fs);
+		glLinkProgram(program);
+
+		glDeleteShader(vs);
+		glDeleteShader(fs);
+
+		glUseProgram(program);
+		// ---
+
+		// ATTRIBS
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void*)0);
+
+		glBindVertexArray(0);
+	}
+*/

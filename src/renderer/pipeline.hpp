@@ -224,6 +224,11 @@ public:
     void rebind ();
 
     /**
+	 * Binds the vertex array to be the active GL_VERTEX_ARRAY on the OpenGL context.
+	 *
+     * It first checks to see if it's already set as the active VAO and only
+     * binds itself if not.
+	 *
      * @since 0.0.0
      *
      * @return `true` if the vertex array was bound, or `false` if it was already
@@ -232,7 +237,19 @@ public:
     bool setVertexArray ();
 
     /**
-     * Binds the vertex buffer to be the active ARRAY_BUFFER on the OpenGL context.
+	 * Resets the bound VAO to 0.
+	 *
+     * It first checks to see if it's already set to 0 and only binds itself if not.
+	 *
+     * @since 0.0.0
+     *
+     * @return `true` if the vertex array was bound, or `false` if it was already
+	 * bound.
+     */
+	bool unsetVertexArray ();
+
+    /**
+     * Binds the vertex buffer to be the active GL_ARRAY_BUFFER on the OpenGL context.
      *
      * It first checks to see if it's already set as the active buffer and only
      * binds itself if not.

@@ -130,6 +130,9 @@ void PostFXPipeline::copyFrameRect (RenderTarget *source, RenderTarget *target,
 void PostFXPipeline::bindAndDraw (RenderTarget *source_, RenderTarget *target_,
 		bool clear_, bool clearAlpha_, Shader *currentShader_)
 {
+	int tmp = -4;
+	tmp++;
+
 	bind(currentShader_);
 
 	set("uMainSampler", 0);
@@ -142,9 +145,9 @@ void PostFXPipeline::bindAndDraw (RenderTarget *source_, RenderTarget *target_,
 
 		if (clear_) {
 			if (clearAlpha_)
-				glClearColor(0, 0, 0, 0);
+				glClearColor(0.f, 0.f, 0.f, 0.f);
 			else
-				glClearColor(0, 0, 0, 1);
+				glClearColor(0.f, 0.f, 0.f, 1.f);
 
 			glClear(GL_COLOR_BUFFER_BIT);
 		}
@@ -159,9 +162,9 @@ void PostFXPipeline::bindAndDraw (RenderTarget *source_, RenderTarget *target_,
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, source_->texture);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(std::uint8_t) * vertexData.size(),
-			vertexData.data(), GL_STATIC_DRAW);
+	setVertexArray();
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+	unsetVertexArray();
 
 	if (!target_) {
 		g_renderer.resetTextures();
