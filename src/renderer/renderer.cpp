@@ -646,7 +646,7 @@ void Renderer::boot (RenderConfig config_)
 	startActiveTexture++;
 	glActiveTexture(GL_TEXTURE1);
 
-	setBlendMode(BLEND_MODE::NORMAL);
+	setBlendMode(BLEND_MODE::BLEND);
 
 	width = g_scale.displaySize.width;
 	height = g_scale.displaySize.height;
@@ -669,10 +669,14 @@ void Renderer::boot (RenderConfig config_)
 
 void Renderer::onResize (Size, Size displaySize_, int, int)
 {
+	resize(displaySize_.width, displaySize_.height);
+
+	/*
 	// Has the window size changed?
 	if (displaySize_.width != width || displaySize_.height != height) {
 		resize(displaySize_.width, displaySize_.height);
 	}
+	*/
 }
 
 void Renderer::beginCapture (int width_, int height_)
@@ -705,17 +709,17 @@ void Renderer::resize (int width_, int height_)
 
 	setProjectionMatrix(width, height);
 
-	glViewport(0, 0, width, height);
+	glViewport(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
 
-	glScissor(0, 0, width, height);
+	glScissor(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
 
+	defaultScissor[0] = g_scale.displayOffset.x;
+	defaultScissor[1] = g_scale.displayOffset.y;
 	defaultScissor[2] = width;
 	defaultScissor[3] = height;
 
 	emit("resize", static_cast<int>(g_scale.gameSize.width),
 			static_cast<int>(g_scale.gameSize.height));
-
-	//emit("resize", width, height);
 }
 
 double Renderer::getAspectRatio ()
@@ -776,7 +780,8 @@ void Renderer::setScissor (int x_, int y_, int width_, int height_)
 	if (set_) {
 		flush();
 
-		glViewport(x_, y_, width_, height_);
+		// Flip y axis
+		y_ = g_window.height() - y_ - height_;
 		glScissor(x_, y_, width_, height_);
 	}
 }
@@ -792,7 +797,6 @@ void Renderer::resetScissor ()
 		int ch_ = currentScissor[3];
 
 		if (cw_ > 0 && ch_ > 0) {
-			glViewport(cx_, cy_, cw_, ch_);
 			glScissor(cx_, cy_, cw_, ch_);
 		}
 	}
@@ -839,7 +843,7 @@ bool Renderer::hasActiveStencilMask ()
 
 void Renderer::resetViewport ()
 {
-	glViewport(0, 0, width, height);
+	glViewport(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
 }
 
 bool Renderer::setBlendMode (int modeId_, bool force_)
@@ -1117,8 +1121,8 @@ void Renderer::setFramebuffer (GL_fbo framebuffer_, bool updateScissor_,
 	if (framebuffer_ == currentFramebuffer)
 		return;
 
-	double width_ = width;
-	double height_ = height;
+	double width_ = g_window.width();
+	double height_ = g_window.height();
 
 	if (framebuffer_ && framebufferInfo[framebuffer_].colorBuffer && setViewport_) {
 		width_ = textureInfo[framebufferInfo[framebuffer_].colorBuffer].width;
@@ -1481,7 +1485,15 @@ void Renderer::preRenderCamera (Entity camera)
 
 	pipelines.preBatchCamera(camera);
 
+	cx *= scaleX;
+	cy *= scaleY;
+	cw *= scaleX;
+	ch *= scaleY;
+	cx += offsetX;
+	cy += offsetY;
+
 	if (modScale) {
+		/*
 		// Skip rendering this camera if its viewport is outside the window
 		if (cx > w || cy > h || cx < -cw || cy < -ch)
 			return;
@@ -1507,16 +1519,8 @@ void Renderer::preRenderCamera (Entity camera)
 		if ((cy + ch) > h) {
 			ch = h - cy;
 		}
-	}
+		*/
 
-	cx *= scaleX;
-	cy *= scaleY;
-	cw *= scaleX;
-	ch *= scaleY;
-	cx += offsetX;
-	cy += offsetY;
-
-	if (modScale) {
 		pushScissor(cx, cy, cw, ch);
 	}
 
@@ -1603,7 +1607,6 @@ void Renderer::preRender ()
 	scissorStack.push_back(currentScissor);
 
 	if (g_scene.customViewports) {
-		glViewport(0, 0, width, height);
 		glScissor(0, 0, width, height);
 	}
 
@@ -1955,7 +1958,7 @@ void Renderer::render (std::vector<Entity> children_, Entity camera_)
 
 	// If nothing to render, bail out
 	if (children_.empty()) {
-		setBlendMode(BLEND_MODE::NORMAL);
+		setBlendMode(BLEND_MODE::BLEND);
 
 		// Applies camera effects and pops the scissor, is set
 		postRenderCamera(camera_);
@@ -2007,7 +2010,7 @@ void Renderer::render (std::vector<Entity> children_, Entity camera_)
 		PostRenderMask(currentMask.mask, currentMask.camera);
 	}
 
-	setBlendMode(BLEND_MODE::NORMAL);
+	setBlendMode(BLEND_MODE::BLEND);
 
 	// Applies camera effects and pops the scissor, if set
 	postRenderCamera(camera_);

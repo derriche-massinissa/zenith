@@ -102,11 +102,9 @@ Pipeline* PipelineManager::set (std::string name, Entity entity,
 		current = pipeline;
 
 		pipeline->bind(currentShader);
-
-		pipeline->updateProjectionMatrix();
 	}
-	// FIXME moved update to above block
-	//pipeline->updateProjectionMatrix();
+
+	pipeline->updateProjectionMatrix();
 
 	pipeline->onBind(entity);
 
@@ -266,7 +264,7 @@ bool PipelineManager::forceZero ()
 
 MultiPipeline& PipelineManager::setMulti ()
 {
-	return *MULTI_PIPELINE;
+	return *static_cast<MultiPipeline*>(set(Pipelines::MULTI_PIPELINE));
 }
 
 UtilityPipeline& PipelineManager::setUtility (Shader* currentShader)
@@ -300,7 +298,7 @@ void PipelineManager::rebind (std::string name)
 		glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
 
-	glViewport(0, 0, g_renderer.width, g_renderer.height);
+	g_renderer.resetViewport();
 
 	g_renderer.currentProgram = 0;
 

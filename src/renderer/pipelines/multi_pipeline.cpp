@@ -7,6 +7,7 @@
 
 #include "multi_pipeline.hpp"
 #include "../../ecs/entity.hpp"
+#include "../../scale/scale_manager.hpp"
 #include "../renderer.hpp"
 #include "../utility.hpp"
 #include "../../utils/file/file_to_string.hpp"
@@ -34,6 +35,7 @@ namespace Zen {
 
 extern entt::registry g_registry;
 extern Renderer g_renderer;
+extern ScaleManager g_scale;
 
 MultiPipeline::MultiPipeline (PipelineConfig config)
 	: Pipeline(prepareConfig(config))
@@ -119,8 +121,6 @@ void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
 
 	// Position
 	double x, y;
-	//double x = -displayOriginX + frameX;
-	//double y = -displayOriginY + frameY;
 
 	// Rotation
 	double rot = GetRotation(gameObject);
@@ -267,6 +267,18 @@ void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
 
 	double tx3 = GetXRound(calcMatrix, xw, y, roundPixels);
 	double ty3 = GetYRound(calcMatrix, xw, y, roundPixels);
+
+	double l = std::min({tx0, tx1, tx2, tx3}),
+		   r = std::max({tx0, tx1, tx2, tx3}),
+		   t = std::min({ty0, ty1, ty2, ty3}),
+		   b = std::max({ty0, ty1, ty2, ty3}),
+		   w = g_scale.gameSize.width,
+		   h = g_scale.gameSize.height;
+
+	if (l > w || r < 0 || t > h || b < 0) {
+		// Skip rendering this object if it is completely out of the screen
+		return;
+	}
 
 	double cameraAlpha = GetAlpha(camera);
 	int tintTL, tintTR, tintBL, tintBR;

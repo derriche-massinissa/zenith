@@ -10,10 +10,14 @@
 #include "../shaders/quad_vert.hpp"
 #include "../shaders/post_fx_frag.hpp"
 #include "../renderer.hpp"
+#include "../../scale/scale_manager.hpp"
+#include "../../window/window.hpp"
 
 namespace Zen {
 
 extern Renderer g_renderer;
+extern ScaleManager g_scale;
+extern Window g_window;
 
 PostFXPipeline::PostFXPipeline (PipelineConfig config)
 	: Pipeline(prepareConfig(config))
@@ -130,9 +134,6 @@ void PostFXPipeline::copyFrameRect (RenderTarget *source, RenderTarget *target,
 void PostFXPipeline::bindAndDraw (RenderTarget *source_, RenderTarget *target_,
 		bool clear_, bool clearAlpha_, Shader *currentShader_)
 {
-	int tmp = -4;
-	tmp++;
-
 	bind(currentShader_);
 
 	set("uMainSampler", 0);
@@ -153,10 +154,13 @@ void PostFXPipeline::bindAndDraw (RenderTarget *source_, RenderTarget *target_,
 		}
 	}
 	else {
+
 		g_renderer.popFramebuffer(false, false, false);
 
-		if (!g_renderer.currentFramebuffer)
-			glViewport(0, 0, g_renderer.width, g_renderer.height);
+		if (!g_renderer.currentFramebuffer) {
+			glViewport(0, 0, g_window.width(), g_window.height());
+			glDisable(GL_SCISSOR_TEST);
+		}
 	}
 
 	glActiveTexture(GL_TEXTURE0);
@@ -167,12 +171,15 @@ void PostFXPipeline::bindAndDraw (RenderTarget *source_, RenderTarget *target_,
 	unsetVertexArray();
 
 	if (!target_) {
+		glEnable(GL_SCISSOR_TEST);
 		g_renderer.resetTextures();
 	}
 	else {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
+
+	g_renderer.resetViewport();
 }
 
 }	// namespace Zen

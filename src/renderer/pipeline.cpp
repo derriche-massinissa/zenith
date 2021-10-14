@@ -14,6 +14,7 @@
 #include "../ecs/entity.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include "../systems/textured.hpp"
+#include "../window/window.hpp"
 
 #include "pipelines/events/events.hpp"
 
@@ -22,6 +23,7 @@ namespace Zen {
 extern entt::registry g_registry;
 extern Renderer g_renderer;
 extern ScaleManager g_scale;
+extern Window g_window;
 
 Pipeline::Pipeline (PipelineConfig config)
 	: name (config.name)
@@ -227,8 +229,11 @@ void Pipeline::resize (int width_, int height_)
 	width = width_;
 	height = height_;
 
-	for (auto target : renderTargets)
-		target.resize(width, height);
+	for (RenderTarget &target : renderTargets) {
+		// Send display size and not game size
+		//target.resize(g_scale.displaySize.width, g_scale.displaySize.height);
+		target.resize(g_window.width(), g_window.height());
+	}
 
 	setProjectionMatrix(width, height);
 
@@ -281,7 +286,7 @@ void Pipeline::bind (Shader *currentShader_)
 
 	onActive(currentShader);
 
-	unsetVertexArray();
+	// FIXME unsetVertexArray();
 }
 
 void Pipeline::rebind ()
@@ -299,7 +304,7 @@ void Pipeline::rebind ()
 
 	onRebind();
 
-	unsetVertexArray();
+	// FIXME unsetVertexArray();
 }
 
 bool Pipeline::setVertexBuffer ()
@@ -371,6 +376,8 @@ void Pipeline::unbind ()
 {
 	if (currentRenderTarget)
 		currentRenderTarget->unbind();
+
+	unsetVertexArray();
 }
 
 

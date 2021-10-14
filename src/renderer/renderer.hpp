@@ -508,7 +508,7 @@ public:
      * @param setViewport Should the OpenGL viewport be set?
      */
 	void setFramebuffer (GL_fbo framebuffer = {}, bool updateScissor = false,
-			bool resetTextures = false, bool setViewport = true);
+			bool resetTextures = false, bool setViewport = false);
 
     /**
      * Pops the previous framebuffer from the fbo stack and sets it.
