@@ -45,6 +45,11 @@ public:
 	DisplayList ();
 
 	/**
+	 * @since 0.0.0
+	 */
+	~DisplayList ();
+
+	/**
 	 * Force a sort of the display list on the next call to depthSort.
 	 *
 	 * @since 0.0.0

@@ -78,6 +78,7 @@ int main ()
 * Animation system
 * Add 2D physics with Box2D
 * Asynchronous resource loader
+* Write a documentation
 
 ## Dependencies
 

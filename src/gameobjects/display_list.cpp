@@ -13,6 +13,8 @@
 
 namespace Zen {
 
+extern entt::registry g_registry;
+
 DisplayList::DisplayList ()
 {
 	unique = true;
@@ -28,6 +30,12 @@ DisplayList::DisplayList ()
 	sortCallback = [] (Entity childA,  Entity childB) {
 		return sortByDepth(childA, childB);
 	};
+}
+
+DisplayList::~DisplayList ()
+{
+	for (auto child = list.rbegin(); child != list.rend(); child++)
+		g_registry.destroy(*child);
 }
 
 void DisplayList::queueDepthSort ()
