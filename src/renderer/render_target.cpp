@@ -26,6 +26,12 @@ RenderTarget::RenderTarget (int width, int height, double scale,
 		setAutoResize(true);
 }
 
+RenderTarget::~RenderTarget ()
+{
+	if (resizeListener)
+		g_renderer.off(resizeListener);
+}
+
 void RenderTarget::setAutoResize (bool autoResize_)
 {
 	if (autoResize_ && !autoResize) {

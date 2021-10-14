@@ -32,6 +32,7 @@
 namespace Zen {
 
 extern ScaleManager g_scale;
+extern entt::registry g_registry;
 
 CameraManager::CameraManager (Scene* scene_)
 	: scene (scene_)
@@ -44,6 +45,9 @@ CameraManager::CameraManager (Scene* scene_)
 
 CameraManager::~CameraManager ()
 {
+	for (Entity camera : cameras)
+		g_registry.destroy(camera);
+
 	main = entt::null;
 
 	systems.events.off(lUpdate);

@@ -40,6 +40,11 @@ public:
 	RenderTarget (int width, int height, double scale = 1, int minFilter = 0,
 			bool autoClear = true, bool autoResize = false);
 
+	/**
+	 * @since 0.0.0
+	 */
+	~RenderTarget ();
+
     /**
      * Sets if this Render Target should automatically resize when the Renderer
 	 * emits a resize event.
