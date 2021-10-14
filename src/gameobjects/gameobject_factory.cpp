@@ -105,12 +105,13 @@ Entity GameObjectFactory::text (double x, double y, std::string text, TextStyle 
 	g_registry.emplace<Components::Actor>(txt, scene);
 	g_registry.emplace<Components::Type>(txt, "text");
 
-	auto &r = g_registry.emplace<Components::Renderable>(txt);
+	Components::Renderable &r = g_registry.emplace<Components::Renderable>(txt);
 	r.render = Render_text;
 
 	// Generate texture
 	SetTextStyle(txt, style);
 	SetText(txt, text);
+	InitPipeline(txt);
 
 	scene->children.add(txt);
 

@@ -168,6 +168,9 @@ public:
         Components::TransformMatrix *parentTransformMatrix
 		);
 
+    void batchText (Entity gameObject, Entity camera,
+			Components::TransformMatrix *parentTransformMatrix = nullptr);
+
 private:
 	/**
 	 * A temporary Transform Matrix, re-used internally during batching.
@@ -189,6 +192,13 @@ private:
 	 * @since 0.0.0
 	 */
 	Components::TransformMatrix tempMatrix3;
+
+	/**
+	 * A temporary Transform Matrix, re-used internally during batching.
+	 *
+	 * @since 0.0.0
+	 */
+	Components::TransformMatrix tempMatrix4;
 };
 
 }	// namespace Zen

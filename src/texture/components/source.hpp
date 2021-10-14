@@ -87,7 +87,7 @@ struct TextureSource
 	SDL_Surface *tmp = nullptr;
 
 	/**
-	 * The current texture unit index as assigned by the Renderer.
+	 * The current texture unit index in the CURRENT BATCH as assigned by the Renderer.
 	 *
 	 * @since 0.0.0
 	 */
@@ -95,6 +95,10 @@ struct TextureSource
 
 	/**
 	 * The counter value when this texture was last assigned an index by the Renderer.
+	 *
+	 * If is is equal to the current counter value of the renderer, it means
+	 * that this texture was already set for this batch, and that it does not
+	 * need to be set again so you can just use its assigned unit index (glIndex).
 	 *
 	 * @since 0.0.0
 	 */

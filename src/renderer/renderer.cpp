@@ -930,6 +930,7 @@ int Renderer::setTextureSource (Entity textureSource_)
 		return 0;
 	}
 
+	// Has this source not been set already for this batch?
 	if (source_->glIndexCounter < startActiveTexture) {
 		source_->glIndexCounter = startActiveTexture;
 
@@ -1252,11 +1253,6 @@ GL_texture Renderer::createTexture2D (int mipLevel_, GLenum minFilter_,
 	// Set filtering options on the currently bound texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter_);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter_);
-
-	// Vertical flip
-	// TODO
-	// Do not flip, just flip the textures when building the atlas maps using
-	// crunch
 
 	if (!surface_) {
 		glTexImage2D(GL_TEXTURE_2D, mipLevel_, format_, width_, height_, 0,

@@ -13,7 +13,7 @@
 #include "../ecs/entity.hpp"
 #include "const.hpp"
 #include "../geom/types/rectangle.hpp"
-#include "../components/transform_matrix.hpp"
+#include "../renderer/types/gl_types.hpp"
 
 // FreeType 2
 #include <ft2build.h>
@@ -40,9 +40,20 @@ struct FontAtlasRowData {
  * @since 0.0.0
  */
 struct FontAtlasData {
+	/**
+	 * The SDL surface stored on the RAM. Used to update the texture when new
+	 * glyphs get added to the atlas cache.
+	 *
+	 * @since 0.0.0
+	 */
 	SDL_Surface *surface = nullptr;
 
-	SDL_Texture *texture = nullptr;
+	/**
+	 * The OpenGL texture stored on the GPU.
+	 *
+	 * @since 0.0.0
+	 */
+	GL_texture texture = 0;
 
 	/**
 	 * Initial size of 128px.
@@ -58,6 +69,9 @@ struct FontAtlasData {
 	 */
 	int	height = 128;
 
+	/**
+	 * @since 0.0.0
+	 */
 	std::vector<FontAtlasRowData> rows;
 
 	/**
@@ -132,9 +146,20 @@ public:
 	void addGlyphs (std::vector<int> characters, TextStyle style);
 
 	/**
-	 * @since 0.0.0
+	 * @return The change in size multiplier of the glyph atlas surface.
 	 */
-	void render (Entity textEntity, Entity camera);
+	int packGlyphs (std::vector<Glyph*> *glyphs, FontAtlasData *atlas);
+
+	bool sortGlyphsByHeight(Glyph *a, Glyph *b);
+
+	std::vector<int> stringToUnicodes (std::string text);
+
+	Rectangle getTextBoundingBox (std::vector<int> &characters, TextStyle &style);
+
+	std::vector<Rectangle> getLinesBoundingBox (std::vector<int> &characters,
+			TextStyle &style);
+
+	std::vector<int> wrapText (std::vector<int> text, TextStyle style);
 
 	/**
 	 * The freetype library instance.
@@ -188,51 +213,6 @@ public:
 	 * @since 0.0.0
 	 */
 	std::vector<FontAtlasData*> atlasList;
-
-	/**
-	 * A temporary Transform Matrix, re-used internally during batching.
-	 *
-	 * @since 0.0.0
-	 */
-	Components::TransformMatrix tempMatrix1;
-
-	/**
-	 * A temporary Transform Matrix, re-used internally during batching.
-	 *
-	 * @since 0.0.0
-	 */
-	Components::TransformMatrix tempMatrix2;
-
-	/**
-	 * A temporary Transform Matrix, re-used internally during batching.
-	 *
-	 * @since 0.0.0
-	 */
-	Components::TransformMatrix tempMatrix3;
-
-	/**
-	 * A temporary Transform Matrix, re-used internally during batching.
-	 *
-	 * @since 0.0.0
-	 */
-	Components::TransformMatrix tempMatrix4;
-
-private:
-	/**
-	 * @return The change in size multiplier of the glyph atlas surface.
-	 */
-	int packGlyphs (std::vector<Glyph*> *glyphs, FontAtlasData *atlas);
-
-	static bool SortGlyphsByHeight(Glyph *a, Glyph *b);
-
-	static std::vector<int> StringToUnicodes (std::string text);
-
-	Rectangle GetTextBoundingBox (std::vector<int> &characters, TextStyle &style);
-
-	std::vector<Rectangle> GetLinesBoundingBox (std::vector<int> &characters,
-			TextStyle &style);
-
-	std::vector<int> WrapText (std::vector<int> text, TextStyle style);
 };
 
 }	// namespace Zen

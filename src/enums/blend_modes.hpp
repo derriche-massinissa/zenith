@@ -13,7 +13,7 @@ namespace Zen {
 enum class BLEND_MODE {
 	SKIP_CHECK = -1,
 	NORMAL = 0,
-	BLEND,
+	BLEND = 1,
 	ADD,
 	MULTIPLY,
 	SCREEN,

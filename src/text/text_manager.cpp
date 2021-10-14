@@ -7,6 +7,7 @@
 
 #include "text_manager.hpp"
 #include "../window/window.hpp"
+#include "../renderer/renderer.hpp"
 #include "../scale/scale_manager.hpp"
 #include "../utils/map/contains.hpp"
 #include "../utils/vector/contains.hpp"
@@ -37,6 +38,7 @@ namespace Zen {
 extern entt::registry g_registry;
 extern Window g_window;
 extern ScaleManager g_scale;
+extern Renderer g_renderer;
 
 TextManager::~TextManager ()
 {
@@ -51,7 +53,7 @@ TextManager::~TextManager ()
 
 	// Free all atlas surfaces and textures
 	for (auto atlas : atlasList) {
-		SDL_DestroyTexture(atlas->texture);
+		g_renderer.deleteTexture(atlas->texture);
 		SDL_FreeSurface(atlas->surface);
 	}
 }
@@ -85,7 +87,7 @@ int TextManager::scanText (Entity text_)
 	ZEN_ASSERT(text, "The entity has no 'Text' component.");
 
 	// Get all unique characters that appeared in the text
-	std::vector<int> charactersCodes = StringToUnicodes(text->text);
+	std::vector<int> charactersCodes = stringToUnicodes(text->text);
 	std::set<int> characters (charactersCodes.begin(), charactersCodes.end());
 
 	// Get glyph data for this style
@@ -109,14 +111,14 @@ int TextManager::scanText (Entity text_)
 
 	// Check and deal with text wrapping
 	if (text->style.wrapWidth > 0) {
-		charactersCodes = WrapText(charactersCodes, text->style);
+		charactersCodes = wrapText(charactersCodes, text->style);
 	}
 
 	// Update the formated text content
 	text->content = std::string(charactersCodes.begin(), charactersCodes.end());
 
 	// Update the text's information (size/bounding box)
-	Rectangle bbox = GetTextBoundingBox(charactersCodes, text->style);
+	Rectangle bbox = getTextBoundingBox(charactersCodes, text->style);
 	SetSize(text_, bbox.width, bbox.height);
 
 	return newCharacters.size();
@@ -124,13 +126,8 @@ int TextManager::scanText (Entity text_)
 
 void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 {
-	MessageNote("Convert texture work for text to use OpenGL!");
-	return;
-
-	/*
 	// Check if the requested font is already loaded
-	if (!Contains(fonts, style.fontFamily))
-	{
+	if (!Contains(fonts, style.fontFamily)) {
 		MessageError("There are no loaded fonts with the key: ", style.fontFamily);
 		return;
 	}
@@ -223,7 +220,8 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 		SDL_SetSurfaceBlendMode(atlas.surface, SDL_BlendMode::SDL_BLENDMODE_BLEND);
 		SDL_Rect dstRect {0, 0, atlas.surface->w, atlas.surface->h};
 		if (SDL_BlitSurface(atlas.surface, nullptr, newAtlas, &dstRect)) {
-			MessageError("Couldn't copy the old font atlas to the new larger one: ", SDL_GetError());
+			MessageError("Couldn't copy the old font atlas to the new larger "
+					"one: ", SDL_GetError());
 		}
 
 		// Delete old surface and replace it with the new one
@@ -274,27 +272,23 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 
 	// Regenerate the texture and reupload it to the GPU
 	if (atlas.texture)
-		SDL_DestroyTexture(atlas.texture);
+		g_renderer.deleteTexture(atlas.texture);
 
-	atlas.texture = SDL_CreateTextureFromSurface(g_window.renderer, atlas.surface);
+	atlas.texture = g_renderer.createTexture2D(0, GL_LINEAR, GL_LINEAR,
+			GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_RGBA, atlas.surface);
 
 	if (!atlas.texture) {
 		MessageError("Unable to create a texture from the rendered font atlas!"
 				"SDL Error: ", SDL_GetError());
-	} else {
-		// Enable transparency (Probably enabled automaticaly because of the
-		// alpha channel but whatever...)
-		SDL_SetTextureBlendMode(atlas.texture, SDL_BLENDMODE_BLEND);
 	}
-	*/
 }
 
+/*
 void TextManager::render (Entity textEntity, Entity camera)
 {
 	MessageNote("Implement a text pipeline");
 	return;
 
-	/*
 	auto [text, position, origin, size] = g_registry.try_get<Components::Text,
 		 Components::Position, Components::Origin, Components::Size>(textEntity);
 	ZEN_ASSERT(text, "The entity has no 'Text' component.");
@@ -479,10 +473,8 @@ void TextManager::render (Entity textEntity, Entity camera)
 		// Move on to the next character
 		penX += glyph.advanceX;
 	}
-	*/
 }
-
-// PRIVATE
+*/
 
 int TextManager::packGlyphs (std::vector<Glyph*> *glyphs,
 		FontAtlasData *atlas)
@@ -552,11 +544,11 @@ int TextManager::packGlyphs (std::vector<Glyph*> *glyphs,
 	return sizeIncrease;
 }
 
-bool TextManager::SortGlyphsByHeight(Glyph *a, Glyph *b) {
+bool TextManager::sortGlyphsByHeight(Glyph *a, Glyph *b) {
 	return (a->cacheH < b->cacheH);
 }
 
-std::vector<int> TextManager::StringToUnicodes (std::string text)
+std::vector<int> TextManager::stringToUnicodes (std::string text)
 {
 	std::vector<int> characters;
 
@@ -587,7 +579,7 @@ std::vector<int> TextManager::StringToUnicodes (std::string text)
 	return characters;
 }
 
-Rectangle TextManager::GetTextBoundingBox (std::vector<int> &characters, TextStyle &style)
+Rectangle TextManager::getTextBoundingBox (std::vector<int> &characters, TextStyle &style)
 {
 	Rectangle bbox {0., 0., 0., 0.};
 	int lineWidth = 0;
@@ -634,7 +626,7 @@ Rectangle TextManager::GetTextBoundingBox (std::vector<int> &characters, TextSty
 	return bbox;
 }
 
-std::vector<Rectangle> TextManager::GetLinesBoundingBox (
+std::vector<Rectangle> TextManager::getLinesBoundingBox (
 		std::vector<int> &characters, TextStyle &style)
 {
 	std::vector<Rectangle> linesBbox;
@@ -674,7 +666,7 @@ std::vector<Rectangle> TextManager::GetLinesBoundingBox (
 	return linesBbox;
 }
 
-std::vector<int> TextManager::WrapText (std::vector<int> text, TextStyle style)
+std::vector<int> TextManager::wrapText (std::vector<int> text, TextStyle style)
 {
 	if (style.wrapWidth <= 0)
 		return text;

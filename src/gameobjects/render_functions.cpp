@@ -26,7 +26,11 @@ void Render_image (Entity entity, Entity camera, Components::TransformMatrix* ma
 void Render_text (Entity entity, Entity camera,
 		Components::TransformMatrix* matrix)
 {
-	MessageNote("Text rendering not yet implemented");
+	AddToRenderList(camera, entity);
+
+	auto &r = g_registry.get<Components::Renderable>(entity);
+	static_cast<MultiPipeline*>(r.pipeline)->batchText(entity, camera,
+			matrix);
 }
 
 }	// namespace Zen
