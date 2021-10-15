@@ -67,6 +67,18 @@ std::string ParseFragmentShaderMaxTextures (std::string fragmentShaderSource,
 
 std::array<GLenum, 2> GetTexGLFormatFromSDLFormat (SDL_Surface *surface, bool gamma = false);
 
+/**
+ * Flips a surface on the y-axis.
+ *
+ * https://stackoverflow.com/questions/65815332/flipping-a-surface-vertically-in-sdl2/65817254#65817254
+ * - vvanpelt
+ *
+ * @since 0.0.0
+ *
+ * @param surface The SDL surface to flip vertically.
+ */
+void FlipSurface (SDL_Surface *surface, bool lockSurface = true);
+
 }	// namespace Zen
 
 #endif

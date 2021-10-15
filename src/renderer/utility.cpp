@@ -7,6 +7,7 @@
 
 #include "utility.hpp"
 #include <map>
+#include <cstring>
 #include "../utils/string/replace.hpp"
 #include "../utils/assert.hpp"
 
@@ -408,6 +409,36 @@ std::array<GLenum, 2> GetTexGLFormatFromSDLFormat (SDL_Surface *surface, bool ga
 	}
 
 	return {format, gformat};
+}
+
+void FlipSurface (SDL_Surface *surface, bool lockSurface)
+{
+	if (surface == nullptr)
+		return;
+
+	if (lockSurface)
+		SDL_LockSurface(surface);
+
+	int pitch = surface->pitch;
+	std::uint8_t *temp = new std::uint8_t[pitch];
+	std::uint8_t *pixels = static_cast<std::uint8_t*>(surface->pixels);
+	std::uint8_t *row1, *row2;
+
+	for (int i = 0; i < (surface->h / 2); i++) {
+		// Get pointers to the two rows to swap
+		row1 = pixels + i * pitch;
+		row2 = pixels + (surface->h - i - 1) * pitch;
+
+		// Swap rows
+		std::memcpy(temp, row1, pitch);
+		std::memcpy(row1, row2, pitch);
+		std::memcpy(row2, temp, pitch);
+	}
+
+	delete[] temp;
+
+	if (lockSurface)
+		SDL_UnlockSurface(surface);
 }
 
 }	// namespace Zen

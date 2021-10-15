@@ -2016,21 +2016,13 @@ void Renderer::postRender ()
 {
 	flush();
 
-	/*
-	if (!test)
-		test = std::make_unique<TestPipeline>();
-	test->render();
-	*/
-
 	// Update screen
 	SDL_GL_SwapWindow(g_window.window);
-
-//	return;
 
 	emit("post-render");
 
 	if (snapshotState.active) {
-		snapshot();
+		takeSnapshot();
 		snapshotState.active = false;
 		snapshotState.callback = nullptr;
 	}
@@ -2114,6 +2106,8 @@ void Renderer::snapshotFramebuffer (GL_fbo framebuffer, int bufferWidth,
 
 void Renderer::takeSnapshot ()
 {
+	int tmp = -4; tmp++;
+
 	if (!snapshotState.active)
 		return;
 
@@ -2168,12 +2162,16 @@ void Renderer::takeSnapshot ()
 			return;
 		}
 
-		std::vector<std::uint8_t> pixels_;
-		pixels_.resize(snapshotState.surface->pitch * snapshotState.surface->h);
+		SDL_LockSurface(snapshotState.surface);
 
 		// Read the window's pixels
 		glReadPixels(snapshotState.x, snapshotState.y, snapshotState.width,
-				snapshotState.height, GL_RGBA, GL_UNSIGNED_BYTE, pixels_.data());
+				snapshotState.height, GL_BGRA, GL_UNSIGNED_BYTE,
+				snapshotState.surface->pixels);
+
+		FlipSurface(snapshotState.surface, false);
+
+		SDL_UnlockSurface(snapshotState.surface);
 
 		// Save an image file if a path is given
 		if (snapshotState.path != "") {
@@ -2193,8 +2191,7 @@ void Renderer::saveSnapshot ()
 
 	// Figure out the file type
 	for (auto c_ = path_.rbegin(); c_ != path_.rend(); c_++) {
-		if (*c_ == '.')
-		{
+		if (*c_ == '.') {
 			// We read all the extension's characters
 			break;
 		}
@@ -2202,33 +2199,28 @@ void Renderer::saveSnapshot ()
 		extension_.insert(0, 1, *c_);
 	}
 
-	if (extension_ == "bmp")
-	{
+	if (extension_ == "bmp") {
 		if (SDL_SaveBMP(snapshotState.surface, path_.c_str()))
-			MessageError("Failed to save snapshot in a 'BMP' file: ",
+			MessageError("Failed to save snapshot as a 'BMP' file: ",
 					SDL_GetError());
 	}
-	else if (extension_ == "png")
-	{
+	else if (extension_ == "png") {
 		if (IMG_SavePNG(snapshotState.surface, path_.c_str()))
-			MessageError("Failed to save snapshot in a 'PNG' file: ",
+			MessageError("Failed to save snapshot as a 'PNG' file: ",
 					IMG_GetError());
 	}
-	else if (extension_ == "jpg")
-	{
+	else if (extension_ == "jpg") {
 		if (IMG_SaveJPG(snapshotState.surface, path_.c_str(), 100))
-			MessageError("Failed to save snapshot in a 'JPG' file: ",
+			MessageError("Failed to save snapshot as a 'JPG' file: ",
 					IMG_GetError());
 	}
-	else if (extension_ == "jpeg")
-	{
+	else if (extension_ == "jpeg") {
 		if (IMG_SaveJPG(snapshotState.surface, path_.c_str(), 100))
-			MessageError("Failed to save snapshot in a 'JPEG' file: ",
+			MessageError("Failed to save snapshot as a 'JPEG' file: ",
 					IMG_GetError());
 	}
-	else
-	{
-		MessageError("File type unsupported! Try something else like 'png'"
+	else {
+		MessageError("File type unsupported! Try something else like 'png' "
 				"or 'jpg'.");
 	}
 }
