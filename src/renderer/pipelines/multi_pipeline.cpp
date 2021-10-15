@@ -117,78 +117,21 @@ void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
 	double v0 = frame->v0;
 	double u1 = frame->u1;
 	double v1 = frame->v1;
-	int frameX = frame->cutX;//frame->x;
-	int frameY = frame->cutY;//frame->y;
-	// TODO test with cut.height instead of frame.height
-	int frameWidth = (frame->rotated) ? frame->cutHeight : frame->cutWidth;
-	int frameHeight = (frame->rotated) ? frame->cutWidth : frame->cutHeight;
+	int frameX = frame->cutX;
+	int frameY = frame->cutY;
+	int frameWidth = frame->cutWidth;
+	int frameHeight = frame->cutHeight;
 	bool customPivot = frame->customPivot;
 
 	double displayOriginX = GetDisplayOriginX(gameObject);
 	double displayOriginY = GetDisplayOriginY(gameObject);
 
 	// Position
-	double x, y;
+	double x = -displayOriginX + frame->data.spriteSourceSize.x,
+		   y = -displayOriginY + frame->data.spriteSourceSize.y;
 
 	// Rotation
 	double rot = GetRotation(gameObject);
-
-	// Is the frame rotated in the texture atlas?
-	if (!frame->rotated) {
-		x = -displayOriginX + frame->data.spriteSourceSize.x;
-		y = -displayOriginY + frame->data.spriteSourceSize.y;
-	}
-	else {
-		// Restore frame to upright orientation
-		rot += Math::DegToRad(-90);
-
-		// Invert `x` and `y` axis for origin and invert y axis (No minus for x_)
-		x = displayOriginY;
-		y = -displayOriginX;
-
-		// A trimmed frame has the following metrics:
-		// - Width of frame
-		// - Height of frame
-		// - X position in atlas
-		// - Y position in atlas
-		// - Real dimensions of image before trimming
-		//		- Real width
-		// 		- Real height
-		// - Trimmed empty space
-		//		- Padding Left
-		// 		- Padding Up
-		// 		- Padding Right
-		// 		- Padding Bottom
-
-		// Frame is rotated -90deg on atlas (clockwise)
-		// First we restore it upward by rotating it by -90deg
-		// By doing this, the following happens:
-		// - The originaly trimX or left padding becomes y's padding or top padding
-		// - The originaly paddingV or bottom padding becomes x's padding or
-		//		left padding
-
-		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// |                                  |                 ^
-		// |                                  |               trimX
-		// |                                  |                 v
-		// |           +--------------+       |              +------+
-		// |           |              |       |              |  R   |
-		// | < trimX > |   Original   |       |              |  o   |
-		// |           |              |       | < paddingB > |  t   |
-		// |           +--------------+       |              |  a   |
-		// |                  ^               |              |  t   |
-		// |               paddingB           |              +------+
-		// |                  v               |
-		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-		double bottomPadding =
-			frame->data.sourceSize.height -				// Original height
-			frame->data.spriteSourceSize.height -		// Non empty height
-			frame->data.spriteSourceSize.y;				// Top trimmed padding
-
-		x += bottomPadding - frame->data.sourceSize.height;
-		y += frame->data.spriteSourceSize.x;
-	}
 
 	if (IsCropped(gameObject)) {
 		auto crop = GetCrop(gameObject);
@@ -233,7 +176,7 @@ void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
 
 	ApplyITRS(&spriteMatrix,
 		GetX(gameObject), GetY(gameObject),
-		GetRotation(gameObject),
+		rot,
 		GetScaleX(gameObject) * flipX, GetScaleY(gameObject) * flipY
 	);
 
@@ -308,8 +251,17 @@ void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
 
 	g_renderer.pipelines.preBatch(gameObject);
 
-	batchQuad(gameObject, tx0, ty0, tx1, ty1, tx2, ty2, tx3, ty3, u0, v0, u1, v1,
-			tintTL, tintTR, tintBL, tintBR, tintFill, texture, unit);
+	std::array<double, 8> uvs;
+	if (frame->rotated)
+		 uvs = {u0, v0, u1, v0, u1, v1, u0, v1};
+	else
+		 uvs = {u0, v0, u0, v1, u1, v1, u1, v0};
+
+	batchQuad(gameObject,
+			{tx0, ty0, tx1, ty1, tx2, ty2, tx3, ty3},
+			uvs,
+			{tintTL, tintTR, tintBL, tintBR},
+			tintFill, texture, unit);
 
 	g_renderer.pipelines.postBatch(gameObject);
 }

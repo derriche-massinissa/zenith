@@ -119,7 +119,7 @@ void SetFrameCropUVs (Entity frm, CropData *crop, int x, int y, int width, int h
 	auto frame = g_registry.try_get<Components::Frame>(frm);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
 
-	//  Clamp the input values
+	// Clamp the input values
 
 	int cx = frame->cutX;
 	int cy = frame->cutY;
@@ -212,7 +212,7 @@ void SetFrameCropUVs (Entity frm, CropData *crop, int x, int y, int width, int h
 	int tw = source.width;
 	int th = source.height;
 
-	//  Map the given coordinates into UV space, clamping to the 0-1 range.
+	// Map the given coordinates into UV space, clamping to the 0-1 range.
 
 	crop->u0 = std::max(0, ox / tw);
 	crop->v0 = std::max(0, oy / th);
@@ -244,14 +244,10 @@ void SetFrameUVs (Entity entity, int width, int height, double u0, double v0, do
 	auto frame = g_registry.try_get<Components::Frame>(entity);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
 
-	//  Canvas data
-
 	auto& cd = frame->data.drawImage;
 
 	cd.width = width;
 	cd.height = height;
-
-	//  WebGL data
 
 	frame->u0 = u0;
 	frame->v0 = v0;
@@ -270,14 +266,10 @@ void UpdateFrameUVs (Entity entity)
 	int cw = frame->cutWidth;
 	int ch = frame->cutHeight;
 
-	//  Canvas data
-
 	auto& cd = frame->data.drawImage;
 
 	cd.width = cw;
 	cd.height = ch;
-
-	//  WebGL data
 
 	auto source = g_registry.try_get<Components::TextureSource>(frame->source);
 	ZEN_ASSERT(source, "The entity has no 'TextureSource' component.");
@@ -297,17 +289,22 @@ void UpdateFrameUVsInverted (Entity entity)
 	auto frame = g_registry.try_get<Components::Frame>(entity);
 	ZEN_ASSERT(frame, "The entity has no 'Frame' component.");
 
+	int cx = frame->cutX;
+	int cy = frame->cutY;
+	int cw = frame->cutWidth;
+	int ch = frame->cutHeight;
+
 	auto source = g_registry.try_get<Components::TextureSource>(frame->source);
 	ZEN_ASSERT(source, "The entity has no 'TextureSource' component.");
 
 	int tw = source->width;
 	int th = source->height;
 
-	frame->u0 = static_cast<double>(frame->cutX + frame->cutHeight) / tw;
-	frame->v0 = static_cast<double>(frame->cutY) / th;
+	frame->u0 = static_cast<double>(cx + ch) / tw;
+	frame->v0 = static_cast<double>(cy) / th;
 
-	frame->u1 = static_cast<double>(frame->cutX) / tw;
-	frame->v1 = static_cast<double>(frame->cutY + frame->cutWidth) / th;
+	frame->u1 = static_cast<double>(cx) / tw;
+	frame->v1 = static_cast<double>(cy + cw) / th;
 }
 
 int GetFrameRealWidth (Entity entity)

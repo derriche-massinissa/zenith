@@ -569,6 +569,25 @@ public:
 			double u1, double v1, int tintTL, int tintTR, int tintBL, int tintBR,
 			int tintEffect, GL_texture texture, int unit = -1);
 
+	/*
+     * @overload
+     * @since 0.0.0
+     *
+     * @param gameObject The Game Object, if any, drawing this quad.
+     * @param p The coordinates of all 4 vertices.
+     * @param uv The uv coordinates of all 4 vertices.
+     * @param tints The color values of all 4 vertices.
+     * @param tintEffect The tint effect for the shader to use.
+     * @param texture GL_texture that will be assigned to the current batch if a
+	 * flush occurs.
+     * @param unit Texture unit to which the texture needs to be bound.
+     *
+     * @return `true` if this method caused the batch to flush, otherwise `false`.
+     */
+	bool batchQuad (Entity gameObject, std::array<double, 8> p,
+			std::array<double, 8> uv, std::array<int, 4> tints, int tintEffect,
+			GL_texture texture, int unit);
+
     /**
      * Adds the vertices data into the batch and flushes if full.
      *

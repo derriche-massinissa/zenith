@@ -507,6 +507,36 @@ bool Pipeline::batchQuad (Entity gameObject, double x0, double y0, double x1,
 	return hasFlushed;
 }
 
+bool Pipeline::batchQuad (Entity gameObject, std::array<double, 8> p,
+		std::array<double, 8> uv, std::array<int, 4> tints, int tintEffect,
+		GL_texture texture, int unit)
+{
+	if (unit < 0)
+		unit = currentUnit;
+
+	bool hasFlushed = false;
+
+	if (shouldFlush(6)) {
+		flush();
+		hasFlushed = true;
+		unit = setTexture2D(texture);
+	}
+
+	if (texture == 0)
+		tintEffect = 2;
+
+	batchVert(p[0], p[1], uv[0], uv[1], unit, tintEffect, tints[0]);
+	batchVert(p[2], p[3], uv[2], uv[3], unit, tintEffect, tints[1]);
+	batchVert(p[4], p[5], uv[4], uv[5], unit, tintEffect, tints[2]);
+	batchVert(p[0], p[1], uv[0], uv[1], unit, tintEffect, tints[0]);
+	batchVert(p[4], p[5], uv[4], uv[5], unit, tintEffect, tints[2]);
+	batchVert(p[6], p[7], uv[6], uv[7], unit, tintEffect, tints[3]);
+
+	onBatch(gameObject);
+
+	return hasFlushed;
+}
+
 bool Pipeline::batchTri (Entity gameObject, double x0, double y0, double x1,
 		double y1, double x2, double y2, double u0, double v0, double u1,
 		double v1, int tintTL, int tintTR, int tintBL, int tintEffect,

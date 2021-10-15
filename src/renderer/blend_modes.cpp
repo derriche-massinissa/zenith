@@ -44,21 +44,37 @@ void Renderer::createBlendModes ()
 		{GL_DST_COLOR, GL_ZERO}
 	};
 
-	// TODO write and test blend modes
 	// C.rgb = (S.rgb * 1-D.rgb) + (D.rgb * 1)
 	// C.a = (S.a * 0) + (D.a * 1)
+	//
+	// C = S + (1 - S) * D
 	mode = static_cast<int>(BLEND_MODE::SCREEN);
 	blendModes[mode] = {
 		{GL_FUNC_ADD},
-		{GL_DST_COLOR, GL_ZERO}
+		{GL_ONE, GL_ONE_MINUS_SRC_COLOR}
+	};
+
+	mode = static_cast<int>(BLEND_MODE::SUBTRACT);
+	blendModes[mode] = {
+		{GL_FUNC_SUBTRACT},
+		{GL_ONE, GL_ONE}
+	};
+
+	mode = static_cast<int>(BLEND_MODE::ERASE);
+	blendModes[mode] = {
+		{GL_FUNC_ADD, GL_FUNC_ADD},
+		{GL_ZERO, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA}
 	};
 
 
 
 
-
-
-
+	mode = static_cast<int>(BLEND_MODE::XOR);
+	blendModes[mode] = {
+		{GL_FUNC_ADD, GL_FUNC_ADD},
+		{GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+			GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
+	};
 
 
 
