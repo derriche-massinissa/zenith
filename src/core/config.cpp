@@ -112,11 +112,8 @@ GameConfig& GameConfig::setAntialiasing (bool flag)
 GameConfig& GameConfig::setPixelArt (bool flag)
 {
 	renderConfig.pixelArt = flag;
-
-	if (flag)
-		setAntialiasing(true);
-	else
-		setAntialiasing(false);
+	renderConfig.roundPixels = flag;
+	renderConfig.antialias = !flag;
 
 	return *this;
 }

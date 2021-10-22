@@ -21,6 +21,7 @@
 #include "../display/types/color.hpp"
 #include "sprite_sheet_config.hpp"
 #include "components/texture.hpp"
+#include "../renderer/types/gl_types.hpp"
 
 #include "../core/config.fwd.hpp"
 
@@ -287,7 +288,22 @@ public:
 	 *
 	 * @return A pointer to the Texture.
 	 */
-	Entity get (std::string key_ = "");
+	Entity get (std::string key = "");
+
+	/**
+	 * Returns the OpenGL texture of the requested texture.
+	 *
+	 * If no key is given, returns the OpenGL texture of the "__DEFAULT" Texture.
+	 *
+	 * If a key is given but not found, returns 0.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param key The unique key of the Texture.
+	 *
+	 * @return The OpenGL texture or 0 if not found.
+	 */
+	GL_texture getGLTexture (std::string key = "");
 
 	/**
 	 * Takes a Texture key and Frame name and returns a pointer to that

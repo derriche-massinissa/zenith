@@ -77,8 +77,13 @@ void PostFXPipeline::boot ()
 	set("uMainSampler", 0);
 }
 
+void PostFXPipeline::preDraw ()
+{}
+
 void PostFXPipeline::onDraw (RenderTarget *renderTarget)
 {
+	preDraw();
+
 	bindAndDraw(renderTarget);
 }
 

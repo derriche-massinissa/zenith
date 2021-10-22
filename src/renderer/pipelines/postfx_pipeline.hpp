@@ -104,6 +104,8 @@ public:
 
 	void boot ();
 
+	virtual void preDraw ();
+
 	void onDraw (RenderTarget *renderTarget);
 
     /**

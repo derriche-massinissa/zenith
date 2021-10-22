@@ -409,6 +409,21 @@ Entity TextureManager::get (std::string key_)
 	}
 }
 
+GL_texture TextureManager::getGLTexture (std::string key_)
+{
+	auto textureIterator_ = list.find(key_);
+	if (textureIterator_ != list.end()) {
+		auto tex = g_registry.get<Zen::Components::Texture>(list[key_]);
+		auto frm = g_registry.get<Zen::Components::Frame>(tex.firstFrame);
+		auto src = g_registry.get<Zen::Components::TextureSource>(frm.source);
+
+		return src.glTexture;
+	}
+	else {
+		return 0;
+	}
+}
+
 Entity TextureManager::getFrame (std::string key_, std::string frame_)
 {
 	auto textureIterator_ = list.find(key_);

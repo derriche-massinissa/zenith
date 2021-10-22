@@ -334,7 +334,8 @@ void InputPlugin::clear (Entity entity_, bool skipQueue_)
 void InputPlugin::disable (Entity entity_)
 {
 	auto input_ = g_registry.try_get<Components::Input>(entity_);
-	ZEN_ASSERT(input_, "The entity has no 'Input' component.");
+	
+	if (!input_) return;
 
 	input_->enabled = false;
 }
