@@ -10,7 +10,7 @@
 
 #include <SDL2/SDL_stdinc.h>
 #include <string>
-#include "../data.h"
+#include "../data/data.hpp"
 #include "scene.fwd.hpp"
 
 namespace Zen {

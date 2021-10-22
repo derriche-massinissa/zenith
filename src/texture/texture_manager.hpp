@@ -16,7 +16,7 @@
 
 #include "json/json.hpp"
 
-#include "../data.h"
+#include "../data/data.hpp"
 #include "../event/event_emitter.hpp"
 #include "../display/types/color.hpp"
 #include "sprite_sheet_config.hpp"

@@ -10,7 +10,7 @@
 
 #include <string>
 #include <memory>
-#include "../data.h"
+#include "../data/data.hpp"
 #include "scene.fwd.hpp"
 
 namespace Zen {

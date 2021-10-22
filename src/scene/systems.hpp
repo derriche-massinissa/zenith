@@ -10,7 +10,7 @@
 
 #include <SDL2/SDL.h>
 
-#include "../data.h"
+#include "../data/data.hpp"
 #include "../event/event_emitter.hpp"
 #include "settings.hpp"
 #include "config.fwd.hpp"

@@ -11,7 +11,7 @@
 #include <string>
 #include <SDL2/SDL_types.h>
 
-#include "../data.h"
+#include "../data/data.hpp"
 #include "../event/event_emitter.hpp"
 
 #include "systems.hpp"
@@ -67,12 +67,11 @@ public:
 	//Animations::AnimationManager& anims;
 
 	/**
-	 * A reference to the game Data Manager.
+	 * A reference to the scene's Data object.
 	 *
 	 * @since 0.0.0
-	 * @todo TODO
 	 */
-	//Data::DataManager& registry;
+	Data data;
 
 	/**
 	 * A reference to the window instance.

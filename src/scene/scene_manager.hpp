@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include "../data.h"
+#include "../data/data.hpp"
 #include "settings_config.hpp"
 
 #include "scene.hpp"

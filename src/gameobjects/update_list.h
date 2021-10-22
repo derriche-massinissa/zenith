@@ -13,7 +13,7 @@
 
 #include "../ecs/entity.hpp"
 #include "../scene/scene.fwd.hpp"
-#include "../data.h"
+#include "../data/data.hpp"
 #include "../event/event_listener.hpp"
 
 namespace Zen {

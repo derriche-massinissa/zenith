@@ -28,6 +28,8 @@ pkg_check_modules(FT REQUIRED freetype2)
 
 # Source files
 set(zenith_SRCS
+	src/data/data.cpp
+
 	src/renderer/pipelines/graphics_pipeline.cpp
 
 
