@@ -6,20 +6,16 @@
  */
 
 #ifndef ZEN_UTILS_BASE64_ENCODE_HPP
-#define ZEN_UTILS_BASE64_ENCODE HPP
+#define ZEN_UTILS_BASE64_ENCODE_HPP
 
 #include <string>
 
 namespace Zen {
-namespace Utils {
-namespace Base64 {
 
 std::string Base64Encode (const std::string& in);
 
 std::string Base64Encode (const std::string&& in);
 
-}	// namespace Base64
-}	// namespace Utils
 }	// namespace Zen
 
 #endif

@@ -29,6 +29,7 @@ pkg_check_modules(FT REQUIRED freetype2)
 # Source files
 set(zenith_SRCS
 	src/data/data.cpp
+	src/scene/scene_manager.cpp
 
 	src/renderer/pipelines/graphics_pipeline.cpp
 
@@ -190,7 +191,7 @@ set(zenith_SRCS
 	src/scale/scale_manager.cpp
 	src/scene/config.cpp
 	src/scene/scene.cpp
-	src/scene/scene_manager.cpp
+
 	src/scene/plugin.cpp
 	src/scene/systems.cpp
 	src/structs/size.cpp

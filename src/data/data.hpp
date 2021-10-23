@@ -15,6 +15,7 @@
 #include <functional>
 #include "events/events.hpp"
 #include "../event/event_emitter.hpp"
+#include "json/json.hpp"
 
 namespace Zen {
 
@@ -38,6 +39,32 @@ private:
 	std::map<std::string, std::any> data;
 
 	/**
+	 * The json data, used if this Data object is in json mode.
+	 *
+	 * @since 0.0.0
+	 */
+	nlohmann::json json;
+
+	/**
+	 * Is this Data object in json mode? Defaults to false.
+	 *
+	 * Json mode:
+	 * - Only bool, numbers and text can be stored in this data object.
+	 * - Nested lists and maps of above types can also be stored in this Data
+	 *   object.
+	 * - Custom types can be stored if serialization functions are provided.
+	 * - This data object can be serialized and saved into a file.
+	 *
+	 * Non json mode:
+	 * - Faster.
+	 * - Anything can be stored in this data object: Basic, custom data, pointers...
+	 * - It is not possible to save this data object into a file.
+	 *
+	 * @since 0.0.0
+	 */
+	bool jsonMode;
+
+	/**
 	 * Whether editing this data object is permitted.
 	 *
 	 * @since 0.0.0
@@ -45,6 +72,11 @@ private:
 	bool frozen = false;
 
 public:
+	/**
+	 * @since 0.0.0
+	 */
+	Data (bool jsonMode = false);
+
 	/**
 	 * Retrieves the value for the given key. Note that the key needs to exist!
 	 *
@@ -62,7 +94,19 @@ public:
 	template <typename T>
 	T get (std::string key)
 	{
-		return std::any_cast<T>(data[key]);
+
+		if (jsonMode) {
+			if constexpr (std::is_class_v<T>) {
+				MessageError("Cannot use complex types in Json mode");
+				return {};
+			}
+			else {
+				return json[key].get<T>();
+			}
+		}
+		else {
+			return std::any_cast<T>(data[key]);
+		}
 	}
 
 	/**
@@ -87,7 +131,8 @@ public:
 	 * @return A tuple of values belonging to the given keys.
 	 */
 	template <typename Ta, typename Tb, typename ... Ts, typename ... Keys>
-	std::tuple<Ta, Tb, Ts...> get (std::string keyA, std::string keyB, Keys ... keys)
+	std::tuple<Ta, Tb, Ts...> get
+		(std::string keyA, std::string keyB, Keys ... keys)
 	{
 		return std::tuple<Ta, Tb, Ts...> (get<Ta>(keyA), get<Tb>(keyB), get<Ts>(keys)...);
 	}
@@ -138,7 +183,17 @@ public:
 			previousValue = get<T>(key);
 		}
 
-		data[key] = value;
+		if (jsonMode) {
+			if constexpr (std::is_class_v<T>) {
+				MessageError("Cannot use complex types in Json mode");
+				return;
+			}
+			else {
+				json[key] = value;
+			}
+		}
+		else
+			data[key] = value;
 
 		if (!change) {
 			emit(Events::SET_DATA, key, value);
@@ -161,7 +216,7 @@ public:
 		if (frozen)
 			return;
 
-		if (data.contains(key))
+		if (has(key))
 			set(key, get<T>(key) + value);
 		else
 			set(key, value);
@@ -228,6 +283,29 @@ public:
 	 * @since 0.0.0
 	 */
 	void clear ();
+
+	/**
+	 * Save this Data object in as a Json file, if in json mode.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param filepath The file to save this Data object in.
+	 * @param pretty The clarity level when saving:
+	 * - 2: Prettified json
+	 * - 1: Packed json
+	 * - 0: Encoded to Base64
+	 */
+	void save (std::string filepath, int clarity = 2);
+
+	/**
+	 * Load a Json file and store its data to this Data object if in Json mode.
+	 *
+	 * @since 0.0.0
+	 *
+	 * @param filepath The file to load data from.
+	 * @param decode Should the content be first decoded fromm Base64?
+	 */
+	void load (std::string filepath, bool decode = false);
 };
 
 }	// namespace Zen
