@@ -372,6 +372,8 @@ Scene* SceneManager::getScene (std::string key_)
 	if (scene_ != keys.end())
 		return &scene_->second;
 
+	MessageWarning("The requested scene '", key_, "' does not exist");
+
 	return nullptr;
 }
 
