@@ -42,12 +42,12 @@ void StartFade (Entity camera, bool direction, int duration,
 	fade->isComplete = false;
 	fade->duration = duration;
 	fade->direction = direction;
-	fade->progress = 0;
+	fade->progress = 0.0;
 
 	fade->red = red;
 	fade->green = green;
 	fade->blue = blue;
-	fade->alpha = (direction) ? 0 : 255;
+	fade->alpha = (direction) ? 0.0 : 1.0;
 
 	fade->elapsed = 0;
 
@@ -83,11 +83,11 @@ void UpdateFade (Entity camera, [[maybe_unused]] Uint32 time, Uint32 delta)
 
 	if (fade->elapsed < fade->duration) {
 		fade->alpha = (fade->direction)
-			? (fade->progress) * 255
-			: (1 - fade->progress) * 255;
+			? (fade->progress)
+			: 1 - fade->progress;
 	}
 	else {
-		fade->alpha = (fade->direction) ? 255 : 0;
+		fade->alpha = (fade->direction) ? 1.0 : 0.0;
 		CompleteFade(camera);
 	}
 }

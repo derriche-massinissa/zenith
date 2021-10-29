@@ -98,7 +98,7 @@ struct EffectFade
 	 *
 	 * @since 0.0.0
 	 */
-	int alpha = 0;
+	double alpha = 0;
 
 	/**
 	 * If this effect is running this holds the current percentage of the progress,
