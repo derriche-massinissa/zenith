@@ -41,8 +41,8 @@
 				auto l_ = dynamic_cast<Listener<Args...>*>(it_->second.at(0).get()); \
 				if (l_ == nullptr) \
 				{ \
-					MessageError("Added an incompatible listener to an already \
-							existing event of different signature!"); \
+					MessageError("Added an incompatible listener to an already" \
+							"existing event of different signature!"); \
 					if (entity_ != entt::null) \
 						MessageError("Entity is: ", static_cast<std::uint64_t>(entity_)); \
 					MessageError("Event is: ", eventName_); \
