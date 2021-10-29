@@ -47,7 +47,7 @@ Pipeline::~Pipeline ()
 
 void Pipeline::boot()
 {
-	resize(g_renderer.width, g_renderer.height);
+	resize(g_window.width(), g_window.height());
 
 	// Create the RenderTargets
 	for (auto target : config.renderTarget) {

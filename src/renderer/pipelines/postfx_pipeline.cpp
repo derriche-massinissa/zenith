@@ -163,7 +163,6 @@ void PostFXPipeline::bindAndDraw (RenderTarget *source_, RenderTarget *target_,
 		g_renderer.popFramebuffer(false, false, false);
 
 		if (!g_renderer.currentFramebuffer) {
-			glViewport(0, 0, g_window.width(), g_window.height());
 			glDisable(GL_SCISSOR_TEST);
 		}
 	}
@@ -183,8 +182,6 @@ void PostFXPipeline::bindAndDraw (RenderTarget *source_, RenderTarget *target_,
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
-
-	g_renderer.resetViewport();
 }
 
 }	// namespace Zen

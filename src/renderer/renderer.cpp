@@ -715,7 +715,6 @@ void Renderer::resize (int width_, int height_)
 	//setProjectionMatrix(width, height);
 	setProjectionMatrix(g_window.width(), g_window.height());
 
-	//glViewport(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
 	glViewport(0, 0, g_window.width(), g_window.height());
 
 	//glScissor(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
@@ -848,7 +847,6 @@ bool Renderer::hasActiveStencilMask ()
 
 void Renderer::resetViewport ()
 {
-	//glViewport(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
 	glViewport(0, 0, g_window.width(), g_window.height());
 }
 
