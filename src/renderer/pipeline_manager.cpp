@@ -85,7 +85,7 @@ void PipelineManager::remove (std::string name)
 Pipeline* PipelineManager::set (std::string name, Entity entity,
 		Shader* currentShader)
 {
-	if (!Contains(pipelines, name))
+	if (!pipelines.contains(name))
 		return nullptr;
 
 	Pipeline *pipeline = pipelines[name].get();
@@ -104,7 +104,8 @@ Pipeline* PipelineManager::set (std::string name, Entity entity,
 		pipeline->bind(currentShader);
 	}
 
-	pipeline->updateProjectionMatrix();
+	//TODO remove
+	//pipeline->updateProjectionMatrix();
 
 	pipeline->onBind(entity);
 

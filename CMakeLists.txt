@@ -28,6 +28,13 @@ pkg_check_modules(FT REQUIRED freetype2)
 
 # Source files
 set(zenith_SRCS
+	src/text/text_manager.cpp
+	src/renderer/pipelines/multi_pipeline.cpp
+	src/systems/sources/text.cpp
+
+	src/cameras/2d/systems/camera.cpp
+	src/cameras/2d/systems/fade.cpp
+
 	src/data/data.cpp
 	src/scene/scene_manager.cpp
 
@@ -43,7 +50,6 @@ set(zenith_SRCS
 	src/renderer/shader.cpp
 	src/renderer/utility.cpp
 	src/renderer/pipelines/bitmap_mask_pipeline.cpp
-	src/renderer/pipelines/multi_pipeline.cpp
 
 	src/renderer/pipelines/postfx_pipeline.cpp
 	src/renderer/pipelines/single_pipeline.cpp
@@ -77,8 +83,6 @@ set(zenith_SRCS
 
 
 
-	src/text/text_manager.cpp
-	src/systems/sources/text.cpp
 
 
 
@@ -142,8 +146,6 @@ set(zenith_SRCS
 	src/input/keyboard/keys/key.cpp
 	src/input/keyboard/keyboard_manager.cpp
 	src/cameras/2d/camera_manager.cpp
-	src/cameras/2d/systems/camera.cpp
-	src/cameras/2d/systems/fade.cpp
 	src/core/config.cpp
 	src/core/game.cpp
 	src/core/handle_sdl_events.cpp

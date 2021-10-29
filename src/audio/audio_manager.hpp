@@ -89,6 +89,18 @@ public:
 
 	void forEachActiveSound ();
 
+	/**
+	 * TODO
+	 *
+	 * The audio file must be in Mono and not Stereo for OpenAL to be able to
+	 * pan
+	 *
+	 * teros channels are already computed whereas Mono isn't, so panning is calculated by OpenAL.
+	 *
+	 * OpenAL cannot play Stereo audio samples spacially.
+	 *
+	 * @since 0.0.0
+	 */
 	void setPosition (ALfloat x, ALfloat y, ALfloat z);
 
 	void setPosition (Entity entity, ALfloat x, ALfloat y, ALfloat z);

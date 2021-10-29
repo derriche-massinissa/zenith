@@ -77,6 +77,8 @@ void TextManager::addFont (std::string key, std::string path)
 			return;
 		}
 
+		FT_Select_Charmap(face, FT_ENCODING_UNICODE);
+
 		fonts[key] = face;
 	}
 }
@@ -86,58 +88,104 @@ int TextManager::scanText (Entity text_)
 	auto text = g_registry.try_get<Components::Text>(text_);
 	ZEN_ASSERT(text, "The entity has no 'Text' component.");
 
+	text->lastFontSize = text->fontSize;
+
 	// Get all unique characters that appeared in the text
-	std::vector<int> charactersCodes = stringToUnicodes(text->text);
-	std::set<int> characters (charactersCodes.begin(), charactersCodes.end());
+	std::vector<std::uint32_t> charactersCodes = stringToUnicodes(text->text);
+	std::set<std::uint32_t> characters
+		(charactersCodes.begin(), charactersCodes.end());
 
 	// Get glyph data for this style
 	auto &data = glyphCache
 		[text->style.fontFamily]
-		[text->style.fontSize]
+		[text->fontSize]
 		[text->style.decoration]
 		[text->style.outline];
 
 	// Get new characters not yet cached with the given style configuration
-	std::vector<int> newCharacters;
+	std::vector<std::uint32_t> newCharacters;
 	for (auto character : characters) {
-		if (Contains(data, character))
+		if (data.contains(character))
 			continue;
 
 		newCharacters.emplace_back(character);
 	}
 
 	// Create glyphs for the new characters
-	addGlyphs(newCharacters, text->style);
+	addGlyphs(newCharacters, text->style, text->fontSize);
 
 	// Check and deal with text wrapping
 	if (text->style.wrapWidth > 0) {
-		charactersCodes = wrapText(charactersCodes, text->style);
+		charactersCodes = wrapText(charactersCodes, text->style, text->fontSize);
 	}
 
 	// Update the formated text content
-	text->content = std::string(charactersCodes.begin(), charactersCodes.end());
+	text->content = charactersCodes;
 
 	// Update the text's information (size/bounding box)
-	Rectangle bbox = getTextBoundingBox(charactersCodes, text->style);
-	SetSize(text_, bbox.width, bbox.height);
+	Rectangle bbox = getTextBoundingBox(charactersCodes, text->style,
+			text->fontSize);
+	SetSize(text_, bbox.width / g_scale.displayScale.x,
+			bbox.height / g_scale.displayScale.y);
 
 	return newCharacters.size();
 }
 
-void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
+/**
+ * Calculates the closest multiple of `n` to `x`.
+ */
+static int ClosestMultiple (const int n, int x)
+{
+	if (x < n)
+		return n;
+
+	x += n / 2;
+	x -= x % n;
+
+	return x;
+}
+
+void TextManager::preBatch (Entity text_)
+{
+	auto text = g_registry.try_get<Components::Text>(text_);
+	ZEN_ASSERT(text, "The entity has no 'Text' component.");
+
+	if (g_scale.scaleMode != SCALE_MODE::RESIZE &&
+			text->lastDisplayScale != g_scale.displayScale.x
+	) {
+		text->fontSize = text->style.fontSize * g_scale.displayScale.x;
+
+		if (text->style.baseSize > 0) {
+			text->fontSize =
+				ClosestMultiple(text->style.baseSize, text->fontSize);
+		}
+
+		// Save the current display size
+		text->lastDisplayScale = g_scale.displayScale.x;
+
+		if (text->fontSize != text->lastFontSize)
+			scanText(text_);
+	}
+}
+
+void TextManager::addGlyphs (std::vector<std::uint32_t> characters, TextStyle style,
+		int fontSize)
 {
 	// Check if the requested font is already loaded
-	if (!Contains(fonts, style.fontFamily)) {
+	if (!fonts.contains(style.fontFamily)) {
 		MessageError("There are no loaded fonts with the key: ", style.fontFamily);
 		return;
 	}
+
+	if (fontSize < 0)
+		fontSize = style.fontSize;
 
 	FT_Face face = fonts[style.fontFamily];
 
 	// Get the font atlas (Created automatically if non existent)
 	FontAtlasData &atlas = fontsAtlas
 		[style.fontFamily]
-		[style.fontSize]
+		[fontSize]
 		[style.decoration]
 		[style.outline];
 
@@ -159,7 +207,7 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 	}
 
 	// Auto width, set height
-	FT_Set_Pixel_Sizes(face, 0, style.fontSize);
+	FT_Set_Pixel_Sizes(face, 0, fontSize);
 
 	// Save the line height of this font
 	if (atlas.lineSpacing < 0)
@@ -168,10 +216,10 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 	// Create a glyph for each character
 	std::vector<Glyph*> glyphs;
 
-	for (int character : characters) {
+	for (std::uint32_t character : characters) {
 		Glyph &glyph = glyphCache
 			[style.fontFamily]
-			[style.fontSize]
+			[fontSize]
 			[style.decoration]
 			[style.outline]
 			[character];
@@ -193,8 +241,8 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 		glyph.bearingX = face->glyph->metrics.horiBearingX / 64;
 		glyph.bearingY = face->glyph->metrics.horiBearingY / 64;
 
-		glyph.ascender = face->ascender / 64;
-		glyph.descender = face->descender / 64;
+		glyph.ascender = face->size->metrics.ascender / 64;
+		glyph.descender = face->size->metrics.descender / 64;
 
 		glyphs.push_back(&glyph);
 	}
@@ -274,6 +322,8 @@ void TextManager::addGlyphs (std::vector<int> characters, TextStyle style)
 	if (atlas.texture)
 		g_renderer.deleteTexture(atlas.texture);
 
+	// Here min/mag filters do not matter, as glyphs never get scaled, only
+	// regenerated at new sizes.
 	atlas.texture = g_renderer.createTexture2D(0, GL_LINEAR, GL_LINEAR,
 			GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_RGBA, atlas.surface);
 
@@ -492,13 +542,13 @@ int TextManager::packGlyphs (std::vector<Glyph*> *glyphs,
 
 	// Loop over all the glyphs
 	for (auto glyph : *glyphs) {
-		int yPos = 0;
+		int yPos = GLYPH_PADDING_Y;
 		bool done = false;
 		int i = -1;
 
 		while (!done) {
 			i++;
-			if (i > (int)(atlas->rows.size() - 1))
+			if (i > static_cast<int>(atlas->rows.size() - 1))
 				atlas->rows.emplace_back();
 
 			auto &row = atlas->rows[i];
@@ -526,11 +576,11 @@ int TextManager::packGlyphs (std::vector<Glyph*> *glyphs,
 			}
 
 			// This is the position of the glyph
-			glyph->cacheX = row.width;
+			glyph->cacheX = row.width + GLYPH_PADDING_X;
 			glyph->cacheY = yPos;
 
 			// Update the row's width
-			row.width += glyph->cacheW;
+			row.width += glyph->cacheW + GLYPH_PADDING_X;
 
 			// Save the largest height of the new row
 			if (glyph->cacheH > row.largestHeight)
@@ -548,9 +598,9 @@ bool TextManager::sortGlyphsByHeight(Glyph *a, Glyph *b) {
 	return (a->cacheH < b->cacheH);
 }
 
-std::vector<int> TextManager::stringToUnicodes (std::string text)
+std::vector<std::uint32_t> TextManager::stringToUnicodes (std::string text)
 {
-	std::vector<int> characters;
+	std::vector<std::uint32_t> characters;
 
 	for (size_t i = 0; i < text.length();) {
 		int cplen = 1;
@@ -564,9 +614,10 @@ std::vector<int> TextManager::stringToUnicodes (std::string text)
 		if ((i + cplen) > text.length())
 			cplen = 1;
 
-		unsigned int c = 0;
-		for (int j = 0; j < cplen; j++) {
-			unsigned char ch = text[i + j];
+		std::uint32_t c = 0;
+		//for (int j = 0; j < cplen; j++) {
+		for (int j = cplen-1; j >= 0; j--) {
+			std::uint8_t ch = text[i + j];
 			c <<= 8;
 			c |= ch;
 		}
@@ -579,8 +630,12 @@ std::vector<int> TextManager::stringToUnicodes (std::string text)
 	return characters;
 }
 
-Rectangle TextManager::getTextBoundingBox (std::vector<int> &characters, TextStyle &style)
+Rectangle TextManager::getTextBoundingBox (std::vector<std::uint32_t> &characters,
+		TextStyle &style, int fontSize)
 {
+	if (fontSize < 0)
+		fontSize = style.fontSize;
+
 	Rectangle bbox {0., 0., 0., 0.};
 	int lineWidth = 0;
 
@@ -588,7 +643,7 @@ Rectangle TextManager::getTextBoundingBox (std::vector<int> &characters, TextSty
 	if (style.lineSpacing < 0) {
 		auto &atlas = fontsAtlas
 			[style.fontFamily]
-			[style.fontSize]
+			[fontSize]
 			[style.decoration]
 			[style.outline];
 
@@ -610,7 +665,7 @@ Rectangle TextManager::getTextBoundingBox (std::vector<int> &characters, TextSty
 		} else {
 			auto &glyph = glyphCache
 				[style.fontFamily]
-				[style.fontSize]
+				[fontSize]
 				[style.decoration]
 				[style.outline]
 				[character];
@@ -623,19 +678,28 @@ Rectangle TextManager::getTextBoundingBox (std::vector<int> &characters, TextSty
 	if (bbox.width < lineWidth)
 		bbox.width = lineWidth;
 
+	/*
+	// Adjust bounding box according to the scale mode
+	bbox.width /= g_scale.displayScale.x;
+	bbox.height /= g_scale.displayScale.y;
+	*/
+
 	return bbox;
 }
 
 std::vector<Rectangle> TextManager::getLinesBoundingBox (
-		std::vector<int> &characters, TextStyle &style)
+		std::vector<std::uint32_t> &characters, TextStyle &style, int fontSize)
 {
+	if (fontSize < 0)
+		fontSize = style.fontSize;
+
 	std::vector<Rectangle> linesBbox;
 
 	int lineSpacing;
 	if (style.lineSpacing < 0) {
 		auto &atlas = fontsAtlas
 			[style.fontFamily]
-			[style.fontSize]
+			[fontSize]
 			[style.decoration]
 			[style.outline];
 
@@ -654,7 +718,7 @@ std::vector<Rectangle> TextManager::getLinesBoundingBox (
 		} else {
 			auto &glyph = glyphCache
 				[style.fontFamily]
-				[style.fontSize]
+				[fontSize]
 				[style.decoration]
 				[style.outline]
 				[character];
@@ -666,27 +730,31 @@ std::vector<Rectangle> TextManager::getLinesBoundingBox (
 	return linesBbox;
 }
 
-std::vector<int> TextManager::wrapText (std::vector<int> text, TextStyle style)
+std::vector<std::uint32_t> TextManager::wrapText (std::vector<std::uint32_t> text,
+		TextStyle style, int fontSize)
 {
 	if (style.wrapWidth <= 0)
 		return text;
 
-	std::vector<int> wrappedText;
-	std::vector<int> word;
+	if (fontSize < 0)
+		fontSize = style.fontSize;
+
+	std::vector<std::uint32_t> wrappedText;
+	std::vector<std::uint32_t> word;
 	int width = 0;
 	bool previouslyBlank = false;
 
-	std::vector<int> nonWordCharacters {' ', '\t', '-'};
-	std::vector<int> blankCharacters {' ', '\t'};
+	std::vector<std::uint32_t> nonWordCharacters {' ', '\t', '-'};
+	std::vector<std::uint32_t> blankCharacters {' ', '\t'};
 
 	auto &glyphData = glyphCache
 		[style.fontFamily]
-		[style.fontSize]
+		[fontSize]
 		[style.decoration]
 		[style.outline];
 
 	for (size_t i = 0; i < text.size(); i++) {
-		int character = text[i];
+		std::uint32_t character = text[i];
 
 		// Gather characters that form a single word
 		if (!Contains(nonWordCharacters, character)) {
@@ -718,7 +786,7 @@ std::vector<int> TextManager::wrapText (std::vector<int> text, TextStyle style)
 				// wrap width
 				if (style.advancedWrap && wordWidth > style.wrapWidth) {
 					wordWidth = 0;
-					std::vector<int> brokenWord;
+					std::vector<std::uint32_t> brokenWord;
 					for (int c : word) {
 						brokenWord.emplace_back(c);
 						wordWidth += glyphData[c].advanceX;
@@ -750,11 +818,11 @@ std::vector<int> TextManager::wrapText (std::vector<int> text, TextStyle style)
 		return wrappedText;
 
 	// Remove white spaces around newlines (\n)
-	std::vector<int> buffer;
-	std::vector<int> blankBuffer;
+	std::vector<std::uint32_t> buffer;
+	std::vector<std::uint32_t> blankBuffer;
 	bool start = true;
 	bool ignore = false;
-	for (int character : wrappedText) {
+	for (std::uint32_t character : wrappedText) {
 		// Ignore characters from start of text
 		if (start) {
 			if (Contains(blankCharacters, character))

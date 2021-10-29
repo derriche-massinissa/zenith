@@ -135,7 +135,6 @@ void Pipeline::setShader (Shader *shader, bool setAttributes)
 	}
 }
 
-
 Shader* Pipeline::getShaderByName (std::string name)
 {
 	return shaders[name].get();
@@ -203,7 +202,6 @@ void Pipeline::setShadersFromConfig (PipelineConfig config)
 		currentShader = shaders.at(first).get();
 }
 
-
 int Pipeline::setGameObject (Entity gameObject)
 {
 	auto frame = g_registry.try_get<Components::Frame>(GetFrame(gameObject));
@@ -214,12 +212,10 @@ int Pipeline::setGameObject (Entity gameObject)
 	return currentUnit;
 }
 
-
 bool Pipeline::shouldFlush (int amount)
 {
 	return (vertexCount + amount > vertexCapacity);
 }
-
 
 void Pipeline::resize (int width_, int height_)
 {
@@ -235,7 +231,8 @@ void Pipeline::resize (int width_, int height_)
 		target.resize(g_window.width(), g_window.height());
 	}
 
-	setProjectionMatrix(width, height);
+	//setProjectionMatrix(width, height);
+	setProjectionMatrix(g_window.width(), g_window.height());
 
 	emit("resize", width, height);
 
@@ -247,7 +244,8 @@ void Pipeline::setProjectionMatrix (int width_, int height_)
 	projectionWidth = width_;
 	projectionHeight = height_;
 
-	projectionMatrix = glm::ortho(0.f, (float)width_, (float)height_, 0.f);
+	projectionMatrix = glm::ortho(0.f, static_cast<float>(width_),
+			static_cast<float>(height_), 0.f);
 
 	std::string name = "uProjectionMatrix";
 
@@ -264,6 +262,7 @@ void Pipeline::setProjectionMatrix (int width_, int height_)
 
 void Pipeline::updateProjectionMatrix ()
 {
+	// THIS FIX THIS!!!!!!!!!!!!!
 	double globalWidth_ = g_scale.gameSize.width;//g_renderer.projectionWidth;
 	double globalHeight_ = g_scale.gameSize.height;//g_renderer.projectionHeight;
 
@@ -565,8 +564,11 @@ bool Pipeline::batchTri (Entity gameObject, double x0, double y0, double x1,
 void Pipeline::drawFillRect (int x, int y, int width, int height,
 		int color, double alpha, GL_texture texture, bool flipUV)
 {
-	double xw = x + width;
-	double yh = y + height;
+	x = x * g_scale.displayScale.x + g_scale.displayOffset.x;
+	y = y * g_scale.displayScale.y + g_scale.displayOffset.y;
+
+	double xw = x + width * g_scale.displayScale.x;
+	double yh = y + height * g_scale.displayScale.y;
 
 	int unit = (texture > 0) ? setTexture2D(texture) : -1;
 

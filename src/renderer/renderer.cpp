@@ -707,16 +707,19 @@ void Renderer::resize (int width_, int height_)
 	width = width_;
 	height = height_;
 
-	setProjectionMatrix(width, height);
-
-	glViewport(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
-
-	glScissor(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
-
 	defaultScissor[0] = g_scale.displayOffset.x;
 	defaultScissor[1] = g_scale.displayOffset.y;
-	defaultScissor[2] = width;
-	defaultScissor[3] = height;
+	defaultScissor[2] = g_scale.displaySize.width;
+	defaultScissor[3] = g_scale.displaySize.height;
+
+	//setProjectionMatrix(width, height);
+	setProjectionMatrix(g_window.width(), g_window.height());
+
+	//glViewport(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
+	glViewport(0, 0, g_window.width(), g_window.height());
+
+	//glScissor(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
+	glScissor(defaultScissor[0], defaultScissor[1], defaultScissor[2], defaultScissor[3]);
 
 	emit("resize", static_cast<int>(g_scale.gameSize.width),
 			static_cast<int>(g_scale.gameSize.height));
@@ -733,7 +736,8 @@ void Renderer::setProjectionMatrix (int width_, int height_)
 		projectionWidth = width_;
 		projectionHeight = height_;
 
-		projectionMatrix = glm::ortho(0.f, (float)width_, (float)height_, 0.f);
+		projectionMatrix = glm::ortho(0.f, static_cast<float>(width_),
+				static_cast<float>(height_), 0.f);
 	}
 }
 
@@ -742,7 +746,8 @@ void Renderer::resetProjectionMatrix ()
 	projectionWidth = width;
 	projectionHeight = height;
 
-	projectionMatrix = glm::ortho(0.f, (float)width, (float)height, 0.f);
+	projectionMatrix = glm::ortho(0.f, static_cast<float>(width),
+			static_cast<float>(height), 0.f);
 }
 
 void Renderer::flush ()
@@ -843,7 +848,8 @@ bool Renderer::hasActiveStencilMask ()
 
 void Renderer::resetViewport ()
 {
-	glViewport(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
+	//glViewport(g_scale.displayOffset.x, g_scale.displayOffset.y, width, height);
+	glViewport(0, 0, g_window.width(), g_window.height());
 }
 
 bool Renderer::setBlendMode (int modeId_, bool force_)

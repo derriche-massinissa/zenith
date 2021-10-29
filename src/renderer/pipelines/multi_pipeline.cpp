@@ -198,8 +198,17 @@ void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
 		spriteMatrix.f -= GetScrollY(camera) * GetScrollFactorY(gameObject);
 	}
 
+	// Adjust for scale mode
+	ApplyITRS(&calcMatrix,
+			g_scale.displayOffset.x, g_scale.displayOffset.y,
+			0,
+			g_scale.displayScale.x, g_scale.displayScale.y
+			);
+
+	// Multiply by the camera matrix
+	Multiply(&calcMatrix, camMatrix);
+
 	// Multiply by the sprite matrix, store result in calcMatrix
-	calcMatrix = camMatrix;
 	Multiply(&calcMatrix, spriteMatrix);
 
 	double xw = x + frameWidth;
@@ -223,10 +232,12 @@ void MultiPipeline::batchSprite (Entity gameObject, Entity camera,
 		   r = std::max({tx0, tx1, tx2, tx3}),
 		   t = std::min({ty0, ty1, ty2, ty3}),
 		   b = std::max({ty0, ty1, ty2, ty3}),
-		   w = g_scale.gameSize.width,
-		   h = g_scale.gameSize.height;
+		   L = g_scale.displayOffset.x,
+		   T = g_scale.displayOffset.y,
+		   R = L + g_scale.displaySize.width,
+		   B = T + g_scale.displaySize.height;
 
-	if (l > w || r < 0 || t > h || b < 0) {
+	if (l > R || r < L || t > B || b < T) {
 		// Skip rendering this object if it is completely out of the screen
 		return;
 	}
@@ -373,8 +384,17 @@ void MultiPipeline::batchTexture (
 		spriteMatrix.f -= GetScrollY(camera) * scrollFactorY;
 	}
 
+	// Adjust for scale mode
+	ApplyITRS(&calcMatrix,
+			g_scale.displayOffset.x, g_scale.displayOffset.y,
+			0,
+			g_scale.displayScale.x, g_scale.displayScale.y
+			);
+
+	// Multiply by the camera matrix
+	Multiply(&calcMatrix, camMatrix);
+
 	// Multiply by the sprite matrix, store result in calcMatrix
-	calcMatrix = camMatrix;
 	Multiply(&calcMatrix, spriteMatrix);
 
 	bool roundPixels = GetRoundPixels(camera);
@@ -461,6 +481,8 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 {
 	g_renderer.pipelines.set(name, textEntity);
 
+	g_text.preBatch(textEntity);
+
 	auto [text, position, origin, size] = g_registry.try_get<Components::Text,
 		 Components::Position, Components::Origin, Components::Size>(textEntity);
 	ZEN_ASSERT(text, "The entity has no 'Text' component.");
@@ -470,26 +492,28 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 		// Nothing to see, so abort early
 		return;
 
+	auto &scaleMatrix = tempMatrix3;
 	auto &camMatrix = tempMatrix1;
 	auto &textMatrix = tempMatrix2;
 
 	// Get the glyph atlas for this style
 	FontAtlasData &atlas = g_text.fontsAtlas
-		[text->style.fontFamily]
-		[text->style.fontSize]
-		[text->style.decoration]
-		[text->style.outline];
+		.at(text->style.fontFamily)
+		.at(text->fontSize)
+		.at(text->style.decoration)
+		.at(text->style.outline);
 
 	// Text color (Tint)
 	Color textColor;
 	SetHex(&textColor, text->style.color);
 
 	// Convert all characters to unicodes
-	std::vector<int> characters = g_text.stringToUnicodes(text->content);
+	std::vector<std::uint32_t> characters = text->content;
+	//std::vector<std::uint32_t> characters = g_text.stringToUnicodes(text->content);
 
 	// Get the bounding box of each lines of this text object
 	std::vector<Rectangle> bboxes =
-		g_text.getLinesBoundingBox(characters, text->style);
+		g_text.getLinesBoundingBox(characters, text->style, text->fontSize);
 	size_t line = 0;
 
 	// Get the widest line
@@ -507,7 +531,8 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 	ApplyITRS(&textMatrix,
 		posX, posY,
 		GetRotation(textEntity),
-		1., 1.
+		// Text is already rendered at correct scale, so undo the scale mode's scale
+		1. / g_scale.displayScale.x, 1. / g_scale.displayScale.y
 	);
 	camMatrix = GetTransformMatrix(camera);
 
@@ -526,6 +551,15 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 		textMatrix.e -= GetScrollX(camera) * GetScrollFactorX(textEntity);
 		textMatrix.f -= GetScrollY(camera) * GetScrollFactorY(textEntity);
 	}
+
+	// Adjust for scale mode
+	ApplyITRS(&scaleMatrix,
+			g_scale.displayOffset.x, g_scale.displayOffset.y,
+			0,
+			g_scale.displayScale.x, g_scale.displayScale.y
+			);
+	Multiply(&scaleMatrix, camMatrix);
+	camMatrix = scaleMatrix;
 
 	// Multiply by the Text matrix
 	Multiply(&camMatrix, textMatrix);
@@ -546,6 +580,8 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 				(bboxes[0].width/2);
 			break;
 	}
+
+	int unit = g_renderer.setTexture2D(atlas.texture);
 
 	// Blit each character from the atlas
 	for (auto c : characters) {
@@ -580,11 +616,11 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 		}
 
 		auto &glyph = g_text.glyphCache
-			[text->style.fontFamily]
-			[text->style.fontSize]
-			[text->style.decoration]
-			[text->style.outline]
-			[c];
+			.at(text->style.fontFamily)
+			.at(text->fontSize)
+			.at(text->style.decoration)
+			.at(text->style.outline)
+			.at(c);
 
 		double u0 = static_cast<double>(glyph.cacheX) / atlas.width;
 		double v0 = static_cast<double>(glyph.cacheY) / atlas.height;
@@ -596,8 +632,7 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 		auto &glyphMatrix = tempMatrix3;
 		ApplyITRS(&glyphMatrix,
 				penX + glyph.bearingX,
-				penY - glyph.bearingY + atlas.lineSpacing - glyph.ascender + 2,
-				//			Gives better results with a margin of 2 pixels   ^
+				penY + glyph.ascender - glyph.bearingY,
 				0,
 				1., 1.
 		);
@@ -629,6 +664,10 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 		double tx3 = GetXRound(viewMatrix, xw, y, roundPixels);
 		double ty3 = GetYRound(viewMatrix, xw, y, roundPixels);
 
+		// Move on to the next character
+		penX += glyph.advanceX;
+
+		/*
 		double l = std::min({tx0, tx1, tx2, tx3}),
 			   r = std::max({tx0, tx1, tx2, tx3}),
 			   t = std::min({ty0, ty1, ty2, ty3}),
@@ -636,13 +675,24 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 		w = g_scale.gameSize.width;
 		h = g_scale.gameSize.height;
 
-		// Move on to the next character
-		penX += glyph.advanceX;
-
 		if (l > w || r < 0 || t > h || b < 0) {
 			// Skip rendering this character if it is completely out of the
 			// screen
 			continue;
+		}
+		*/
+		double l = std::min({tx0, tx1, tx2, tx3}),
+			   r = std::max({tx0, tx1, tx2, tx3}),
+			   t = std::min({ty0, ty1, ty2, ty3}),
+			   b = std::max({ty0, ty1, ty2, ty3}),
+			   L = g_scale.displayOffset.x,
+			   T = g_scale.displayOffset.y,
+			   R = L + g_scale.displaySize.width,
+			   B = T + g_scale.displaySize.height;
+
+		if (l > R || r < L || t > B || b < T) {
+			// Skip rendering this object if it is completely out of the screen
+			return;
 		}
 
 		double cameraAlpha = GetAlpha(camera);
@@ -659,8 +709,6 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 		if (shouldFlush(6))
 			flush();
 
-		int unit = g_renderer.setTexture2D(atlas.texture);
-
 		g_renderer.pipelines.preBatch(textEntity);
 
 		batchQuad(textEntity, tx0, ty0, tx1, ty1, tx2, ty2, tx3, ty3, u0, v0,
@@ -668,6 +716,23 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 
 		g_renderer.pipelines.postBatch(textEntity);
 	}
+
+	// FIXME Show debug atlas texture
+	/*
+	g_renderer.setBlendMode(BLEND_MODE::NORMAL);
+	double X = g_scale.displayOffset.x,
+		   Y = g_scale.displayOffset.y,
+		   XW = g_scale.displayOffset.x + atlas.width,
+		   YH = g_scale.displayOffset.y + atlas.height;
+	batchQuad(entt::null,
+			X, Y,
+			X, YH,
+			XW, YH,
+			XW, Y,
+			0, 0, 1, 1,
+			0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
+			0, atlas.texture, unit);
+	*/
 }
 
 }	// namespace Zen

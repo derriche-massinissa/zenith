@@ -40,6 +40,7 @@ void SetTextStyle (Entity entity, TextStyle style)
 	ZEN_ASSERT(text, "The entity has no 'Text' component");
 
 	text->style = style;
+	text->fontSize = style.fontSize;
 
 	// Update inner properties and cache of the text manager
 	g_text.scanText(entity);
@@ -75,6 +76,7 @@ void SetFontSize (Entity entity, int size)
 	ZEN_ASSERT(text, "The entity has no 'Text' component");
 
 	text->style.fontSize = size;
+	text->fontSize = size;
 
 	// Update inner properties and cache of the text manager
 	g_text.scanText(entity);

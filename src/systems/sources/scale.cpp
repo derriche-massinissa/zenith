@@ -19,21 +19,25 @@ extern entt::registry g_registry;
 
 void SetScale (Entity entity, double value)
 {
-	auto [scale, renderable] = g_registry.try_get<Components::Scale, Components::Renderable>(entity);
+	SetScale(entity, value, value);
+}
+
+void SetScale (Entity entity, double x, double y)
+{
+	auto [scale, renderable] = g_registry.try_get<Components::Scale,
+		 Components::Renderable>(entity);
 	ZEN_ASSERT(scale, "The entity has no 'Scale' component.");
 
-	scale->x = value;
-	scale->y = value;
+	scale->x = x;
+	scale->y = y;
 
 	if (!renderable) return;
 
-	if (value == 0)
-	{
+	if (x == 0 || y == 0) {
 		// Turn the scale flag to 0
 		renderable->flags &= ~FLAG;
 	}
-	else
-	{
+	else {
 		// Turn the scale flag to 1
 		renderable->flags |= FLAG;
 	}

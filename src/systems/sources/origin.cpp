@@ -19,7 +19,7 @@ namespace Zen {
 
 extern entt::registry g_registry;
 
-void SetDisplayOriginX (Entity entity, int value)
+void SetDisplayOriginX (Entity entity, double value)
 {
 	auto [origin, size] = g_registry.try_get<Components::Origin, Components::Size>(entity);
 	ZEN_ASSERT(origin && size, "The entity has no 'Origin' or 'Size' component.");
@@ -28,7 +28,7 @@ void SetDisplayOriginX (Entity entity, int value)
 	origin->x = value / size->width;
 }
 
-void SetDisplayOriginY (Entity entity, int value)
+void SetDisplayOriginY (Entity entity, double value)
 {
 	auto [origin, size] = g_registry.try_get<Components::Origin, Components::Size>(entity);
 	ZEN_ASSERT(origin && size, "The entity has no 'Origin' or 'Size' component.");
@@ -37,7 +37,7 @@ void SetDisplayOriginY (Entity entity, int value)
 	origin->y = value / size->height;
 }
 
-void SetDisplayOrigin (Entity entity, int x, int y)
+void SetDisplayOrigin (Entity entity, double x, double y)
 {
 	auto [origin, size] = g_registry.try_get<Components::Origin, Components::Size>(entity);
 	ZEN_ASSERT(origin && size, "The entity has no 'Origin' or 'Size' component.");
@@ -48,7 +48,7 @@ void SetDisplayOrigin (Entity entity, int x, int y)
 	origin->y = y / size->height;
 }
 
-void SetDisplayOrigin (Entity entity, int value = 0)
+void SetDisplayOrigin (Entity entity, double value)
 {
 	SetDisplayOrigin(entity, value, value);
 }

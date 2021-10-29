@@ -79,6 +79,18 @@ struct TextStyle
 	int wrapWidth = 0;
 
 	bool advancedWrap = false;
+
+	/**
+	 * The base size of this text object. If set to other than -1, this text's
+	 * font size will always be kept at the closest multiple of the baseSize.
+	 *
+	 * i.e. if set to 8 and size is 14, it gets set to 16.
+	 *
+	 * This is useful for pixel art fonts.
+	 *
+	 * @since 0.0.0
+	 */
+	int baseSize = -1;
 };
 
 }	// namespace Zen

@@ -5,6 +5,9 @@
  * @license		<a href="https://opensource.org/licenses/MIT">MIT License</a>
  */
 
+#ifndef ZEN_TEXT_MANAGER_HPP
+#define ZEN_TEXT_MANAGER_HPP
+
 #include <string>
 #include <map>
 #include <vector>
@@ -139,11 +142,19 @@ public:
 	int scanText (Entity text);
 
 	/**
+	 * @since 0.0.0
+	 *
+	 * @param text The text to pre batch.
+	 */
+	void preBatch (Entity text);
+
+	/**
 	 * @param characters A vector of characters to add as glyphs to the font cache.
 	 *
 	 * @since 0.0.0
 	 */
-	void addGlyphs (std::vector<int> characters, TextStyle style);
+	void addGlyphs (std::vector<std::uint32_t> characters, TextStyle style,
+			int fontSize = -1);
 
 	/**
 	 * @return The change in size multiplier of the glyph atlas surface.
@@ -152,14 +163,23 @@ public:
 
 	bool sortGlyphsByHeight(Glyph *a, Glyph *b);
 
-	std::vector<int> stringToUnicodes (std::string text);
+	std::vector<std::uint32_t> stringToUnicodes (std::string text);
 
-	Rectangle getTextBoundingBox (std::vector<int> &characters, TextStyle &style);
+	Rectangle getTextBoundingBox (std::vector<std::uint32_t> &characters,
+			TextStyle &style, int fontSize = -1);
 
-	std::vector<Rectangle> getLinesBoundingBox (std::vector<int> &characters,
-			TextStyle &style);
+	/**
+	 * Returns the bound box of each line of a wrapped text.
+	 * This is used to align text.
+	 *
+	 * @since 0.0.0
+	 */
+	std::vector<Rectangle> getLinesBoundingBox (
+			std::vector<std::uint32_t> &characters, TextStyle &style,
+			int fontSize = -1);
 
-	std::vector<int> wrapText (std::vector<int> text, TextStyle style);
+	std::vector<std::uint32_t> wrapText (std::vector<std::uint32_t> text,
+			TextStyle style,  int fontSize = -1);
 
 	/**
 	 * The freetype library instance.
@@ -187,7 +207,7 @@ public:
 		int, std::map<									// Font Size
 			TEXT_DECORATION, std::map<					// Style
 				int, std::map<							// Outline
-					int, Glyph							// Character
+					std::uint32_t, Glyph							// Character
 					>
 				>
 			>
@@ -216,3 +236,5 @@ public:
 };
 
 }	// namespace Zen
+
+#endif
