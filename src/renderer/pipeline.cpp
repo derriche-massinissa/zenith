@@ -561,7 +561,7 @@ bool Pipeline::batchTri (Entity gameObject, double x0, double y0, double x1,
 	return hasFlushed;
 }
 
-void Pipeline::drawFillRect (int x, int y, int width, int height,
+void Pipeline::drawFillRect (double x, double y, double width, double height,
 		int color, double alpha, GL_texture texture, bool flipUV)
 {
 	x = x * g_scale.displayScale.x + g_scale.displayOffset.x;

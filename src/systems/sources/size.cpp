@@ -26,40 +26,34 @@ extern entt::registry g_registry;
 double GetDisplayWidth (Entity entity)
 {
 	auto [scale, textured, size, zoom] = g_registry.try_get<Components::Scale, Components::Textured, Components::Size, Components::Zoom>(entity);
-	ZEN_ASSERT((scale && textured) || (size && zoom), "The entity has no 'Scale', 'Textured', 'Size' or 'Zoom' component.");
+	ZEN_ASSERT((scale && textured) || size, "The entity has no 'Scale', 'Textured', 'Size' or 'Zoom' component.");
 
-	if (scale && textured)
-	{
+	if (scale && textured) {
 		auto frame = g_registry.get<Components::Frame>(textured->frame);
 		return std::abs( scale->x * frame.data.sourceSize.width );
 	}
-	else if (size && zoom)
-	{
+	else if (size && zoom) {
 		return size->width / zoom->x;
 	}
-	else
-	{
-		return 0;
+	else {
+		return size->width;
 	}
 }
 
 double GetDisplayHeight (Entity entity)
 {
 	auto [scale, textured, size, zoom] = g_registry.try_get<Components::Scale, Components::Textured, Components::Size, Components::Zoom>(entity);
-	ZEN_ASSERT((scale && textured) || (size && zoom), "The entity has no 'Scale', 'Textured', 'Size' or 'Zoom' component.");
+	ZEN_ASSERT((scale && textured) || size, "The entity has no 'Scale', 'Textured', 'Size' or 'Zoom' component.");
 
-	if (scale && textured)
-	{
+	if (scale && textured) {
 		auto frame = g_registry.get<Components::Frame>(textured->frame);
 		return std::abs( scale->y * frame.data.sourceSize.height );
 	}
-	else if (size && zoom)
-	{
+	else if (size && zoom) {
 		return size->height / zoom->y;
 	}
-	else
-	{
-		return 0;
+	else {
+		return size->height;
 	}
 }
 

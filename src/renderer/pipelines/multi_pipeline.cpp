@@ -564,6 +564,34 @@ void MultiPipeline::batchText (Entity textEntity, Entity camera,
 	// Multiply by the Text matrix
 	Multiply(&camMatrix, textMatrix);
 
+	// Render the background if any
+	int bgc = text->style.backgroundColor;
+	if (bgc >= 0) {
+		// TODO add support for negative paddings
+		double lp = 0, rp = 0, tp = 0, bp = 0;
+
+		if (text->style.padding > 0) {
+			lp = text->style.padding;
+			rp = text->style.padding;
+			tp = text->style.padding;
+			bp = text->style.padding;
+		}
+
+		lp = (text->style.paddingLeft > 0) ? text->style.paddingLeft : lp;
+		rp = (text->style.paddingRight > 0) ? text->style.paddingRight : rp;
+		tp = (text->style.paddingTop > 0) ? text->style.paddingTop : tp;
+		bp = (text->style.paddingBottom > 0) ? text->style.paddingBottom : bp;
+
+		double x = posX - lp,
+			y = posY - tp,
+			w = size->width + rp + lp,
+			h = size->height + bp + tp;
+
+		// TODO implement correct color and extract alpha from bgc
+		// also in color class add detection for 0xff000000 4 color
+		drawFillRect(x, y, w, h, bgc, 1.0);
+	}
+
 	int penX, penY;
 	penX = penY = posX = posY = 0;
 

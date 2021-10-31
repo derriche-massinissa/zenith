@@ -67,10 +67,11 @@ struct TextStyle
 	 */
 	double lineSpacing = -1;
 
-	double paddingTop = 0,
-		   paddingLeft = 0,
-		   paddingBottom = 0,
-		   paddingRight = 0;
+	double padding = -1,
+		   paddingTop = -1,
+		   paddingLeft = -1,
+		   paddingBottom = -1,
+		   paddingRight = -1;
 
 	TEXT_ALIGNMENT alignment = TEXT_ALIGNMENT::LEFT;
 
