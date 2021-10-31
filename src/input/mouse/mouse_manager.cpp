@@ -10,6 +10,7 @@
 #include <SDL2/SDL_mouse.h>
 #include "../../window/window.hpp"
 #include "../input_manager.hpp"
+#include "../types/mouse_buttons.hpp"
 
 namespace Zen {
 
@@ -66,6 +67,30 @@ void MouseManager::onMouseUp (SDL_Event * const event_)
 	// Relative to window
 	tempEvent.y = event_->button.y;
 
+	// Buttons
+	switch (event_->button.button) {
+		case SDL_BUTTON_LEFT:
+			tempEvent.buttons &= MOUSE_BUTTONS::MASK_NOT_LEFT;
+			tempEvent.button = MOUSE_BUTTONS::LEFT;
+			break;
+		case SDL_BUTTON_RIGHT:
+			tempEvent.buttons &= MOUSE_BUTTONS::MASK_NOT_RIGHT;
+			tempEvent.button = MOUSE_BUTTONS::RIGHT;
+			break;
+		case SDL_BUTTON_MIDDLE:
+			tempEvent.buttons &= MOUSE_BUTTONS::MASK_NOT_MIDDLE;
+			tempEvent.button = MOUSE_BUTTONS::MIDDLE;
+			break;
+		case SDL_BUTTON_X1:
+			tempEvent.buttons &= MOUSE_BUTTONS::MASK_NOT_BACK;
+			tempEvent.button = MOUSE_BUTTONS::BACK;
+			break;
+		case SDL_BUTTON_X2:
+			tempEvent.buttons &= MOUSE_BUTTONS::MASK_NOT_FORWARD;
+			tempEvent.button = MOUSE_BUTTONS::FORWARD;
+			break;
+	}
+
 	// 1 (single-click), 2 (double-click)...
 	tempEvent.clicks = event_->button.clicks;
 
@@ -84,6 +109,30 @@ void MouseManager::onMouseDown (SDL_Event * const event_)
 	// Relative to window
 	tempEvent.y = event_->button.y;
 
+	// Buttons
+	switch (event_->button.button) {
+		case SDL_BUTTON_LEFT:
+			tempEvent.buttons |= MOUSE_BUTTONS::MASK_LEFT;
+			tempEvent.button = MOUSE_BUTTONS::LEFT;
+			break;
+		case SDL_BUTTON_RIGHT:
+			tempEvent.buttons |= MOUSE_BUTTONS::MASK_RIGHT;
+			tempEvent.button = MOUSE_BUTTONS::RIGHT;
+			break;
+		case SDL_BUTTON_MIDDLE:
+			tempEvent.buttons |= MOUSE_BUTTONS::MASK_MIDDLE;
+			tempEvent.button = MOUSE_BUTTONS::MIDDLE;
+			break;
+		case SDL_BUTTON_X1:
+			tempEvent.buttons |= MOUSE_BUTTONS::MASK_BACK;
+			tempEvent.button = MOUSE_BUTTONS::BACK;
+			break;
+		case SDL_BUTTON_X2:
+			tempEvent.buttons |= MOUSE_BUTTONS::MASK_FORWARD;
+			tempEvent.button = MOUSE_BUTTONS::FORWARD;
+			break;
+	}
+
 	// 1 (single-click), 2 (double-click)...
 	tempEvent.clicks = event_->button.clicks;
 
@@ -91,26 +140,6 @@ void MouseManager::onMouseDown (SDL_Event * const event_)
 
 	g_input.onMouseDown(tempEvent);
 }
-
-/*
-void MouseManager::onMouseOver ()
-{
-	tempEvent.reset();
-
-	tempEvent.timestamp = SDL_GetTicks();
-
-	g_input.setWindowOver(tempEvent);
-}
-
-void MouseManager::onMouseOut ()
-{
-	tempEvent.reset();
-
-	tempEvent.timestamp = SDL_GetTicks();
-
-	g_input.setWindowOut(tempEvent);
-}
-*/
 
 void MouseManager::onMouseWheel (SDL_Event * const event_)
 {

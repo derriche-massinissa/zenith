@@ -8,6 +8,7 @@
 #include "pointer.hpp"
 
 #include <cmath>
+#include "types/mouse_buttons.hpp"
 #include "../math/interpolation/smooth_step_interpolation.hpp"
 #include "../math/fuzzy/fuzzy_equal.hpp"
 #include "../math/angle/between.hpp"
@@ -199,52 +200,52 @@ bool Pointer::noButtonDown ()
 
 bool Pointer::leftButtonDown ()
 {
-	return (buttons & 0b00001) ? true : false;
+	return (buttons & MOUSE_BUTTONS::MASK_LEFT) ? true : false;
 }
 
 bool Pointer::rightButtonDown ()
 {
-	return (buttons & 0b00010) ? true : false;
+	return (buttons & MOUSE_BUTTONS::MASK_RIGHT) ? true : false;
 }
 
 bool Pointer::middleButtonDown ()
 {
-	return (buttons & 0b00100) ? true : false;
+	return (buttons & MOUSE_BUTTONS::MASK_MIDDLE) ? true : false;
 }
 
 bool Pointer::backButtonDown ()
 {
-	return (buttons & 0b01000) ? true : false;
+	return (buttons & MOUSE_BUTTONS::MASK_BACK) ? true : false;
 }
 
 bool Pointer::forwardButtonDown ()
 {
-	return (buttons & 0b10000) ? true : false;
+	return (buttons & MOUSE_BUTTONS::MASK_FORWARD) ? true : false;
 }
 
 bool Pointer::leftButtonReleased ()
 {
-	return (button == 0 && !isDown);
+	return (button == MOUSE_BUTTONS::LEFT && !isDown);
 }
 
 bool Pointer::rightButtonReleased ()
 {
-	return (button == 2 && !isDown);
+	return (button == MOUSE_BUTTONS::RIGHT && !isDown);
 }
 
 bool Pointer::middleButtonReleased ()
 {
-	return (button == 1 && !isDown);
+	return (button == MOUSE_BUTTONS::MIDDLE && !isDown);
 }
 
 bool Pointer::backButtonReleased ()
 {
-	return (button == 3 && !isDown);
+	return (button == MOUSE_BUTTONS::BACK && !isDown);
 }
 
 bool Pointer::forwardButtonReleased ()
 {
-	return (button == 4 && !isDown);
+	return (button == MOUSE_BUTTONS::FORWARD && !isDown);
 }
 
 double Pointer::getDistance ()

@@ -28,8 +28,10 @@ pkg_check_modules(FT REQUIRED freetype2)
 
 # Source files
 set(zenith_SRCS
+
 	src/text/text_manager.cpp
 	src/renderer/pipelines/multi_pipeline.cpp
+	src/renderer/pipeline.cpp
 	src/systems/sources/text.cpp
 
 	src/cameras/2d/systems/camera.cpp
@@ -43,7 +45,7 @@ set(zenith_SRCS
 
 
 	src/renderer/blend_modes.cpp
-	src/renderer/pipeline.cpp
+
 	src/renderer/pipeline_manager.cpp
 	src/renderer/render_target.cpp
 	src/renderer/renderer.cpp
