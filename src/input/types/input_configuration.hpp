@@ -16,7 +16,7 @@ namespace Zen {
 
 struct InputConfiguration
 {
-	Shape hitArea;
+	Shape hitArea {};
 
 	HitCallback hitAreaCallback = nullptr;
 
@@ -26,7 +26,7 @@ struct InputConfiguration
 
 	bool useHandCursor = false;
 
-	std::string cursor;
+	std::string cursor = "";
 
 	bool pixelPerfect = false;
 

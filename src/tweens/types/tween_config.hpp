@@ -159,7 +159,7 @@ struct TweenConfig
 	 *
 	 * @since 0.0.0
 	 */
-	std::vector<Entity> targets;
+	std::vector<Entity> targets {};
 
 	/**
 	 * What the tween value should start from.
@@ -352,7 +352,7 @@ struct TweenConfig
 	/**
 	 * @since 0.0.0
 	 */
-	std::vector<TweenEntryConfig> entries;
+	std::vector<TweenEntryConfig> entries {};
 };
 
 }	// namespace Zen

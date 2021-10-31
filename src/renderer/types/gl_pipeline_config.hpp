@@ -18,13 +18,13 @@
 namespace Zen {
 
 struct PipelineConfig {
-	std::string name;
+	std::string name = "";
 
 	GLenum topology = GL_TRIANGLES;
 
-	std::string vertShader;
+	std::string vertShader = "";
 
-	std::string fragShader;
+	std::string fragShader = "";
 
 	int batchSize = 4096;
 
@@ -38,7 +38,7 @@ struct PipelineConfig {
 	/**
 	 * @since 0.0.0
 	 */
-	std::vector<float> vertices;
+	std::vector<float> vertices {};
 
 	/**
 	 * A vector of shader attribute data. All shaders bound to this pipeline must
@@ -46,9 +46,9 @@ struct PipelineConfig {
 	 *
 	 * @since 0.0.0
 	 */
-	std::vector<PipelineAttributeConfig> attributes;
+	std::vector<PipelineAttributeConfig> attributes {};
 
-	std::vector<PipelineShaderConfig> shaders;
+	std::vector<PipelineShaderConfig> shaders {};
 
 	/**
 	 * Force the shader to use just a single sampler2D?
@@ -57,7 +57,7 @@ struct PipelineConfig {
 	 */
 	bool forceZero = false;
 
-	std::vector<RenderTargetConfig> renderTarget;
+	std::vector<RenderTargetConfig> renderTarget {};
 };
 
 }	// namespace Zen
