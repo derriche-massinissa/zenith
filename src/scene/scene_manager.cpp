@@ -34,6 +34,10 @@ void SceneManager::boot (
 	}
 	// By the end of the loop, the game config's sceneFactory is empty.
 
+	g_event.on("post-render", [this] (Uint32, Uint32) {
+			isProcessing = false;
+	});
+
 	g_event.once("ready", &SceneManager::bootQueue, this);
 }
 
@@ -161,7 +165,7 @@ Scene* SceneManager::add (
 	{
 		pending.emplace_back(key_, std::move(scene_), autoStart_, data_);
 
-		bootData.emplace(key_, SceneConfig{0, nullptr, false, data_});
+		bootData.emplace(key_, SceneConfig{"", nullptr, false, data_});
 
 		return nullptr;
 	}
