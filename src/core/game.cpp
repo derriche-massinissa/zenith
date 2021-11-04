@@ -163,11 +163,10 @@ void Game::headlessStep (Uint32 time_, Uint32 delta_)
 	// Managers
 	g_event.emit("pre-step", time_, delta_);
 	g_event.emit("step", time_, delta_);
+
 	g_scene.update(time_, delta_);
 	g_audio.update(time_, delta_);
 
-	// Scenes
-	g_scene.update(time_, delta_);
 	g_event.emit("post-step", time_, delta_);
 
 	// Render
